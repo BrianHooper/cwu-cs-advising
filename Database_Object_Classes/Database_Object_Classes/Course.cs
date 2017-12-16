@@ -7,13 +7,17 @@ namespace Database_Object_Classes
     public class Course : Database_Object
     {
         // Class fields:
+        /// <summary>Number of quarters per year constant.</summary>
+        private const int    i_numberQuarters = 4;
+
         /// <summary>Name of this course.</summary>
         private string       s_name;
 
         /// <summary>Prerequisites for this course.</summary>
         private List<Course> l_preRequisites;
 
-        private bool[] ba_quartersOffered;
+        /// <summary>The quarters this course is offered, [0] = Winter, [3] = Fall.</summary>
+        private bool[]       ba_quartersOffered;
 
 
         // Constructors:
@@ -25,7 +29,7 @@ namespace Database_Object_Classes
         {
             this.s_name = s_name;
 
-            ba_quartersOffered = new bool[4];
+            ba_quartersOffered = new bool[i_numberQuarters];
 
             l_preRequisites = new List<Course>();
         } // end Default Constructor
@@ -54,15 +58,7 @@ namespace Database_Object_Classes
         /// <returns>A new Course object.</returns>
         public Course(string s_name, string s_ID, bool[] ba_quarters) : this(s_name, s_ID)
         {
-            if (ba_quarters.Length != 4)
-            {
-                throw new System.ArgumentException("Invalid Array size of ba_quarters passed to constructor.");
-            } // end if
-
-            for (int i = 0; i < 4; i++)
-            {
-                ba_quartersOffered[i] = ba_quarters[i];
-            } // end for
+            setQuarterOffered(ba_quarters);
         } // end Constructor
 
         /// <summary>Constructor which creates a Course object with a name, an ID, the given quarters it's offered, and the given prerequisites.</summary>
@@ -93,6 +89,7 @@ namespace Database_Object_Classes
             set
             {
                 s_name = value;
+                objectAltered();
             } // end set
         } // end Name
 
@@ -117,7 +114,7 @@ namespace Database_Object_Classes
 
         // QuartersOffered getters/setters:
         /// <summary>Checks whether this course is offered in the specified quarter.</summary>
-        /// <param name="i">The quarter to check.</param>
+        /// <param name="i">Index of the quarter to check.</param>
         /// <remarks>Quarter 0 is Winter, quarter 3 is fall.</remarks>
         /// <returns>True if offered, false if not offered.</returns>
         public bool isOffered(int i)
@@ -133,6 +130,7 @@ namespace Database_Object_Classes
         public void setQuarterOffered(int i, bool b_status)
         {
             ba_quartersOffered[i] = b_status;
+            objectAltered();
         } // end method setQuarterOffered
 
         /// <summary>Setter for quarters offered array of this course.</summary>
@@ -143,15 +141,16 @@ namespace Database_Object_Classes
         /// <exception cref="System.ArgumentException">This exception is thrown if the ba_quarters array is not size 4.</exception>
         public void setQuarterOffered(bool[] ba_quarters)
         {
-            if (ba_quarters.Length != 4)
+            if (ba_quarters.Length != i_numberQuarters)
             {
-                throw new System.ArgumentException("Invalid Array size of ba_quarters passed to constructor.");
+                throw new System.ArgumentException("Invalid Array size of ba_quarters passed to setQuarterOffered.");
             } // end if
 
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < i_numberQuarters; i++)
             {
                 ba_quartersOffered[i] = ba_quarters[i];
             } // end for
+            objectAltered();
         } // end method setQuarterOffered
 
 
@@ -198,6 +197,7 @@ namespace Database_Object_Classes
         public void clearPreRequisites()
         {
             l_preRequisites.Clear();
+            objectAltered();
         } // end method clearPreRequisites
 
     } // end Class Course 

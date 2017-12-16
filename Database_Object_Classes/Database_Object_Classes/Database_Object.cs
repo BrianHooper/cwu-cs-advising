@@ -30,6 +30,7 @@
             set
             {
                 s_ID = value;
+                objectAltered();
             } // end set 
         } // end ID
 
