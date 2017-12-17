@@ -1,10 +1,11 @@
 ﻿namespace Database_Object_Classes
 {
+
     public abstract class Database_Object
     {
         // Class fields:
         /// <summary>Write protection to maintain data integrity of this object.</summary>
-        private int    i_writeProtect;
+        private uint    ui_writeProtect;
 
         /// <summary>The unique identifier of this object.</summary>
         private string s_ID;
@@ -12,11 +13,11 @@
         
         // Getters/Setters:
         /// <summary>Getter for the write protect value of this object.</summary>
-        public int WP
+        public uint WP
         {
             get
             {
-                return i_writeProtect;
+                return ui_writeProtect;
             } // end get 
         } // end WP
 
@@ -27,9 +28,10 @@
             {
                 return s_ID;
             } // end get 
-            set
+            protected set
             {
                 s_ID = value;
+
                 objectAltered();
             } // end set 
         } // end ID
@@ -39,23 +41,22 @@
         /// <summary>Default Constructor. Initializes the write protect of this object to default.</summary>
         public Database_Object(string s_ID)
         {
-            i_writeProtect = 0;
-            this.s_ID = s_ID;
+            ui_writeProtect = 0;
+
+            ID = s_ID;
         } // end Default Constructor
 
 
         // Methods:
-        /// <summary>Updates the value of write protect of this object, either incrementing it, or resetting it to 1 if the max value is reached.</summary>
+        /// <summary>Updates the value of write protect of this object.</summary>
+        /// <remarks>If the uint.Max value is reached, the overflow will be ignored, and the write protect reset to 0.</remarks>
         protected void objectAltered()
         {
-            if (i_writeProtect == int.MaxValue)
+            // overflow will simply reset the counter to 0
+            unchecked
             {
-                i_writeProtect = 1;
-            } // end if
-            else
-            {
-                i_writeProtect++;
-            } // end else
+                ui_writeProtect++;
+            } // end unchecked
         } // end method objectAltered
     } // end Class Database_Object
 } // end Namespace Database_Object_Classes
