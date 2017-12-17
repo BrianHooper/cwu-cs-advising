@@ -1,42 +1,59 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Database_Object_Classes
+﻿namespace Database_Object_Classes
 {
+    /// <summary>Class storing the first and last name, student ID, catalog year, expected graduation quarter, and starting quarter of a student.</summary>
     public class Student : Database_Object
     {
-        /// <summary>The first name of this student.</summary>
-        private string s_fName;
-        /// <summary>The last name of this student.</summary>
-        private string s_lName;
+        /// <summary>The name of this student.</summary>
+        private Name    n_name;
 
         /// <summary>The quarter this student is expected to graduate.</summary>
         private Quarter q_expectedGraduation;
-
         /// <summary>The catalog year of this student.</summary>
-        private uint   ui_catalogYear;
+        private Quarter q_startingQuarter;
 
-        /// <summary>The quarter this student started at CWU. 0 = Winter, 3 = Fall.</summary>
-        private Season s_startingQuarter;
+        /// <summary>The number of credits this student has completed to date.</summary>
+        private uint    ui_creditsCompleted;
 
-        /// <summary>Creates a new student object with the specified name, ID, and starting quarter.</summary>
-        /// <param name="s_fName">First name of this student.</param>
-        /// <param name="s_lName">Last name of this student.</param>
+        /// <summary>Stores whether or not this student is a senior.</summary>
+        private bool    b_isSenior;
+        /// <summary>Stores whether or not this student is in the CS major.</summary>
+        private bool    b_inMajor;
+
+        /// <summary>Constructor which creates a new student object with the specified name, ID, and starting quarter.</summary>
+        /// <param name="n_name">The name of this student.</param>
         /// <param name="s_ID">Student ID of this student.</param>
         /// <param name="q_start">Quarter in which this student enrolled.</param>
-        public Student(string s_fName, string s_lName, string s_ID, Quarter q_start) : base(s_ID)
+        public Student(Name n_name, string s_ID, Quarter q_start) : base(s_ID)
         {
-            this.s_fName = s_fName;
-            this.s_lName = s_lName;
-            ui_catalogYear = q_start.Year;
-            s_startingQuarter = q_start.QuarterSeason;
+            this.n_name = new Name(n_name);
+            q_startingQuarter = new Quarter(q_start);
 
-            // default graduation time
-            q_expectedGraduation.QuarterSeason = Season.Spring;
-            q_expectedGraduation.Year = 0;
+            // default other variables
+            q_expectedGraduation = Quarter.DefaultQuarter;
+            b_inMajor = false;
+            b_isSenior = false;
         } // end Default Constructor
+
+        /// <summary>Getter/Setter for the status of whether this student is in the CS major.</summary>
+        public bool IsInMajor
+        {
+            get => b_inMajor;
+            set => b_inMajor = value;
+        } // end Major
+
+        /// <summary>Getter/Setter for the status of whether this student is a senior.</summary>
+        public bool IsSenior
+        {
+            get => b_isSenior;
+            set => b_isSenior = value;
+        } // end Senior
+   
+        /// <summary>Getter/Setter for the number of credits this student has completed.</summary>
+        public uint CreditsCompleted
+        {
+            get => ui_creditsCompleted;
+            set => ui_creditsCompleted = value;
+        } // end CreditsCompleted
+
     } // end Class Student
 } // end Namespace Database_Object_Classes
