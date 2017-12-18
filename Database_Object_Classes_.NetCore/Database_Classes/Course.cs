@@ -1,14 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace Database_Object_Classes
 {
     /// <summary>Class storing the name, ID, and prerequisits for a course.</summary>
-    public class Course : Database_Object 
+    public class Course : Database_Object, IComparable
     {
         // Class fields:
         /// <summary>Number of quarters per year constant.</summary>
-        private const int     i_NUMBERQUARTERS = 4;
+        private const uint    ui_NUMBERQUARTERS = 4;
 
         /// <summary>The number of credits this course is worth.</summary>
         private uint          ui_numberCredits;
@@ -25,6 +26,7 @@ namespace Database_Object_Classes
         /// <summary>Stores whether or not this quarter requires a student to be in the CS major to take it.</summary>
         private bool          b_requiresMajor;
 
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
         // Constructors:
         /// <summary>Default Constructor.</summary>
@@ -34,7 +36,7 @@ namespace Database_Object_Classes
             this.ui_numberCredits = 0;
             this.b_requiresMajor = false;
 
-            ba_quartersOffered = new bool[i_NUMBERQUARTERS];
+            ba_quartersOffered = new bool[ui_NUMBERQUARTERS];
 
             l_preRequisites = new List<Course>();
         } // end default Constructor
@@ -52,7 +54,7 @@ namespace Database_Object_Classes
             this.ui_numberCredits = ui_numberCredits;
             this.b_requiresMajor = b_requiresMajor;
 
-            ba_quartersOffered = new bool[i_NUMBERQUARTERS];
+            ba_quartersOffered = new bool[ui_NUMBERQUARTERS];
 
             l_preRequisites = new List<Course>();
         } // end Constructor
@@ -99,6 +101,19 @@ namespace Database_Object_Classes
         public Course(string s_name, string s_ID, uint ui_numberCredits, bool b_requiresMajor, bool[] ba_quarters, ICollection<Course> col_courses) 
             : this(s_name, s_ID, ui_numberCredits, b_requiresMajor, ba_quarters) => AddPreRequisite(col_courses);
 
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
+
+        // IComparable Implementation:
+        /// <summary>Comparer for Course class. Required for using List class.</summary>
+        /// <param name="obj">Object being compared to this object.</param>
+        /// <returns>-1 if this is less than other; 0 if this is = other; 1 if this is greater than other.</returns>
+        int IComparable.CompareTo(object obj)
+        {
+            Course c = (Course)obj;
+            return String.Compare(this.ID, c.ID);
+        } // end method CompareTo
+
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
         // General Getters/Setters:
         /// <summary>Getter/Setter for name of this course.</summary>
@@ -132,6 +147,7 @@ namespace Database_Object_Classes
             } // end set
         } // end RequiresMajor
 
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
         // QuartersOffered getters/setters:
         /// <summary>Checks whether this course is offered in the specified quarter.</summary>
@@ -163,12 +179,12 @@ namespace Database_Object_Classes
         /// <exception cref="System.ArgumentException">This exception is thrown if the ba_quarters array is not size 4.</exception>
         public void SetQuarterOffered(bool[] ba_quarters)
         {
-            if (ba_quarters.Length != i_NUMBERQUARTERS)
+            if (ba_quarters.Length != ui_NUMBERQUARTERS)
             {
                 throw new System.ArgumentException("Invalid Array size of ba_quarters passed to setQuarterOffered. Expected: 4; Actual: " + ba_quarters.Length);
             } // end if
 
-            for (int i = 0; i < i_NUMBERQUARTERS; i++)
+            for (int i = 0; i < ui_NUMBERQUARTERS; i++)
             {
                 ba_quartersOffered[i] = ba_quarters[i];
             } // end for
@@ -176,6 +192,7 @@ namespace Database_Object_Classes
             ObjectAltered();
         } // end method setQuarterOffered
 
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
         // Prerequisite setters:
         /// <summary>Adds the given Course to the prerequisites list of this Course object.</summary>
@@ -230,6 +247,5 @@ namespace Database_Object_Classes
 
             ObjectAltered();
         } // end method clearPreRequisites
-
     } // end Class Course 
 } // end Namespace Database_Object_Classes

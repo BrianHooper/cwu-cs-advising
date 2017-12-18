@@ -3,22 +3,27 @@
     /// <summary>Class storing the first and last name, student ID, catalog year, expected graduation quarter, and starting quarter of a student.</summary>
     public class Student : Database_Object
     {
+        // Class fields:
+        /// <summary>The number of credits this student has completed to date.</summary>
+        private uint ui_creditsCompleted;
+
+        /// <summary>Stores this student's GPA.</summary>
+        private double d_GPA;
+
         /// <summary>The name of this student.</summary>
         private Name    n_name;
 
-        /// <summary>The quarter this student is expected to graduate.</summary>
-        private Quarter q_expectedGraduation;
         /// <summary>The catalog year of this student.</summary>
         private Quarter q_startingQuarter;
+        /// <summary>The quarter this student is expected to graduate.</summary>
+        private Quarter q_expectedGraduation;
 
-        /// <summary>The number of credits this student has completed to date.</summary>
-        private uint    ui_creditsCompleted;
+        /// <summary>The academic standing of this student.</summary>
+        private AcademicStanding as_standing;
 
-        /// <summary>Stores whether or not this student is a senior.</summary>
-        private bool    b_isSenior;
-        /// <summary>Stores whether or not this student is in the CS major.</summary>
-        private bool    b_inMajor;
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
+        // Constructors:
         /// <summary>Constructor which creates a new student object with the specified name, ID, and starting quarter.</summary>
         /// <param name="n_name">The name of this student.</param>
         /// <param name="s_ID">Student ID of this student.</param>
@@ -30,24 +35,42 @@
 
             // default other variables
             q_expectedGraduation = Quarter.DefaultQuarter;
-            b_inMajor = false;
-            b_isSenior = false;
-        } // end Default Constructor
+            ui_creditsCompleted = 0;
+            as_standing.IsSenior = false;
+            as_standing.IsInMajor = false;
+            as_standing.Standing = false;
+            d_GPA = 0;
+        } // end Constructor
 
-        /// <summary>Getter/Setter for the status of whether this student is in the CS major.</summary>
-        public bool IsInMajor
+        /// <summary>Constructor for all fields.</summary>
+        /// <param name="n_name">This student's name.</param>
+        /// <param name="s_ID">This student's SID.</param>
+        /// <param name="q_start">The quarter in which this student started.</param>
+        /// <param name="ui_creditsCompleted">The number of credits this student has completed.</param>
+        /// <param name="d_GPA">This student's GPA.</param>
+        /// <param name="as_standing">This student's academic standing.</param>
+        public Student(Name n_name, string s_ID, Quarter q_start, uint ui_creditsCompleted, double d_GPA, AcademicStanding as_standing) : base(s_ID)
         {
-            get => b_inMajor;
-            set => b_inMajor = value;
-        } // end Major
+            this.n_name = new Name(n_name);
+            q_startingQuarter = new Quarter(q_start);
 
-        /// <summary>Getter/Setter for the status of whether this student is a senior.</summary>
-        public bool IsSenior
+            // default other variables
+            q_expectedGraduation = Quarter.DefaultQuarter;
+            this.ui_creditsCompleted = ui_creditsCompleted;
+            this.as_standing = new AcademicStanding(as_standing);
+            this.d_GPA = d_GPA;
+        } // end Constructor
+
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
+
+        // General Getters/Setters:
+        /// <summary>Getter/Setter for Expected Graduation</summary>
+        public Quarter ExpectedGraduation
         {
-            get => b_isSenior;
-            set => b_isSenior = value;
-        } // end Senior
-   
+            get => q_expectedGraduation;
+            set => q_expectedGraduation = new Quarter(value);
+        } // end ExpectedGraduation
+
         /// <summary>Getter/Setter for the number of credits this student has completed.</summary>
         public uint CreditsCompleted
         {
