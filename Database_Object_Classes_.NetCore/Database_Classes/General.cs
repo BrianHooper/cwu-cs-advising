@@ -99,6 +99,13 @@ namespace Database_Object_Classes
             s_lName = n_other.Last;
         }
 
+        /// <summary>Returns this name as a string.</summary>
+        /// <returns>The name in the format FirstName LastName.</returns>
+        public override string ToString()
+        {
+            return s_fName + " " +  s_lName;
+        }
+
     } // end structure Name
 
     /// <summary>Structure storing the credit requirements for a catalog.</summary>

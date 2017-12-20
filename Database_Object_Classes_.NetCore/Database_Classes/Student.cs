@@ -78,5 +78,12 @@
             set => ui_creditsCompleted = value;
         } // end CreditsCompleted
 
+        /// <summary>Getter/Setter for student name.</summary>
+        public Name Name
+        {
+            get => n_name;
+            set => n_name = new Name(value);
+        }
+
     } // end Class Student
 } // end Namespace Database_Object_Classes
