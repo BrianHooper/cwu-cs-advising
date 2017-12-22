@@ -60,6 +60,29 @@ namespace Database_Object_Classes
             s_quarter = q_other.QuarterSeason;
         }
 
+        /// <summary>For outputting Quarters to console.</summary>
+        /// <returns>A string representation of this quarter.</returns>
+        public override string ToString()
+        {
+            string name = "";
+            switch(s_quarter)
+            {
+                case (Season)0:
+                    name = "Winter";
+                    break;
+                case (Season)1:
+                    name = "Spring";
+                    break;
+                case (Season)2:
+                    name = "Summer";
+                    break;
+                case (Season)3:
+                    name = "Fall";
+                    break;
+            } // end switch
+            return name + " " + ui_year;
+        } // end method ToString
+
     } // end structure Quarter
 
     /// <summary>Structure storing first and last name of a person.</summary>

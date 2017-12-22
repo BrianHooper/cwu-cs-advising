@@ -1,4 +1,5 @@
 ﻿using System;
+using MySql.Data.MySqlClient;
 using Db4objects.Db4o;
 using Database_Object_Classes;
 using System.Collections.Generic;
@@ -7,23 +8,39 @@ namespace Database_Handler
 {
     class DatabaseHandler
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             //Test();
-            Student a = (Student)Retrieve("52345678", 'S');
-            if(a == null)
+            Student a = null;
+            try
+            {
+                a = (Student)Retrieve("42345678", 'S');
+            } // end try
+            catch (RetrieveError e)
+            {
+                Console.WriteLine(e.Message + " The value received was: " + e.Type);
+            } // end catch
+            catch (Exception e)
+            {
+                Console.WriteLine("Unknown Exception occured: \n" + e.Message);
+            } // end catch
+
+            if (a == null)
             {
                 Console.WriteLine("No such student.");
-            }
+            } // end if
             else
             {
-                Console.WriteLine("Student {0} has the ID 52345678", a.Name);
-            }
+                Console.WriteLine("Student {0} has the ID {1}.", a.Name, a.ID);
+                Console.WriteLine("This student's expected graduation is: {0}.", a.ExpectedGraduation.ToString());
+                Console.WriteLine("This student has completed {0} credits.", a.CreditsCompleted);
+                Console.WriteLine("This object's WP value is: {0}.", a.WP);
+            } // end else
             
 
 
             Console.WriteLine("Hello World!");
-        }
+        } // end Main
 
         private static object Retrieve(string s_ID, char c_type)
         {
@@ -38,59 +55,47 @@ namespace Database_Handler
                 case 'P':
                     return RetrieveStudentPlan(s_ID);
                 default:
-                    RetrieveErrorType(c_type);
-                    return null;
-            }
-        }
+                    throw new RetrieveError("Invalid character received by Retrieve method.", c_type);
+            } // end switch
+        } // end method Retrieve
 
 
         private static Database_Object RetrieveHelper(string s_ID, char c_type)
         {
-            switch (c_type)
+            try
             {
-                case 'S':
-                    IObjectContainer student_db = Db4oFactory.OpenFile("Students.db4o");
-                    try
-                    {
-                        Database_Object student = student_db.Query(delegate (Database_Object proto) { return proto.ID == s_ID; })[0];
-                        student_db.Close();
-                        return student;
-                    }
-                    catch (Exception)
-                    {
-                        student_db.Close();
-                        return null;
-                    }
-                case 'Y':
-                    IObjectContainer catalog_db = Db4oFactory.OpenFile("Catalogs.db4o");
-                    try
-                    {
-                        Database_Object catalog = catalog_db.Query(delegate (Database_Object proto) { return proto.ID == s_ID; })[0];
-                        catalog_db.Close();
-                        return catalog;
-                    }
-                    catch (Exception)
-                    {
-                        catalog_db.Close();
-                        return null;
-                    }
-                case 'C':
-                    IObjectContainer course_db = Db4oFactory.OpenFile("Courses.db4o");
-                    try
-                    { 
-                        Database_Object course = course_db.Query(delegate (Database_Object proto) { return proto.ID == s_ID; })[0];
-                        course_db.Close();
-                        return course;
-                    }   
-                    catch (Exception)
-                    {
-                        course_db.Close();
-                        return null;
-                    }
-            }
+                switch (c_type)
+                {
+                    case 'S':
+                        using (IObjectContainer db = Db4oFactory.OpenFile("Students.db4o"))
+                        {
+                                Database_Object student = db.Query(delegate (Database_Object proto) { return proto.ID == s_ID; })[0];
+                                db.Close();
+                                return student;
+                        } // end using
+                    case 'Y':
+                        using (IObjectContainer db = Db4oFactory.OpenFile("Catalogs.db4o"))
+                        {
+                                Database_Object catalog = db.Query(delegate (Database_Object proto) { return proto.ID == s_ID; })[0];
+                                db.Close();
+                                return catalog;
+                        } // end using
+                    case 'C':
+                        using (IObjectContainer db = Db4oFactory.OpenFile("Courses.db4o"))
+                        {
+                                Database_Object course = db.Query(delegate (Database_Object proto) { return proto.ID == s_ID; })[0];
+                                db.Close();
+                                return course;
+                        } // end using
+                } // end switch
+            } // end try
+            catch(Exception)
+            {
+                return null;
+            } // end catch
 
             return null;
-        }
+        } // end method RetrieveHelper
 
         static void TestData()
         {
@@ -104,7 +109,7 @@ namespace Database_Handler
                 db.Commit();
 
                 db.Close();
-            }
+            } // end using
 
             using (IObjectContainer db = Db4oFactory.OpenFile("Catalogs.db4o"))
             {
@@ -116,7 +121,7 @@ namespace Database_Handler
                 db.Commit();
 
                 db.Close();
-            }
+            } // end using
 
             using (IObjectContainer db = Db4oFactory.OpenFile("Courses.db4o"))
             {
@@ -131,24 +136,42 @@ namespace Database_Handler
                 db.Commit();
 
                 db.Close();
-            }
-        }
+            } // end using
+        } // end method TestData
 
         static void RetrieveErrorType(char c_type)
         {
             /// TODO
         }
-
         static object RetrieveStudentPlan(string s_ID)
         {
+            /// TODO
             return null;
         }
         static object RetrieveUserCredentials(string s_ID)
         {
+            /// TODO
             return null;
         }
 
+        private static MySqlConnection GetDBConnection(char c_type)
+        {
+            string s_connStr = "";
+            switch(c_type)
+            {
+                case 'U': /// TODO
+                    s_connStr = "server=<TBD>;user id=<TBD>;password=<TBD>;persistsecurityinfo=True;port=<TBD>;database=Credentials";
+                    break;
+                case 'P': /// TODO
+                    s_connStr = "server=<TBD>;user id=<TBD>;password=<TBD>;persistsecurityinfo=True;port=<TBD>;database=StudentPlan";
+                    break;
+            } // end switch
 
+            MySqlConnection connection = new MySqlConnection(s_connStr);
 
-    }
-}
+            connection.Open();
+
+            return connection;
+        } // end method GetDBConnection
+    } // end Class DatabaseHandler
+} // end namespace Database_Handler

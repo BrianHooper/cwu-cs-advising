@@ -228,6 +228,10 @@
             <summary>Copy Constructor for this structure.</summary>
             <param name="q_other">The Quarter to be copied.</param>
         </member>
+        <member name="M:Database_Object_Classes.Quarter.ToString">
+            <summary>For outputting Quarters to console.</summary>
+            <returns>A string representation of this quarter.</returns>
+        </member>
         <member name="T:Database_Object_Classes.Name">
             <summary>Structure storing first and last name of a person.</summary>
         </member>
