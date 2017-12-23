@@ -12,23 +12,7 @@ namespace Database_Object_Classes
         /// <summary>The unique identifier of this object.</summary>
         private string s_ID;
 
-        
-        // Getters/Setters:
-        /// <summary>Getter for the write protect value of this object.</summary>
-        public uint WP => ui_writeProtect;
-
-        /// <summary>Getter/Setter for the ID of this object. </summary>
-        public string ID
-        {
-            get => s_ID;
-            protected set
-            {
-                s_ID = value;
-
-                ObjectAltered();
-            } // end set 
-        } // end ID
-
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
         // Constructor:
         /// <summary>Default Constructor. Initializes the write protect of this object to default.</summary>
@@ -39,15 +23,24 @@ namespace Database_Object_Classes
             ID = s_ID;
         } // end Default Constructor
 
-        /// <summary>Equals operator for comparing two Database Objects.</summary>
-        /// <param name="obj">Operand being compared to this object.</param>
-        /// <returns>True if the two objects are equal, otherwise false.</returns>
-        public override bool Equals(object obj)
-        {
-            Database_Object d = (Database_Object)obj;
-            return ID == d.ID;
-        }
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
+        // General Getters/Setters:
+        /// <summary>Getter for the write protect value of this object.</summary>
+        public uint WP => ui_writeProtect;
+
+        /// <summary>Getter/Setter for the ID of this object. </summary>
+        public string ID
+        {
+            get => s_ID;
+            protected set
+            {
+                ObjectAltered();
+                s_ID = value;                
+            } // end set 
+        } // end ID
+
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
         // Methods:
         /// <summary>Updates the value of write protect of this object.</summary>
@@ -71,6 +64,15 @@ namespace Database_Object_Classes
             hashCode = hashCode * -1521134295 + WP.GetHashCode();
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(ID);
             return hashCode;
-        }
+        } // end method GetHashCode
+
+        /// <summary>Equals operator for comparing two Database Objects.</summary>
+        /// <param name="obj">Operand being compared to this object.</param>
+        /// <returns>True if the two objects are equal, otherwise false.</returns>
+        public override bool Equals(object obj)
+        {
+            Database_Object d = (Database_Object)obj;
+            return ID == d.ID;
+        } // end method Equals
     } // end Class Database_Object
 } // end Namespace Database_Object_Classes
