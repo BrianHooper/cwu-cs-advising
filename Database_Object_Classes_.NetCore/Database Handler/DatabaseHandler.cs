@@ -10,6 +10,7 @@ namespace Database_Handler
     {
         public static void Main(string[] args)
         {
+            /*
             //Test();
             Student a = null;
             try
@@ -36,8 +37,21 @@ namespace Database_Handler
                 Console.WriteLine("This student has completed {0} credits.", a.CreditsCompleted);
                 Console.WriteLine("This object's WP value is: {0}.", a.WP);
             } // end else
-            
+            */
 
+            RetrieveStudentPlan("12345678");
+
+
+            MySqlConnection test = GetDBConnection();
+            test.Open();
+
+            string query = GetInsertQuery("test_db", "student_plans", "\"42345678\", 1, \"Winter14\", \"CS101,CS110,GE1,UNIV101\"");
+
+            MySqlCommand testQuery = new MySqlCommand(query, test);
+
+            testQuery.ExecuteNonQuery();
+
+            test.Close();
 
             Console.WriteLine("Hello World!");
         } // end Main
@@ -59,6 +73,20 @@ namespace Database_Handler
             } // end switch
         } // end method Retrieve
 
+        private static string GetInsertQuery(string s_db, string s_table, string s_values)
+        {
+            //"INSERT INTO test_db.student_plans\nVALUES(\"22345678\", 1, \"Winter14\", \"CS101,CS110,GE1,UNIV101\")"
+
+            string query = "INSERT INTO ";
+            query += s_db;
+            query += ".";
+            query += s_table;
+            query += "\n VALUES(";
+            query += s_values;
+            query += ")";
+
+            return query;
+        }
 
         private static Database_Object RetrieveHelper(string s_ID, char c_type)
         {
@@ -145,7 +173,37 @@ namespace Database_Handler
         }
         static object RetrieveStudentPlan(string s_ID)
         {
-            /// TODO
+            MySqlConnection conn = GetDBConnection();
+            MySqlCommand cmd = new MySqlCommand();
+
+            cmd.CommandText = "SELECT * FROM test_db.student_plans WHERE SID = \"" + s_ID + "\"";
+            cmd.Connection = conn;
+
+            conn.Open();
+
+            MySqlDataReader reader = cmd.ExecuteReader();
+
+            if (reader.HasRows)
+            {
+                int offset = 2;
+                int num = reader.FieldCount - offset;
+                int i = 0;
+                string[] data = new string[num];
+
+                reader.Read();
+
+                int WP = (int)reader.GetValue(1);
+
+                while(i < num)
+                {
+                    data[i] = (string)reader.GetValue(i + offset);
+                    i++;
+                }
+
+            }
+
+            conn.Close();
+
             return null;
         }
         static object RetrieveUserCredentials(string s_ID)
@@ -154,22 +212,13 @@ namespace Database_Handler
             return null;
         }
 
-        private static MySqlConnection GetDBConnection(char c_type)
+        private static MySqlConnection GetDBConnection()
         {
-            string s_connStr = "";
-            switch(c_type)
-            {
-                case 'U': /// TODO
-                    s_connStr = "server=<TBD>;user id=<TBD>;password=<TBD>;persistsecurityinfo=True;port=<TBD>;database=Credentials";
-                    break;
-                case 'P': /// TODO
-                    s_connStr = "server=<TBD>;user id=<TBD>;password=<TBD>;persistsecurityinfo=True;port=<TBD>;database=StudentPlan";
-                    break;
-            } // end switch
-
+            // Variables:
+            string          s_connStr  = "server=localhost;port=3306;database=test_db;user id=testuser;password=abc123;";
+            //s_connStr = "server=<TBD>;user id=<TBD>;password=<TBD>;persistsecurityinfo=True;port=<TBD>;database=<DB>";
             MySqlConnection connection = new MySqlConnection(s_connStr);
 
-            connection.Open();
 
             return connection;
         } // end method GetDBConnection
