@@ -36,10 +36,8 @@
             // default other variables
             q_expectedGraduation  = Quarter.DefaultQuarter;
             ui_creditsCompleted   = 0;
-            as_standing.IsSenior  = false;
-            as_standing.IsInMajor = false;
-            as_standing.Standing  = false;
-            d_GPA = 0;
+            as_standing           = AcademicStanding.DefaultAcademicStanding;
+            d_GPA                 = 0;
         } // end Constructor
 
         /// <summary>Constructor for all fields.</summary>

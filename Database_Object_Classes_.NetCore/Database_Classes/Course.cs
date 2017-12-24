@@ -32,9 +32,9 @@ namespace Database_Object_Classes
         /// <summary>Default Constructor.</summary>
         public Course() : base("")
         {
-            this.s_name = "";
-            this.ui_numberCredits = 0;
-            this.b_requiresMajor = false;
+            s_name           = "";
+            ui_numberCredits = 0;
+            b_requiresMajor  = false;
 
             ba_quartersOffered = new bool[ui_NUMBERQUARTERS];
 
@@ -50,7 +50,7 @@ namespace Database_Object_Classes
         ///          The course identifier is the unique identifier for this course, e.g. CS311 which must not contain spaces.</remarks>
         public Course(string s_name, string s_ID, uint ui_numberCredits, bool b_requiresMajor) : base(s_ID)
         {
-            this.s_name = s_name;
+            this.s_name = string.Copy(s_name);
             this.ui_numberCredits = ui_numberCredits;
             this.b_requiresMajor = b_requiresMajor;
 
@@ -105,11 +105,13 @@ namespace Database_Object_Classes
         /// <param name="c_other">Course to be copied.</param>
         public Course(Course c_other) : base(c_other.ID)
         {
-            s_name = c_other.s_name;
+            s_name           = string.Copy(c_other.s_name);
             ui_numberCredits = c_other.ui_numberCredits;
-            b_requiresMajor = c_other.b_requiresMajor;
+            b_requiresMajor  = c_other.b_requiresMajor;
 
-            ba_quartersOffered = (bool[])c_other.ba_quartersOffered.Clone();
+            ba_quartersOffered = new bool[ui_NUMBERQUARTERS];
+
+            Array.Copy(c_other.ba_quartersOffered, ba_quartersOffered, ui_NUMBERQUARTERS);
 
             l_preRequisites = new List<Course>(c_other.l_preRequisites);
         } // end Copy Constructor
@@ -124,7 +126,7 @@ namespace Database_Object_Classes
             set
             {
                 ObjectAltered();
-                s_name = value;                
+                s_name = string.Copy(value);                
             } // end set
         } // end Name
 
@@ -155,7 +157,7 @@ namespace Database_Object_Classes
         int IComparable.CompareTo(object obj)
         {
             Course c = (Course)obj;
-            return String.Compare(ID, c.ID);
+            return string.Compare(ID, c.ID);
         } // end method CompareTo
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -192,7 +194,7 @@ namespace Database_Object_Classes
         {
             if (ba_quarters.Length != ui_NUMBERQUARTERS)
             {
-                throw new System.ArgumentException("Invalid Array size of ba_quarters passed to setQuarterOffered. Expected: 4; Actual: " + ba_quarters.Length);
+                throw new ArgumentException("Invalid Array size of ba_quarters passed to setQuarterOffered. Expected: 4; Actual: " + ba_quarters.Length);
             } // end if
 
             for (int i = 0; i < ui_NUMBERQUARTERS; i++)

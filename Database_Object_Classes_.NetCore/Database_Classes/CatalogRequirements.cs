@@ -31,10 +31,10 @@ namespace Database_Object_Classes
         public CatalogRequirements(string s_ID, uint ui_minQuartersAtCWU, double d_minCumulativeGPA, CatalogCreditRequirements ccr_creditRequirements, 
                                    List<DegreeRequirements> l_degreeRequirements) : base(s_ID)
         {
-            this.ui_minQuartersAtCWU = ui_minQuartersAtCWU;
-            this.d_minCumulativeGPA = d_minCumulativeGPA;
+            this.ui_minQuartersAtCWU    = ui_minQuartersAtCWU;
+            this.d_minCumulativeGPA     = d_minCumulativeGPA;
             this.ccr_creditRequirements = new CatalogCreditRequirements(ccr_creditRequirements);
-            this.l_degreeRequirements = new List<DegreeRequirements>(l_degreeRequirements);
+            this.l_degreeRequirements   = new List<DegreeRequirements>(l_degreeRequirements);
         } // end Constructor
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */

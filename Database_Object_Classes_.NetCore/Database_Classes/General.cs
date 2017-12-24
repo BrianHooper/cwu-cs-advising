@@ -15,7 +15,9 @@ namespace Database_Object_Classes
         /// <summary>Summer quarter, denoted by 2.</summary>
         Summer,
         /// <summary>Fall quarter, denoted by 3.</summary>
-        Fall
+        Fall,
+        /// <summary>Represents an invalid state for this season object.</summary>
+        Invalid
     } // end Enum Season
 
     /// <summary>Structure which contains the year, and "season" of the quarter.</summary>
@@ -39,7 +41,7 @@ namespace Database_Object_Classes
         /// </remarks>
         public Quarter(uint ui_yr, Season s_qtr)
         {
-            ui_year = ui_yr;
+            ui_year   = ui_yr;
             s_quarter = s_qtr;
         } // end Constructor
 
@@ -116,16 +118,16 @@ namespace Database_Object_Classes
         /// <param name="s_lname">Last name.</param>
         public Name(string s_fname, string s_lname)
         {
-            s_fName = s_fname;
-            s_lName = s_lname;
+            s_fName = string.Copy(s_fname);
+            s_lName = string.Copy(s_lname);
         } // end Constructor
         
         /// <summary>Copy Constructor for this structure.</summary>
         /// <param name="n_other">The Name to be copied.</param>
         public Name(Name n_other)
         {
-            s_fName = n_other.FirstName;
-            s_lName = n_other.LastName;
+            s_fName = string.Copy(n_other.FirstName);
+            s_lName = string.Copy(n_other.LastName);
         } // end Copy Constructor
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -135,14 +137,14 @@ namespace Database_Object_Classes
         public string FirstName
         {
             get => s_fName;
-            set => s_fName = value;
+            set => s_fName = string.Copy(value);
         } // end FirstName
 
         /// <summary>Getter/Setter for the last name of this person.</summary>
         public string LastName
         {
             get => s_lName;
-            set => s_lName = value;
+            set => s_lName = string.Copy(value);
         } // end LastName
 
         /// <summary>Returns a default object of this structure.</summary>
@@ -335,7 +337,7 @@ namespace Database_Object_Classes
         private List<Course> l_acceptableElectives;
 
         /// <summary>Minimum number of electives credits for this degree.</summary>
-        private uint ui_minElectiveCredits;
+        private uint   ui_minElectiveCredits;
 
         /// <summary>Minimum GPA required for this degree as major.</summary>
         private double d_minMajorGPA;
@@ -364,7 +366,7 @@ namespace Database_Object_Classes
             this.l_acceptableElectives      = new List<Course>(l_acceptableElectives);
             this.ui_minElectiveCredits      = ui_minElectiveCredits;
             this.d_minMajorGPA              = d_minMajorGPA;
-            this.s_name                     = s_name;
+            this.s_name                     = string.Copy(s_name);
         } // end Constructor
 
         /// <summary>Copy Constructor.</summary>
@@ -377,7 +379,7 @@ namespace Database_Object_Classes
             l_acceptableElectives       = new List<Course>(other.l_acceptableElectives);
             ui_minElectiveCredits       = other.ui_minElectiveCredits;
             d_minMajorGPA               = other.d_minMajorGPA;
-            s_name                      = other.s_name;
+            s_name                      = string.Copy(other.s_name);
         } // end Copy Constructor
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -387,7 +389,7 @@ namespace Database_Object_Classes
         public string Name
         {
             get => s_name;
-            set => s_name = value;
+            set => s_name = string.Copy(value);
         } // end Name
 
         /// <summary>Getter/Setter for this Degree's minimum required GPA.</summary>
@@ -445,7 +447,7 @@ namespace Database_Object_Classes
         int IComparable.CompareTo(object obj)
         {
             DegreeRequirements d = (DegreeRequirements)obj;
-            return String.Compare(s_name, d.s_name);
+            return string.Compare(s_name, d.s_name);
         } // end method CompareTo
     } // end structure DegreeRequirements
 
@@ -511,4 +513,126 @@ namespace Database_Object_Classes
         /// <returns>A default object of this structure.</returns>
         public static AcademicStanding DefaultAcademicStanding => new AcademicStanding(false, false, false);
     } // end structure AcademicStanding
+
+    /// <summary>Structure storing graduation plan information retrieved from database.</summary>
+    public struct PlanInfo
+    {
+        // Structure fields:
+        /// <summary>This Plan's owner's ID.</summary>
+        private string   s_SID;
+
+        /// <summary>The starting quarter of this plan.</summary>
+        private Quarter  q_start;
+
+        /// <summary>The classes in this plan.</summary>
+        private string[] sa_classes;
+
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
+
+        // Constructors:
+        /// <summary>Constructor for this structure.</summary>
+        /// <param name="s_ID">The ID of the owner of this plan.</param>
+        /// <param name="s_qtr">The starting quarter in string form.</param>
+        /// <param name="sa_classes">The classes in this plan.</param>
+        /// <remarks>The quarter passed must be in the form "Season Year".</remarks>
+        public PlanInfo(string s_ID, string s_qtr, string[] sa_classes)
+        {
+            s_SID = string.Copy(s_ID);
+
+            this.sa_classes = new string[sa_classes.Length];
+            Array.Copy(sa_classes, this.sa_classes, sa_classes.Length);
+
+            // convert quarter info from string to quarter object
+            string[] temp = s_qtr.Split();
+
+            Season s;
+
+            // convert string to season
+            switch(temp[0])
+            {
+                case "Winter":
+                    s = Season.Winter;
+                    break;
+                case "Spring":
+                    s = Season.Spring;
+                    break;
+                case "Summer":
+                    s = Season.Summer;
+                    break;
+                case "Fall":
+                    s = Season.Fall;
+                    break;
+                default:
+                    s = Season.Invalid;
+                    break;
+            } // end switch
+
+            // convert string to uint
+            uint.TryParse(temp[1], out uint yr);
+
+            q_start = new Quarter(yr, s);
+        } // end Constructor
+
+        /// <summary>Copy Constructor for this structure.</summary>
+        /// <param name="other">PlanInfo object to copy.</param>
+        public PlanInfo(PlanInfo other)
+        {
+            s_SID   = string.Copy(other.StudentID);
+            q_start = new Quarter(other.Quarter);
+
+            sa_classes = new string[other.sa_classes.Length];
+            Array.Copy(other.sa_classes, sa_classes, sa_classes.Length);
+        } // end Copy Constructor
+
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
+
+        // General Getters/Setters:
+        /// <summary>Getter/Setter for this Plan's starting quarter.</summary>
+        public Quarter Quarter
+        {
+            get => q_start;
+            set => q_start = new Quarter(value);
+        } // end Quarter
+
+        /// <summary>Getter/Setter for this Plan's classes.</summary>
+        public string[] Classes
+        {
+            get => sa_classes;
+            set
+            {
+                sa_classes = new string[value.Length];
+                Array.Copy(sa_classes, value, sa_classes.Length);
+            } // end set
+        } // end classes
+
+        /// <summary>Getter/Setter for this Plan's owner.</summary>
+        public string StudentID
+        {
+            get => s_SID;
+            set
+            {
+                s_SID = string.Copy(value);
+            } // end set
+        } // end StudentID
+
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
+
+        // Methods:
+        /// <summary>Turns the data in this object into a string for output.</summary>
+        /// <returns>A string containing the data in this object.</returns>
+        public override string ToString()
+        {
+            string str = "Quarter: ";
+            str += q_start.ToString();
+            str += "\nClasses:";
+            
+            foreach (string s in sa_classes)
+            {
+                str += "\n";
+                str += s;
+            } // end foreach
+
+            return str;
+        } // end method ToString
+    } // end structure PlanInfo
 } // end Namespace Database_Object_Classes

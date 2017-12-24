@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Database_Object_Classes
 {
@@ -20,7 +21,7 @@ namespace Database_Object_Classes
         {
             ui_writeProtect = 0;
 
-            ID = s_ID;
+            ID = string.Copy(s_ID);
         } // end Default Constructor
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -36,7 +37,7 @@ namespace Database_Object_Classes
             protected set
             {
                 ObjectAltered();
-                s_ID = value;                
+                s_ID = string.Copy(value);                
             } // end set 
         } // end ID
 
@@ -72,7 +73,7 @@ namespace Database_Object_Classes
         public override bool Equals(object obj)
         {
             Database_Object d = (Database_Object)obj;
-            return ID == d.ID;
+            return string.Equals(ID, d.ID);
         } // end method Equals
     } // end Class Database_Object
 } // end Namespace Database_Object_Classes

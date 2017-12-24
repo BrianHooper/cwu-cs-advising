@@ -38,7 +38,7 @@ namespace Database_Handler
                 Console.WriteLine("This object's WP value is: {0}.", a.WP);
             } // end else
             */
-
+            
             RetrieveStudentPlan("12345678");
 
 
@@ -167,45 +167,52 @@ namespace Database_Handler
             } // end using
         } // end method TestData
 
-        static void RetrieveErrorType(char c_type)
-        {
-            /// TODO
-        }
         static object RetrieveStudentPlan(string s_ID)
         {
-            MySqlConnection conn = GetDBConnection();
-            MySqlCommand cmd = new MySqlCommand();
+            // Variables:
+            string[] data = null;
 
-            cmd.CommandText = "SELECT * FROM test_db.student_plans WHERE SID = \"" + s_ID + "\"";
-            cmd.Connection = conn;
+            MySqlConnection conn = GetDBConnection();
+
+            MySqlDataReader reader;
+
+            MySqlCommand cmd = new MySqlCommand
+            {
+                CommandText = "SELECT * FROM test_db.student_plans WHERE SID = \"" + s_ID + "\"",
+                Connection = conn
+            };
 
             conn.Open();
 
-            MySqlDataReader reader = cmd.ExecuteReader();
+            reader = cmd.ExecuteReader();
+
+            
 
             if (reader.HasRows)
             {
-                int offset = 2;
-                int num = reader.FieldCount - offset;
-                int i = 0;
-                string[] data = new string[num];
+                // Variables:
+                int i_offset = 2; // offset for the SID and WP columns
+                int i_fields = reader.FieldCount - i_offset; // number of rows in actual plan
+                int WP = -1;
+
+                data = new string[i_fields];
 
                 reader.Read();
 
-                int WP = (int)reader.GetValue(1);
+                WP = (int)reader.GetValue(1);
 
-                while(i < num)
+                
+                for(int i = 0; i < i_fields; i++)
                 {
-                    data[i] = (string)reader.GetValue(i + offset);
-                    i++;
-                }
-
-            }
+                    data[i] = (string)reader.GetValue(i + i_offset);
+                } // end while
+            } // end if
 
             conn.Close();
 
-            return null;
-        }
+            return data;
+        } // end method RetrieveStudentPlan
+
         static object RetrieveUserCredentials(string s_ID)
         {
             /// TODO
