@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Runtime.Serialization;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Security;
 
-namespace Database_Object_Classes
+namespace Database_Object_Classes 
 {
     /// <summary>Enum for the season when a quarter occurs (Winter, Spring, etc.).</summary>
     /// <remarks>Winter = 0, Spring = 1, Summer = 2, Fall = 3.</remarks>
-    public enum Season
+    [Serializable]
+    public enum Season 
     {
         /// <summary>Winter quarter, denoted by 0.</summary>
         Winter,
@@ -21,6 +24,7 @@ namespace Database_Object_Classes
     } // end Enum Season
 
     /// <summary>Structure which contains the year, and "season" of the quarter.</summary>
+    [Serializable]
     public struct Quarter
     {
         // Structure fields:
@@ -102,6 +106,7 @@ namespace Database_Object_Classes
     } // end structure Quarter
 
     /// <summary>Structure storing first and last name of a person.</summary>
+    [Serializable]
     public struct Name
     {
         // Structure fields:
@@ -163,6 +168,7 @@ namespace Database_Object_Classes
     } // end structure Name
 
     /// <summary>Structure storing the credit requirements for a catalog.</summary>
+    [Serializable]
     public struct CatalogCreditRequirements
     {
         // Structure fields:
@@ -324,6 +330,7 @@ namespace Database_Object_Classes
     } // end structure CatalogCreditRequirements
 
     /// <summary>Structure storing degree-specific requirements.</summary>
+    [Serializable]
     public struct DegreeRequirements : IComparable
     {
         // Structure fields:
@@ -452,6 +459,7 @@ namespace Database_Object_Classes
     } // end structure DegreeRequirements
 
     /// <summary>Structure storing academic standing of a student.</summary>
+    [Serializable]
     public struct AcademicStanding
     {
         // Structure fields:
@@ -514,30 +522,37 @@ namespace Database_Object_Classes
         public static AcademicStanding DefaultAcademicStanding => new AcademicStanding(false, false, false);
     } // end structure AcademicStanding
 
-    /// <summary>Structure storing graduation plan information retrieved from database.</summary>
+    /// <summary>Structure storing graduation plan information.</summary>
+    [Serializable]
     public struct PlanInfo
     {
         // Structure fields:
         /// <summary>This Plan's owner's ID.</summary>
-        private string   s_SID;
+        private readonly string s_SID;
 
         /// <summary>The starting quarter of this plan.</summary>
-        private Quarter  q_start;
+        private Quarter         q_start;
 
         /// <summary>The classes in this plan.</summary>
-        private string[] sa_classes;
+        private string[]        sa_classes;
+
+        /// <summary>The write protect value of this plan.</summary>
+        private readonly uint   ui_WP;
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
         // Constructors:
         /// <summary>Constructor for this structure.</summary>
         /// <param name="s_ID">The ID of the owner of this plan.</param>
+        /// <param name="ui_WP">Write Protect value on this plan.</param>
         /// <param name="s_qtr">The starting quarter in string form.</param>
         /// <param name="sa_classes">The classes in this plan.</param>
         /// <remarks>The quarter passed must be in the form "Season Year".</remarks>
-        public PlanInfo(string s_ID, string s_qtr, string[] sa_classes)
+        public PlanInfo(string s_ID, uint ui_WP, string s_qtr, string[] sa_classes)
         {
             s_SID = string.Copy(s_ID);
+
+            this.ui_WP = ui_WP;
 
             this.sa_classes = new string[sa_classes.Length];
             Array.Copy(sa_classes, this.sa_classes, sa_classes.Length);
@@ -578,7 +593,8 @@ namespace Database_Object_Classes
         public PlanInfo(PlanInfo other)
         {
             s_SID   = string.Copy(other.StudentID);
-            q_start = new Quarter(other.Quarter);
+            q_start = new Quarter(other.StartQuarter);
+            ui_WP    = other.ui_WP;
 
             sa_classes = new string[other.sa_classes.Length];
             Array.Copy(other.sa_classes, sa_classes, sa_classes.Length);
@@ -588,7 +604,7 @@ namespace Database_Object_Classes
 
         // General Getters/Setters:
         /// <summary>Getter/Setter for this Plan's starting quarter.</summary>
-        public Quarter Quarter
+        public Quarter StartQuarter
         {
             get => q_start;
             set => q_start = new Quarter(value);
@@ -605,15 +621,11 @@ namespace Database_Object_Classes
             } // end set
         } // end classes
 
-        /// <summary>Getter/Setter for this Plan's owner.</summary>
-        public string StudentID
-        {
-            get => s_SID;
-            set
-            {
-                s_SID = string.Copy(value);
-            } // end set
-        } // end StudentID
+        /// <summary>Getter for this Plan's owner.</summary>
+        public string StudentID => s_SID;
+
+        /// <summary>Getter for the write protect value of this plan.</summary>
+        public uint WP => ui_WP;
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -635,4 +647,122 @@ namespace Database_Object_Classes
             return str;
         } // end method ToString
     } // end structure PlanInfo
+
+    /// <summary>Structure storing user information.</summary>
+    [Serializable]
+    public struct Credentials
+    {
+        // Structure fields:
+        /// <summary>Username of the owner of these credentials.</summary>
+        private readonly string s_userName;
+        /// <summary>The password salt for this user. This should never be changed.</summary>
+        private byte[] ba_PWSalt;
+
+        /// <summary>Whether or not this user is an administrator.</summary>
+        private bool b_isAdmin;
+
+        /// <summary>Write protect value of this object.</summary>
+        private readonly uint ui_WP;
+
+        /// <summary>Contains this user's password.</summary>
+        /// <remarks>
+        ///          Retrieve will not fill this variable.
+        ///          This variable should only be set when the user's password is to be changed.
+        /// </remarks>
+        private readonly SecureString ss_pw;
+
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
+
+        // Constructors:
+        /// <summary>Constructor for this structure.</summary>
+        /// <param name="s_ID">Username of the owner of these credentials.</param>
+        /// <param name="ui_WP">Write protect value of this object.</param>
+        /// <param name="b_isAdmin">Whether or not this user is an administrator.</param>
+        /// <param name="ba_PWSalt">The password salt for this user.</param>
+        /// <remarks>The only thing that should be changed in this structure is the IsAdmin value.
+        ///          Changing the username will create a new user upon write back to the DB.
+        ///          Changing the password salt will have no effect on the DB, 
+        ///          as this value will be disregarded upon write back.
+        ///          Changing the write protect will either cause an error, or data corruption.
+        /// </remarks>
+        public Credentials(string s_ID, uint ui_WP, bool b_isAdmin, byte[] ba_PWSalt)
+        {
+            s_userName      = string.Copy(s_ID);
+            this.ba_PWSalt  = new byte[ba_PWSalt.Length];
+            this.ui_WP      = ui_WP;
+            this.b_isAdmin  = b_isAdmin;
+
+            Array.Copy(ba_PWSalt, this.ba_PWSalt, this.ba_PWSalt.Length);
+            ss_pw           = new SecureString();
+        } // end Constructor
+
+        /// <summary>Copy Constructor for this structure.</summary>
+        /// <param name="other">Credentials object to copy into this object.</param>
+        /// <remarks>The password is not copied from the other object.</remarks>
+        public Credentials(Credentials other)
+        {
+            s_userName  = other.UserName;
+            ba_PWSalt   = other.ba_PWSalt;
+            ui_WP       = other.WP;
+            b_isAdmin   = other.IsAdmin;
+            ss_pw       = new SecureString();
+        } // end Copy Constructor              
+
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
+
+        // General Getters/Setters:
+        /// <summary>Getter for the username of the owner of these credentials.</summary>
+        public string UserName => s_userName;
+
+        /// <summary>Getter for the password salt of this user.</summary>
+        public byte[] PWSalt
+        {
+            get
+            {
+                return ba_PWSalt;
+            }
+            set
+            {
+                ba_PWSalt = value;                
+            }
+        }
+
+        /// <summary>Getter/Setter for whether this user is an Admin.</summary>
+        public bool IsAdmin
+        {
+            get => b_isAdmin;
+            set => b_isAdmin = value;
+        } // end isAdmin
+
+        /// <summary>Getter for the write protect value of these user credentials.</summary>
+        public uint WP => ui_WP;
+
+        /// <summary>Returns the secure string containing the password. </summary>
+        public SecureString Password => ss_pw;
+
+        /// <summary>Adds the specified character to the password.</summary>
+        public char AddToPW
+        {
+            set => ss_pw.AppendChar(value);
+        } // end AddToPW
+
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
+
+        // Methods:
+        /// <summary>Turns the data in this object into a string for output.</summary>
+        /// <returns>A string representation of this object.</returns>
+        public override string ToString()
+        {
+            string str = "Username: ";
+            str += s_userName;
+            str += "\nWP: ";
+            str += ui_WP.ToString();
+            str += "\nAdmin: ";
+            str += b_isAdmin.ToString();
+            str += "\nSalt: ";
+            str += "0x" + BitConverter.ToString(ba_PWSalt).Replace("-"," ");
+
+            return str;
+        }
+    } // end structure Credentials
 } // end Namespace Database_Object_Classes

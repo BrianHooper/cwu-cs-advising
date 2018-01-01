@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace Database_Object_Classes
 {
     /// <summary>This class stores the catalog requirements for a given year.</summary>
+    [Serializable]
     public class CatalogRequirements : Database_Object
     {
         // Class fields:
@@ -44,44 +46,28 @@ namespace Database_Object_Classes
         public uint MinQuartersAtCWU
         {
             get => ui_minQuartersAtCWU;
-            set
-            {
-                ObjectAltered();
-                ui_minQuartersAtCWU = value;
-            } // end set
+            set => ui_minQuartersAtCWU = value;
         } // end MinQuartersAtCWU
 
         /// <summary>Getter/Setter for the minimum cumulative GPA a student must have.</summary>
         public double MinCumulativeGPA
         {
             get => d_minCumulativeGPA;
-            set
-            {
-                ObjectAltered();
-                d_minCumulativeGPA = value;
-            } // end set
+            set => d_minCumulativeGPA = value;
         } // end MinCumulativeGPA
 
         /// <summary>Getter/Setter for the credit requirements for this catalog year.</summary>
         public CatalogCreditRequirements CreditRequirements
         {
             get => ccr_creditRequirements;
-            set
-            {
-                ObjectAltered();
-                ccr_creditRequirements = new CatalogCreditRequirements(value);
-            } // end set
+            set => ccr_creditRequirements = new CatalogCreditRequirements(value);
         } // end CreditRequirements
 
         /// <summary>Getter/Setter for the list of degrees offered, which contain their own requirements.</summary>
         public ReadOnlyCollection<DegreeRequirements> DegreeRequirements
         {
             get => l_degreeRequirements.AsReadOnly();
-            set
-            {
-                ObjectAltered();
-                l_degreeRequirements = new List<DegreeRequirements>(value);
-            } // end set
+            set => l_degreeRequirements = new List<DegreeRequirements>(value);
         } // end DegreeRequirements
     } // end Class CatalogRequirements
 } // end Namespace Database_Object_Classes

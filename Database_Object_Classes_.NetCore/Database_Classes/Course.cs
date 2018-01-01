@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 namespace Database_Object_Classes
 {
     /// <summary>Class storing the name, ID, and prerequisits for a course.</summary>
+    [Serializable()]
     public class Course : Database_Object, IComparable
     {
         // Class fields:
@@ -103,7 +104,7 @@ namespace Database_Object_Classes
 
         /// <summary>Copy Constructor which creates a copy of the other course.</summary>
         /// <param name="c_other">Course to be copied.</param>
-        public Course(Course c_other) : base(c_other.ID)
+        public Course(Course c_other) : base(c_other)
         {
             s_name           = string.Copy(c_other.s_name);
             ui_numberCredits = c_other.ui_numberCredits;
@@ -123,11 +124,7 @@ namespace Database_Object_Classes
         public string Name
         {
             get => s_name;
-            set
-            {
-                ObjectAltered();
-                s_name = string.Copy(value);                
-            } // end set
+            set => s_name = string.Copy(value);
         } // end Name
 
         /// <summary>Getter for PreRequisites list of this course.</summary>
@@ -141,11 +138,7 @@ namespace Database_Object_Classes
         public bool RequiresMajor
         {
             get => b_requiresMajor;
-            set
-            {
-                ObjectAltered();
-                b_requiresMajor = value;
-            } // end set
+            set => b_requiresMajor = value;
         } // end RequiresMajor
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -176,12 +169,7 @@ namespace Database_Object_Classes
         ///          True = offered, False = not offered
         ///          This will change only a single quarter, to change all use <see cref="SetQuarterOffered(bool[])"/>.
         /// </remarks>
-        public void SetQuarterOffered(Season se_i, bool b_status)
-        {
-            ba_quartersOffered[(int)se_i] = b_status;
-
-            ObjectAltered();
-        } // end method setQuarterOffered
+        public void SetQuarterOffered(Season se_i, bool b_status) => ba_quartersOffered[(int)se_i] = b_status;
 
         /// <summary>Setter for quarters offered array of this course.</summary>
         /// <param name="ba_quarters">Array containing the new offering-status of this course for all quarters.</param>
@@ -201,8 +189,6 @@ namespace Database_Object_Classes
             {
                 ba_quartersOffered[i] = ba_quarters[i];
             } // end for
-
-            ObjectAltered();
         } // end method setQuarterOffered
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -215,9 +201,7 @@ namespace Database_Object_Classes
             if (!l_preRequisites.Contains(c_course))
             {
                 l_preRequisites.Add(c_course);
-
-                ObjectAltered();
-            }
+            } // end if
         } // end method addPreRequisite
 
         /// <summary>Adds the given Courses to the prerequisites list of this Course object.</summary>
@@ -229,10 +213,8 @@ namespace Database_Object_Classes
                 if (!l_preRequisites.Contains(c_course))
                 {
                     l_preRequisites.Add(c_course);
-                }
+                } // end if
             } // end foreach
-
-            ObjectAltered();
         } // end method addPreRequisite
 
         /// <summary>Removes the course whith the specified ID from the prerequisites of this Course object, given it exists.</summary>
@@ -244,8 +226,6 @@ namespace Database_Object_Classes
             {
                 if (course.ID == s_courseID)
                 {
-                    ObjectAltered();
-
                     return l_preRequisites.Remove(course);
                 } // end if
             } // end foreach
@@ -254,11 +234,46 @@ namespace Database_Object_Classes
         } // end method removePreRequisite
 
         /// <summary>Removes all prerequisites of this Course object.</summary>
-        public void ClearPreRequisites()
-        {
-            l_preRequisites.Clear();
+        public void ClearPreRequisites() => l_preRequisites.Clear();
 
-            ObjectAltered();
-        } // end method clearPreRequisites
+        public override string ToString()
+        {
+            string str = "Course name: " + s_name + "\nCourse ID: " + ID + "\nCredits: " + ui_numberCredits + "\nQuarters offered: ";
+
+            if (ba_quartersOffered[0])
+            {
+                str += "Winter ";
+            }
+            if (ba_quartersOffered[1])
+            {
+                str += "Spring ";
+            }
+            if (ba_quartersOffered[2])
+            {
+                str += "Summer ";
+            }
+            if (ba_quartersOffered[3])
+            {
+                str += "Fall";
+            }
+
+            str += "\nRequires Major: " + b_requiresMajor.ToString();
+
+            str += "\nPrerequisites: ";
+
+            if (l_preRequisites.Count == 0)
+            {
+                str += "None";
+            }
+            else
+            {
+                foreach (Course c in l_preRequisites)
+                {
+                    str += c.ID + " ";
+                }
+            }
+
+            return str;
+        }
     } // end Class Course 
 } // end Namespace Database_Object_Classes

@@ -3,60 +3,441 @@ using MySql.Data.MySqlClient;
 using Db4objects.Db4o;
 using Database_Object_Classes;
 using System.Collections.Generic;
+using System.Security;
+using System.Security.Cryptography;
+using System.IO;
+using System.Threading;
 
 namespace Database_Handler
 {
-    class DatabaseHandler
+    public sealed class DatabaseHandler
     {
-        public static void Main(string[] args)
+        // Class fields:
+        public  static   string s_logFilePath       = "log.txt"         ;
+        private readonly string s_MYSQL_DB_NAME     = "test_db"         ;
+        private readonly string s_MYSQL_DB_SERVER   = "localhost"       ;
+        private readonly string s_MYSQL_DB_PORT     = "3306"            ;
+        private readonly string s_MYSQL_DB_USER_ID  = "testuser"        ;
+        private readonly string s_CREDENTIALS_TABLE = "user_credentials";
+        private readonly string s_PLAN_TABLE        = "student_plans"   ;
+        private readonly string s_STUDENT_DB        = "Students.db4o"   ;
+        private readonly string s_COURSE_DB         = "Courses.db4o"    ;
+        private readonly string s_CATALOG_DB        = "Catalogs.db4o"   ;
+        private readonly string s_CREDENTIALS_KEY   = "username"        ;
+        private readonly string s_PLAN_KEY          = "SID"             ;
+
+        private const int i_SALT_LENGTH           = 32                ;
+        private const int i_HASH_ITERATIONS       = 4                 ;
+
+        private uint ui_COL_COUNT;
+
+        private bool[] ba_ressourcesInUse;
+
+        private MySqlConnection DB_CONNECTION;
+
+        private RNGCryptoServiceProvider RNG;
+
+
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
+
+        // Constructors:
+        /// <summary>Default Constructor</summary>
+        /// <remarks>This constructor does nothing, it will use all default values for variables.</remarks>
+        public DatabaseHandler() { }// end default Constructor
+
+        /// <summary>Constructor which sets the database information for this DBH object to the given values.</summary>
+        /// <param name="s_MYSQL_DB_NAME">Name of the MySQL database, e.g. test_db.</param>
+        /// <param name="s_MYSQL_DB_SERVER">Name of the server hosting the MySQL db, e.g. localhost.</param>
+        /// <param name="s_MYSQL_DB_PORT">Port of the MySQL database in arg 1, e.g. 3306.</param>
+        /// <param name="s_MYSQL_DB_USER_ID">User ID that this DBH object should use to log in to the MySQL db, e.g. test_user.</param>
+        /// <param name="s_CREDENTIALS_TABLE">Name of the user credentials table, e.g. user_credentials.</param>
+        /// <param name="s_CREDENTIALS_KEY">Key used by the user credentials table, e.g. username.</param>
+        /// <param name="s_PLAN_TABLE">Name of the student plan table, e.g. student_plans.</param>
+        /// <param name="s_PLAN_KEY">Key used by the student plan table, e.g. SID.</param>
+        /// <param name="s_STUDENT_DB">Path of the student database, e.g. students.db4o.</param>
+        /// <param name="s_COURSE_DB">Path of the course database, e.g. courses.db4o</param>
+        /// <param name="s_CATALOG_DB">Path of the catalog database, e.g. catalogs.db4o</param>
+        /// <param name="s_logFilePath">Path of the DBH log file to use, e.g. log.txt</param>
+        /// <remarks>Changes made by the constructor are not persistent, upon restarting, the default values will be used again.</remarks>
+        public DatabaseHandler(string s_MYSQL_DB_NAME, string s_MYSQL_DB_SERVER, string s_MYSQL_DB_PORT, string s_MYSQL_DB_USER_ID,
+                               string s_CREDENTIALS_TABLE, string s_CREDENTIALS_KEY, string s_PLAN_TABLE, string s_PLAN_KEY,
+                               string s_STUDENT_DB, string s_COURSE_DB, string s_CATALOG_DB, string s_logFilePath)
         {
-            /*
-            //Test();
-            Student a = null;
+            // readonly field changes:
+            // MySQL connection
+            this.s_MYSQL_DB_NAME     = s_MYSQL_DB_NAME;
+            this.s_MYSQL_DB_SERVER   = s_MYSQL_DB_SERVER;
+            this.s_MYSQL_DB_PORT     = s_MYSQL_DB_PORT;
+            this.s_MYSQL_DB_USER_ID  = s_MYSQL_DB_USER_ID;
+
+            // Credentials table
+            this.s_CREDENTIALS_TABLE = s_CREDENTIALS_TABLE;
+            this.s_CREDENTIALS_KEY   = s_CREDENTIALS_KEY;
+
+            // Plan ttable
+            this.s_PLAN_TABLE        = s_PLAN_TABLE;
+            this.s_PLAN_KEY          = s_PLAN_KEY;
+
+            // DB4O file paths
+            this.s_STUDENT_DB        = s_STUDENT_DB;
+            this.s_COURSE_DB         = s_COURSE_DB;
+            this.s_CATALOG_DB        = s_CATALOG_DB;
+
+            // static variable changes
+            DatabaseHandler.s_logFilePath = s_logFilePath;
+        } // end Constructor
+
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
+        
+        // Main:
+        /// <summary>Program entry point. Initializes program and handles fatal errors.</summary>
+        /// <param name="args">Unused.</param>
+        public static void Main2(string[] args)
+        {            
+            WriteToLog(" -- Database Handler was started.");
+
+            DatabaseHandler DBH = new DatabaseHandler();
+
+            int i_errorCode = -1;
+
             try
             {
-                a = (Student)Retrieve("42345678", 'S');
+                DBH.TestRun();
+                //i_errorCode = DBH.Run();
+
+                switch (i_errorCode)
+                {
+                    case 0:
+                        Console.WriteLine("\n\nNo errors occurred during execution.\nCleaning up...");
+                        WriteToLog(" -- DBH is preparing to exit (no errors).");
+                        break; // end case 0
+                    case 1:
+                        Console.WriteLine("\n\nLogin Failed. Please restart the Daemon to try again.\nCleaning up...");
+                        WriteToLog(" -- DBH is preparing to exit (error code 1).");
+                        WriteToLog(" -- DBH is exiting because of a failed login attempt.");
+                        break; // end case 1
+                    case 2:
+                        Console.WriteLine("\n\nThe connection to the database timed out and reconnection failed. Cleaning up...");
+                        WriteToLog(" -- DBH is preparing to exit (error code 2).");
+                        WriteToLog(" -- DBH is exiting because the MySQL database connection timed out and could not be reopened.");
+                        break; // end case 2
+                    case 3:
+                        Console.WriteLine("\n\nThe DBH setup failed. Cleaning up...");
+                        WriteToLog(" -- DBH is preparing to exit (error code 3).");
+                        WriteToLog(" -- DBH is exiting because setup failed.");
+                        break; // end case 3
+                } // end switch
             } // end try
-            catch (RetrieveError e)
+            catch(Exception e)
             {
-                Console.WriteLine(e.Message + " The value received was: " + e.Type);
-            } // end catch
-            catch (Exception e)
+                WriteToLog(" -- DBH is preparing to exit (error code unknown).");
+                WriteToLog(" -- DBH encountered an unknown exception. Msg: " + e.Message);
+                i_errorCode = -1;
+            } // end catch            
+            finally
             {
-                Console.WriteLine("Unknown Exception occured: \n" + e.Message);
+                try
+                {
+                    WriteToLog(" -- DBH is cleaning up...");
+
+                    DBH.CleanUp();
+
+                    WriteToLog(" -- DBH finished cleaning up and is exiting now.");
+                    Console.WriteLine("Clean up finished, exiting.");
+                } // end try
+                catch (Exception e)
+                {
+                    WriteToLog(" -- DBH clean up was unsuccessfull.");
+                    WriteToLog(" -- DBH encountered an exception while cleaning up. Msg: " + e.Message);
+                } // end catch   
+            } // end finally                    
+        } // end Main
+    
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
+
+        // Run:
+        /// <summary>The main program loop. Receives, and executes commands.</summary>
+        /// <returns>Error code or 0 if application exited as expected.</returns>
+        private int Run()
+        {            
+            try
+            {
+                if (SetUp() == 1)
+                {
+                    return 1;
+                } // end if
+            } // end try
+            catch(Exception e)
+            {
+                WriteToLog(" -- DBH setup failed. Msg: " + e.Message);
+                return 3;
             } // end catch
 
-            if (a == null)
+            try
             {
-                Console.WriteLine("No such student.");
+                for (; ; )
+                {
+                    string s_command = WaitForCommand(out string s_sender);
+
+                    // if the session expires, attempt to reopen it
+                    if (DB_CONNECTION.State != System.Data.ConnectionState.Open)
+                    {
+                        AttemptReconnect();
+                    } // end if
+
+                    int i = ExecuteCommand(s_command, s_sender);
+
+                    switch(i)
+                    {
+                        case 0:
+                            return 0;
+                        default:
+                            break;
+                    } // end switch
+                } // end for
+            } // end try
+            catch (Exception e)
+            {
+                if(!int.TryParse(e.Message, out int error))
+                {
+                    throw e; // not an exception generated by this object
+                } // end if      
+                
+                return error;
+            } // end catch
+        } // end method Run
+
+
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
+
+        // Run components:
+        /// <summary>Executes the specified command.</summary>
+        /// <param name="s_command">The command identifier to be executed.</param>
+        /// <param name="s_sender">The sender who will receive the response.</param>
+        /// <returns>An error code, or 0 if execution was successful.</returns>
+        private int ExecuteCommand(string s_command, string s_sender)
+        {
+            throw new NotImplementedException();
+        } // end method ExecuteCommand
+
+        /// <summary>The listener which waits for a command, blocking the run method.</summary>
+        /// <param name="s_sender">The sender who requested an action.</param>
+        /// <returns>The command that is to be executed.</returns>
+        private string WaitForCommand(out string s_sender)
+        {
+            throw new NotImplementedException();
+        } // end method WaitForCommand
+
+
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
+
+        // Management:
+        /// <summary>Logs the DBH into the MySQL database.</summary>
+        /// <returns>True if successful, false otherwise.</returns>
+        private bool Login()
+        {
+            Console.Write("Please enter password for {0}: ", s_MYSQL_DB_NAME);
+
+            for (int i = 10; i > 0; i--)
+            {
+                if (i < 10)
+                {
+                    WriteToLog(" -- A login attempt failed, remaining tries: " + i.ToString());
+                    Console.WriteLine("\n\nPassword was invalid. Tries remaining: {0}", i.ToString());
+                    Console.Write("Please enter password for {0}: ", s_MYSQL_DB_NAME);
+                } // end if
+
+                string s_pw = "";
+                ConsoleKeyInfo key;                
+
+                do // get password loop
+                {
+                    key = Console.ReadKey(true); // extract keys w/o displaying them
+                    
+                    if(key.Key == ConsoleKey.Backspace)
+                    {
+                        if (s_pw.Length > 0)
+                        {
+                            s_pw = s_pw.Substring(0, s_pw.Length - 1);
+                            Console.Write("\b \b");
+                        } // end if
+                        continue;
+                    } // end if
+
+                    // ignore control keys (e.g. CTRL, ALT, etc.)
+                    if(char.IsControl(key.KeyChar))
+                    {
+                        continue;
+                    } // end if
+
+                    // append key to password string
+                    s_pw += key.KeyChar;
+                    Console.Write("*"); // display a star in console
+                } while (key.Key != ConsoleKey.Enter);
+
+                Console.WriteLine("\nAttempting to log in ...");
+
+                if (ConnectToDB(ref s_pw))
+                {
+                    WriteToLog(" -- A user sucessfully logged in, remaining tries: " + i.ToString());
+                    Console.WriteLine("Login was successful.");
+                    return true;
+                } // end if
+            } // end for
+
+            return false;
+        } // end method Login
+
+        /// <summary>Sets up all necessary components for DBH.</summary>
+        /// <returns>An error code or 0 if setup was successful.</returns>
+        /// <exception cref="Exception">Thrown if it the master record could not be retrieved from the database.</exception>
+        private int SetUp()
+        {
+            if (!Login())
+            {
+                return 1; // login attempt failed
+            } // end if
+
+            RNG = new RNGCryptoServiceProvider();
+
+            ba_ressourcesInUse = new bool[4] { false, false, false, false };
+
+            MySqlCommand cmd = GetCommand("-1", 'S', s_PLAN_TABLE, s_PLAN_KEY, "*");
+
+            MySqlDataReader reader = cmd.ExecuteReader();
+
+            if(reader.HasRows)
+            {
+                reader.Read();
+                ui_COL_COUNT = reader.GetUInt32(1);
+                reader.Close();
             } // end if
             else
             {
-                Console.WriteLine("Student {0} has the ID {1}.", a.Name, a.ID);
-                Console.WriteLine("This student's expected graduation is: {0}.", a.ExpectedGraduation.ToString());
-                Console.WriteLine("This student has completed {0} credits.", a.CreditsCompleted);
-                Console.WriteLine("This object's WP value is: {0}.", a.WP);
+                reader.Close();
+                WriteToLog(" -- DBH Setup failed because the master record was not found in " + s_MYSQL_DB_NAME + "." + s_PLAN_TABLE);
+                throw new Exception("Database set up failed because the master record was not found in: " + s_MYSQL_DB_NAME + "." + s_PLAN_TABLE);
             } // end else
-            */
+
+            return 0;
+        } // end method SetUp
+
+        /// <summary>Cleans up after DBH is closed.</summary>
+        public void CleanUp()
+        {
+            if (DB_CONNECTION != null)
+            {
+                DB_CONNECTION.Close();
+            } // end if
+
+            RNG.Dispose();
+        } // end method CleanUp
+
+        /// <summary>Creates a random 256 bit salt for login credentials.</summary>
+        /// <returns>A byte array filled with a random sequence of bytes.</returns>
+        private byte[] GetPasswordSalt()
+        {
+            byte[] ba_salt = new byte[i_SALT_LENGTH];
+
+            RNG.GetNonZeroBytes(ba_salt);
+
+            return ba_salt;
+        } // end method GetPasswordSalt
+        
+        /// <summary>Writes the given message into the DBH log with a current time stamp.</summary>
+        /// <param name="s_msg">The message to log.</param>
+        private static void WriteToLog(string s_msg)
+        {
+            // Variables:
+            string s_timeStamp = DateTime.Today.ToLongDateString() + "  " + DateTime.Now.ToLongTimeString();
+
+            StreamWriter log = new StreamWriter(s_logFilePath, true);
+
+
+            log.WriteLine(s_timeStamp + s_msg);
+
+            log.Close();
+        } // end method WriteToLog
+
+
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
+
+        // Website Login Handler:
+        /// <summary>Checks the password entered by a user against the database record.</summary>
+        /// <param name="s_ID">The username of the person attempting to log in.</param>
+        /// <param name="ss_pw">A secure string containing the user's password.</param>
+        /// <param name="b_isAdmin">Return parameter, indicates whether the user is an admin or not.</param>
+        /// <returns>True if the password entered matches the database record and out parameter b_isAdmin.</returns>
+        /// <remarks>The parameter ss_pw will be destroyed during method execution, and can not be used afterwards.</remarks>
+        public bool LoginAttempt(string s_ID, ref SecureString ss_pw, out bool b_isAdmin)
+        {
+            // Variables:
+            var             output = false;
             
-            RetrieveStudentPlan("12345678");
+            MySqlDataReader reader = null;
+
+            MySqlCommand    cmd = GetCommand(s_ID, 'S', s_CREDENTIALS_TABLE, s_CREDENTIALS_KEY, "*");
+
+            SecureString    ss_temp = new SecureString();
+            
+
+            b_isAdmin = false; // initialize output parameter
+            
+            try
+            {
+                reader = cmd.ExecuteReader();
+                reader.Read(); 
+
+                if (reader.HasRows) // check if user exists
+                {
+                    WriteToLog("-- DBH the user " + s_ID + " is attempting to login.");
+
+                    foreach (char c in reader.GetString(2).ToCharArray())
+                    {
+                        ss_temp.AppendChar(c);
+                    } // end foreach                
+
+                    // check if passwords match
+                    if (Utilities.SecureStringEqual(ss_pw, ss_temp))
+                    {
+                        WriteToLog("-- DBH the user " + s_ID + " sucessfully logged in.");
+
+                        output = true; // login sucessful
+                        b_isAdmin = reader.GetBoolean(3); // get the admin value from DB
+                    } // end if
+                    else
+                    {
+                        WriteToLog("-- DBH the user " + s_ID + " entered an incorrect password, login failed.");
+                    } // end else                    
+                } // end if
+                else
+                {
+                    WriteToLog("-- DBH the user " + s_ID + " does not exist, login failed.");
+                } // end else
+            } // end try
+            finally
+            {
+                // Delete passwords
+                ss_pw.Dispose();
+                ss_temp.Dispose();
+
+                // end DB connection
+                reader.Close();
+            } // end finally            
+
+            return output;
+        } // end method LoginAttempt
 
 
-            MySqlConnection test = GetDBConnection();
-            test.Open();
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
-            string query = GetInsertQuery("test_db", "student_plans", "\"42345678\", 1, \"Winter14\", \"CS101,CS110,GE1,UNIV101\"");
-
-            MySqlCommand testQuery = new MySqlCommand(query, test);
-
-            testQuery.ExecuteNonQuery();
-
-            test.Close();
-
-            Console.WriteLine("Hello World!");
-        } // end Main
-
-        private static object Retrieve(string s_ID, char c_type)
+        // General Database retrieve:
+        /// <summary>Retrieves an object from the specified database.</summary>
+        /// <param name="s_ID">The key associated with this object.</param>
+        /// <param name="c_type">The type of object to retrieve.</param>
+        /// <returns>The requested object.</returns>
+        /// <exception cref="RetrieveError">Thrown if an invalid type is passed in arg 2.</exception>
+        private object Retrieve(string s_ID, char c_type)
         {
             switch (c_type)
             {
@@ -72,60 +453,933 @@ namespace Database_Handler
                     throw new RetrieveError("Invalid character received by Retrieve method.", c_type);
             } // end switch
         } // end method Retrieve
+        
 
-        private static string GetInsertQuery(string s_db, string s_table, string s_values)
-        {
-            //"INSERT INTO test_db.student_plans\nVALUES(\"22345678\", 1, \"Winter14\", \"CS101,CS110,GE1,UNIV101\")"
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
-            string query = "INSERT INTO ";
-            query += s_db;
-            query += ".";
-            query += s_table;
-            query += "\n VALUES(";
-            query += s_values;
-            query += ")";
-
-            return query;
-        }
-
-        private static Database_Object RetrieveHelper(string s_ID, char c_type)
+        // DB4O methods:
+        // DB4O retrieve:
+        /// <summary>Retrieves the requested object from the appropriate database.</summary>
+        /// <param name="s_ID">The key of the specified object.</param>
+        /// <param name="c_type">The type of object to retrieve.</param>
+        /// <returns>The requested object, or null if the object was not found.</returns>
+        private Database_Object RetrieveHelper(string s_ID, char c_type)
         {
             try
             {
                 switch (c_type)
                 {
                     case 'S':
-                        using (IObjectContainer db = Db4oFactory.OpenFile("Students.db4o"))
+                        using (IObjectContainer db = Db4oFactory.OpenFile(s_STUDENT_DB))
                         {
-                                Database_Object student = db.Query(delegate (Database_Object proto) { return proto.ID == s_ID; })[0];
-                                db.Close();
-                                return student;
+                            Student student = db.Query(delegate (Student proto) { return proto.ID == s_ID; })[0];
+                            db.Close();
+                            return student;
                         } // end using
                     case 'Y':
-                        using (IObjectContainer db = Db4oFactory.OpenFile("Catalogs.db4o"))
+                        using (IObjectContainer db = Db4oFactory.OpenFile(s_CATALOG_DB))
                         {
-                                Database_Object catalog = db.Query(delegate (Database_Object proto) { return proto.ID == s_ID; })[0];
-                                db.Close();
-                                return catalog;
+                            CatalogRequirements catalog = db.Query(delegate (CatalogRequirements proto) { return proto.ID == s_ID; })[0];
+                            db.Close();
+                            return catalog;
                         } // end using
                     case 'C':
-                        using (IObjectContainer db = Db4oFactory.OpenFile("Courses.db4o"))
+                        using (IObjectContainer db = Db4oFactory.OpenFile(s_COURSE_DB))
                         {
-                                Database_Object course = db.Query(delegate (Database_Object proto) { return proto.ID == s_ID; })[0];
-                                db.Close();
-                                return course;
+                            Course course = db.Query(delegate (Course proto) { return proto.ID == s_ID; })[0];
+                            db.Close();
+                            return course;
                         } // end using
+                    default:
+                        return null;
                 } // end switch
             } // end try
-            catch(Exception)
+            catch (Exception e)
             {
+                WriteToLog(" -- DBH retrieve encountered an exception. Type: " + c_type.ToString() + " Message: " + e.Message);
                 return null;
             } // end catch
-
-            return null;
         } // end method RetrieveHelper
 
-        static void TestData()
+
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
+
+        // DB4O update methods:
+        /// <summary>Updates the specified object by either adding it to the DB, or updating an existing object.</summary>
+        /// <param name="c_type">The type of object passed in arg 2.</param>
+        /// <param name="dbo">The object to update.</param>
+        /// <param name="s_msg">Error message, empty if no error is encountered.</param>
+        /// <returns>An error code, or 0 if update was successful.</returns>
+        private int Update(char c_type, Database_Object dbo, out string s_msg)
+        {
+            try
+            {
+                UpdateHelper(c_type, dbo);
+            } // end try
+            catch(ArgumentNullException e)
+            {
+                s_msg = e.Message;
+                return 1;
+            } // end catch
+            catch(InvalidOperationException e)
+            {
+                s_msg = e.Message;
+                return 2;
+            } // end catch
+            catch(ArgumentException e)
+            {
+                s_msg = e.Message;
+                return 3;
+            } // end catch
+            catch(Exception e)
+            {
+                s_msg = e.Message;
+                return -1;
+            } // end catch
+
+            s_msg = "";
+            return 0;
+        } // end method Update
+
+        /// <summary>Helper method for <see cref="Update(char, Database_Object, out string)"/>.</summary>
+        /// <param name="c_type">Type of object to update.</param>
+        /// <param name="dbo">Object to update.</param>
+        /// <exception cref="ArgumentNullException">Thrown when the object in arg 2 is null.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if the update fails due to write protection.</exception>
+        private void UpdateHelper(char c_type, Database_Object dbo)
+        {
+            if(dbo == null)
+            {
+                throw new ArgumentNullException("Update received an object that was null.");
+            } // end if
+
+            Database_Object temp = RetrieveHelper(dbo.ID, c_type);
+
+            if (temp == null)
+            {
+                try
+                {
+                    CreateRecord(c_type, dbo);
+                } // end try
+                catch (Exception e)
+                {
+                    WriteToLog(" -- DBH an invalid create request was made. Msg: " + e.Message);
+                }
+            } // end if
+            else
+            {
+                if (temp.WP == dbo.WP)
+                {
+                    try
+                    {
+                        UpdateRecord(c_type, dbo);
+                    } // end try
+                    catch (Exception e)
+                    {
+                        WriteToLog(" -- DBH an invalid update request was made. Msg: " + e.Message);
+                    } // end catch
+                } // end if
+                else
+                {
+                    throw new InvalidOperationException("Write protection does not match database record.");
+                } // end else
+            } // end else
+
+        } // end method UpdateHelper
+
+        /// <summary>Updates an existing record.</summary>
+        /// <param name="c_type">The type of object to update.</param>
+        /// <param name="dbo">The new state of the object.</param>
+        /// <exception cref="ArgumentException">Thrown if an invalid input is passed.</exception>
+        /// <remarks>
+        ///          The existing object will be destroyed, the new object should be a copy of the old
+        ///          object with the desired changes.
+        /// </remarks>
+        private void UpdateRecord(char c_type, Database_Object dbo)
+        {
+            try
+            {
+                switch (c_type)
+                {
+                    case 'S':
+                        using (IObjectContainer db = Db4oFactory.OpenFile(s_STUDENT_DB))
+                        {
+                            Student student = db.Query(delegate (Student proto) { return proto.ID == dbo.ID; })[0];
+                            db.Delete(student);
+                            Student s = (Student)dbo; // cast to correct type to avoid slicing
+                            s.ObjectAltered();
+                            db.Store(s);
+                            db.Commit();
+                            db.Close();
+                        } // end using
+                        break;
+                    case 'Y':
+                        using (IObjectContainer db = Db4oFactory.OpenFile(s_CATALOG_DB))
+                        {
+                            CatalogRequirements catalog = db.Query(delegate (CatalogRequirements proto) { return proto.ID == dbo.ID; })[0];
+                            db.Delete(catalog);
+                            CatalogRequirements y = (CatalogRequirements)dbo; // cast to correct type to avoid slicing
+                            y.ObjectAltered();
+                            db.Store(y);
+                            db.Commit();
+                            db.Close();
+                        } // end using
+                        break;
+                    case 'C':
+                        using (IObjectContainer db = Db4oFactory.OpenFile(s_COURSE_DB))
+                        {
+                            Course course = db.Query(delegate (Course proto) { return proto.ID == dbo.ID; })[0];
+                            db.Delete(course);
+                            Course c = (Course)dbo; // cast to correct type to avoid slicing
+                            c.ObjectAltered();
+                            db.Store(c);
+                            db.Commit();
+                            db.Close();
+                        } // end using
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid type.");
+                } // end switch
+            } // end try
+            catch (Exception e)
+            {
+                throw new ArgumentException("Invalid input received by UpdateRecord. Msg: " + e.Message);
+            } // end catch
+        } // end method UpdateRecord
+
+        /// <summary>Creates a new record for the specified object.</summary>
+        /// <param name="c_type">The type of object being passed.</param>
+        /// <param name="dbo">The object to store.</param>
+        /// <exception cref="ArgumentException">Thrown if an invalid input is passed.</exception>
+        private void CreateRecord(char c_type, Database_Object dbo)
+        {
+            try
+            {
+                switch (c_type)
+                {
+                    case 'S':
+                        using (IObjectContainer db = Db4oFactory.OpenFile(s_STUDENT_DB))
+                        {
+                            Student s = (Student)dbo;
+                            s.ObjectAltered();
+                            db.Store(s);
+                            db.Commit();
+                            db.Close();
+                        } // end using
+                        break;
+                    case 'Y':
+                        using (IObjectContainer db = Db4oFactory.OpenFile(s_CATALOG_DB))
+                        {
+                            CatalogRequirements c = (CatalogRequirements)dbo;
+                            c.ObjectAltered();
+                            db.Store(c);
+                            db.Commit();
+                            db.Close();
+                        } // end using
+                        break;
+                    case 'C':
+                        using (IObjectContainer db = Db4oFactory.OpenFile(s_COURSE_DB))
+                        {
+                            Course c = (Course)dbo;
+                            c.ObjectAltered();
+                            db.Store(c);
+                            db.Commit();
+                            db.Close();
+                        } // end using
+                        break;
+                    default:
+                        throw new ArgumentException();
+                } // end switch
+            } // end try
+            catch (Exception)
+            {
+                throw new ArgumentException("Invalid input received by CreateeRecord.");
+            } // end catch
+        } // end method CreateRecord
+
+
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
+
+        // MySQL methods:
+        // MySQL retrieve methods:
+        /// <summary>Retrieves the requested student plan information from the database.</summary>
+        /// <param name="s_ID">The key associated with the requested plan.</param>
+        /// <returns>A PlanInfo structure containing the requested info.</returns>
+        /// <exception cref="KeyNotFoundException">Thrown if the key passed in arg 1 does not exist in the database.</exception>
+        private PlanInfo RetrieveStudentPlan(string s_ID)
+        {
+            // Variables:
+            string[] sa_data = null;
+
+            string s_qtr = null;
+
+            uint ui_WP = 0;
+
+            MySqlDataReader reader;
+
+            MySqlCommand cmd = GetCommand(s_ID, 'S', s_PLAN_TABLE, s_PLAN_KEY, "*");
+
+
+            reader = cmd.ExecuteReader();
+
+            reader.Read();
+
+            if (reader.HasRows)
+            {
+                // Variables:
+                int i_offset = 3; // offset for the SID, WP, and start quarter columns
+                int i_fields = reader.FieldCount - i_offset; // number of rows in actual plan
+
+
+                sa_data = new string[i_fields];
+
+                ui_WP = reader.GetUInt32(1);
+                s_qtr = reader.GetString(2);
+
+                // extract classes in plan
+                for (int i = 0; i < i_fields; i++)
+                {
+                    string temp = reader.GetString(i + i_offset);
+
+                    if (temp != null)
+                    {
+                        sa_data[i] = string.Copy(temp);
+                    } // end if
+                    else
+                    {
+                        break;
+                    } // end else
+                } // end while
+            } // end if
+            else // if the reader has no rows, then the key doesn't exist in the DB
+            {
+                throw new KeyNotFoundException(s_ID);
+            } // end else
+
+            reader.Close();
+
+            return new PlanInfo(s_ID, ui_WP, s_qtr, sa_data);
+        } // end method RetrieveStudentPlan
+
+        /// <summary>Retrieves the requested user credentials from the database.</summary>
+        /// <param name="s_ID">The key associated with the requested credentials.</param>
+        /// <returns>A Credentials structure containing the requested info.</returns>
+        /// <exception cref="KeyNotFoundException">Thrown if the key passed in arg 1 does not exist in the database.</exception>
+        private Credentials RetrieveUserCredentials(string s_ID)
+        {
+            // Variables:
+            Credentials credentials;
+
+            MySqlDataReader reader;
+
+            MySqlCommand cmd = GetCommand(s_ID, 'S', s_CREDENTIALS_TABLE, s_CREDENTIALS_KEY, "*");
+
+
+            reader = cmd.ExecuteReader();
+
+            reader.Read();
+
+            if (reader.HasRows)
+            {
+                // Variables:
+                byte[] ba_salt = new byte[i_SALT_LENGTH];                               
+
+                bool b_isAdmin = reader.GetBoolean(3);
+
+                uint i_WP = reader.GetUInt32(1);
+
+                reader.GetBytes(4, 0, ba_salt, 0, i_SALT_LENGTH);
+
+                credentials = new Credentials(s_ID, i_WP, b_isAdmin, ba_salt);
+            } // end if
+            else
+            {
+                reader.Close();
+                throw new KeyNotFoundException(s_ID);
+            } // end else
+
+            reader.Close();
+
+            return credentials;
+        } // end method RetrieveUserCredentials
+
+
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
+
+        // MySQL update methods:
+        /// <summary>Updates a student plan in the MySQL database.</summary>
+        /// <param name="plan">The plan to update.</param>
+        /// <returns>True if successful, otherwise false.</returns>
+        /// <remarks>
+        ///         If no plan with plan.StudentID exists, a new plan is created.
+        /// </remarks>
+        private bool Update(PlanInfo plan)
+        {
+            try
+            {
+                MySqlCommand cmd = GetCommand(plan.StudentID, 'S', s_PLAN_TABLE, s_PLAN_KEY, "*");
+
+                MySqlDataReader reader = cmd.ExecuteReader();
+
+
+                reader.Read();                
+
+                if(reader.HasRows)
+                {
+                    uint ui_WP = reader.GetUInt32(1);
+
+                    reader.Close();
+                    
+                    if (ui_WP != plan.WP)
+                    {
+                        WriteToLog(" -- DBH update failed for graduation plan of  " + plan.StudentID + " because of write protection.");
+                        return false;
+                    } // end if
+
+                    ui_WP++;                    
+
+                    // update write protection
+                    MySqlCommand temp = GetCommand(plan.StudentID, 'U', s_PLAN_TABLE, s_PLAN_KEY, "WP", ui_WP.ToString());
+                    temp.ExecuteNonQuery();
+
+                    // ensure the plan will fit into the table
+                    if (ui_COL_COUNT < plan.Classes.Length)
+                    {
+                        int k = plan.Classes.Length - (int)ui_COL_COUNT; // number of columns that must be added
+                        AddColumns(k);                        
+                    } // end if
+
+                    // store new data
+                    temp = GetCommand(plan.StudentID, 'U', s_PLAN_TABLE, s_PLAN_KEY, "start_qtr", plan.StartQuarter.ToString());
+                    temp.ExecuteNonQuery();
+
+                    int i = 0;
+
+                    foreach(string s in plan.Classes)
+                    {
+                        temp = GetCommand(plan.StudentID, 'U', s_PLAN_TABLE, s_PLAN_KEY, "qtr_" + i.ToString(), s);
+                        temp.ExecuteNonQuery();
+                        i++;
+                    } // end foreach
+
+                    WriteToLog(" -- DBH successfully updated the plan of " + plan.StudentID + ".");
+                } // end if
+                else
+                {
+                    reader.Close();
+
+                    // ensure the plan will fit into the table
+                    if (ui_COL_COUNT < plan.Classes.Length)
+                    {
+                        int k = plan.Classes.Length - (int)ui_COL_COUNT; // number of columns that must be added
+                        AddColumns(k);
+                    } // end if
+
+                    MySqlCommand command = GetCommand(plan.StudentID, 'I', s_PLAN_TABLE, s_PLAN_KEY, "", GetInsertValues(plan));
+                    command.ExecuteNonQuery();
+
+                    WriteToLog(" -- DBH successfully created the plan for " + plan.StudentID + ".");
+                } // end else
+            } // end try
+            catch(Exception e)
+            {
+                WriteToLog(" -- DBH update failed for the student plan with ID: " + plan.StudentID + " Msg: " + e.Message);
+            } // end catch
+
+            return true;
+        } // end method Update
+
+        /// <summary>Updates a credentials record in the MySQL database.</summary>
+        /// <param name="credentials">The credentials to update.</param>
+        /// <returns>True if successful, otherwise false.</returns>
+        /// <remarks>
+        ///         If no user with credentials.UserName exists, a new user is created.
+        ///         The new user will have a blank password, and UpdatePassword must be called
+        ///         to activate the user, and assign a password.
+        /// </remarks>
+        private bool Update(Credentials credentials)
+        {
+            var output = true;
+
+            try
+            {
+                MySqlCommand cmd = GetCommand(credentials.UserName, 'S', s_CREDENTIALS_TABLE, s_CREDENTIALS_KEY, "*");
+
+                MySqlDataReader reader = cmd.ExecuteReader();
+
+                reader.Read();                
+
+                if (reader.HasRows)
+                {
+                    uint ui_WP = reader.GetUInt32(1);
+
+                    reader.Close();
+
+                    if (ui_WP != credentials.WP)
+                    {
+                        WriteToLog(" -- DBH update failed for credentials of " + credentials.UserName + " because of write protection.");
+                        output = false;
+                    } // end if
+
+                    ui_WP++;
+                    MySqlCommand temp = GetCommand(credentials.UserName, 'U', s_CREDENTIALS_TABLE, s_CREDENTIALS_KEY, "WP", ui_WP.ToString());
+                    temp.ExecuteNonQuery();
+                    temp = GetCommand(credentials.UserName, 'U', s_CREDENTIALS_TABLE, s_CREDENTIALS_KEY, "admin", credentials.IsAdmin.ToString());
+                    temp.ExecuteNonQuery();
+                } // end if
+                else
+                {
+                    reader.Close();
+                    output = CreateUser(credentials);
+                } // end else
+            } // end try
+            catch (Exception e)
+            {
+                WriteToLog(" -- DBH update failed for the user credentials with username: " + credentials.UserName + " Msg: " + e.Message);
+                output = false;
+            } // end catch
+            
+            return output;
+        } // end method Update
+        
+        /// <summary>Creates a new user with the specified properties.</summary>
+        /// <param name="credentials">Should contain the username, and isAdmin fields. Others will be ignored.</param>
+        /// <returns>True if creation was successful, false otherwise.</returns>
+        private bool CreateUser(Credentials credentials)
+        {
+            var output = false;
+
+            for (int i = 0; i < 10 ; i++) // try 10 times to ensure the salt is not the problem
+            {
+                credentials.PWSalt = GetPasswordSalt(); // assign new salt
+
+                MySqlCommand cmd = GetCommand(credentials.UserName, 'I', s_CREDENTIALS_TABLE, s_CREDENTIALS_KEY, "", GetInsertValues(credentials));
+                
+                try
+                {
+                    cmd.ExecuteNonQuery(); // create record
+                    output = true;
+                    break;
+                } // end try
+                catch(Exception e)
+                {
+                    WriteToLog(" -- DBH creation of user \"" + credentials.UserName + "\" failed. Msg: " + e.Message);
+                    continue;
+                } // end try
+            } // end for
+
+            return output;
+        } // end method CreateUser
+
+        /// <summary>Changes the password of the specified user.</summary>
+        /// <param name="s_ID">The username of the person whose password is to be changed.</param>
+        /// <param name="ss_pw">The new password, in a secure string.</param>
+        /// <returns>True if the password change was successful, otherwise false.</returns>
+        /// <remarks>The password in the secure string object should already be hashed when it is received here. Otherwise a plain text password is stored.</remarks>
+        private bool ChangePassword(string s_ID, ref SecureString ss_pw)
+        {
+            var output = false;
+
+            MySqlCommand cmd = GetCommand(s_ID, 'U', s_CREDENTIALS_TABLE, s_CREDENTIALS_KEY, "password", "\"" + Utilities.SecureStringToString(ss_pw) + "\"");
+
+
+            try
+            {
+                cmd.ExecuteNonQuery();
+                output = true;
+            } // end try
+            catch(Exception e)
+            {
+                WriteToLog(" -- DBH password change for user " + s_ID + " failed. Msg: " + e.Message);
+            } // end catch
+            finally
+            {
+                cmd.CommandText = null;
+                GC.Collect(); // try to delete the query which has the password hash in it
+            } // end finally
+
+            return output;
+        } // end method ChangePassword
+        
+
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
+
+        // MySQL query generator methods:
+        /// <summary>Creates an insert query based on the input.</summary>
+        /// <param name="s_table">Table to insert to.</param>
+        /// <param name="s_values">Values for the new row.</param>
+        /// <returns>A ready to go insert sql query.</returns>
+        private string GetInsertQuery(string s_table, string s_values)
+        {
+            //"INSERT INTO test_db.student_plans\nVALUES(\"22345678\", 1, \"Winter14\", \"CS101,CS110,GE1,UNIV101\")"
+
+            string query = "INSERT INTO ";
+            query += s_MYSQL_DB_NAME;
+            query += ".";
+            query += s_table;
+            query += "\n VALUES(";
+            query += s_values;
+            query += ");";
+
+            return query;
+        } // end method GetInsertQuery
+
+        /// <summary>Creates the values string for a PlanInfo object.</summary>
+        /// <param name="plan">The plan to be inserted into the DB.</param>
+        /// <returns>A formated string containing the values to be inserted.</returns>
+        private string GetInsertValues(PlanInfo plan)
+        {
+                                             // \"{SID}\", {WP}, \"{start quarter}\", \"{quarter1 classes}\", \"{quarter2 classes}\", ...
+            string s_values = "\"" + plan.StudentID + "\", 1, \"" + plan.StartQuarter + "\"";
+
+            foreach(string s in plan.Classes)
+            {
+                s_values += ", \"" + s + "\"";
+            } // end foreach
+            
+            return s_values;
+        } // end method GetInsertValues
+        
+        /// <summary>Creates the values string for a Credentials object.</summary>
+        /// <param name="credentials">The credentials to insert.</param>
+        /// <returns>A formatted string ready to be used with an insert query.</returns>
+        private string GetInsertValues(Credentials credentials)
+        {
+            string s_values = "\"" + credentials.UserName + "\", 1, \"\", " + (credentials.IsAdmin ? "1, " : "0, ");
+            //                                                     pw blank
+            s_values += "0x" + BitConverter.ToString(credentials.PWSalt).Replace("-", string.Empty);
+            
+            return s_values;
+        } // end method GetInsertValues
+
+        /// <summary>Creates an select query based on the input.</summary>
+        /// <param name="s_table">The table to access.</param>
+        /// <param name="s_column">The column to retrieve.</param>
+        /// <param name="s_keyType">The type of key to use to locate the row.</param>
+        /// <param name="s_keyValue">The value of the key.</param>
+        /// <returns>A ready to go select sql query.</returns>
+        private string GetSelectQuery(string s_table, string s_column, string s_keyType, string s_keyValue)
+        {
+            //SELECT * FROM test_db.user_credentials WHERE SID = s_ID
+
+            string query = "SELECT ";
+            query += s_column;
+            query += " FROM ";
+            query += s_MYSQL_DB_NAME;
+            query += ".";
+            query += s_table;
+            query += " WHERE ";
+            query += s_keyType;
+            query += " = \"";
+            query += s_keyValue;
+            query += "\"";
+
+            return query;
+        } // end method GetSelectQuery
+
+        /// <summary>Creates an update query based on the input.</summary>
+        /// <param name="s_table">The table to access.</param>
+        /// <param name="s_columnToUpdate">The column(s) to update.</param>
+        /// <param name="s_keyType">The type of key to use to locate the row.</param>
+        /// <param name="s_keyValue">The value of the key.</param>
+        /// <param name="s_newValue">The new value for the specified column(s).</param>
+        /// <returns>A ready to go update sql query.</returns>
+        private string GetUpdateQuery(string s_table, string s_columnToUpdate, string s_keyType, string s_keyValue,  string s_newValue)
+        {
+            string query = "UPDATE ";
+            query += s_MYSQL_DB_NAME;
+            query += ".";
+            query += s_table;
+            query += " SET ";
+            query += s_columnToUpdate;
+            query += " = ";
+            if (s_columnToUpdate != "WP" && s_columnToUpdate != "admin" && s_columnToUpdate != "password")
+            {
+                query += "\"";
+                query += s_newValue;
+                query += "\"";
+            }
+            else
+            {
+                query += s_newValue;
+            }
+            query += " WHERE ";
+            query += s_keyType;
+            query += "= \"";
+            query += s_keyValue;
+            query += "\";";
+            return query;
+        } // end method GetUpdateQuery
+
+        /// <summary>Creates a MySQL command of the specified type.</summary>
+        /// <param name="s_ID">The key of the row this command shall apply to.</param>
+        /// <param name="c_type">The type of command to be created.</param>
+        /// <param name="s_table">The table this command should apply to.</param>
+        /// <param name="s_IDType">The type of the key value passed in arg 1.</param>
+        /// <param name="s_column">The column to be affected by an select/update instruction.</param>
+        /// <param name="s_values">The new value for the specified column(s) for insert/update instruction.</param>
+        /// <returns>A ready to be executed MySQL command of the specified type.</returns>
+        /// <exception cref="ArgumentException">Thrown if an invalid command type was passed in arg 2.</exception>
+        /// <remarks>
+        ///          The ID should be the key for the table, either the username for credentials, or the SID for student plans.
+        ///          The types of commands are: S - select, U - update, I - insert
+        ///          The ID type is either SID for student_plans table, or username for user_credentials table.
+        ///          The column depends on the type of command (optional parameter):
+        ///                     Select: either the column to select, or * for the whole row
+        ///                     Update: the column to update, * should not be used
+        ///                     Insert: unused
+        ///          The values depends on the type of command (optional parameter):
+        ///                     Select: unused - may be left blank
+        ///                     Update: the new value of the specified column
+        ///                     Insert: the new values of the specified row, must be formatted correctly
+        ///                         Format: \"{SID}\", {WP}, \"{start quarter}\", \"{quarter1 classes}\", \"{quarter2 classes}\", ...
+        ///                         Note: The quarters passed may not exceed the number of quarters in the table, add columns as needed before inserting
+        ///                               The classes should be in a comma separated list
+        ///          Explanation of the commands: 
+        ///                     Select: Will select the row with the specified ID
+        ///                     Update: Will update the specified item with the new value in the row with specified ID
+        ///                     Insert: Will insert a new row with specified values
+        ///                     
+        ///          The Master record for student plans has the ID -1, and can be updated with: GetCommand("-1", 'U', "", "")
+        /// </remarks>
+        private MySqlCommand GetCommand(string s_ID, char c_type, string s_table, string s_IDType, string s_column = "", string s_values = "")
+        {
+            MySqlCommand cmd = new MySqlCommand
+            {
+                Connection = DB_CONNECTION
+            };
+
+            switch (c_type)
+            {
+                case 'S': // get a select command
+                    cmd.CommandText = GetSelectQuery(s_table, s_column, s_IDType, s_ID);
+                    break; // end case S
+
+                case 'U': // get an update command
+                    if (s_ID == "-1") // update master record command
+                    {
+                        cmd.CommandText = GetUpdateQuery(s_PLAN_TABLE, "WP", "SID", "-1", ui_COL_COUNT.ToString());
+                    } // end if
+                    else
+                    {
+                        cmd.CommandText = GetUpdateQuery(s_table, s_column, s_IDType, s_ID, s_values);
+                    } // end else
+                    break; // end case U
+
+                case 'I': // get an insert command
+                    cmd.CommandText = GetInsertQuery(s_table, s_values);
+                    break; // end case I
+
+                default:  // invalid input
+                    throw new ArgumentException("GetCommand received an invalid command type. Type received: " + c_type);
+            } // end switch
+
+            return cmd;
+        } // end method GetCommand
+        
+
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
+
+        // MySQL Database control methods:
+        /// <summary>Connects to the MySQL database and initializes the class field DB_CONNECTION.</summary>
+        /// <param name="s_pw">The password for the MySQL database.</param>
+        /// <returns>True if login was successful, otherwise false.</returns>
+        private bool ConnectToDB(ref string s_pw)
+        {
+            // Variables:
+            string s_connStr = "server=" + s_MYSQL_DB_SERVER + ";port=" + s_MYSQL_DB_PORT + ";database=" +
+                               s_MYSQL_DB_NAME + ";user id=" + s_MYSQL_DB_USER_ID + ";password=" + s_pw +
+                               ";persistsecurityinfo=True;";
+
+            //"server=<TBD>;port=<TBD>;database=<DB>;user id=<TBD>;password=<TBD>;persistsecurityinfo=True;"
+            MySqlConnection connection = new MySqlConnection(s_connStr);
+
+
+            try
+            {
+                connection.Open();
+            } // end try
+            catch (Exception)
+            {
+                return false;
+            } // end catch
+
+            DB_CONNECTION = connection;
+
+            return true;
+        } // end method ConnectToDB
+
+        /// <summary>Attempts to reconnect to the MySQL database after connection was lost.</summary>
+        /// <exception cref="TimeoutException">Thrown when the connection cannot be reestablished.</exception>
+        private void AttemptReconnect()
+        {
+            try
+            {
+                if (DB_CONNECTION != null)
+                {
+                    DB_CONNECTION.Close();
+                    DB_CONNECTION.Open();
+                } // end if
+                else // impossible to reconnect if password is lost
+                {
+                    WriteToLog(" -- DBH connection to MySQL DB was null when AttemptReconnect was called.");
+                    throw new ArgumentNullException("The MySQL connection to " + s_MYSQL_DB_NAME + " was null while attempting to reconnect.");
+                } // end else
+            } // end try
+            catch (MySqlException e)
+            {
+                WriteToLog(" -- DBH connection could not be reestablished. Msg: " + e.Message);
+                throw new TimeoutException("2");
+            } // end catch
+        } // end method AttemptReconnect
+
+
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
+
+        // MySQL Management:
+        /// <summary>Creates the Student plan table in the MySQL database.</summary>
+        /// <param name="s_pw">The password to establish the connection with the MySQL db.</param>
+        /// <remarks>
+        ///         Calling this method will drop the table with the name stored in s_PLAN_TABLE
+        ///         This method will create a table with these three columns: 
+        ///             SID       - (key - unique, not null) type: VARCHAR(45) default: none
+        ///             WP        - (not null, unsigned)     type: INT(10)     default: 1
+        ///             start_qtr - ()                       type: VARCHAR(45) default: "" (empty string)
+        ///         
+        ///         Then, a master record will be created, this record must not be deleted, 
+        ///         doing so will break the table.
+        ///         The master record will be:
+        ///             SID: -1, WP: 0, start_qtr: "MASTER RECORD"
+        /// </remarks>
+        public void MakeStudentPlanTable(string s_pw)
+        {
+            ConnectToDB(ref s_pw);
+
+            // create the student plan table
+            string query = "DROP TABLE IF EXISTS '" + s_MYSQL_DB_NAME + "'.'" + s_PLAN_TABLE + "';"; 
+            query += "\nCREATE TABLE IF NOT EXISTS '" + s_MYSQL_DB_NAME + "'.'" + s_PLAN_TABLE + "' (";
+            query += "\n'" + s_PLAN_KEY + "' VARCHAR(45) NOT NULL,\n'WP' INT(10) UNSIGNED NOT NULL DEFAULT \"1\",";
+            query += "\n'start_qtr' VARCHAR(45) NULL DEFAULT \"\",";
+            query += "\nPRIMARY KEY ('" + s_PLAN_KEY + "'),\nUNIQUE INDEX '" + s_PLAN_KEY + "_UNIQUE' ('" + s_PLAN_KEY + "' ASC));";
+
+            MySqlCommand cmd = new MySqlCommand(query, DB_CONNECTION);
+            cmd.ExecuteNonQuery();
+
+            // create the master record
+            query = "";
+            query = "INSERT INTO '" + s_MYSQL_DB_NAME + "'.'" + s_PLAN_TABLE + "' ('" + s_PLAN_KEY + "', 'WP', 'start_qtr') VALUES ('-1', '0', 'MASTER RECORD');";
+
+            cmd.CommandText = query;
+
+            cmd.ExecuteNonQuery();
+        } // end method MakeStudentPlanTable
+
+        public void MakeCredentialsTable(string s_pw)
+        {
+            ConnectToDB(ref s_pw);
+
+            // create the student plan table
+            string query = "DROP TABLE IF EXISTS '" + s_MYSQL_DB_NAME + "'.'" + s_CREDENTIALS_TABLE + "';";
+            query += "\nCREATE TABLE IF NOT EXISTS '" + s_MYSQL_DB_NAME + "'.'" + s_CREDENTIALS_TABLE + "' (";
+            query += "\n'" + s_CREDENTIALS_KEY + "' VARCHAR(45) NOT NULL,\n'WP' INT(10) UNSIGNED NOT NULL DEFAULT 1,";
+            query += "\n'password' CHAR(64) NOT NULL,\n'admin' TINYINT(4) NOT NULL DEFAULT 0,";
+            query += "\n'password_salt' BINARY(32) NOT NULL,\n'active' TINYINT(4) NOT NULL DEFAULT 0,";
+            query += "\nPRIMARY KEY ('" + s_CREDENTIALS_KEY + "'),\nUNIQUE INDEX '" + s_CREDENTIALS_KEY + "_UNIQUE' ('" + s_CREDENTIALS_KEY + "' ASC),";
+            query += "\nUNIQUE INDEX 'password_salt_UNIQUE' ('password_salt' ASC));";
+
+            MySqlCommand cmd = new MySqlCommand(query, DB_CONNECTION);
+            cmd.ExecuteNonQuery();
+        } // end method MakeCredentialsTable
+
+        /// <summary>Adds k columns to the student_plans table and updates the master record accordingly.</summary>
+        /// <param name="k">Number of columns to add.</param>
+        /// <returns>True if successful, otherwise false.</returns>
+        private bool AddColumns(int k)
+        {
+            // Variables:
+            MySqlCommand cmd = new MySqlCommand
+            {
+                Connection = DB_CONNECTION
+            };
+
+            var output = true;
+
+            int i = 0; // for error output in catch
+
+
+            try
+            {
+                for (i = 0; i < k; i++)
+                {
+                    cmd.CommandText = "ALTER TABLE " + s_MYSQL_DB_NAME + "." + s_PLAN_TABLE + "\nADD COLUMN qtr_" + ui_COL_COUNT + " VARCHAR(45) NULL DEFAULT '\"\"';";
+                    cmd.ExecuteNonQuery();
+                    ui_COL_COUNT++;
+                } // end for
+                WriteToLog(" -- DBH add columns successfully added " + k.ToString() + " columns to the student_plans table. The table now has "
+                            + ui_COL_COUNT.ToString() + " plan columns.");
+            } // end try
+            catch (Exception e)
+            {
+                WriteToLog(" -- DBH add columns failed. The attempt to add " + k.ToString() + "columns to the plan table failed. Msg: " + e.Message);
+                WriteToLog(" -- DBH add columns failed. " + (i - 1).ToString() + " columns were successfully added before failing.");
+                output = false;
+            } // end catch
+
+            MySqlCommand temp = GetCommand("-1", 'U', "", ""); // get cmd for updating master record
+            temp.ExecuteNonQuery(); // update master record with new column number
+
+            return output;
+        } // end method AddColumns
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        public void TestRun()
+        {
+            SetUp();
+
+            //AttemptReconnect();
+
+            //PlanInfo c = new PlanInfo("2345678", 1, "Winter 15", new string[]{"CS101,GE1","CS110,GE2", "CS111,GE3", "CS112,GE4", "CS301,CS311", "CS302,CS312", "CS361", "CS362"});
+
+            //Update(c);
+
+
+            //PlanInfo a = RetrieveStudentPlan("2345678");
+            //Credentials b = RetrieveUserCredentials("test_user");
+
+            //b.IsAdmin = !b.IsAdmin;
+
+            //Update(b);
+
+            //b = RetrieveUserCredentials("test_user");
+
+            //Credentials b = new Credentials("test_user", 1, true, new byte[32]);
+
+            //Update(b);
+
+            //Console.WriteLine(a.ToString());
+            //Console.WriteLine(b.ToString());
+            Console.WriteLine("DONE.");
+            CleanUp();
+            Console.ReadKey();
+        }
+
+        /// <summary>Dummy records for testing.</summary>
+        private static void TestData()
         {
             using (IObjectContainer db = Db4oFactory.OpenFile("Students.db4o"))
             {
@@ -166,68 +1420,5 @@ namespace Database_Handler
                 db.Close();
             } // end using
         } // end method TestData
-
-        static object RetrieveStudentPlan(string s_ID)
-        {
-            // Variables:
-            string[] data = null;
-
-            MySqlConnection conn = GetDBConnection();
-
-            MySqlDataReader reader;
-
-            MySqlCommand cmd = new MySqlCommand
-            {
-                CommandText = "SELECT * FROM test_db.student_plans WHERE SID = \"" + s_ID + "\"",
-                Connection = conn
-            };
-
-            conn.Open();
-
-            reader = cmd.ExecuteReader();
-
-            
-
-            if (reader.HasRows)
-            {
-                // Variables:
-                int i_offset = 2; // offset for the SID and WP columns
-                int i_fields = reader.FieldCount - i_offset; // number of rows in actual plan
-                int WP = -1;
-
-                data = new string[i_fields];
-
-                reader.Read();
-
-                WP = (int)reader.GetValue(1);
-
-                
-                for(int i = 0; i < i_fields; i++)
-                {
-                    data[i] = (string)reader.GetValue(i + i_offset);
-                } // end while
-            } // end if
-
-            conn.Close();
-
-            return data;
-        } // end method RetrieveStudentPlan
-
-        static object RetrieveUserCredentials(string s_ID)
-        {
-            /// TODO
-            return null;
-        }
-
-        private static MySqlConnection GetDBConnection()
-        {
-            // Variables:
-            string          s_connStr  = "server=localhost;port=3306;database=test_db;user id=testuser;password=abc123;";
-            //s_connStr = "server=<TBD>;user id=<TBD>;password=<TBD>;persistsecurityinfo=True;port=<TBD>;database=<DB>";
-            MySqlConnection connection = new MySqlConnection(s_connStr);
-
-
-            return connection;
-        } // end method GetDBConnection
     } // end Class DatabaseHandler
 } // end namespace Database_Handler

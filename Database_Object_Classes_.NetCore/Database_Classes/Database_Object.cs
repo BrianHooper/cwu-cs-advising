@@ -4,7 +4,8 @@ using System.Collections.Generic;
 namespace Database_Object_Classes
 {
     /// <summary>Base class for all objects in the db4o database, containing the basic construct used by all objects.</summary>
-    public abstract class Database_Object
+    [Serializable]
+    public abstract class Database_Object 
     {
         // Class fields:
         /// <summary>Write protection to maintain data integrity of this object.</summary>
@@ -15,14 +16,23 @@ namespace Database_Object_Classes
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
-        // Constructor:
+        // Constructors:
         /// <summary>Default Constructor. Initializes the write protect of this object to default.</summary>
+        /// <param name="s_ID">The ID of this object.</param>
         public Database_Object(string s_ID)
         {
             ui_writeProtect = 0;
 
             ID = string.Copy(s_ID);
         } // end Default Constructor
+
+        /// <summary>Copy Constructor for this class.</summary>
+        /// <param name="other">Object to copy.</param>
+        public Database_Object(Database_Object other)
+        {
+            ui_writeProtect = other.ui_writeProtect;
+            ID = string.Copy(other.s_ID);
+        } // end Copy Constructor
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -34,11 +44,7 @@ namespace Database_Object_Classes
         public string ID
         {
             get => s_ID;
-            protected set
-            {
-                ObjectAltered();
-                s_ID = string.Copy(value);                
-            } // end set 
+            set => s_ID = string.Copy(value);
         } // end ID
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -46,7 +52,7 @@ namespace Database_Object_Classes
         // Methods:
         /// <summary>Updates the value of write protect of this object.</summary>
         /// <remarks>If the uint.Max value is reached, the overflow will be ignored, and the write protect is reset to 0.</remarks>
-        protected void ObjectAltered()
+        public void ObjectAltered()
         {
             // overflow will simply reset the counter to 0
             unchecked

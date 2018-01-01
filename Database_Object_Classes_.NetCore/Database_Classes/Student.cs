@@ -1,6 +1,9 @@
-﻿namespace Database_Object_Classes
+﻿using System;
+
+namespace Database_Object_Classes
 {
     /// <summary>Class storing the first and last name, student ID, catalog year, expected graduation quarter, and starting quarter of a student.</summary>
+    [Serializable]
     public class Student : Database_Object
     {
         // Class fields:
@@ -54,11 +57,22 @@
             this.as_standing         = new AcademicStanding(as_standing);
             this.ui_creditsCompleted = ui_creditsCompleted;
             this.d_GPA               = d_GPA;
-
-            // expected graduation is still set to default
+            
             q_expectedGraduation = Quarter.DefaultQuarter;
         } // end Constructor
         
+        /// <summary>Copy constructor which copies the contents of one student into this student.</summary>
+        /// <param name="other">The object to copy into this one.</param>
+        public Student(Student other) : base(other)
+        {
+            n_name               = new Name(other.Name);
+            q_startingQuarter    = new Quarter(other.q_startingQuarter);
+            q_expectedGraduation = new Quarter(other.q_expectedGraduation);
+            as_standing          = new AcademicStanding(other.as_standing);
+            d_GPA                = other.d_GPA;
+            ui_creditsCompleted  = other.ui_creditsCompleted;
+        } // end Copy Constructor
+
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
         // General Getters/Setters:
@@ -66,33 +80,42 @@
         public Quarter ExpectedGraduation
         {
             get => q_expectedGraduation;
-            set
-            {
-                ObjectAltered();
-                q_expectedGraduation = new Quarter(value);                
-            } // end set
+            set => q_expectedGraduation = new Quarter(value);
         } // end ExpectedGraduation
 
         /// <summary>Getter/Setter for the number of credits this student has completed.</summary>
         public uint CreditsCompleted
         {
             get => ui_creditsCompleted;
-            set
-            {
-                ObjectAltered();
-                ui_creditsCompleted = value;
-            } // end set
+            set => ui_creditsCompleted = value;
         } // end CreditsCompleted
 
         /// <summary>Getter/Setter for student name.</summary>
         public Name Name
         {
             get => n_name;
-            set
-            {
-                ObjectAltered();
-                n_name = new Name(value);
-            } // end set
+            set => n_name = new Name(value);
         } // end Name
+
+        /// <summary>Getter/Setter for student GPA.</summary>
+        public double GPA
+        {
+            get => d_GPA;
+            set => d_GPA = value;
+        } // end GPA
+
+        /// <summary>Getter/Setter for student starting quarter.</summary>
+        public Quarter StartingQuarter
+        {
+            get => q_startingQuarter;
+            set => q_startingQuarter = new Quarter(value);
+        } // end StartingQuarter
+
+        /// <summary>Getter/Setter for student Academic Standing.</summary>
+        public AcademicStanding AcademicStanding
+        {
+            get => as_standing;
+            set => as_standing = new AcademicStanding(as_standing);
+        } // end AcademicStanding
     } // end Class Student
 } // end Namespace Database_Object_Classes

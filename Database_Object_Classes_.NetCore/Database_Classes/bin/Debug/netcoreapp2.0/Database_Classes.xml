@@ -184,6 +184,11 @@
         </member>
         <member name="M:Database_Object_Classes.Database_Object.#ctor(System.String)">
             <summary>Default Constructor. Initializes the write protect of this object to default.</summary>
+            <param name="s_ID">The ID of this object.</param>
+        </member>
+        <member name="M:Database_Object_Classes.Database_Object.#ctor(Database_Object_Classes.Database_Object)">
+            <summary>Copy Constructor for this class.</summary>
+            <param name="other">Object to copy.</param>
         </member>
         <member name="P:Database_Object_Classes.Database_Object.WP">
             <summary>Getter for the write protect value of this object.</summary>
@@ -219,6 +224,9 @@
         </member>
         <member name="F:Database_Object_Classes.Season.Fall">
             <summary>Fall quarter, denoted by 3.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Season.Invalid">
+            <summary>Represents an invalid state for this season object.</summary>
         </member>
         <member name="T:Database_Object_Classes.Quarter">
             <summary>Structure which contains the year, and "season" of the quarter.</summary>
@@ -481,6 +489,111 @@
             <summary>Returns a default object of this structure.</summary>
             <returns>A default object of this structure.</returns>
         </member>
+        <member name="T:Database_Object_Classes.PlanInfo">
+            <summary>Structure storing graduation plan information.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.PlanInfo.s_SID">
+            <summary>This Plan's owner's ID.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.PlanInfo.q_start">
+            <summary>The starting quarter of this plan.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.PlanInfo.sa_classes">
+            <summary>The classes in this plan.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.PlanInfo.ui_WP">
+            <summary>The write protect value of this plan.</summary>
+        </member>
+        <member name="M:Database_Object_Classes.PlanInfo.#ctor(System.String,System.UInt32,System.String,System.String[])">
+            <summary>Constructor for this structure.</summary>
+            <param name="s_ID">The ID of the owner of this plan.</param>
+            <param name="ui_WP">Write Protect value on this plan.</param>
+            <param name="s_qtr">The starting quarter in string form.</param>
+            <param name="sa_classes">The classes in this plan.</param>
+            <remarks>The quarter passed must be in the form "Season Year".</remarks>
+        </member>
+        <member name="M:Database_Object_Classes.PlanInfo.#ctor(Database_Object_Classes.PlanInfo)">
+            <summary>Copy Constructor for this structure.</summary>
+            <param name="other">PlanInfo object to copy.</param>
+        </member>
+        <member name="P:Database_Object_Classes.PlanInfo.StartQuarter">
+            <summary>Getter/Setter for this Plan's starting quarter.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.PlanInfo.Classes">
+            <summary>Getter/Setter for this Plan's classes.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.PlanInfo.StudentID">
+            <summary>Getter for this Plan's owner.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.PlanInfo.WP">
+            <summary>Getter for the write protect value of this plan.</summary>
+        </member>
+        <member name="M:Database_Object_Classes.PlanInfo.ToString">
+            <summary>Turns the data in this object into a string for output.</summary>
+            <returns>A string containing the data in this object.</returns>
+        </member>
+        <member name="T:Database_Object_Classes.Credentials">
+            <summary>Structure storing user information.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Credentials.s_userName">
+            <summary>Username of the owner of these credentials.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Credentials.ba_PWSalt">
+            <summary>The password salt for this user. This should never be changed.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Credentials.b_isAdmin">
+            <summary>Whether or not this user is an administrator.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Credentials.ui_WP">
+            <summary>Write protect value of this object.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Credentials.ss_pw">
+            <summary>Contains this user's password.</summary>
+            <remarks>
+                     Retrieve will not fill this variable.
+                     This variable should only be set when the user's password is to be changed.
+            </remarks>
+        </member>
+        <member name="M:Database_Object_Classes.Credentials.#ctor(System.String,System.UInt32,System.Boolean,System.Byte[])">
+            <summary>Constructor for this structure.</summary>
+            <param name="s_ID">Username of the owner of these credentials.</param>
+            <param name="ui_WP">Write protect value of this object.</param>
+            <param name="b_isAdmin">Whether or not this user is an administrator.</param>
+            <param name="ba_PWSalt">The password salt for this user.</param>
+            <remarks>The only thing that should be changed in this structure is the IsAdmin value.
+                     Changing the username will create a new user upon write back to the DB.
+                     Changing the password salt will have no effect on the DB, 
+                     as this value will be disregarded upon write back.
+                     Changing the write protect will either cause an error, or data corruption.
+            </remarks>
+        </member>
+        <member name="M:Database_Object_Classes.Credentials.#ctor(Database_Object_Classes.Credentials)">
+            <summary>Copy Constructor for this structure.</summary>
+            <param name="other">Credentials object to copy into this object.</param>
+            <remarks>The password is not copied from the other object.</remarks>
+        </member>
+        <member name="P:Database_Object_Classes.Credentials.UserName">
+            <summary>Getter for the username of the owner of these credentials.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Credentials.PWSalt">
+            <summary>Getter for the password salt of this user.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Credentials.IsAdmin">
+            <summary>Getter/Setter for whether this user is an Admin.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Credentials.WP">
+            <summary>Getter for the write protect value of these user credentials.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Credentials.Password">
+            <summary>Returns the secure string containing the password. </summary>
+        </member>
+        <member name="P:Database_Object_Classes.Credentials.AddToPW">
+            <summary>Adds the specified character to the password.</summary>
+        </member>
+        <member name="M:Database_Object_Classes.Credentials.ToString">
+            <summary>Turns the data in this object into a string for output.</summary>
+            <returns>A string representation of this object.</returns>
+        </member>
         <member name="T:Database_Object_Classes.Student">
             <summary>Class storing the first and last name, student ID, catalog year, expected graduation quarter, and starting quarter of a student.</summary>
         </member>
@@ -517,6 +630,10 @@
             <param name="d_GPA">This student's GPA.</param>
             <param name="as_standing">This student's academic standing.</param>
         </member>
+        <member name="M:Database_Object_Classes.Student.#ctor(Database_Object_Classes.Student)">
+            <summary>Copy constructor which copies the contents of one student into this student.</summary>
+            <param name="other">The object to copy into this one.</param>
+        </member>
         <member name="P:Database_Object_Classes.Student.ExpectedGraduation">
             <summary>Getter/Setter for Expected Graduation</summary>
         </member>
@@ -525,6 +642,15 @@
         </member>
         <member name="P:Database_Object_Classes.Student.Name">
             <summary>Getter/Setter for student name.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Student.GPA">
+            <summary>Getter/Setter for student GPA.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Student.StartingQuarter">
+            <summary>Getter/Setter for student starting quarter.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Student.AcademicStanding">
+            <summary>Getter/Setter for student Academic Standing.</summary>
         </member>
     </members>
 </doc>
