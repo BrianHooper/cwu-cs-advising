@@ -26,8 +26,8 @@ namespace Database_Handler
         private readonly string s_CREDENTIALS_KEY   = "username"        ;
         private readonly string s_PLAN_KEY          = "SID"             ;
 
-        private const int i_SALT_LENGTH           = 32                ;
-        private const int i_HASH_ITERATIONS       = 4                 ;
+        private const int i_SALT_LENGTH             = 32                ;
+        private const int i_HASH_ITERATIONS         = 4                 ;
 
         private uint ui_COL_COUNT;
 
@@ -439,19 +439,27 @@ namespace Database_Handler
         /// <exception cref="RetrieveError">Thrown if an invalid type is passed in arg 2.</exception>
         private object Retrieve(string s_ID, char c_type)
         {
-            switch (c_type)
+            try
             {
-                case 'S':
-                case 'Y':
-                case 'C':
-                    return RetrieveHelper(s_ID, c_type);
-                case 'U':
-                    return RetrieveUserCredentials(s_ID);
-                case 'P':
-                    return RetrieveStudentPlan(s_ID);
-                default:
-                    throw new RetrieveError("Invalid character received by Retrieve method.", c_type);
-            } // end switch
+
+                switch (c_type)
+                {
+                    case 'S':
+                    case 'Y':
+                    case 'C':
+                        return RetrieveHelper(s_ID, c_type);
+                    case 'U':
+                        return RetrieveUserCredentials(s_ID);
+                    case 'P':
+                        return RetrieveStudentPlan(s_ID);
+                    default:
+                        throw new RetrieveError("Invalid character received by Retrieve method.", c_type);
+                } // end switch
+            } // end try
+            catch (KeyNotFoundException e)
+            {
+                return null;
+            } // end catch
         } // end method Retrieve
         
 
@@ -510,6 +518,13 @@ namespace Database_Handler
         /// <param name="dbo">The object to update.</param>
         /// <param name="s_msg">Error message, empty if no error is encountered.</param>
         /// <returns>An error code, or 0 if update was successful.</returns>
+        /// <remarks>
+        ///             Return codes:
+        ///             0  - success
+        ///             1  - arg 2 was null 
+        ///             2  - Write protection error
+        ///             -1 - Unknown exception occurred
+        /// </remarks>
         private int Update(char c_type, Database_Object dbo, out string s_msg)
         {
             try
@@ -525,11 +540,6 @@ namespace Database_Handler
             {
                 s_msg = e.Message;
                 return 2;
-            } // end catch
-            catch(ArgumentException e)
-            {
-                s_msg = e.Message;
-                return 3;
             } // end catch
             catch(Exception e)
             {
@@ -584,7 +594,6 @@ namespace Database_Handler
                     throw new InvalidOperationException("Write protection does not match database record.");
                 } // end else
             } // end else
-
         } // end method UpdateHelper
 
         /// <summary>Updates an existing record.</summary>
@@ -638,7 +647,7 @@ namespace Database_Handler
                         } // end using
                         break;
                     default:
-                        throw new ArgumentException("Invalid type.");
+                        throw new ArgumentException("Invalid type received: " + c_type.ToString());
                 } // end switch
             } // end try
             catch (Exception e)
@@ -688,14 +697,69 @@ namespace Database_Handler
                         } // end using
                         break;
                     default:
-                        throw new ArgumentException();
+                        throw new ArgumentException("Invalid type received: " + c_type.ToString());
                 } // end switch
             } // end try
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new ArgumentException("Invalid input received by CreateeRecord.");
+                throw new ArgumentException("Invalid input received by CreateeRecord. Msg: " + e.Message);
             } // end catch
         } // end method CreateRecord
+
+
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
+
+        // DB4O delete:
+        /// <summary>Deletes the object with specified ID from the appropriate DB4O database.</summary>
+        /// <param name="c_type">The type of object to delete.</param>
+        /// <param name="s_ID">The ID of the object to delete.</param>
+        /// <returns>True if deletion was successful, otherwise false.</returns>
+        private bool DeleteRecord(char c_type, string s_ID)
+        {
+            try
+            {
+                switch (c_type)
+                {
+                    case 'S':
+                        using (IObjectContainer db = Db4oFactory.OpenFile(s_STUDENT_DB))
+                        {
+                            Student student = db.Query(delegate (Student proto) { return proto.ID == s_ID; })[0];
+                            db.Delete(student);
+                            db.Commit();
+                            db.Close();
+                        } // end using
+                        break;
+                    case 'Y':
+                        using (IObjectContainer db = Db4oFactory.OpenFile(s_CATALOG_DB))
+                        {
+                            CatalogRequirements catalog = db.Query(delegate (CatalogRequirements proto) { return proto.ID == s_ID; })[0];
+                            db.Delete(catalog);
+                            db.Commit();
+                            db.Close();
+                        } // end using
+                        break;
+                    case 'C':
+                        using (IObjectContainer db = Db4oFactory.OpenFile(s_COURSE_DB))
+                        {
+                            Course course = db.Query(delegate (Course proto) { return proto.ID == s_ID; })[0];
+                            db.Delete(course);
+                            db.Commit();
+                            db.Close();
+                        } // end using
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid type received.");
+                } // end switch
+            } // end try
+            catch (Exception e)
+            {
+                WriteToLog(" -- DBH delete failed of DB4O object of type " + c_type + ". Msg: " + e.Message);
+                return false;
+            } // end catch
+
+
+            return true;
+        } // end method DeleteRecord
 
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -753,6 +817,7 @@ namespace Database_Handler
             } // end if
             else // if the reader has no rows, then the key doesn't exist in the DB
             {
+                reader.Close();
                 throw new KeyNotFoundException(s_ID);
             } // end else
 
