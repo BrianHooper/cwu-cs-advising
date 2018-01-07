@@ -489,6 +489,12 @@
             <summary>Returns a default object of this structure.</summary>
             <returns>A default object of this structure.</returns>
         </member>
+        <member name="M:Database_Object_Classes.AcademicStanding.ToString">
+            <summary>
+            Testing tostring method.
+            </summary>
+            <returns>the objects data in string form.</returns>
+        </member>
         <member name="T:Database_Object_Classes.PlanInfo">
             <summary>Structure storing graduation plan information.</summary>
         </member>
@@ -651,6 +657,10 @@
         </member>
         <member name="P:Database_Object_Classes.Student.AcademicStanding">
             <summary>Getter/Setter for student Academic Standing.</summary>
+        </member>
+        <member name="M:Database_Object_Classes.Student.ToString">
+            <summary>Turns the data in this student object into a string.</summary>
+            <returns>A string version of this object.</returns>
         </member>
     </members>
 </doc>

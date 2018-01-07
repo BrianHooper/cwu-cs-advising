@@ -520,6 +520,15 @@ namespace Database_Object_Classes
         /// <summary>Returns a default object of this structure.</summary>
         /// <returns>A default object of this structure.</returns>
         public static AcademicStanding DefaultAcademicStanding => new AcademicStanding(false, false, false);
+
+        /// <summary>
+        /// Testing tostring method.
+        /// </summary>
+        /// <returns>the objects data in string form.</returns>
+        public override string ToString()
+        {
+            return "Senior: " + b_isSenior.ToString() + " InMajor: " + b_inMajor.ToString() + " Good Standing: " + b_hasGoodStanding.ToString();            
+        }
     } // end structure AcademicStanding
 
     /// <summary>Structure storing graduation plan information.</summary>

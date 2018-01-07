@@ -117,5 +117,21 @@ namespace Database_Object_Classes
             get => as_standing;
             set => as_standing = new AcademicStanding(as_standing);
         } // end AcademicStanding
+
+        /// <summary>Turns the data in this student object into a string.</summary>
+        /// <returns>A string version of this object.</returns>
+        public override string ToString()
+        {
+            string str = "";
+
+            str += "Student Name: " + Name.ToString();
+            str += "\nGPA: " + GPA.ToString();
+            str += "\nCredits completed: " + CreditsCompleted.ToString();
+            str += "\nStarting Quarter: " + StartingQuarter.ToString();
+            str += "\nExpected Graduation: " + ExpectedGraduation.ToString();
+            str += "\nAcademic Standing: " + AcademicStanding.ToString();
+
+            return str;
+        }
     } // end Class Student
 } // end Namespace Database_Object_Classes
