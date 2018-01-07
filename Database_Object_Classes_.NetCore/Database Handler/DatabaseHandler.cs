@@ -10,9 +10,11 @@ using System.Threading;
 
 namespace Database_Handler
 {
+    /// <summary>Database Handler is the middleman between the website and the databases. It retrieves, updates, creates, and deletes database entries.</summary>
     public sealed class DatabaseHandler
     {
         // Class fields:
+        /// <summary>The path to the log file which will contain the log entries created by DBH.</summary>
         public  static   string s_logFilePath       = "log.txt"         ;
         private readonly string s_MYSQL_DB_NAME     = "test_db"         ;
         private readonly string s_MYSQL_DB_SERVER   = "localhost"       ;
@@ -441,7 +443,6 @@ namespace Database_Handler
         {
             try
             {
-
                 switch (c_type)
                 {
                     case 'S':
@@ -458,6 +459,7 @@ namespace Database_Handler
             } // end try
             catch (KeyNotFoundException e)
             {
+                WriteToLog(" -- DBH retrieve could not find the key " + s_ID + "of type " + c_type + "Msg: " + e.Message);
                 return null;
             } // end catch
         } // end method Retrieve
@@ -1339,6 +1341,18 @@ namespace Database_Handler
             cmd.ExecuteNonQuery();
         } // end method MakeStudentPlanTable
 
+        /// <summary>Creates the User Credentials table in the MySQL database.</summary>
+        /// <param name="s_pw">The password to establish the connection with the MySQL db.</param>
+        /// <remarks>
+        ///         Calling this method will drop the table with the name stored in s_CREDENTIALS_TABLE
+        ///         This method will create a table with these three columns: 
+        ///             username      - (key - unique, not null) type: VARCHAR(45) default: none
+        ///             WP            - (not null, unsigned)     type: INT(10)     default: 1
+        ///             password      - (not null)               type: CHAR(64)    default: none
+        ///             admin         - (not null)               type: TINYINT(4)  default: false
+        ///             password_salt - (not null, unique)       type: BINARY(32)  default: none
+        ///             active        - (not null)               type: TINYINT(4)  default: none
+        /// </remarks>
         public void MakeCredentialsTable(string s_pw)
         {
             ConnectToDB(ref s_pw);
@@ -1411,7 +1425,7 @@ namespace Database_Handler
 
 
 
-
+        /// <summary>Test method.</summary>
         public void TestRun()
         {
             SetUp();

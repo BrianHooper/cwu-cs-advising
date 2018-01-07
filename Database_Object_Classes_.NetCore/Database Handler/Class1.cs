@@ -11,7 +11,7 @@ namespace Database_Handler
         {
             DatabaseHandler dbh = new DatabaseHandler();
 
-            Course c = new Course("Computer Architecture 1", "CS311", 4, false);
+            Course c  = new Course("Computer Architecture 1", "CS311", 4, false);
             Student s = new Student(new Name("a", "b"), "123", new Quarter(1, Season.Fall));
 
             s.GPA = 4.0;
