@@ -27,6 +27,10 @@
             <param name="ccr_creditRequirements">CatalogCreditRequirements structure with credit requirements for this catalog.</param>
             <param name="l_degreeRequirements">List of DegreeRequirements structures for this catalog.</param>
         </member>
+        <member name="M:Database_Object_Classes.CatalogRequirements.#ctor(Database_Object_Classes.CatalogRequirements)">
+            <summary>Copy Constructor</summary>
+            <param name="other">Object to copy</param>
+        </member>
         <member name="P:Database_Object_Classes.CatalogRequirements.MinQuartersAtCWU">
             <summary>Getter/Setter for the minimum required quarters taken at CWU.</summary>
         </member>
@@ -172,6 +176,10 @@
         </member>
         <member name="M:Database_Object_Classes.Course.ClearPreRequisites">
             <summary>Removes all prerequisites of this Course object.</summary>
+        </member>
+        <member name="M:Database_Object_Classes.Course.ToString">
+            <summary>Turns the data in this object into a string.</summary>
+            <returns>A string representation of this object.</returns>
         </member>
         <member name="T:Database_Object_Classes.Database_Object">
             <summary>Base class for all objects in the db4o database, containing the basic construct used by all objects.</summary>

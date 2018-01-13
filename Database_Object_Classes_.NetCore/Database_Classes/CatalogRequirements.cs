@@ -39,6 +39,16 @@ namespace Database_Object_Classes
             this.l_degreeRequirements   = new List<DegreeRequirements>(l_degreeRequirements);
         } // end Constructor
 
+        /// <summary>Copy Constructor</summary>
+        /// <param name="other">Object to copy</param>
+        public CatalogRequirements(CatalogRequirements other) : base(other.ID)
+        {
+            ui_minQuartersAtCWU = other.ui_minQuartersAtCWU;
+            d_minCumulativeGPA = other.d_minCumulativeGPA;
+            ccr_creditRequirements = new CatalogCreditRequirements(other.ccr_creditRequirements);
+            l_degreeRequirements = new List<DegreeRequirements>(other.l_degreeRequirements);
+        } // end Copy Constructor
+
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
         // General Getters/Setters:

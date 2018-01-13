@@ -8,18 +8,14 @@ namespace Database_Handler
     /// <summary>Exception class for an error that occurs while retrieving an object from a database.</summary>
     public class RetrieveError : Exception
     {
+        /// <summary>Type of object that was supposed to be retrieved.</summary>
         public char Type { get; }
 
+    /// <summary>Constructor for this exception.</summary>
+    /// <param name="msg">The message.</param>
+    /// <param name="type">The type of object that was supposed to be retrieved.</param>
         public RetrieveError(string msg, char type) : base(msg) => Type = type;
     }; // end Class RetrieveError
-
-    /// <summary>Exception class for an error that occurs when a DBH command is received, but cannot be interpreted by DBH.</summary>
-    public class CommandUninterpretableError : Exception
-    {
-        public string Command { get; }
-
-        public CommandUninterpretableError(string message, string cmd) : base(message) => Command = cmd;
-    } // end Class CommandUninterpretableError
 
     /// <summary>Utilities class containing any utility functions needed by DBH.</summary>
     public class Utilities

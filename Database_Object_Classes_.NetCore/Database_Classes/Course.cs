@@ -33,13 +33,13 @@ namespace Database_Object_Classes
         /// <summary>Default Constructor.</summary>
         public Course() : base("")
         {
-            s_name           = "";
-            ui_numberCredits = 0;
-            b_requiresMajor  = false;
+            s_name             = "";
+            ui_numberCredits   = 0;
+            b_requiresMajor    = false;
 
             ba_quartersOffered = new bool[ui_NUMBERQUARTERS];
 
-            l_preRequisites = new List<Course>();
+            l_preRequisites    = new List<Course>();
         } // end default Constructor
 
         /// <summary>Constructor which creates a Course object with a name and ID, and sets all other fields to default.</summary>
@@ -51,13 +51,13 @@ namespace Database_Object_Classes
         ///          The course identifier is the unique identifier for this course, e.g. CS311 which must not contain spaces.</remarks>
         public Course(string s_name, string s_ID, uint ui_numberCredits, bool b_requiresMajor) : base(s_ID)
         {
-            this.s_name = string.Copy(s_name);
+            this.s_name           = string.Copy(s_name);
             this.ui_numberCredits = ui_numberCredits;
-            this.b_requiresMajor = b_requiresMajor;
+            this.b_requiresMajor  = b_requiresMajor;
 
-            ba_quartersOffered = new bool[ui_NUMBERQUARTERS];
+            ba_quartersOffered    = new bool[ui_NUMBERQUARTERS];
 
-            l_preRequisites = new List<Course>();
+            l_preRequisites       = new List<Course>();
         } // end Constructor
 
         /// <summary>Constructor which creates a Course object with a name, ID, and the given prerequisites.</summary>
@@ -236,6 +236,8 @@ namespace Database_Object_Classes
         /// <summary>Removes all prerequisites of this Course object.</summary>
         public void ClearPreRequisites() => l_preRequisites.Clear();
 
+        /// <summary>Turns the data in this object into a string.</summary>
+        /// <returns>A string representation of this object.</returns>
         public override string ToString()
         {
             string str = "Course name: " + s_name + "\nCourse ID: " + ID + "\nCredits: " + ui_numberCredits + "\nQuarters offered: ";
