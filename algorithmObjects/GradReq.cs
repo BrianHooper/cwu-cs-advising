@@ -10,5 +10,6 @@ namespace CSAdvising
         List<Course> possibleCourses;
         Course courseUsed;
         Quarter quarterTaken;
+        bool creditsMet;
     }
 }
