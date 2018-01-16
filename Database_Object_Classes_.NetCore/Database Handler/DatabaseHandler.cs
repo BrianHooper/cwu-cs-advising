@@ -17,10 +17,13 @@ namespace Database_Handler
         // Class fields:
         /// <summary>The path to the log file which will contain the log entries created by DBH.</summary>
         public  static   string s_logFilePath       = "log.txt"         ;
-        private readonly string s_MYSQL_DB_NAME     = "test_db"         ;
-        private readonly string s_MYSQL_DB_SERVER   = "localhost"       ;
+        private readonly string s_MYSQL_DB_NAME     = "test_db"         ; // local
+      //private readonly string s_MYSQL_DB_NAME     = "test"            ; // remote
+        private readonly string s_MYSQL_DB_SERVER   = "localhost"       ; // local
+      //private readonly string s_MYSQL_DB_SERVER   = "10.32.106.111"   ; // remote
         private readonly string s_MYSQL_DB_PORT     = "3306"            ;
-        private readonly string s_MYSQL_DB_USER_ID  = "testuser"        ;
+        private readonly string s_MYSQL_DB_USER_ID  = "testuser"        ; // local
+      //private readonly string s_MYSQL_DB_USER_ID  = "test_user"       ; // remote
         private readonly string s_CREDENTIALS_TABLE = "user_credentials";
         private readonly string s_PLAN_TABLE        = "student_plans"   ;
         private readonly string s_STUDENT_DB        = "Students.db4o"   ;
@@ -99,7 +102,17 @@ namespace Database_Handler
         {            
             WriteToLog(" -- Database Handler was started.");
 
-            DatabaseHandler DBH = new DatabaseHandler();
+            DatabaseHandler DBH;
+
+            if(args.Length == 12) // custom settings for DBH
+            {
+                DBH = new DatabaseHandler(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11]);
+            } // end if
+            else // default settings for DBH
+            {
+                DBH = new DatabaseHandler();
+            } // end else
+
 
             int i_errorCode = -1;
 
@@ -185,6 +198,7 @@ namespace Database_Handler
                     // if the session expires, attempt to reopen it
                     if (DB_CONNECTION.State != System.Data.ConnectionState.Open)
                     {
+                        WriteToLog(" -- DBH is attempting to reconnect after losing DB connection.");
                         AttemptReconnect();
                     } // end if
 
@@ -193,6 +207,7 @@ namespace Database_Handler
                     switch(i)
                     {
                         case 99: // exit command
+                            WriteToLog(" -- DBH received the exit signal and is preparing to exit.");
                             return 0;
                         default:
                             break;
@@ -222,6 +237,8 @@ namespace Database_Handler
         {
             DatabaseCommand output;
 
+            WriteToLog(" -- DBH is executing a command from " + s_sender + ".");
+
             switch(cmd.CommandType)
             {
                 case CommandType.Retrieve:
@@ -233,6 +250,12 @@ namespace Database_Handler
                 case CommandType.Delete:
                     output = ExecuteDeleteCommand(cmd);
                     break;
+                case CommandType.ChangePW:
+                    output = ExecutePasswordChangeCommand(cmd);
+                    break;
+                case CommandType.Login:
+                    output = ExecuteLoginCommand(cmd);
+                    break;
                 default:
                     output = new DatabaseCommand(-1, "Invalid command type");
                     break;
@@ -243,7 +266,7 @@ namespace Database_Handler
 
         /// <summary>Executes a Retrieve command.</summary>
         /// <param name="cmd">Command containing object to be retrieved.</param>
-        /// <returns>The retrieved object, or null.</returns>
+        /// <returns>A return command containing information about execution success, and, if successful, the requested data.</returns>
         private DatabaseCommand ExecuteRetrieveCommand(DatabaseCommand cmd)
         {
             Database_Object dbo;
@@ -283,7 +306,7 @@ namespace Database_Handler
 
         /// <summary>Executes an Update command.</summary>
         /// <param name="cmd">Command containing object to be updated.</param>
-        /// <returns>0 or an error code.</returns>
+        /// <returns>A return command containing information about execution success.</returns>
         private DatabaseCommand ExecuteUpdateCommand(DatabaseCommand cmd)
         {
             Database_Object dbo;
@@ -331,7 +354,7 @@ namespace Database_Handler
 
         /// <summary>Executes a Delete command.</summary>
         /// <param name="cmd">Command containing object to be deleted.</param>
-        /// <returns>0 or an error code.</returns>
+        /// <returns>A return command containing information about execution success.</returns>
         private DatabaseCommand ExecuteDeleteCommand(DatabaseCommand cmd)
         {
             Database_Object dbo;
@@ -355,11 +378,11 @@ namespace Database_Handler
                     break;
                 case OperandType.Credentials:
                     cred = (Credentials)cmd.Operand;
-                    i_code = Update(cred);
+                    i_code = DeleteRecord(cred);
                     break;
                 case OperandType.PlanInfo:
                     plan = (PlanInfo)cmd.Operand;
-                    i_code = Update(plan);
+                    i_code = DeleteRecord(plan);
                     break;
                 default:
                     i_code = - 1;
@@ -375,7 +398,53 @@ namespace Database_Handler
                 return new DatabaseCommand(i_code, "Delete Failed");
             } // end else            
         } // end method ExecuteRetrieveCommand
-   
+
+        /// <summary>Executes a login command.</summary>
+        /// <param name="cmd">Command containing credentials of user trying to login.</param>
+        /// <returns>A return command containing information about execution success.</returns>
+        private DatabaseCommand ExecuteLoginCommand(DatabaseCommand cmd)
+        {
+            DatabaseCommand output;
+            Credentials cred = (Credentials)cmd.Operand;
+
+            bool b_success = LoginAttempt(cred.UserName, cred.Password, out bool b_isAdmin);
+
+            cred.Password.Dispose(); // delete password
+
+            if(b_success)
+            {
+                output = new DatabaseCommand();
+            } // end if
+            else
+            {
+                output = new DatabaseCommand(1, "Login failed, username/password incorrect.");
+            } // end else
+
+            return output;
+        } // end method ExecuteLoginCommand
+
+        /// <summary>Executed a password change.</summary>
+        /// <param name="cmd">Command containing credentials of user trying to change password.</param>
+        /// <returns>A return command containing information about execution success.</returns>
+        private DatabaseCommand ExecutePasswordChangeCommand(DatabaseCommand cmd)
+        {
+            DatabaseCommand output;
+            Credentials cred = (Credentials)cmd.Operand;
+
+            int i_errorCode = ChangePassword(cred.UserName, cred.Password, cred.IsActive);
+
+            if(i_errorCode == 0)
+            {
+                output = new DatabaseCommand();
+            } // end if
+            else
+            {
+                output = new DatabaseCommand(i_errorCode, "Password change failed, user does not exist.");
+            } // end else
+
+            return output;
+        } // end method ExecutePasswordChangeCommand
+
         /// <summary>The listener which waits for a command, blocking the run method.</summary>
         /// <param name="s_sender">The sender who requested an action.</param>
         /// <returns>The command that is to be executed.</returns>
@@ -403,9 +472,11 @@ namespace Database_Handler
         {
             MemoryStream ms = new MemoryStream();
             BinaryFormatter formatter = new BinaryFormatter();
+
             try
             {
                 formatter.Serialize(ms, cmd);
+                // TODO send info back via socket to sender
             } // end try
             catch (Exception e)
             {
@@ -557,7 +628,7 @@ namespace Database_Handler
         /// <param name="b_isAdmin">Return parameter, indicates whether the user is an admin or not.</param>
         /// <returns>True if the password entered matches the database record and out parameter b_isAdmin.</returns>
         /// <remarks>The parameter ss_pw will be destroyed during method execution, and can not be used afterwards.</remarks>
-        public bool LoginAttempt(string s_ID, ref SecureString ss_pw, out bool b_isAdmin)
+        public bool LoginAttempt(string s_ID, SecureString ss_pw, out bool b_isAdmin)
         {
             // Variables:
             var             output = false;
@@ -579,6 +650,14 @@ namespace Database_Handler
                 if (reader.HasRows) // check if user exists
                 {
                     WriteToLog("-- DBH the user " + s_ID + " is attempting to login.");
+
+                    bool b_isActive = reader.GetBoolean(5);
+
+                    // check if user account is active
+                    if(!b_isActive)
+                    {
+                        return false;
+                    } // end if
 
                     foreach (char c in reader.GetString(2).ToCharArray())
                     {
@@ -1035,15 +1114,16 @@ namespace Database_Handler
             if (reader.HasRows)
             {
                 // Variables:
-                byte[] ba_salt = new byte[i_SALT_LENGTH];                               
+                byte[] ba_salt = new byte[i_SALT_LENGTH];
 
-                bool b_isAdmin = reader.GetBoolean(3);
+                bool b_isAdmin = reader.GetBoolean(3),
+                    b_isActive = reader.GetBoolean(5);
 
                 uint i_WP = reader.GetUInt32(1);
 
                 reader.GetBytes(4, 0, ba_salt, 0, i_SALT_LENGTH);
 
-                credentials = new Credentials(s_ID, i_WP, b_isAdmin, ba_salt);
+                credentials = new Credentials(s_ID, i_WP, b_isAdmin, b_isActive, ba_salt);
             } // end if
             else
             {
@@ -1227,9 +1307,10 @@ namespace Database_Handler
         /// <summary>Changes the password of the specified user.</summary>
         /// <param name="s_ID">The username of the person whose password is to be changed.</param>
         /// <param name="ss_pw">The new password, in a secure string.</param>
+        /// <param name="b_activeStatus">Whether or not this user should be activated.</param>
         /// <returns>True if the password change was successful, otherwise false.</returns>
         /// <remarks>The password in the secure string object should already be hashed when it is received here. Otherwise a plain text password is stored.</remarks>
-        private int ChangePassword(string s_ID, ref SecureString ss_pw)
+        private int ChangePassword(string s_ID, SecureString ss_pw, bool b_activeStatus)
         {
             var output = 1;
 
@@ -1240,6 +1321,7 @@ namespace Database_Handler
             {
                 cmd.ExecuteNonQuery();
                 output = 0;
+                ChangeUserStatus(s_ID, b_activeStatus);
             } // end try
             catch(Exception e)
             {
@@ -1248,12 +1330,91 @@ namespace Database_Handler
             finally
             {
                 cmd.CommandText = null;
-                GC.Collect(); // try to delete the query which has the password hash in it
+                ss_pw.Dispose();
             } // end finally
 
             return output;
         } // end method ChangePassword
         
+        /// <summary>Activates/Deactivates a user account.</summary>
+        /// <param name="s_ID">The username of the account to activate/deactivate.</param>
+        /// <param name="b_newStatus">The new status. True = active, False = inactive.</param>
+        /// <returns>0 or an error code.</returns>
+        private int ChangeUserStatus(string s_ID, bool b_newStatus)
+        {
+            // check if user actually exists
+            try
+            {
+                RetrieveUserCredentials(s_ID);
+            } // end try
+            catch (KeyNotFoundException e)
+            {
+                WriteToLog(" -- The user " + s_ID + " does not exist, status could not be changed. Msg: " + e.Message);
+                return 1;
+            } // end catch
+
+            MySqlCommand cmd = GetCommand(s_ID, 'U', s_CREDENTIALS_TABLE, s_CREDENTIALS_KEY, "active", b_newStatus ? "1" : "0");
+
+            try
+            {
+                cmd.ExecuteNonQuery();
+            } // end try
+            catch(Exception e)
+            {
+                WriteToLog(" -- The user " + s_ID + "'s status could not be changed. Msg: " + e.Message);
+                return 1;
+            } // end catch
+
+            return 0;
+        }
+
+        // MySQL delete methods:
+        /// <summary>Deletes a record from the credentials database.</summary>
+        /// <param name="cred">The user to delete.</param>
+        /// <returns>0 or error code.</returns>
+        private int DeleteRecord(Credentials cred)
+        {
+            // Variables:
+            MySqlCommand cmd = GetCommand(cred.UserName, 'D', s_CREDENTIALS_TABLE, s_CREDENTIALS_KEY);
+
+            var output = 1;
+
+            try
+            {
+                cmd.ExecuteNonQuery();
+                output = 0;
+            } // end try
+            catch(Exception e)
+            {
+                WriteToLog(" -- DBH could not delete the user " + cred.UserName + ". Msg: " + e.Message);
+            } // end catch
+
+            return output;
+        } // end method DeleteRecord
+
+        /// <summary>Deletes a record from the graduation plan database.</summary>
+        /// <param name="plan">The plan to delete.</param>
+        /// <returns>0 or error code.</returns>
+        private int DeleteRecord(PlanInfo plan)
+        {
+            // Variables:
+            MySqlCommand cmd = GetCommand(plan.StudentID, 'D', s_PLAN_TABLE, s_PLAN_KEY);
+
+            var output = 1;
+
+            try
+            {
+                cmd.ExecuteNonQuery();
+                output = 0;
+            } // end try
+            catch (Exception e)
+            {
+                WriteToLog(" -- DBH could not delete the plan belonging to " + plan.StudentID + ". Msg: " + e.Message);
+            } // end catch
+
+            return output;
+        } // end method DeleteRecord
+
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -1301,7 +1462,9 @@ namespace Database_Handler
             string s_values = "\"" + credentials.UserName + "\", 1, \"\", " + (credentials.IsAdmin ? "1, " : "0, ");
             //                                                     pw blank
             s_values += "0x" + BitConverter.ToString(credentials.PWSalt).Replace("-", string.Empty);
-            
+
+            s_values += credentials.IsActive ? ", 1" : ", 0";
+
             return s_values;
         } // end method GetInsertValues
 
@@ -1364,6 +1527,19 @@ namespace Database_Handler
             return query;
         } // end method GetUpdateQuery
 
+        /// <summary>Creates a delete query based on the input.</summary>
+        /// <param name="s_table">The table to access.</param>
+        /// <param name="s_keyType">The type of key to use to locate the row.</param>
+        /// <param name="s_keyValue">The key identifying the row to delete.</param>
+        /// <returns>A ready to go delete sql query.</returns>
+        private string GetDeleteQuery(string s_table, string s_keyType, string s_keyValue)
+        {
+            string query = "DELETE FROM " + s_MYSQL_DB_NAME + "." + s_table;
+            query += "WHERE " + s_keyType + " = " + s_keyValue;
+
+            return query;
+        } // end method GetDeleteQuery
+
         /// <summary>Creates a MySQL command of the specified type.</summary>
         /// <param name="s_ID">The key of the row this command shall apply to.</param>
         /// <param name="c_type">The type of command to be created.</param>
@@ -1375,23 +1551,26 @@ namespace Database_Handler
         /// <exception cref="ArgumentException">Thrown if an invalid command type was passed in arg 2.</exception>
         /// <remarks>
         ///          The ID should be the key for the table, either the username for credentials, or the SID for student plans.
-        ///          The types of commands are: S - select, U - update, I - insert
+        ///          The types of commands are: S - select, U - update, I - insert, D - delete
         ///          The ID type is either SID for student_plans table, or username for user_credentials table.
         ///          The column depends on the type of command (optional parameter):
         ///                     Select: either the column to select, or * for the whole row
         ///                     Update: the column to update, * should not be used
         ///                     Insert: unused
+        ///                     Delete: unused
         ///          The values depends on the type of command (optional parameter):
         ///                     Select: unused - may be left blank
         ///                     Update: the new value of the specified column
         ///                     Insert: the new values of the specified row, must be formatted correctly
-        ///                         Format: \"{SID}\", {WP}, \"{start quarter}\", \"{quarter1 classes}\", \"{quarter2 classes}\", ...
-        ///                         Note: The quarters passed may not exceed the number of quarters in the table, add columns as needed before inserting
-        ///                               The classes should be in a comma separated list
+        ///                             Format: \"{SID}\", {WP}, \"{start quarter}\", \"{quarter1 classes}\", \"{quarter2 classes}\", ...
+        ///                             Note: The quarters passed may not exceed the number of quarters in the table, add columns as needed before inserting
+        ///                                   The classes should be in a comma separated list
+        ///                     Delete: unused
         ///          Explanation of the commands: 
         ///                     Select: Will select the row with the specified ID
         ///                     Update: Will update the specified item with the new value in the row with specified ID
         ///                     Insert: Will insert a new row with specified values
+        ///                     Delete: Will delete the row with specified key
         ///                     
         ///          The Master record for student plans has the ID -1, and can be updated with: GetCommand("-1", 'U', "", "")
         /// </remarks>
@@ -1423,6 +1602,10 @@ namespace Database_Handler
                     cmd.CommandText = GetInsertQuery(s_table, s_values);
                     break; // end case I
 
+                case 'D':
+                    cmd.CommandText = GetDeleteQuery(s_table, s_IDType, s_ID);
+                    break;
+
                 default:  // invalid input
                     throw new ArgumentException("GetCommand received an invalid command type. Type received: " + c_type);
             } // end switch
@@ -1452,8 +1635,9 @@ namespace Database_Handler
             {
                 connection.Open();
             } // end try
-            catch (Exception)
+            catch (Exception e)
             {
+                WriteToLog(" -- DBH connection failed. Msg: " + e.Message);
                 return false;
             } // end catch
 
@@ -1508,22 +1692,27 @@ namespace Database_Handler
         {
             ConnectToDB(ref s_pw);
 
-            // create the student plan table
-            string query = "DROP TABLE IF EXISTS '" + s_MYSQL_DB_NAME + "'.'" + s_PLAN_TABLE + "';"; 
-            query += "\nCREATE TABLE IF NOT EXISTS '" + s_MYSQL_DB_NAME + "'.'" + s_PLAN_TABLE + "' (";
-            query += "\n'" + s_PLAN_KEY + "' VARCHAR(45) NOT NULL,\n'WP' INT(10) UNSIGNED NOT NULL DEFAULT \"1\",";
-            query += "\n'start_qtr' VARCHAR(45) NULL DEFAULT \"\",";
-            query += "\nPRIMARY KEY ('" + s_PLAN_KEY + "'),\nUNIQUE INDEX '" + s_PLAN_KEY + "_UNIQUE' ('" + s_PLAN_KEY + "' ASC));";
+            // drop old table
+            string query = "DROP TABLE IF EXISTS " + s_MYSQL_DB_NAME + "." + s_PLAN_TABLE + ";";
 
             MySqlCommand cmd = new MySqlCommand(query, DB_CONNECTION);
             cmd.ExecuteNonQuery();
 
-            // create the master record
+            // create the student plan table
             query = "";
-            query = "INSERT INTO '" + s_MYSQL_DB_NAME + "'.'" + s_PLAN_TABLE + "' ('" + s_PLAN_KEY + "', 'WP', 'start_qtr') VALUES ('-1', '0', 'MASTER RECORD');";
+            query += "CREATE TABLE IF NOT EXISTS " + s_MYSQL_DB_NAME + "." + s_PLAN_TABLE + " (";
+            query += "\n" + s_PLAN_KEY + " VARCHAR(45) NOT NULL,\nWP INT(10) UNSIGNED NOT NULL DEFAULT \"1\",";
+            query += "\nstart_qtr VARCHAR(45) NULL DEFAULT \"\",";
+            query += "\nPRIMARY KEY (" + s_PLAN_KEY + "),\nUNIQUE INDEX " + s_PLAN_KEY + "_UNIQUE (" + s_PLAN_KEY + " ASC));";
 
             cmd.CommandText = query;
+            cmd.ExecuteNonQuery();
 
+            // create the master record
+            query = "";
+            query = "INSERT INTO " + s_MYSQL_DB_NAME + "." + s_PLAN_TABLE + " (" + s_PLAN_KEY + ", WP, start_qtr) VALUES (-1, 0, \"MASTER RECORD\");";
+
+            cmd.CommandText = query;
             cmd.ExecuteNonQuery();
         } // end method MakeStudentPlanTable
 
@@ -1543,16 +1732,21 @@ namespace Database_Handler
         {
             ConnectToDB(ref s_pw);
 
-            // create the student plan table
-            string query = "DROP TABLE IF EXISTS '" + s_MYSQL_DB_NAME + "'.'" + s_CREDENTIALS_TABLE + "';";
-            query += "\nCREATE TABLE IF NOT EXISTS '" + s_MYSQL_DB_NAME + "'.'" + s_CREDENTIALS_TABLE + "' (";
-            query += "\n'" + s_CREDENTIALS_KEY + "' VARCHAR(45) NOT NULL,\n'WP' INT(10) UNSIGNED NOT NULL DEFAULT 1,";
-            query += "\n'password' CHAR(64) NOT NULL,\n'admin' TINYINT(4) NOT NULL DEFAULT 0,";
-            query += "\n'password_salt' BINARY(32) NOT NULL,\n'active' TINYINT(4) NOT NULL DEFAULT 0,";
-            query += "\nPRIMARY KEY ('" + s_CREDENTIALS_KEY + "'),\nUNIQUE INDEX '" + s_CREDENTIALS_KEY + "_UNIQUE' ('" + s_CREDENTIALS_KEY + "' ASC),";
-            query += "\nUNIQUE INDEX 'password_salt_UNIQUE' ('password_salt' ASC));";
+            // drop old table
+            string query = "DROP TABLE IF EXISTS " + s_MYSQL_DB_NAME + "." + s_CREDENTIALS_TABLE + ";";
 
             MySqlCommand cmd = new MySqlCommand(query, DB_CONNECTION);
+            cmd.ExecuteNonQuery();
+
+            // create the student plan table
+            query = "";
+            query += "\nCREATE TABLE IF NOT EXISTS " + s_MYSQL_DB_NAME + "." + s_CREDENTIALS_TABLE + " (";
+            query += "\n" + s_CREDENTIALS_KEY + " VARCHAR(45) NOT NULL,\nWP INT(10) UNSIGNED NOT NULL DEFAULT 1,";
+            query += "\npassword CHAR(64) NOT NULL,\nadmin TINYINT(4) NOT NULL DEFAULT 0,";
+            query += "\npassword_salt BINARY(32) NOT NULL,\nactive TINYINT(4) NOT NULL DEFAULT 0,";
+            query += "\nPRIMARY KEY (" + s_CREDENTIALS_KEY + "),\nUNIQUE INDEX " + s_CREDENTIALS_KEY + "_UNIQUE (" + s_CREDENTIALS_KEY + " ASC),";
+            query += "\nUNIQUE INDEX password_salt_UNIQUE (password_salt ASC));";
+
             cmd.ExecuteNonQuery();
         } // end method MakeCredentialsTable
 
@@ -1616,32 +1810,17 @@ namespace Database_Handler
         {
             SetUp();
 
-            //AttemptReconnect();
+            Credentials test = new Credentials("test6", 0, false, false, new byte[32]);
 
-            //PlanInfo c = new PlanInfo("2345678", 1, "Winter 15", new string[]{"CS101,GE1","CS110,GE2", "CS111,GE3", "CS112,GE4", "CS301,CS311", "CS302,CS312", "CS361", "CS362"});
+            DatabaseCommand cmd = new DatabaseCommand(CommandType.Delete, test);
 
-            //Update(c);
+            ExecuteCommand(cmd, "test");
 
 
-            //PlanInfo a = RetrieveStudentPlan("2345678");
-            //Credentials b = RetrieveUserCredentials("test_user");
-
-            //b.IsAdmin = !b.IsAdmin;
-
-            //Update(b);
-
-            //b = RetrieveUserCredentials("test_user");
-
-            //Credentials b = new Credentials("test_user", 1, true, new byte[32]);
-
-            //Update(b);
-
-            //Console.WriteLine(a.ToString());
-            //Console.WriteLine(b.ToString());
             Console.WriteLine("DONE.");
             CleanUp();
             Console.ReadKey();
-        }
+        } // end method TestRun
 
         /// <summary>Dummy records for testing.</summary>
         private static void TestData()

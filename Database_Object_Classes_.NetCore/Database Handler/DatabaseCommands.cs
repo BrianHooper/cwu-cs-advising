@@ -4,10 +4,15 @@ using System;
 namespace Database_Handler
 {
     /// <summary>Enum for command types.</summary>
+    [Serializable]
     public enum CommandType
     {
         /// <summary>Retrieve command.</summary>
         Retrieve,
+        /// <summary>Login command.</summary>
+        Login,
+        /// <summary>Change user password command.</summary>
+        ChangePW,
         /// <summary>Update command.</summary>
         Update,
         /// <summary>Delete command.</summary>
@@ -17,6 +22,7 @@ namespace Database_Handler
     };
 
     /// <summary>Enum for operand types.</summary>
+    [Serializable]
     public enum OperandType
     {
         /// <summary>Student operand.</summary>
@@ -44,8 +50,10 @@ namespace Database_Handler
         /// <summary>The type of the o_operand object.</summary>
         private OperandType ot_type;
 
+        /// <summary>Return code of a return command, will either be 0 (no error) or an error code.</summary>
         private int i_returnCode;
 
+        /// <summary>If i_returnCode is not 0, there will be an error message contained in this variable.</summary>
         private string s_errorMsg;
 
         /// <summary>Constructor for DB4O commands.</summary>
@@ -94,7 +102,7 @@ namespace Database_Handler
         /// <summary>Constructor for Update/Delete returns containing relevant info about execution of the command.</summary>
         /// <param name="code">The error code, or 0 if execution was successful.</param>
         /// <param name="msg">A message detailing an error, "No Errors" if no issues occurred.</param>
-        public DatabaseCommand(int code, string msg = "No Errors")
+        public DatabaseCommand(int code = 0, string msg = "No Errors")
         {
             ct_commandType = CommandType.Return;
             i_returnCode = code;

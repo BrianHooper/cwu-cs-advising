@@ -527,7 +527,7 @@ namespace Database_Object_Classes
         /// <returns>the objects data in string form.</returns>
         public override string ToString()
         {
-            return "Senior: " + b_isSenior.ToString() + " InMajor: " + b_inMajor.ToString() + " Good Standing: " + b_hasGoodStanding.ToString();            
+            return "\n  Senior: " + b_isSenior.ToString() + "\n  InMajor: " + b_inMajor.ToString() + "\n  Good Standing: " + b_hasGoodStanding.ToString();            
         }
     } // end structure AcademicStanding
 
@@ -670,6 +670,9 @@ namespace Database_Object_Classes
         /// <summary>Whether or not this user is an administrator.</summary>
         private bool b_isAdmin;
 
+        /// <summary>Whether or not this user's account is currently active.</summary>
+        private bool b_isActive;
+
         /// <summary>Write protect value of this object.</summary>
         private readonly uint ui_WP;
 
@@ -687,6 +690,7 @@ namespace Database_Object_Classes
         /// <param name="s_ID">Username of the owner of these credentials.</param>
         /// <param name="ui_WP">Write protect value of this object.</param>
         /// <param name="b_isAdmin">Whether or not this user is an administrator.</param>
+        /// <param name="b_isActive">Whether or not this user's account is active.</param>
         /// <param name="ba_PWSalt">The password salt for this user.</param>
         /// <remarks>The only thing that should be changed in this structure is the IsAdmin value.
         ///          Changing the username will create a new user upon write back to the DB.
@@ -694,12 +698,13 @@ namespace Database_Object_Classes
         ///          as this value will be disregarded upon write back.
         ///          Changing the write protect will either cause an error, or data corruption.
         /// </remarks>
-        public Credentials(string s_ID, uint ui_WP, bool b_isAdmin, byte[] ba_PWSalt)
+        public Credentials(string s_ID, uint ui_WP, bool b_isAdmin, bool b_isActive, byte[] ba_PWSalt)
         {
             s_userName      = string.Copy(s_ID);
             this.ba_PWSalt  = new byte[ba_PWSalt.Length];
             this.ui_WP      = ui_WP;
             this.b_isAdmin  = b_isAdmin;
+            this.b_isActive = b_isActive;
 
             Array.Copy(ba_PWSalt, this.ba_PWSalt, this.ba_PWSalt.Length);
             ss_pw           = new SecureString();
@@ -714,6 +719,7 @@ namespace Database_Object_Classes
             ba_PWSalt   = other.ba_PWSalt;
             ui_WP       = other.WP;
             b_isAdmin   = other.IsAdmin;
+            b_isActive  = other.IsActive;
             ss_pw       = new SecureString();
         } // end Copy Constructor              
 
@@ -743,6 +749,13 @@ namespace Database_Object_Classes
             set => b_isAdmin = value;
         } // end isAdmin
 
+        /// <summary>Getter/Setter for whether this user's account is active.</summary>
+        public bool IsActive
+        {
+            get => b_isActive;
+            set => b_isActive = value;
+        }
+
         /// <summary>Getter for the write protect value of these user credentials.</summary>
         public uint WP => ui_WP;
 
@@ -770,6 +783,8 @@ namespace Database_Object_Classes
             str += b_isAdmin.ToString();
             str += "\nSalt: ";
             str += "0x" + BitConverter.ToString(ba_PWSalt).Replace("-"," ");
+            str += "\nUser Status: ";
+            str += b_isActive ? "Active" : "Inactive";
 
             return str;
         }

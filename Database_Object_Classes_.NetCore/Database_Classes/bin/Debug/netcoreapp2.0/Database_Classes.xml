@@ -558,6 +558,9 @@
         <member name="F:Database_Object_Classes.Credentials.b_isAdmin">
             <summary>Whether or not this user is an administrator.</summary>
         </member>
+        <member name="F:Database_Object_Classes.Credentials.b_isActive">
+            <summary>Whether or not this user's account is currently active.</summary>
+        </member>
         <member name="F:Database_Object_Classes.Credentials.ui_WP">
             <summary>Write protect value of this object.</summary>
         </member>
@@ -568,11 +571,12 @@
                      This variable should only be set when the user's password is to be changed.
             </remarks>
         </member>
-        <member name="M:Database_Object_Classes.Credentials.#ctor(System.String,System.UInt32,System.Boolean,System.Byte[])">
+        <member name="M:Database_Object_Classes.Credentials.#ctor(System.String,System.UInt32,System.Boolean,System.Boolean,System.Byte[])">
             <summary>Constructor for this structure.</summary>
             <param name="s_ID">Username of the owner of these credentials.</param>
             <param name="ui_WP">Write protect value of this object.</param>
             <param name="b_isAdmin">Whether or not this user is an administrator.</param>
+            <param name="b_isActive">Whether or not this user's account is active.</param>
             <param name="ba_PWSalt">The password salt for this user.</param>
             <remarks>The only thing that should be changed in this structure is the IsAdmin value.
                      Changing the username will create a new user upon write back to the DB.
@@ -594,6 +598,9 @@
         </member>
         <member name="P:Database_Object_Classes.Credentials.IsAdmin">
             <summary>Getter/Setter for whether this user is an Admin.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Credentials.IsActive">
+            <summary>Getter/Setter for whether this user's account is active.</summary>
         </member>
         <member name="P:Database_Object_Classes.Credentials.WP">
             <summary>Getter for the write protect value of these user credentials.</summary>
