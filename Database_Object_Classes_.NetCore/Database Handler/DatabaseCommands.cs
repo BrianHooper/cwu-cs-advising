@@ -1,5 +1,6 @@
 ﻿using Database_Object_Classes;
 using System;
+using System.Collections.Generic;
 
 namespace Database_Handler
 {
@@ -17,6 +18,10 @@ namespace Database_Handler
         Update,
         /// <summary>Delete command.</summary>
         Delete,
+        /// <summary>Display student list command.</summary>
+        DisplayStudents,
+        /// <summary>Get password salt command.</summary>
+        GetSalt,
         /// <summary>Result from DBH.</summary>
         Return
     };
@@ -46,6 +51,9 @@ namespace Database_Handler
 
         /// <summary>The operand to execute the command on.</summary>
         private object o_operand;
+
+        /// <summary>A list of students for display student command.</summary>
+        private List<Student> l_students;
 
         /// <summary>The type of the o_operand object.</summary>
         private OperandType ot_type;
@@ -99,14 +107,23 @@ namespace Database_Handler
             o_operand = new PlanInfo(plan);
         } // end Constructor
 
+        /// <summary>Constructor for creating a display students command.</summary>
+        /// <param name="ct">Command type, must be set to display students.</param>
+        public DatabaseCommand(CommandType ct)
+        {
+            ct_commandType = ct;
+        } // end Constructor
+
         /// <summary>Constructor for Update/Delete returns containing relevant info about execution of the command.</summary>
         /// <param name="code">The error code, or 0 if execution was successful.</param>
         /// <param name="msg">A message detailing an error, "No Errors" if no issues occurred.</param>
-        public DatabaseCommand(int code = 0, string msg = "No Errors")
+        /// <param name="list">A list of students for the display students command.</param>
+        public DatabaseCommand(int code = 0, string msg = "No Errors", List<Student> list = null)
         {
             ct_commandType = CommandType.Return;
             i_returnCode = code;
             s_errorMsg = msg;
+            l_students = list;
         } // end Constructor
 
         /// <summary>Getter for the type of command.</summary>
@@ -114,6 +131,9 @@ namespace Database_Handler
 
         /// <summary>Getter for the type of operand.</summary>
         public OperandType OperandType => ot_type;
+
+        /// <summary>Getter for the list of students for a display command.</summary>
+        public List<Student> StudentList => l_students;
 
         /// <summary>Getter for the operand.</summary>
         public object Operand => o_operand;

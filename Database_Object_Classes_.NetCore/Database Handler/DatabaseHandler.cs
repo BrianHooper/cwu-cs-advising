@@ -8,6 +8,9 @@ using System.Security.Cryptography;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
+using Db4objects.Db4o.Query;
+using System.Collections;
+using Db4objects.Db4o.Reflect.Generic;
 
 namespace Database_Handler
 {
@@ -17,13 +20,10 @@ namespace Database_Handler
         // Class fields:
         /// <summary>The path to the log file which will contain the log entries created by DBH.</summary>
         public  static   string s_logFilePath       = "log.txt"         ;
-        private readonly string s_MYSQL_DB_NAME     = "test_db"         ; // local
-      //private readonly string s_MYSQL_DB_NAME     = "test"            ; // remote
-        private readonly string s_MYSQL_DB_SERVER   = "localhost"       ; // local
-      //private readonly string s_MYSQL_DB_SERVER   = "10.32.106.111"   ; // remote
+        private readonly string s_MYSQL_DB_NAME     = "test_db"         ;
+        private readonly string s_MYSQL_DB_SERVER   = "localhost"       ;
         private readonly string s_MYSQL_DB_PORT     = "3306"            ;
-        private readonly string s_MYSQL_DB_USER_ID  = "testuser"        ; // local
-      //private readonly string s_MYSQL_DB_USER_ID  = "test_user"       ; // remote
+        private readonly string s_MYSQL_DB_USER_ID  = "testuser"        ;
         private readonly string s_CREDENTIALS_TABLE = "user_credentials";
         private readonly string s_PLAN_TABLE        = "student_plans"   ;
         private readonly string s_STUDENT_DB        = "Students.db4o"   ;
@@ -256,6 +256,12 @@ namespace Database_Handler
                 case CommandType.Login:
                     output = ExecuteLoginCommand(cmd);
                     break;
+                case CommandType.DisplayStudents:
+                    output = ExecuteDisplayCommand();
+                    break;
+                case CommandType.GetSalt:
+                    output = ExecuteGetSaltCommand(cmd);
+                    break;
                 default:
                     output = new DatabaseCommand(-1, "Invalid command type");
                     break;
@@ -444,6 +450,52 @@ namespace Database_Handler
 
             return output;
         } // end method ExecutePasswordChangeCommand
+
+        /// <summary>Executes a display students command.</summary>
+        /// <returns>A return command containing a list of all students in the database.</returns>
+        private DatabaseCommand ExecuteDisplayCommand()
+        {
+            List<Student> students = new List<Student>();
+
+            try
+            {
+                using (IObjectContainer db = Db4oFactory.OpenFile(s_STUDENT_DB))
+                {
+                    IList<Student> list = db.Query(delegate (Student proto) { return proto.ID != ""; });                   
+
+                    foreach (object item in list)
+                    {
+                        Student student = (Student)item;
+                        students.Add(student);
+                    } // end foreach
+
+                    db.Close();
+                } // end using
+            } // end try
+            catch(Exception e)
+            {
+                WriteToLog(" -- DBH display students command failed. Msg: " + e.Message);
+                return new DatabaseCommand(1, "Retrieving list of all students failed. Msg: " + e.Message);
+            } // end catch
+
+            return new DatabaseCommand(0, "No Errors", students);
+        } // end method ExecuteDisplayCommand
+
+        private DatabaseCommand ExecuteGetSaltCommand(DatabaseCommand cmd)
+        {
+            Credentials cred = (Credentials)cmd.Operand;
+
+            try
+            {
+                cred = (Credentials)Retrieve(cred.UserName, 'U');
+            } // end try
+            catch(Exception e)
+            {
+                WriteToLog(" -- DBH retrieve salt command failed for user " + cred.UserName + ". Msg: " + e.Message);
+                return new DatabaseCommand(1, "Retrieving the salt for " + cred.UserName + " failed. Msg: " + e.Message);
+            } // end catch
+            return new DatabaseCommand(CommandType.Return, cred);
+        } // end method ExecuteGetSaltCommand
 
         /// <summary>The listener which waits for a command, blocking the run method.</summary>
         /// <param name="s_sender">The sender who requested an action.</param>
@@ -1810,12 +1862,25 @@ namespace Database_Handler
         {
             SetUp();
 
+            /*
+            DatabaseCommand cmd = new DatabaseCommand(CommandType.GetSalt, new Credentials("test6",0,false,true,new byte[32]));
+
+            DatabaseCommand ret = ExecuteGetSaltCommand(cmd);
+
+            Console.WriteLine("The salt for test6 is: {0} ", ((Credentials)ret.Operand).PWSalt.ToString());
+
+            
+            foreach (Student student in ret.StudentList)
+            {
+                Console.WriteLine(student.ToString());
+            }
+           
             Credentials test = new Credentials("test6", 0, false, false, new byte[32]);
 
             DatabaseCommand cmd = new DatabaseCommand(CommandType.Delete, test);
 
             ExecuteCommand(cmd, "test");
-
+            */
 
             Console.WriteLine("DONE.");
             CleanUp();
