@@ -7,10 +7,9 @@ using System.Security;
 using System.Security.Cryptography;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Net.Sockets;
+using System.Net;
 using System.Threading;
-using Db4objects.Db4o.Query;
-using System.Collections;
-using Db4objects.Db4o.Reflect.Generic;
 
 namespace Database_Handler
 {
@@ -43,6 +42,13 @@ namespace Database_Handler
 
         private RNGCryptoServiceProvider RNG;
 
+        private TcpListener tcpListener;
+
+        private IPAddress address;
+
+        private Socket TCPMainSocket;
+
+        private NetworkStream stream;
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -257,10 +263,13 @@ namespace Database_Handler
                     output = ExecuteLoginCommand(cmd);
                     break;
                 case CommandType.DisplayStudents:
-                    output = ExecuteDisplayCommand();
+                    output = ExecuteDisplayStudentsCommand();
                     break;
                 case CommandType.GetSalt:
                     output = ExecuteGetSaltCommand(cmd);
+                    break;
+                case CommandType.DisplayCourses:
+                    output = ExecuteDisplayCoursesCommand();
                     break;
                 default:
                     output = new DatabaseCommand(-1, "Invalid command type");
@@ -453,7 +462,7 @@ namespace Database_Handler
 
         /// <summary>Executes a display students command.</summary>
         /// <returns>A return command containing a list of all students in the database.</returns>
-        private DatabaseCommand ExecuteDisplayCommand()
+        private DatabaseCommand ExecuteDisplayStudentsCommand()
         {
             List<Student> students = new List<Student>();
 
@@ -481,6 +490,36 @@ namespace Database_Handler
             return new DatabaseCommand(0, "No Errors", students);
         } // end method ExecuteDisplayCommand
 
+        /// <summary>Executes a display courses command.</summary>
+        /// <returns>A return command containing a list of all courses in the database.</returns>
+        private DatabaseCommand ExecuteDisplayCoursesCommand()
+        {
+            List<Course> courses = new List<Course>();
+
+            try
+            {
+                using (IObjectContainer db = Db4oFactory.OpenFile(s_COURSE_DB))
+                {
+                    IList<Course> list = db.Query(delegate (Course proto) { return proto.ID != ""; });
+
+                    foreach (object item in list)
+                    {
+                        Course course = (Course)item;
+                        courses.Add(course);
+                    } // end foreach
+
+                    db.Close();
+                } // end using
+            } // end try
+            catch (Exception e)
+            {
+                WriteToLog(" -- DBH display courses command failed. Msg: " + e.Message);
+                return new DatabaseCommand(1, "Retrieving list of all courses failed. Msg: " + e.Message);
+            } // end catch
+
+            return new DatabaseCommand(0, "No Errors", null, courses);
+        } // end method ExecuteDisplayCommand
+
         private DatabaseCommand ExecuteGetSaltCommand(DatabaseCommand cmd)
         {
             Credentials cred = (Credentials)cmd.Operand;
@@ -502,11 +541,14 @@ namespace Database_Handler
         /// <returns>The command that is to be executed.</returns>
         private DatabaseCommand WaitForCommand(out string s_sender)
         {
-            // TODO listen to socket for command
+            TCPMainSocket = tcpListener.AcceptSocket();
+            stream = new NetworkStream(TCPMainSocket);
+            
+            byte[] ba_data = new byte[2048];
 
-            // testing
-            byte[] ba_data = new byte[32];
-            s_sender = "";
+            int i = TCPMainSocket.Receive(ba_data);
+
+            s_sender = i.ToString();
 
             MemoryStream ms = new MemoryStream(ba_data);
             BinaryFormatter formatter = new BinaryFormatter();
@@ -602,14 +644,22 @@ namespace Database_Handler
         /// <summary>Sets up all necessary components for DBH.</summary>
         /// <returns>An error code or 0 if setup was successful.</returns>
         /// <exception cref="Exception">Thrown if it the master record could not be retrieved from the database.</exception>
-        private int SetUp()
+        public int SetUp()
         {
             if (!Login())
             {
                 return 1; // login attempt failed
             } // end if
 
+            // RNG for salt creation
             RNG = new RNGCryptoServiceProvider();
+
+            // TCP setup
+            address = IPAddress.Parse("127.0.0.1"); // TODO
+            tcpListener = new TcpListener(address, 13132); // TODO
+
+            tcpListener.Start();
+
 
             ba_ressourcesInUse = new bool[4] { false, false, false, false };
 
@@ -617,7 +667,9 @@ namespace Database_Handler
 
             MySqlDataReader reader = cmd.ExecuteReader();
 
-            if(reader.HasRows)
+            
+
+            if (reader.HasRows)
             {
                 reader.Read();
                 ui_COL_COUNT = reader.GetUInt32(1);
@@ -1860,7 +1912,44 @@ namespace Database_Handler
         /// <summary>Test method.</summary>
         public void TestRun()
         {
-            SetUp();
+            //SetUp();
+
+            DatabaseCommand cmd = WaitForCommand(out string sender);
+            Course a;
+            Credentials d;
+            Student b;
+            CatalogRequirements c;
+            PlanInfo e;
+
+
+            switch(cmd.OperandType)
+            {
+                case OperandType.Course:
+                    a = (Course)cmd.Operand;
+                    WriteToLog("[DBH]: Received course object: " + a.ToString());
+                    break;
+                case OperandType.Student:
+                    b = (Student)cmd.Operand;
+                    WriteToLog("[DBH]: Received student object: " + b.ToString());
+                    Console.WriteLine("\n\n[DBH]: Received student object:\n{0}\n\n", b.ToString());
+                    break;
+                case OperandType.CatalogRequirements:
+                    c = (CatalogRequirements)cmd.Operand;
+                    WriteToLog("[DBH]: Received catalog object: " + c.ToString());
+                    Console.WriteLine("\n\n[DBH]: Received catalog object:\n{0}\n\n", c.ToString());
+                    break;
+                case OperandType.Credentials:
+                    d = (Credentials)cmd.Operand;
+                    WriteToLog("[DBH]: Received credentials object: " + d.ToString());
+                    Console.WriteLine("\n\n[DBH]: Received credentials object:\n{0}\n\n", d.ToString());
+                    break;
+                case OperandType.PlanInfo:
+                    e = (PlanInfo)cmd.Operand;
+                    WriteToLog("[DBH]: Received plan object: " + e.ToString());
+                    Console.WriteLine("\n\n[DBH]: Received plan object:\n{0}\n\n", e.ToString());
+                    break;
+            }
+
 
             /*
             DatabaseCommand cmd = new DatabaseCommand(CommandType.GetSalt, new Credentials("test6",0,false,true,new byte[32]));

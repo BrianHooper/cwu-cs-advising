@@ -20,6 +20,8 @@ namespace Database_Handler
         Delete,
         /// <summary>Display student list command.</summary>
         DisplayStudents,
+        /// <summary></summary>
+        DisplayCourses,
         /// <summary>Get password salt command.</summary>
         GetSalt,
         /// <summary>Result from DBH.</summary>
@@ -52,8 +54,11 @@ namespace Database_Handler
         /// <summary>The operand to execute the command on.</summary>
         private object o_operand;
 
-        /// <summary>A list of students for display student command.</summary>
+        /// <summary>A list of students for display students command.</summary>
         private List<Student> l_students;
+
+        /// <summary>A list of courses for display courses command.</summary>
+        private List<Course> l_courses;
 
         /// <summary>The type of the o_operand object.</summary>
         private OperandType ot_type;
@@ -117,13 +122,15 @@ namespace Database_Handler
         /// <summary>Constructor for Update/Delete returns containing relevant info about execution of the command.</summary>
         /// <param name="code">The error code, or 0 if execution was successful.</param>
         /// <param name="msg">A message detailing an error, "No Errors" if no issues occurred.</param>
-        /// <param name="list">A list of students for the display students command.</param>
-        public DatabaseCommand(int code = 0, string msg = "No Errors", List<Student> list = null)
+        /// <param name="students">A list of students for the display students command.</param>
+        /// <param name="courses">A list of courses for the display courses command.</param>
+        public DatabaseCommand(int code = 0, string msg = "No Errors", List<Student> students = null, List<Course> courses = null)
         {
             ct_commandType = CommandType.Return;
             i_returnCode = code;
             s_errorMsg = msg;
-            l_students = list;
+            l_students = students;
+            l_courses = courses;
         } // end Constructor
 
         /// <summary>Getter for the type of command.</summary>
