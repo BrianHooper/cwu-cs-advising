@@ -20,7 +20,7 @@ namespace Database_Handler
         Delete,
         /// <summary>Display student list command.</summary>
         DisplayStudents,
-        /// <summary></summary>
+        /// <summary>Display course list command.</summary>
         DisplayCourses,
         /// <summary>Get password salt command.</summary>
         GetSalt,

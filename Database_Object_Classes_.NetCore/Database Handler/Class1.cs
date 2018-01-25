@@ -59,7 +59,7 @@ namespace Database_Handler
 
             IPAddress ipAddress = IPAddress.Parse("127.0.0.1");
 
-            IPEndPoint remoteEndPoint = new IPEndPoint(ipAddress, 13132);
+            IPEndPoint remoteEndPoint = new IPEndPoint(ipAddress, 44765);
 
             socket.Connect(remoteEndPoint);
 
