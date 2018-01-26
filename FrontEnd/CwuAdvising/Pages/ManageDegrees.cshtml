@@ -1,0 +1,94 @@
+﻿@page
+@model CwuAdvising.Pages.ManageCoursesModel
+@{
+    ViewData["Title"] = "Manage Degrees";
+}
+
+<div class="PageRow Flex CenterFlex">
+    <div class="Block Border Padded">
+        <div class="Title">Create New Degree</div>
+        <div class="Flex CenterFlex">
+            <div class="Flex ">
+                <div class="LabelLeft">Academic Year:</div>
+                <div class="LabelRight">
+                    <input type="number" min="2014" max="2018" value="2017" />
+                </div>
+            </div>
+            <div class="Flex">
+                <div class="LabelLeft">Department:</div>
+                <div class="LabelRight">
+                    <input type="text" />
+                </div>
+            </div>
+        </div>
+
+        <div><input type="submit" value="Create" class="BigButton" /></div>
+    </div>
+</div>
+
+<div class="PageRow Flex CenterFlex">
+    <div class="Block Border Padded">
+        <div class="Title">Degree Search</div>
+        <div class="Flex CenterFlex">
+            <div class="Flex ">
+                <div class="LabelLeft">Academic Year:</div>
+                <div class="LabelRight">
+                    <input type="number" min="2014" max="2018" value="2017" />
+                </div>
+            </div>
+            <div class="Flex">
+                <div class="LabelLeft">Department:</div>
+                <div class="LabelRight">
+                    <select name="Department">
+                        <option>Computer Science</option>
+                        <option>Mathematics</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div><input type="submit" value="Search" class="BigButton" /></div>
+    </div>
+</div>
+
+<div class="Flex CenterFlex">
+    <div class="Block Padded">
+        <div class="Title">Current Degree: BS - Computer Science - 2017-2018</div>
+        <div class="Flex CenterFlex Row" style="margin-bottom: 10px;">
+            <div class="Element ButtonElement">[X]</div>
+            <div class="Element CourseElement">Requirement</div>
+            <div class="Element WideFlex">Possible Courses</div>
+        </div>
+
+        <div class="Flex CenterFlex Row">
+            <a href="#"><div class="Element ButtonElement">[X]</div></a>
+            <div class="Element CourseElement"><a href="#">English Competency</a></div>
+            <div class="Element WideFlex">
+                <a href="#">[ ENG 101 ]</a>
+                <a href="#">[+]</a>
+            </div>
+        </div>
+
+        <div class="Flex CenterFlex Row">
+            <a href="#"><div class="Element ButtonElement">[X]</div></a>
+            <div class="Element CourseElement"><a href="#">Operating Systems</a></div>
+            <div class="Element WideFlex">
+                <a href="#">[ CS 470 ]</a>
+                <a href="#">[+]</a>
+            </div>
+        </div>
+
+        <div class="Flex CenterFlex Row">
+            <a href="#"><div class="Element ButtonElement">[X]</div></a>
+            <div class="Element CourseElement"><a href="#">Natural World</a></div>
+            <div class="Element WideFlex">
+                <a href="#">[ ANTH 110 ]</a>
+                <a href="#">[ BIOL 200 ]</a>
+                <a href="#">[ BIOL 201 ]</a>
+                <a href="#">[ BIOL 300 ]</a>
+
+                <a href="#">[+]</a>
+            </div>
+        </div>
+    </div>
+</div>
