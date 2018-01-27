@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>C:\Users\nicol\Desktop\Stuff\school\1_Winter18\CS481\cwu-cs-advising\Code\output\</OutputPath>
+    <DocumentationFile>C:\Users\nicol\Desktop\Stuff\school\1_Winter18\CS481\cwu-cs-advising\Code\output\Documentation\Algorithm.xml</DocumentationFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Database_Classes">
+      <HintPath>..\..\output\netcoreapp2.0\Database_Classes.dll</HintPath>
+    </Reference>
+    <Reference Include="Database_Handler">
+      <HintPath>..\..\output\netcoreapp2.0\Database_Handler.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
