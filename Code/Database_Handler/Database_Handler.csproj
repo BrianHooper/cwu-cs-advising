@@ -9,8 +9,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>false</Optimize>
-    <OutputPath>C:\Users\nicol\Desktop\Stuff\school\1_Winter18\CS481\cwu-cs-advising\Code\output\</OutputPath>
-    <DocumentationFile>C:\Users\nicol\Desktop\Stuff\school\1_Winter18\CS481\cwu-cs-advising\Code\output\Documentation\Database_Handler.xml</DocumentationFile>
+    <OutputPath>..\output\netcoreapp2.0\</OutputPath>
+    <DocumentationFile>..\output\Documentation\Database_Handler.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,7 +23,7 @@
       <Private>false</Private>
     </Reference>
     <Reference Include="Database_Classes">
-      <HintPath>..\output\netcoreapp2.0\Database_Classes.dll</HintPath>
+      <HintPath>..\output\netcoreapp2.0\netcoreapp2.0\Database_Classes.dll</HintPath>
     </Reference>
     <Reference Include="Db4objects.Db4o">
       <HintPath>..\output\netcoreapp2.0\Dependencies\Db4objects.Db4o.dll</HintPath>

@@ -9,15 +9,7 @@
       "Database_Handler/1.0.0": {
         "dependencies": {
           "MySql.Data": "6.10.5",
-          "Cecil.FlowAnalysis": "0.1.0.0",
-          "Database_Classes": "1.0.0.0",
-          "Db4objects.Db4o.CS": "8.0.276.16149",
-          "Db4objects.Db4o": "8.0.276.16149",
-          "Db4objects.Db4o.Instrumentation": "8.0.276.16149",
-          "Db4objects.Db4o.Linq": "8.0.276.16149",
-          "Db4objects.Db4o.NativeQueries": "8.0.276.16149",
-          "Mono.Cecil": "0.9.3.0",
-          "Mono.Reflection": "1.0.0.0"
+          "Database_Classes": "1.0.0.0"
         },
         "runtime": {
           "Database_Handler.dll": {}
@@ -199,49 +191,9 @@
           "System.Runtime": "4.1.0"
         }
       },
-      "Cecil.FlowAnalysis/0.1.0.0": {
-        "runtime": {
-          "Cecil.FlowAnalysis.dll": {}
-        }
-      },
       "Database_Classes/1.0.0.0": {
         "runtime": {
           "Database_Classes.dll": {}
-        }
-      },
-      "Db4objects.Db4o.CS/8.0.276.16149": {
-        "runtime": {
-          "Db4objects.Db4o.CS.dll": {}
-        }
-      },
-      "Db4objects.Db4o/8.0.276.16149": {
-        "runtime": {
-          "Db4objects.Db4o.dll": {}
-        }
-      },
-      "Db4objects.Db4o.Instrumentation/8.0.276.16149": {
-        "runtime": {
-          "Db4objects.Db4o.Instrumentation.dll": {}
-        }
-      },
-      "Db4objects.Db4o.Linq/8.0.276.16149": {
-        "runtime": {
-          "Db4objects.Db4o.Linq.dll": {}
-        }
-      },
-      "Db4objects.Db4o.NativeQueries/8.0.276.16149": {
-        "runtime": {
-          "Db4objects.Db4o.NativeQueries.dll": {}
-        }
-      },
-      "Mono.Cecil/0.9.3.0": {
-        "runtime": {
-          "Mono.Cecil.dll": {}
-        }
-      },
-      "Mono.Reflection/1.0.0.0": {
-        "runtime": {
-          "Mono.Reflection.dll": {}
         }
       }
     }
@@ -399,47 +351,7 @@
       "path": "system.threading.tasks/4.0.11",
       "hashPath": "system.threading.tasks.4.0.11.nupkg.sha512"
     },
-    "Cecil.FlowAnalysis/0.1.0.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
     "Database_Classes/1.0.0.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "Db4objects.Db4o.CS/8.0.276.16149": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "Db4objects.Db4o/8.0.276.16149": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "Db4objects.Db4o.Instrumentation/8.0.276.16149": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "Db4objects.Db4o.Linq/8.0.276.16149": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "Db4objects.Db4o.NativeQueries/8.0.276.16149": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "Mono.Cecil/0.9.3.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "Mono.Reflection/1.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""

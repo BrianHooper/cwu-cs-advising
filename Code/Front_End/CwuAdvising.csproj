@@ -4,8 +4,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DocumentationFile>C:\Users\nicol\Desktop\Stuff\school\1_Winter18\CS481\cwu-cs-advising\Code\output\Documentation\WebsiteDoc.xml</DocumentationFile>
-    <OutputPath>C:\Users\nicol\Desktop\Stuff\school\1_Winter18\CS481\cwu-cs-advising\Code\output\netcoreapp2.0\</OutputPath>
+    <DocumentationFile>..\output\Documentation\WebsiteDoc.xml</DocumentationFile>
+    <OutputPath>..\output\netcoreapp2.0\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.5" />
