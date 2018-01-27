@@ -1,16 +1,1 @@
-
-*.json
-*.sln
-
-*.cache
 *.txt
-Database_Object_Classes_.NetCore/Database_Classes/obj/Debug/netcoreapp2.0/Database_Classes.AssemblyInfo.cs
-Database_Object_Classes_.NetCore/Database_Classes/obj/Debug/netcoreapp2.0/ClassLibrary1.AssemblyInfo.cs
-*.targets
-*.props
-*.csproj
-*.ide-wal
-*.ide
-*.ide-shm
-*.lock
-Database_Object_Classes_.NetCore/.vs/Database_Code/v15/.suo
