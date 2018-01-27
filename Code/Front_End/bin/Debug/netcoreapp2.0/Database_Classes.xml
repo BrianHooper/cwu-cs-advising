@@ -1,0 +1,681 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Database_Classes</name>
+    </assembly>
+    <members>
+        <member name="T:Database_Object_Classes.CatalogRequirements">
+            <summary>This class stores the catalog requirements for a given year.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.CatalogRequirements.ui_minQuartersAtCWU">
+            <summary>Number of quarters a student must be enrolled at CWU before graduating.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.CatalogRequirements.d_minCumulativeGPA">
+            <summary>Minimum cumulative GPA a student must have to graduate.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.CatalogRequirements.ccr_creditRequirements">
+            <summary>CatalogCreditRequirements structure with credit requirements for this catalog.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.CatalogRequirements.l_degreeRequirements">
+            <summary>List containing the individual requirements for all degrees.</summary>
+        </member>
+        <member name="M:Database_Object_Classes.CatalogRequirements.#ctor(System.String,System.UInt32,System.Double,Database_Object_Classes.CatalogCreditRequirements,System.Collections.Generic.List{Database_Object_Classes.DegreeRequirements})">
+            <summary>Constructor.</summary>
+            <param name="s_ID">This Catalog's unique ID.</param>
+            <param name="ui_minQuartersAtCWU">Number of quarters a student must be enrolled at CWU before graduating.</param>
+            <param name="d_minCumulativeGPA">Minimum cumulative GPA a student must have to graduate.</param>
+            <param name="ccr_creditRequirements">CatalogCreditRequirements structure with credit requirements for this catalog.</param>
+            <param name="l_degreeRequirements">List of DegreeRequirements structures for this catalog.</param>
+        </member>
+        <member name="M:Database_Object_Classes.CatalogRequirements.#ctor(Database_Object_Classes.CatalogRequirements)">
+            <summary>Copy Constructor</summary>
+            <param name="other">Object to copy</param>
+        </member>
+        <member name="P:Database_Object_Classes.CatalogRequirements.MinQuartersAtCWU">
+            <summary>Getter/Setter for the minimum required quarters taken at CWU.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.CatalogRequirements.MinCumulativeGPA">
+            <summary>Getter/Setter for the minimum cumulative GPA a student must have.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.CatalogRequirements.CreditRequirements">
+            <summary>Getter/Setter for the credit requirements for this catalog year.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.CatalogRequirements.DegreeRequirements">
+            <summary>Getter/Setter for the list of degrees offered, which contain their own requirements.</summary>
+        </member>
+        <member name="T:Database_Object_Classes.Course">
+            <summary>Class storing the name, ID, and prerequisits for a course.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Course.ui_NUMBERQUARTERS">
+            <summary>Number of quarters per year constant.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Course.ui_numberCredits">
+            <summary>The number of credits this course is worth.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Course.s_name">
+            <summary>Name of this course.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Course.l_preRequisites">
+            <summary>Prerequisites for this course.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Course.ba_quartersOffered">
+            <summary>The quarters this course is offered, [0] = Winter, [3] = Fall.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Course.b_requiresMajor">
+            <summary>Stores whether or not this quarter requires a student to be in the CS major to take it.</summary>
+        </member>
+        <member name="M:Database_Object_Classes.Course.#ctor">
+            <summary>Default Constructor.</summary>
+        </member>
+        <member name="M:Database_Object_Classes.Course.#ctor(System.String,System.String,System.UInt32,System.Boolean)">
+            <summary>Constructor which creates a Course object with a name and ID, and sets all other fields to default.</summary>
+            <param name="s_name">The course name.</param>
+            <param name="s_ID">The course identifier.</param>
+            <param name="ui_numberCredits">The number of credits this course is worth.</param>
+            <param name="b_requiresMajor">The status of this course requiring a student to be in the CS major.</param>
+            <remarks>The course name is the actual name of the course, e.g. Computer Architecture 1.
+                     The course identifier is the unique identifier for this course, e.g. CS311 which must not contain spaces.</remarks>
+        </member>
+        <member name="M:Database_Object_Classes.Course.#ctor(System.String,System.String,System.UInt32,System.Boolean,System.Collections.Generic.ICollection{Database_Object_Classes.Course})">
+            <summary>Constructor which creates a Course object with a name, ID, and the given prerequisites.</summary>
+            <param name="s_name">The course name.</param>
+            <param name="s_ID">The course identifier.</param>
+            <param name="ui_numberCredits">The number of credits this course is worth.</param>
+            <param name="b_requiresMajor">The status of this course requiring a student to be in the CS major.</param>
+            <param name="col_courses">A collection of prerequisites for this course to be added to the prerequisites list.</param>
+            <remarks>The course name is the actual name of the course, e.g. Computer Architecture 1.
+                     The course identifier is the unique identifier for this course, e.g. CS311 which must not contain spaces.
+                     The course pre-requisites can be in any collection that implements the <see cref="T:System.Collections.Generic.ICollection`1"/> interface.</remarks>
+        </member>
+        <member name="M:Database_Object_Classes.Course.#ctor(System.String,System.String,System.UInt32,System.Boolean,System.Boolean[])">
+            <summary>Constructor which creates a Course object with a name, ID, and the given quarters it's offered.</summary>
+            <param name="s_name">The course name.</param>
+            <param name="s_ID">The course identifier.</param>
+            <param name="ui_numberCredits">The number of credits this course is worth.</param>
+            <param name="b_requiresMajor">The status of this course requiring a student to be in the CS major.</param>
+            <param name="ba_quarters">The quarters when the class is offered.</param>
+            <exception cref="T:System.ArgumentException">This exception is thrown if the ba_quarters array is not size 4.</exception>
+            <remarks>The course name is the actual name of the course, e.g. Computer Architecture 1.
+                     The course identifier is the unique identifier for this course, e.g. CS311 which must not contain spaces.
+                     The quarters array considers [0] to be winter, and [3] to be fall. 
+            </remarks>
+        </member>
+        <member name="M:Database_Object_Classes.Course.#ctor(System.String,System.String,System.UInt32,System.Boolean,System.Boolean[],System.Collections.Generic.ICollection{Database_Object_Classes.Course})">
+            <summary>Constructor which creates a Course object with a name, an ID, the given quarters it's offered, and the given prerequisites.</summary>
+            <param name="s_name">The course name.</param>
+            <param name="s_ID">The course identifier.</param>
+            <param name="ui_numberCredits">The number of credits this course is worth.</param>
+            <param name="b_requiresMajor">The status of this course requiring a student to be in the CS major.</param>
+            <param name="ba_quarters">The quarters when the class is offered.</param>
+            <param name="col_courses">A collection of prerequisites for this course to be added to the prerequisites list.</param>
+            <exception cref="T:System.ArgumentException">This exception is thrown if the ba_quarters array is not size 4.</exception>
+            <remarks>The course name is the actual name of the course, e.g. Computer Architecture 1.
+                     The course identifier is the unique identifier for this course, e.g. CS311 which must not contain spaces.
+                     The quarters array considers [0] to be winter, and [3] to be fall.
+                     The course prerequisites can be in any collection that implements the <see cref="T:System.Collections.Generic.ICollection`1"/> interface.
+            </remarks>
+        </member>
+        <member name="M:Database_Object_Classes.Course.#ctor(Database_Object_Classes.Course)">
+            <summary>Copy Constructor which creates a copy of the other course.</summary>
+            <param name="c_other">Course to be copied.</param>
+        </member>
+        <member name="P:Database_Object_Classes.Course.Name">
+            <summary>Getter/Setter for name of this course.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Course.PreRequisites">
+            <summary>Getter for PreRequisites list of this course.</summary>
+            <remarks>The returned collection will be a read-only collection, and may not be modified directly.</remarks>
+        </member>
+        <member name="P:Database_Object_Classes.Course.QuartersOffered">
+            <summary>Getter for quarters offered array of this course.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Course.RequiresMajor">
+            <summary>Getter/Setter for whether this course requires a student to be a CS major.</summary>
+        </member>
+        <member name="M:Database_Object_Classes.Course.System#IComparable#CompareTo(System.Object)">
+            <summary>Comparer for Course class. Required for using List class.</summary>
+            <param name="obj">Object being compared to this object.</param>
+            <returns>-1 if this is less than other; 0 if this is = other; 1 if this is greater than other.</returns>
+        </member>
+        <member name="M:Database_Object_Classes.Course.IsOffered(Database_Object_Classes.Season)">
+            <summary>Checks whether this course is offered in the specified quarter.</summary>
+            <param name="se_i">Quarter to check.</param>
+            <remarks>Quarter 0 is Winter, quarter 3 is fall.</remarks>
+            <returns>True if offered, false if not offered.</returns>
+        </member>
+        <member name="M:Database_Object_Classes.Course.SetQuarterOffered(Database_Object_Classes.Season,System.Boolean)">
+            <summary>Sets a specific quarter to the given status.</summary>
+            <param name="se_i">Quarter to set.</param>
+            <param name="b_status">The new offering-status for this course in the specified quarter.</param>
+            <remarks>Quarter 0 is Winter, quarter 3 is fall.
+                     True = offered, False = not offered
+                     This will change only a single quarter, to change all use <see cref="M:Database_Object_Classes.Course.SetQuarterOffered(System.Boolean[])"/>.
+            </remarks>
+        </member>
+        <member name="M:Database_Object_Classes.Course.SetQuarterOffered(System.Boolean[])">
+            <summary>Setter for quarters offered array of this course.</summary>
+            <param name="ba_quarters">Array containing the new offering-status of this course for all quarters.</param>
+            <remarks>Quarter 0 is Winter, quarter 3 is fall.
+                     True = offered, False = not offered
+                     All previous offerings will be overriden by this method. To change only a single quarter use <see cref="M:Database_Object_Classes.Course.SetQuarterOffered(Database_Object_Classes.Season,System.Boolean)"/>.
+            </remarks>
+            <exception cref="T:System.ArgumentException">This exception is thrown if the ba_quarters array is not size 4.</exception>
+        </member>
+        <member name="M:Database_Object_Classes.Course.AddPreRequisite(Database_Object_Classes.Course)">
+            <summary>Adds the given Course to the prerequisites list of this Course object.</summary>
+            <param name="c_course">A course prerequisites for this course to be added to the prerequisites list.</param>
+        </member>
+        <member name="M:Database_Object_Classes.Course.AddPreRequisite(System.Collections.Generic.ICollection{Database_Object_Classes.Course})">
+            <summary>Adds the given Courses to the prerequisites list of this Course object.</summary>
+            <param name="col_courses">A collection of prerequisites for this course to be added to the prerequisites list.</param>
+        </member>
+        <member name="M:Database_Object_Classes.Course.RemovePreRequisite(System.String)">
+            <summary>Removes the course whith the specified ID from the prerequisites of this Course object, given it exists.</summary>
+            <param name="s_courseID">The ID of the course to be removed from to the prerequisites list.</param>
+            <returns>True if the course was found, and successfully removed. False if it could not be removed.</returns>
+        </member>
+        <member name="M:Database_Object_Classes.Course.ClearPreRequisites">
+            <summary>Removes all prerequisites of this Course object.</summary>
+        </member>
+        <member name="M:Database_Object_Classes.Course.ToString">
+            <summary>Turns the data in this object into a string.</summary>
+            <returns>A string representation of this object.</returns>
+        </member>
+        <member name="T:Database_Object_Classes.Database_Object">
+            <summary>Base class for all objects in the db4o database, containing the basic construct used by all objects.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Database_Object.ui_writeProtect">
+            <summary>Write protection to maintain data integrity of this object.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Database_Object.s_ID">
+            <summary>The unique identifier of this object.</summary>
+        </member>
+        <member name="M:Database_Object_Classes.Database_Object.#ctor(System.String)">
+            <summary>Default Constructor. Initializes the write protect of this object to default.</summary>
+            <param name="s_ID">The ID of this object.</param>
+        </member>
+        <member name="M:Database_Object_Classes.Database_Object.#ctor(Database_Object_Classes.Database_Object)">
+            <summary>Copy Constructor for this class.</summary>
+            <param name="other">Object to copy.</param>
+        </member>
+        <member name="P:Database_Object_Classes.Database_Object.WP">
+            <summary>Getter for the write protect value of this object.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Database_Object.ID">
+            <summary>Getter/Setter for the ID of this object. </summary>
+        </member>
+        <member name="M:Database_Object_Classes.Database_Object.ObjectAltered">
+            <summary>Updates the value of write protect of this object.</summary>
+            <remarks>If the uint.Max value is reached, the overflow will be ignored, and the write protect is reset to 0.</remarks>
+        </member>
+        <member name="M:Database_Object_Classes.Database_Object.GetHashCode">
+            <summary>Default hashing function.</summary>
+            <returns>Hash code for this object.</returns>
+        </member>
+        <member name="M:Database_Object_Classes.Database_Object.Equals(System.Object)">
+            <summary>Equals operator for comparing two Database Objects.</summary>
+            <param name="obj">Operand being compared to this object.</param>
+            <returns>True if the two objects are equal, otherwise false.</returns>
+        </member>
+        <member name="T:Database_Object_Classes.Season">
+            <summary>Enum for the season when a quarter occurs (Winter, Spring, etc.).</summary>
+            <remarks>Winter = 0, Spring = 1, Summer = 2, Fall = 3.</remarks>
+        </member>
+        <member name="F:Database_Object_Classes.Season.Winter">
+            <summary>Winter quarter, denoted by 0.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Season.Spring">
+            <summary>Spring quarter, denoted by 1.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Season.Summer">
+            <summary>Summer quarter, denoted by 2.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Season.Fall">
+            <summary>Fall quarter, denoted by 3.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Season.Invalid">
+            <summary>Represents an invalid state for this season object.</summary>
+        </member>
+        <member name="T:Database_Object_Classes.Quarter">
+            <summary>Structure which contains the year, and "season" of the quarter.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Quarter.ui_year">
+            <summary>The year of this Quarter.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Quarter.s_quarter">
+            <summary>The season of this Quarter.</summary>
+        </member>
+        <member name="M:Database_Object_Classes.Quarter.#ctor(System.UInt32,Database_Object_Classes.Season)">
+            <summary>Constructor for this structure.</summary>
+            <param name="ui_yr">The year of this quarter.</param>
+            <param name="s_qtr">The season of this quarter.</param>
+            <remarks>The year is an unsigned integer, and should be of the form YYYY, e.g. 2018.
+                     The season is an integer in the range 0-3, or alternatively the type Season.
+            </remarks>
+        </member>
+        <member name="M:Database_Object_Classes.Quarter.#ctor(Database_Object_Classes.Quarter)">
+            <summary>Copy Constructor for this structure.</summary>
+            <param name="q_other">The Quarter to be copied.</param>
+        </member>
+        <member name="P:Database_Object_Classes.Quarter.DefaultQuarter">
+            <summary>Returns a default object of this structure.</summary>
+            <returns>A default object of this structure.</returns>
+        </member>
+        <member name="P:Database_Object_Classes.Quarter.Year">
+            <summary>Getter/Setter for the year member of this quarter.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Quarter.QuarterSeason">
+            <summary>Getter/Setter for the season member of this quarter.</summary>
+        </member>
+        <member name="M:Database_Object_Classes.Quarter.ToString">
+            <summary>For outputting Quarters to console.</summary>
+            <returns>A string representation of this quarter.</returns>
+        </member>
+        <member name="T:Database_Object_Classes.Name">
+            <summary>Structure storing first and last name of a person.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Name.s_fName">
+            <summary>The first name of this Student.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Name.s_lName">
+            <summary>The first name of this Student.</summary>
+        </member>
+        <member name="M:Database_Object_Classes.Name.#ctor(System.String,System.String)">
+            <summary>Constructor for this structure.</summary>
+            <param name="s_fname">First name.</param>
+            <param name="s_lname">Last name.</param>
+        </member>
+        <member name="M:Database_Object_Classes.Name.#ctor(Database_Object_Classes.Name)">
+            <summary>Copy Constructor for this structure.</summary>
+            <param name="n_other">The Name to be copied.</param>
+        </member>
+        <member name="P:Database_Object_Classes.Name.FirstName">
+            <summary>Getter/Setter for the first name of this person.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Name.LastName">
+            <summary>Getter/Setter for the last name of this person.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Name.DefaultName">
+            <summary>Returns a default object of this structure.</summary>
+            <returns>A default object of this structure.</returns>
+        </member>
+        <member name="M:Database_Object_Classes.Name.ToString">
+            <summary>Returns this name as a string.</summary>
+            <returns>The name in the format FirstName LastName.</returns>
+        </member>
+        <member name="T:Database_Object_Classes.CatalogCreditRequirements">
+            <summary>Structure storing the credit requirements for a catalog.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.CatalogCreditRequirements.ui_minCredits">
+            <summary>Minimum Credits for a Bachelor's Degree.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.CatalogCreditRequirements.ui_maxCreditsTransfer">
+            <summary>Maximum acceptable credits transfered from another institution.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.CatalogCreditRequirements.ui_maxCreditsTransferLower">
+            <summary>Maximum acceptable lower division (100-200 Level) credits transfered from another institution.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.CatalogCreditRequirements.ui_minCreditsUpper">
+            <summary>Minimum Credits from upper division (300+ Level).</summary>
+        </member>
+        <member name="F:Database_Object_Classes.CatalogCreditRequirements.ui_minCreditsResidency">
+            <summary>Minimum credits taken at CWU.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.CatalogCreditRequirements.ui_maxCreditsChallenge">
+            <summary>Maximum credits from course challenges.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.CatalogCreditRequirements.ui_minCreditsEarnedForMajor">
+            <summary>Minimum credits taken in the major/minor field by transfer students.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.CatalogCreditRequirements.ui_maxCreditsCoOp290">
+            <summary>Naximum coop credits allowed at the 290 level.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.CatalogCreditRequirements.ui_maxCreditsCoOp">
+            <summary>Naximum coop credits allowed.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.CatalogCreditRequirements.ui_maxCreditsCoOpTransfer">
+            <summary>Naximum coop credits allowed for transfer students.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.CatalogCreditRequirements.ui_maxCreditsCoOpGrad">
+            <summary>Naximum coop credits allowed for graduate programs.</summary>
+        </member>
+        <member name="M:Database_Object_Classes.CatalogCreditRequirements.#ctor(System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>Constructor for this structure.</summary>
+            <param name="ui_minCredits">Minimum Credits for a Bachelor's Degree.</param>
+            <param name="ui_maxCreditsTransfer">Maximum acceptable credits transfered from another institution.</param>
+            <param name="ui_maxCreditsTransferLower">Maximum acceptable lower division (100-200 Level) credits transfered from another institution.</param>
+            <param name="ui_minCreditsUpper">Minimum Credits from upper division (300+ Level).</param>
+            <param name="ui_minCreditsResidency">Minimum credits taken at CWU.</param>
+            <param name="ui_maxCreditsChallenge">Maximum credits from course challenges.</param>
+            <param name="ui_minCreditsEarnedForMajor">Minimum credits taken in the major/minor field by transfer students.</param>
+            <param name="ui_maxCreditsCoOp290">Naximum coop credits allowed at the 290 level.</param>
+            <param name="ui_maxCreditsCoOp">Naximum coop credits allowed.</param>
+            <param name="ui_maxCreditsCoOpTransfer">Naximum coop credits allowed for transfer students.</param>
+            <param name="ui_maxCreditsCoOpGrad">Naximum coop credits allowed for graduate programs.</param>
+        </member>
+        <member name="M:Database_Object_Classes.CatalogCreditRequirements.#ctor(Database_Object_Classes.CatalogCreditRequirements)">
+            <summary>Copy Constructor.</summary>
+            <param name="other">Object to be copied.</param>
+        </member>
+        <member name="P:Database_Object_Classes.CatalogCreditRequirements.MinimumCredits">
+            <summary>Minimum credits to graduate with Bachelor's degree.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.CatalogCreditRequirements.MaximumTransferCredits">
+            <summary>Maximum transferable credits.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.CatalogCreditRequirements.MaximumTransferCreditsLD">
+            <summary>Maximum transferable LD credits.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.CatalogCreditRequirements.MinimumCreditsUD">
+            <summary>Minimum UD credits to graduate.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.CatalogCreditRequirements.MinimumCreditsForResidency">
+            <summary>Minimum credits taken at CWU.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.CatalogCreditRequirements.MaximumChallengeCredits">
+            <summary>Maximum credits from course challenges.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.CatalogCreditRequirements.MinimumCWUCreditsMajor">
+            <summary>Minimum credits earned in major field by non-transfer students.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.CatalogCreditRequirements.MaximumCoOpCredits290Level">
+            <summary>Naximum coop credits allowed at the 290 level.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.CatalogCreditRequirements.MaximumCoOpCredits">
+            <summary>Naximum coop credits allowed.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.CatalogCreditRequirements.MaximumCoOpCreditsTransfer">
+            <summary>Naximum coop credits allowed for transfer students.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.CatalogCreditRequirements.MaximumCoOpCreditsGraduateProgram">
+            <summary>Naximum coop credits allowed for graduate programs.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.CatalogCreditRequirements.DefaultCatalogCreditRequirements">
+            <summary>Returns a default object of this structure.</summary>
+            <returns>A default object of this structure.</returns>
+        </member>
+        <member name="T:Database_Object_Classes.DegreeRequirements">
+            <summary>Structure storing degree-specific requirements.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.DegreeRequirements.l_generalRequirements">
+            <summary>General University Requirements for this degree.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.DegreeRequirements.l_preAdmissionRequirements">
+            <summary>Pre-admission requirements to enter the major.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.DegreeRequirements.l_coreRequirements">
+            <summary>Core-course requirements to graduate.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.DegreeRequirements.l_acceptableElectives">
+            <summary>List of acceptable electives for the degree.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.DegreeRequirements.ui_minElectiveCredits">
+            <summary>Minimum number of electives credits for this degree.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.DegreeRequirements.d_minMajorGPA">
+            <summary>Minimum GPA required for this degree as major.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.DegreeRequirements.s_name">
+            <summary>Name of this degree.</summary>
+        </member>
+        <member name="M:Database_Object_Classes.DegreeRequirements.#ctor(System.Collections.Generic.List{Database_Object_Classes.Course},System.Collections.Generic.List{Database_Object_Classes.Course},System.Collections.Generic.List{Database_Object_Classes.Course},System.Collections.Generic.List{Database_Object_Classes.Course},System.UInt32,System.Double,System.String)">
+            <summary>Constructor for this structure.</summary>
+            <param name="l_generalRequirements">General University Requirements for this degree.</param>
+            <param name="l_preAdmissionRequirements">Pre-admission requirements to enter the major.</param>
+            <param name="l_coreRequirements">Core-course requirements to graduate.</param>
+            <param name="l_acceptableElectives">List of acceptable electives for the degree.</param>
+            <param name="ui_minElectiveCredits">Minimum number of electives credits for this degree.</param>
+            <param name="d_minMajorGPA">Minimum GPA required for this degree as major.</param>
+            <param name="s_name">Name of this degree.</param>
+        </member>
+        <member name="M:Database_Object_Classes.DegreeRequirements.#ctor(Database_Object_Classes.DegreeRequirements)">
+            <summary>Copy Constructor.</summary>
+            <param name="other">Object being copied.</param>
+        </member>
+        <member name="P:Database_Object_Classes.DegreeRequirements.Name">
+            <summary>Getter/Setter for this Degree's name.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.DegreeRequirements.MinimumGPA">
+            <summary>Getter/Setter for this Degree's minimum required GPA.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.DegreeRequirements.MinimumElectiveCredits">
+            <summary>Getter/Setter for this Degree's minimum required elective credits.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.DegreeRequirements.GeneralRequirements">
+            <summary>Getter/Setter for this Degree's general course requirements.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.DegreeRequirements.PreAdmissionRequirements">
+            <summary>Getter/Setter for this Degree's pre-admission course requirements.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.DegreeRequirements.CoreRequirements">
+            <summary>Getter/Setter for this Degree's core course requirements</summary>
+        </member>
+        <member name="P:Database_Object_Classes.DegreeRequirements.AcceptableElectives">
+            <summary>Getter/Setter for this Degree's acceptable elective courses.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.DegreeRequirements.DefaultDegreeRequirements">
+            <summary>Returns a default object of this structure.</summary>
+            <returns>A default object of this structure.</returns>
+        </member>
+        <member name="M:Database_Object_Classes.DegreeRequirements.System#IComparable#CompareTo(System.Object)">
+            <summary>Compares the names of two degrees.</summary>
+            <param name="obj">Other object to compare to.</param>
+            <returns>String comparison between names.</returns>
+        </member>
+        <member name="T:Database_Object_Classes.AcademicStanding">
+            <summary>Structure storing academic standing of a student.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.AcademicStanding.b_isSenior">
+            <summary>Stores whether or not this student is a senior.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.AcademicStanding.b_inMajor">
+            <summary>Stores whether or not this student is in the CS major.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.AcademicStanding.b_hasGoodStanding">
+            <summary>Stores whether or not this student has good academic standing.</summary>
+        </member>
+        <member name="M:Database_Object_Classes.AcademicStanding.#ctor(System.Boolean,System.Boolean,System.Boolean)">
+            <summary>Constructor for this structure.</summary>
+            <param name="b_isSenior">Whether the student is a senior.</param>
+            <param name="b_inMajor">Whether the student is in the respective major.</param>
+            <param name="b_hasGoodStanding">Whether the student has good academic standing.</param>
+        </member>
+        <member name="M:Database_Object_Classes.AcademicStanding.#ctor(Database_Object_Classes.AcademicStanding)">
+            <summary>Copy Constructor.</summary>
+            <param name="other">Object being copied.</param>
+        </member>
+        <member name="P:Database_Object_Classes.AcademicStanding.InMajor">
+            <summary>Getter/Setter for the status of whether this student is in the CS major.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.AcademicStanding.Senior">
+            <summary>Getter/Setter for the status of whether this student is a senior.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.AcademicStanding.Standing">
+            <summary>Getter/Setter for the status of whether this student has good academic standing.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.AcademicStanding.DefaultAcademicStanding">
+            <summary>Returns a default object of this structure.</summary>
+            <returns>A default object of this structure.</returns>
+        </member>
+        <member name="M:Database_Object_Classes.AcademicStanding.ToString">
+            <summary>
+            Testing tostring method.
+            </summary>
+            <returns>the objects data in string form.</returns>
+        </member>
+        <member name="T:Database_Object_Classes.PlanInfo">
+            <summary>Structure storing graduation plan information.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.PlanInfo.s_SID">
+            <summary>This Plan's owner's ID.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.PlanInfo.q_start">
+            <summary>The starting quarter of this plan.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.PlanInfo.sa_classes">
+            <summary>The classes in this plan.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.PlanInfo.ui_WP">
+            <summary>The write protect value of this plan.</summary>
+        </member>
+        <member name="M:Database_Object_Classes.PlanInfo.#ctor(System.String,System.UInt32,System.String,System.String[])">
+            <summary>Constructor for this structure.</summary>
+            <param name="s_ID">The ID of the owner of this plan.</param>
+            <param name="ui_WP">Write Protect value on this plan.</param>
+            <param name="s_qtr">The starting quarter in string form.</param>
+            <param name="sa_classes">The classes in this plan.</param>
+            <remarks>The quarter passed must be in the form "Season Year".</remarks>
+        </member>
+        <member name="M:Database_Object_Classes.PlanInfo.#ctor(Database_Object_Classes.PlanInfo)">
+            <summary>Copy Constructor for this structure.</summary>
+            <param name="other">PlanInfo object to copy.</param>
+        </member>
+        <member name="P:Database_Object_Classes.PlanInfo.StartQuarter">
+            <summary>Getter/Setter for this Plan's starting quarter.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.PlanInfo.Classes">
+            <summary>Getter/Setter for this Plan's classes.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.PlanInfo.StudentID">
+            <summary>Getter for this Plan's owner.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.PlanInfo.WP">
+            <summary>Getter for the write protect value of this plan.</summary>
+        </member>
+        <member name="M:Database_Object_Classes.PlanInfo.ToString">
+            <summary>Turns the data in this object into a string for output.</summary>
+            <returns>A string containing the data in this object.</returns>
+        </member>
+        <member name="T:Database_Object_Classes.Credentials">
+            <summary>Structure storing user information.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Credentials.s_userName">
+            <summary>Username of the owner of these credentials.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Credentials.ba_PWSalt">
+            <summary>The password salt for this user. This should never be changed.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Credentials.b_isAdmin">
+            <summary>Whether or not this user is an administrator.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Credentials.b_isActive">
+            <summary>Whether or not this user's account is currently active.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Credentials.ui_WP">
+            <summary>Write protect value of this object.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Credentials.ss_pw">
+            <summary>Contains this user's password.</summary>
+            <remarks>
+                     Retrieve will not fill this variable.
+                     This variable should only be set when the user's password is to be changed.
+            </remarks>
+        </member>
+        <member name="M:Database_Object_Classes.Credentials.#ctor(System.String,System.UInt32,System.Boolean,System.Boolean,System.Byte[])">
+            <summary>Constructor for this structure.</summary>
+            <param name="s_ID">Username of the owner of these credentials.</param>
+            <param name="ui_WP">Write protect value of this object.</param>
+            <param name="b_isAdmin">Whether or not this user is an administrator.</param>
+            <param name="b_isActive">Whether or not this user's account is active.</param>
+            <param name="ba_PWSalt">The password salt for this user.</param>
+            <remarks>The only thing that should be changed in this structure is the IsAdmin value.
+                     Changing the username will create a new user upon write back to the DB.
+                     Changing the password salt will have no effect on the DB, 
+                     as this value will be disregarded upon write back.
+                     Changing the write protect will either cause an error, or data corruption.
+            </remarks>
+        </member>
+        <member name="M:Database_Object_Classes.Credentials.#ctor(Database_Object_Classes.Credentials)">
+            <summary>Copy Constructor for this structure.</summary>
+            <param name="other">Credentials object to copy into this object.</param>
+            <remarks>The password is not copied from the other object.</remarks>
+        </member>
+        <member name="P:Database_Object_Classes.Credentials.UserName">
+            <summary>Getter for the username of the owner of these credentials.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Credentials.PWSalt">
+            <summary>Getter for the password salt of this user.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Credentials.IsAdmin">
+            <summary>Getter/Setter for whether this user is an Admin.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Credentials.IsActive">
+            <summary>Getter/Setter for whether this user's account is active.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Credentials.WP">
+            <summary>Getter for the write protect value of these user credentials.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Credentials.Password">
+            <summary>Returns the secure string containing the password. </summary>
+        </member>
+        <member name="P:Database_Object_Classes.Credentials.AddToPW">
+            <summary>Adds the specified character to the password.</summary>
+        </member>
+        <member name="M:Database_Object_Classes.Credentials.ToString">
+            <summary>Turns the data in this object into a string for output.</summary>
+            <returns>A string representation of this object.</returns>
+        </member>
+        <member name="T:Database_Object_Classes.Student">
+            <summary>Class storing the first and last name, student ID, catalog year, expected graduation quarter, and starting quarter of a student.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Student.ui_creditsCompleted">
+            <summary>The number of credits this student has completed to date.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Student.d_GPA">
+            <summary>Stores this student's GPA.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Student.n_name">
+            <summary>The name of this student.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Student.q_startingQuarter">
+            <summary>The catalog year of this student.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Student.q_expectedGraduation">
+            <summary>The quarter this student is expected to graduate.</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Student.as_standing">
+            <summary>The academic standing of this student.</summary>
+        </member>
+        <member name="M:Database_Object_Classes.Student.#ctor(Database_Object_Classes.Name,System.String,Database_Object_Classes.Quarter)">
+            <summary>Constructor which creates a new student object with the specified name, ID, and starting quarter.</summary>
+            <param name="n_name">The name of this student.</param>
+            <param name="s_ID">Student ID of this student.</param>
+            <param name="q_startingQuarter">Quarter in which this student enrolled.</param>
+        </member>
+        <member name="M:Database_Object_Classes.Student.#ctor(Database_Object_Classes.Name,System.String,Database_Object_Classes.Quarter,System.UInt32,System.Double,Database_Object_Classes.AcademicStanding)">
+            <summary>Constructor for all fields.</summary>
+            <param name="n_name">This student's name.</param>
+            <param name="s_ID">This student's SID.</param>
+            <param name="q_startingQuarter">The quarter in which this student started.</param>
+            <param name="ui_creditsCompleted">The number of credits this student has completed.</param>
+            <param name="d_GPA">This student's GPA.</param>
+            <param name="as_standing">This student's academic standing.</param>
+        </member>
+        <member name="M:Database_Object_Classes.Student.#ctor(Database_Object_Classes.Student)">
+            <summary>Copy constructor which copies the contents of one student into this student.</summary>
+            <param name="other">The object to copy into this one.</param>
+        </member>
+        <member name="P:Database_Object_Classes.Student.ExpectedGraduation">
+            <summary>Getter/Setter for Expected Graduation</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Student.CreditsCompleted">
+            <summary>Getter/Setter for the number of credits this student has completed.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Student.Name">
+            <summary>Getter/Setter for student name.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Student.GPA">
+            <summary>Getter/Setter for student GPA.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Student.StartingQuarter">
+            <summary>Getter/Setter for student starting quarter.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Student.AcademicStanding">
+            <summary>Getter/Setter for student Academic Standing.</summary>
+        </member>
+        <member name="M:Database_Object_Classes.Student.ToString">
+            <summary>Turns the data in this student object into a string.</summary>
+            <returns>A string version of this object.</returns>
+        </member>
+    </members>
+</doc>
