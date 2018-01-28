@@ -5,9 +5,10 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\output\netcoreapp2.0\</OutputPath>
-    <DocumentationFile>..\output\Documentation\Algorithm.xml</DocumentationFile>
+    <OutputPath>..\..\output\netcoreapp2.0\</OutputPath>
+    <DocumentationFile>..\..\output\Documentation\Algorithm.xml</DocumentationFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
