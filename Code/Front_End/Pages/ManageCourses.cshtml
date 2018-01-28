@@ -4,7 +4,7 @@
     ViewData["Title"] = "Manage Courses";
 }
 <script src="~/js/ListManager.js"></script>
-
+<!--
 <div class="PageRow Flex CenterFlex">
     <div class="Block Border Padded">
         <div class="Title">New Course</div>
@@ -77,6 +77,8 @@
         <div><input type="submit" value="Add New Course" class="BigButton" /></div>
     </div>
 </div>
+-->
+
 
 <div class="PageRow Flex CenterFlex">
     <div class="Block Border Padded">
@@ -114,13 +116,14 @@
 </div>
 
 <div class="Flex CenterFlex">
-    <div class="Block Padded">
+    <div class="Block Padded" id="CourseContainer">
         <div class="Title">Courses</div>
         <div class="Flex CenterFlex Row" style="margin-bottom: 10px;">
             <div class="Element ButtonElement">[X]</div>
             <div class="Element CourseElement">Course Title</div>
             <div class="Element CourseElement">Department</div>
             <div class="Element CourseElement CourseNumberInput">Number</div>
+            <div class="Element CourseElement CourseNumberInput">Credits</div>
             <div class="Element ButtonElement">Su</div>
             <div class="Element ButtonElement">F</div>
             <div class="Element ButtonElement">W</div>
@@ -138,6 +141,7 @@
                 </select>
             </div>
             <div class="Element CourseElement CourseNumberInput"><input type="text" value="312"></div>
+            <div class="Element CourseElement CourseNumberInput"><input type="text" value="4"></div>
             <div class="Element ToggleElement">&nbsp;</div>
             <div class="Element ToggleElement">&nbsp;</div>
             <div class="Element ToggleElement">X</div>
@@ -159,6 +163,7 @@
                 </select>
             </div>
             <div class="Element CourseElement CourseNumberInput"><input type="text" value="302"></div>
+            <div class="Element CourseElement CourseNumberInput"><input type="text" value="4"></div>
             <div class="Element ToggleElement">&nbsp;</div>
             <div class="Element ToggleElement">X</div>
             <div class="Element ToggleElement">X</div>
@@ -180,6 +185,7 @@
                 </select>
             </div>
             <div class="Element CourseElement CourseNumberInput"><input type="text" value="470"></div>
+            <div class="Element CourseElement CourseNumberInput"><input type="text" value="4"></div>
             <div class="Element ToggleElement">&nbsp;</div>
             <div class="Element ToggleElement">&nbsp;</div>
             <div class="Element ToggleElement">X</div>
@@ -190,8 +196,13 @@
                 <a href="#">[+]</a>
             </div>
         </div>
-        <input type="submit" value="Save Changes" class="BigButton" />
     </div>
+    <div style="width: 100%; text-align: center;">
+        <button type="button" class="BigButton" style="width: 150px; margin-top: 5px;" id="AddNewCourseButton">Add New Course</button>
+        <input type="submit" value="Save Changes" class="BigButton" style="width: 150px; margin-top: 5px;" />
+    </div>
+
+    
 </div>
 
 
