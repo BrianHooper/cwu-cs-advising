@@ -125,3 +125,19 @@
 .CourseElement {
     width: 200px;
 }
+
+.ToggleElement {
+    text-align: center;
+    width: 30px;
+    cursor: pointer;
+}
+
+.DeleteRow {
+    text-align: center;
+    width: 30px;
+    cursor: pointer;
+}
+
+.CourseNumberInput {
+    width: 50px;
+}

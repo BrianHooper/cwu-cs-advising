@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Manage Degrees";
 }
+<script src="~/js/ListManager.js"></script>
 
 <div class="PageRow Flex CenterFlex">
     <div class="Block Border Padded">
@@ -61,17 +62,8 @@
         </div>
 
         <div class="Flex CenterFlex Row">
-            <a href="#"><div class="Element ButtonElement">[X]</div></a>
-            <div class="Element CourseElement"><a href="#">English Competency</a></div>
-            <div class="Element WideFlex">
-                <a href="#">[ ENG 101 ]</a>
-                <a href="#">[+]</a>
-            </div>
-        </div>
-
-        <div class="Flex CenterFlex Row">
-            <a href="#"><div class="Element ButtonElement">[X]</div></a>
-            <div class="Element CourseElement"><a href="#">Operating Systems</a></div>
+            <div class="Element DeleteRow">[X]</div>
+            <div class="Element CourseElement"><input type="text" value="Operating Systems" /></div>
             <div class="Element WideFlex">
                 <a href="#">[ CS 470 ]</a>
                 <a href="#">[+]</a>
@@ -79,16 +71,26 @@
         </div>
 
         <div class="Flex CenterFlex Row">
-            <a href="#"><div class="Element ButtonElement">[X]</div></a>
-            <div class="Element CourseElement"><a href="#">Natural World</a></div>
+            <div class="Element DeleteRow">[X]</div>
+            <div class="Element CourseElement"><input type="text" value="English Competency" /></div>
+            <div class="Element WideFlex">
+                <a href="#">[ ENG 101 ]</a>
+                <a href="#">[+]</a>
+            </div>
+        </div>
+
+        <div class="Flex CenterFlex Row">
+            <div class="Element DeleteRow">[X]</div>
+            <div class="Element CourseElement"><input type="text" value="Natural World" /></div>
             <div class="Element WideFlex">
                 <a href="#">[ ANTH 110 ]</a>
                 <a href="#">[ BIOL 200 ]</a>
                 <a href="#">[ BIOL 201 ]</a>
                 <a href="#">[ BIOL 300 ]</a>
-
                 <a href="#">[+]</a>
             </div>
         </div>
+        <input type="submit" value="Save Changes" class="BigButton" />
     </div>
+    
 </div>

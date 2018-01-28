@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Manage Courses";
 }
+<script src="~/js/ListManager.js"></script>
 
 <div class="PageRow Flex CenterFlex">
     <div class="Block Border Padded">
@@ -61,8 +62,8 @@
                     <input type="button" value="Add" style="height: 100%; width: 25%;" />
                 </div>
             </div>
-            
-            
+
+
 
 
         </div>
@@ -71,7 +72,7 @@
             <div>
                 <a href="#" class="DivButton">CS 380</a>
             </div>
-            
+
         </div>
         <div><input type="submit" value="Add New Course" class="BigButton" /></div>
     </div>
@@ -83,7 +84,7 @@
         <div class="Flex CenterFlex">
             <div class="Flex ">
                 <div class="LabelLeft">Courses Numbered:</div>
-                <div class="LabelRight"><input type="text" style="width: 20%;" value="0"/> to <input type="text" style="width: 20%;" value="999" /></div>
+                <div class="LabelRight"><input type="text" style="width: 20%;" value="0" /> to <input type="text" style="width: 20%;" value="999" /></div>
             </div>
             <div class="Flex">
                 <div class="LabelLeft">Department:</div>
@@ -118,7 +119,8 @@
         <div class="Flex CenterFlex Row" style="margin-bottom: 10px;">
             <div class="Element ButtonElement">[X]</div>
             <div class="Element CourseElement">Course Title</div>
-            <div class="Element CourseElement">Department and Number</div>
+            <div class="Element CourseElement">Department</div>
+            <div class="Element CourseElement CourseNumberInput">Number</div>
             <div class="Element ButtonElement">Su</div>
             <div class="Element ButtonElement">F</div>
             <div class="Element ButtonElement">W</div>
@@ -127,41 +129,19 @@
         </div>
 
         <div class="Flex CenterFlex Row">
-            <a href="#"><div class="Element ButtonElement">[X]</div></a>
-            <div class="Element CourseElement"><a href="#">Computer Architecture II</a></div>
-            <div class="Element CourseElement"><a href="#">CS 312</a></div>
-            <a href="#"><div class="Element ButtonElement">&nbsp;</div></a>
-            <a href="#"><div class="Element ButtonElement">&nbsp;</div></a>
-            <a href="#"><div class="Element ButtonElement">X</div></a>
-            <a href="#"><div class="Element ButtonElement">X</div></a>
-            <div class="Element WideFlex">
-                <a href="#">[ CS 311 ]</a>
-                <a href="#">[+]</a>
+            <div class="Element DeleteRow">[X]</div>
+            <div class="Element CourseElement"><input type="text" value="Computer Architecture II" /></div>
+            <div class="Element CourseElement">
+                <select>
+                    <option>Computer Science</option>
+                    <option>Mathematics</option>
+                </select>
             </div>
-        </div>
-
-        <div class="Flex CenterFlex Row">
-            <a href="#"><div class="Element ButtonElement">[X]</div></a>
-            <div class="Element CourseElement"><a href="#">Data Structures</a></div>
-            <div class="Element CourseElement"><a href="#">CS 302</a></div>
-            <a href="#"><div class="Element ButtonElement">&nbsp;</div></a>
-            <a href="#"><div class="Element ButtonElement">X</div></a>
-            <a href="#"><div class="Element ButtonElement">X</div></a>
-            <a href="#"><div class="Element ButtonElement">X</div></a>
-            <div class="Element WideFlex">
-                <a href="#">[ CS 301 ]</a>
-                <a href="#">[+]</a>
-            </div>
-        </div>
-
-        <div class="Flex CenterFlex Row">
-            <a href="#"><div class="Element ButtonElement">[X]</div></a>
-            <div class="Element CourseElement"><a href="#">Operating Systems</a></div>
-            <div class="Element CourseElement"><a href="#">CS 470</a></div>
-            <a href="#"><div class="Element ButtonElement">&nbsp;</div></a>
-            <a href="#"><div class="Element ButtonElement">&nbsp;</div></a>
-            <a href="#"><div class="Element ButtonElement">X</div></a>
-            <a href="#"><div class="Element ButtonElement">&nbsp;</div></a>
+            <div class="Element CourseElement CourseNumberInput"><input type="text" value="312"></div>
+            <div class="Element ToggleElement">&nbsp;</div>
+            <div class="Element ToggleElement">&nbsp;</div>
+            <div class="Element ToggleElement">X</div>
+            <div class="Element ToggleElement">X</div>
             <div class="Element WideFlex">
                 <a href="#">[ CS 361 ]</a>
                 <a href="#">[ CS 312 ]</a>
@@ -169,5 +149,49 @@
             </div>
         </div>
 
+        <div class="Flex CenterFlex Row">
+            <div class="Element DeleteRow">[X]</div>
+            <div class="Element CourseElement"><input type="text" value="Data Structures" /></div>
+            <div class="Element CourseElement">
+                <select>
+                    <option>Computer Science</option>
+                    <option>Mathematics</option>
+                </select>
+            </div>
+            <div class="Element CourseElement CourseNumberInput"><input type="text" value="302"></div>
+            <div class="Element ToggleElement">&nbsp;</div>
+            <div class="Element ToggleElement">X</div>
+            <div class="Element ToggleElement">X</div>
+            <div class="Element ToggleElement">X</div>
+            <div class="Element WideFlex">
+                <a href="#">[ CS 361 ]</a>
+                <a href="#">[ CS 312 ]</a>
+                <a href="#">[+]</a>
+            </div>
+        </div>
+
+        <div class="Flex CenterFlex Row">
+            <div class="Element DeleteRow">[X]</div>
+            <div class="Element CourseElement"><input type="text" value="Operating Systems" /></div>
+            <div class="Element CourseElement">
+                <select>
+                    <option>Computer Science</option>
+                    <option>Mathematics</option>
+                </select>
+            </div>
+            <div class="Element CourseElement CourseNumberInput"><input type="text" value="470"></div>
+            <div class="Element ToggleElement">&nbsp;</div>
+            <div class="Element ToggleElement">&nbsp;</div>
+            <div class="Element ToggleElement">X</div>
+            <div class="Element ToggleElement">&nbsp;</div>
+            <div class="Element WideFlex">
+                <a href="#">[ CS 361 ]</a>
+                <a href="#">[ CS 312 ]</a>
+                <a href="#">[+]</a>
+            </div>
+        </div>
+        <input type="submit" value="Save Changes" class="BigButton" />
     </div>
 </div>
+
+
