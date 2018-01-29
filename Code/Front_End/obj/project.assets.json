@@ -13123,7 +13123,7 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Brian\\.nuget\\packages\\": {},
+    "C:\\Users\\ricohelvidadrian\\.nuget\\packages\\": {},
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
@@ -13132,17 +13132,17 @@
       "hideWarningsAndErrors": true
     },
     "restore": {
-      "projectUniqueName": "C:\\Users\\Brian\\Documents\\cwu-cs-advising\\Code\\Front_End\\CwuAdvising.csproj",
+      "projectUniqueName": "C:\\Users\\ricohelvidadrian\\Desktop\\CSadvisingproject\\cwu-cs-advising\\Code\\Front_End\\CwuAdvising.csproj",
       "projectName": "CwuAdvising",
-      "projectPath": "C:\\Users\\Brian\\Documents\\cwu-cs-advising\\Code\\Front_End\\CwuAdvising.csproj",
-      "packagesPath": "C:\\Users\\Brian\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Brian\\Documents\\cwu-cs-advising\\Code\\Front_End\\obj\\",
+      "projectPath": "C:\\Users\\ricohelvidadrian\\Desktop\\CSadvisingproject\\cwu-cs-advising\\Code\\Front_End\\CwuAdvising.csproj",
+      "packagesPath": "C:\\Users\\ricohelvidadrian\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\ricohelvidadrian\\Desktop\\CSadvisingproject\\cwu-cs-advising\\Code\\Front_End\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
       ],
       "configFilePaths": [
-        "C:\\Users\\Brian\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\ricohelvidadrian\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -13166,18 +13166,18 @@
     "frameworks": {
       "netcoreapp2.0": {
         "dependencies": {
-          "Microsoft.AspNetCore.All": {
+          "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
             "target": "Package",
-            "version": "[2.0.5, )"
+            "version": "2.0.2"
           },
           "Microsoft.NETCore.App": {
             "target": "Package",
-            "version": "[2.0.0, )",
+            "version": "2.0.0",
             "autoReferenced": true
           },
-          "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
+          "Microsoft.AspNetCore.All": {
             "target": "Package",
-            "version": "[2.0.2, )"
+            "version": "2.0.5"
           }
         },
         "imports": [

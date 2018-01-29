@@ -7,23 +7,24 @@ namespace PlanGenerationAlgorithm
 {
     public class Class1
     {
-        public static void Main() {
+        public static void Main()
+        {
 
             //fields
-             Name n_name; //student name
-             string s_ID="3829"; //student ID
+            Name n_name; //student name
+            string s_ID = "3829"; //student ID
             uint quarter = 2018; //starting quarter
-            Season s = new Season();
+            Season s = Season.Fall;
             uint ui_minQuartersAtCWU = new uint(); //min quarter
             uint ui_minElectiveCredits = new uint(); //min elective
             uint ui_numberCredits = new uint();  //number credits
             Quarter q_startingQuarter = new Quarter(quarter, s); //starting quarter
-            double d_minCumulativeGPA=3.0; 
-             bool b_requiresMajor=false;
+            double d_minCumulativeGPA = 3.0;
+            bool b_requiresMajor = false;
             int minCredits, maxCredits;
             CatalogCreditRequirements ccr_creditRequirements = new CatalogCreditRequirements();
             List<DegreeRequirements> l_degreeRequirements = new List<DegreeRequirements>();
-             string s_name="asd";
+            string s_name = "asd";
             Student student1 = new Student(n_name, s_ID, q_startingQuarter);
             Student student2 = new Student(n_name, "350", q_startingQuarter);
             Student student3 = new Student(n_name, "325", q_startingQuarter);
@@ -42,32 +43,35 @@ namespace PlanGenerationAlgorithm
             courses.Add(course);
             courses.Add(course2);
             courses.Add(course3);
-            
+
+
             //catalog.DegreeRequirement;
-            List<Schedule> schedules=new List<Schedule>();
-            for(int i=0;i<12;i++)
+            List<Schedule> schedules = new List<Schedule>();
+            for (int i = 0; i < 12; i++)
             {
-                schedules.Add(new Schedule(q_startingQuarter,ui_numberCredits,courses));
+                schedules.Add(new Schedule(q_startingQuarter, ui_numberCredits, courses));
             }
             List<Student> students = new List<Student>();
-            
-            l_degreeRequirements.Add(new DegreeRequirements(courses, courses,courses, courses,
+
+            l_degreeRequirements.Add(new DegreeRequirements(courses, courses, courses, courses,
                                    ui_minElectiveCredits, d_minCumulativeGPA, s_name));
             l_degreeRequirements.Add(deg1);
             students.Add(student1);
             students.Add(student2);
             students.Add(student3);
-            //foreach (DegreeRequirements gradReq in student1.StartingQu)
+            foreach (DegreeRequirements gradReq in catalog.DegreeRequirements)
+            {
 
-            foreach (Course course1 in l_degreeRequirements.ElementAt(0).GeneralRequirements)
+                foreach (Course course1 in deg1.GeneralRequirements)
                 {
-                if (course1.IsOffered(s))
-                {
-                    courses.Add(course1);
+                    if (course1.IsOffered(s++))
+                    {
+                        courses.Add(course1);
+                    }
                 }
-                }
-            
-            
+            }
+
+
         }
         void generateSchedule(Student student, Schedule schedule)
         {
@@ -77,10 +81,11 @@ namespace PlanGenerationAlgorithm
                 schedules.Add(schedule);
                 return;
             }
-            else  {
+            else
+            {
 
             }
-            if(!schedules.Any())
+            if (!schedules.Any())
             {
                 generateSchedule(student, schedule);
             }

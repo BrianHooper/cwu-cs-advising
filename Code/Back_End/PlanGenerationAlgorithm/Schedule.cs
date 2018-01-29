@@ -7,6 +7,7 @@ namespace PlanGenerationAlgorithm
 {
     class Schedule
     {
+        HashSet<Course> h = new HashSet<Course>();
         public Schedule(Quarter quarter, uint ui_numberCredits,List<Course> courses)
         {
             this.quarter = quarter;
@@ -15,6 +16,7 @@ namespace PlanGenerationAlgorithm
             this.courses = new List<Course>();
             this.NextQuarter = nextquarter1;
         } // end Constructor
+
         Quarter quarter;
         private uint ui_numberCredits;
         int credits;

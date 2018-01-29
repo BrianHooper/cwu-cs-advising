@@ -1540,7 +1540,7 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Brian\\.nuget\\packages\\": {},
+    "C:\\Users\\ricohelvidadrian\\.nuget\\packages\\": {},
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
@@ -1549,17 +1549,17 @@
       "hideWarningsAndErrors": true
     },
     "restore": {
-      "projectUniqueName": "C:\\Users\\Brian\\Documents\\cwu-cs-advising\\Code\\Database_Classes\\Database_Classes.csproj",
+      "projectUniqueName": "C:\\Users\\ricohelvidadrian\\Desktop\\CSadvisingproject\\cwu-cs-advising\\Code\\Database_Classes\\Database_Classes.csproj",
       "projectName": "Database_Classes",
-      "projectPath": "C:\\Users\\Brian\\Documents\\cwu-cs-advising\\Code\\Database_Classes\\Database_Classes.csproj",
-      "packagesPath": "C:\\Users\\Brian\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Brian\\Documents\\cwu-cs-advising\\Code\\Database_Classes\\obj\\",
+      "projectPath": "C:\\Users\\ricohelvidadrian\\Desktop\\CSadvisingproject\\cwu-cs-advising\\Code\\Database_Classes\\Database_Classes.csproj",
+      "packagesPath": "C:\\Users\\ricohelvidadrian\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\ricohelvidadrian\\Desktop\\CSadvisingproject\\cwu-cs-advising\\Code\\Database_Classes\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
       ],
       "configFilePaths": [
-        "C:\\Users\\Brian\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\ricohelvidadrian\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -1583,15 +1583,15 @@
     "frameworks": {
       "netcoreapp2.0": {
         "dependencies": {
+          "System.Runtime.Serialization.Formatters": {
+            "target": "Package",
+            "version": "4.3.0"
+          },
           "Microsoft.NETCore.App": {
             "suppressParent": "All",
             "target": "Package",
-            "version": "[2.0.0, )",
+            "version": "2.0.0",
             "autoReferenced": true
-          },
-          "System.Runtime.Serialization.Formatters": {
-            "target": "Package",
-            "version": "[4.3.0, )"
           }
         },
         "imports": [
