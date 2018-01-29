@@ -16,9 +16,17 @@ namespace Database_Handler
     /// <summary>Database Handler is the middleman between the website and the databases. It retrieves, updates, creates, and deletes database entries.</summary>
     public sealed class DatabaseHandler
     {
-        // Class fields:
+        // Static class fields:
+        /// <summary>The number of iterations for hashing the password.</summary>
+        public  static   int i_HASH_ITERATIONS      = 10000             ;
+
         /// <summary>The path to the log file which will contain the log entries created by DBH.</summary>
         public  static   string s_logFilePath       = "log.txt"         ;
+        
+
+        // Class fields:
+        /// <summary>Names of all database related components.</summary>
+        /// <remarks>These can be set using the constructor, or the defaults can be used.</remarks>
         private readonly string s_MYSQL_DB_NAME     = "test_db"         ;
         private readonly string s_MYSQL_DB_SERVER   = "localhost"       ;
         private readonly string s_MYSQL_DB_PORT     = "3306"            ;
@@ -31,23 +39,31 @@ namespace Database_Handler
         private readonly string s_CREDENTIALS_KEY   = "username"        ;
         private readonly string s_PLAN_KEY          = "SID"             ;
 
+        /// <summary>The length, in bytes, of the password salt.</summary>
         private const int i_SALT_LENGTH             = 32                ;
-        private const int i_HASH_ITERATIONS         = 4                 ;
 
+        /// <summary>The length of the longest plan in the s_PLAN_TABLE mysql table, stored in the master record.</summary>
         private uint ui_COL_COUNT;
 
+        /// <summary>This keeps track of which resources are currently in use, to prevent threads from trying to access the same resources.</summary>
         private bool[] ba_ressourcesInUse;
 
+        /// <summary>The master connection to the MySql database, which should never be closed, except during cleanup.</summary>
         private MySqlConnection DB_CONNECTION;
 
+        /// <summary>A RNG for building password salts.</summary>
         private RNGCryptoServiceProvider RNG;
 
+        /// <summary>The main Tcp Listener which talks with the main Website thread.</summary>
         private TcpListener tcpListener;
 
+        /// <summary>Localhost IP address for the Tcp Socket</summary>
         private IPAddress address;
 
+        /// <summary>The main Tcp Socket used to establish a connection with the website.</summary>
         private Socket TCPMainSocket;
 
+        /// <summary>The network stream used to received data via the Tcp Socket.</summary>
         private NetworkStream stream;
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -211,6 +227,10 @@ namespace Database_Handler
 
                     switch(i)
                     {
+                        case 1:
+                            WriteToLog(" -- DBH was not able to send return command due to serialisation error.");
+                            SendResult(new DatabaseCommand(1, "An error occurred while trying to send the requested data."), s_sender);
+                            break;
                         case 99: // exit command
                             WriteToLog(" -- DBH received the exit signal and is preparing to exit.");
                             return 0;
@@ -269,6 +289,9 @@ namespace Database_Handler
                     break;
                 case CommandType.DisplayCourses:
                     output = ExecuteDisplayCoursesCommand();
+                    break;
+                case CommandType.Disconnect:
+                    output = new DatabaseCommand(99, "Exit command received.");
                     break;
                 default:
                     output = new DatabaseCommand(-1, "Invalid command type");
@@ -437,7 +460,7 @@ namespace Database_Handler
             return output;
         } // end method ExecuteLoginCommand
 
-        /// <summary>Executed a password change.</summary>
+        /// <summary>Executes a password change.</summary>
         /// <param name="cmd">Command containing credentials of user trying to change password.</param>
         /// <returns>A return command containing information about execution success.</returns>
         private DatabaseCommand ExecutePasswordChangeCommand(DatabaseCommand cmd)
@@ -519,6 +542,9 @@ namespace Database_Handler
             return new DatabaseCommand(0, "No Errors", null, courses);
         } // end method ExecuteDisplayCommand
 
+        /// <summary>Executes a retrieve password salt command.</summary>
+        /// <param name="cmd">Command containing the credentials of the user whose salt is to be retrieved.</param>
+        /// <returns>A return command containing the password salt for the requested user.</returns>
         private DatabaseCommand ExecuteGetSaltCommand(DatabaseCommand cmd)
         {
             Credentials cred = (Credentials)cmd.Operand;
@@ -539,10 +565,7 @@ namespace Database_Handler
         /// <param name="s_sender">The sender who requested an action.</param>
         /// <returns>The command that is to be executed.</returns>
         private DatabaseCommand WaitForCommand(out string s_sender)
-        {
-            TCPMainSocket = tcpListener.AcceptSocket();
-            stream = new NetworkStream(TCPMainSocket);
-            
+        {           
             byte[] ba_data = new byte[2048];
 
             int i = TCPMainSocket.Receive(ba_data);
@@ -577,7 +600,7 @@ namespace Database_Handler
                 return 1;
             } // end catch
 
-            return 0;
+            return cmd.ReturnCode;
         } // end method SendResult
 
 
@@ -643,6 +666,7 @@ namespace Database_Handler
         /// <summary>Sets up all necessary components for DBH.</summary>
         /// <returns>An error code or 0 if setup was successful.</returns>
         /// <exception cref="Exception">Thrown if it the master record could not be retrieved from the database.</exception>
+        /// <remarks>Setup will block until an initial website connection is established.</remarks>
         public int SetUp()
         {
             if (!Login())
@@ -654,19 +678,16 @@ namespace Database_Handler
             RNG = new RNGCryptoServiceProvider();
 
             // TCP setup
-            address = IPAddress.Parse("127.0.0.1");
-            tcpListener = new TcpListener(address, 44765); // TODO
-
-            tcpListener.Start();
-
+            address = IPAddress.Parse("localhost");
+            tcpListener = new TcpListener(address, 44765); 
+            
 
             ba_ressourcesInUse = new bool[4] { false, false, false, false };
 
+
+            // retrieve master record from MySql db
             MySqlCommand cmd = GetCommand("-1", 'S', s_PLAN_TABLE, s_PLAN_KEY, "*");
-
             MySqlDataReader reader = cmd.ExecuteReader();
-
-            
 
             if (reader.HasRows)
             {
@@ -680,6 +701,12 @@ namespace Database_Handler
                 WriteToLog(" -- DBH Setup failed because the master record was not found in " + s_MYSQL_DB_NAME + "." + s_PLAN_TABLE);
                 throw new Exception("Database set up failed because the master record was not found in: " + s_MYSQL_DB_NAME + "." + s_PLAN_TABLE);
             } // end else
+
+
+            // Block until the website connects for the first time
+            tcpListener.Start();
+            TCPMainSocket = tcpListener.AcceptSocket();
+            stream = new NetworkStream(TCPMainSocket);
 
             return 0;
         } // end method SetUp

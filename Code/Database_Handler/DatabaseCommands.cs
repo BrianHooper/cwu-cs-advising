@@ -25,7 +25,9 @@ namespace Database_Handler
         /// <summary>Get password salt command.</summary>
         GetSalt,
         /// <summary>Result from DBH.</summary>
-        Return
+        Return,
+        /// <summary>Terminates the connection to DBH, and kills the running DBH thread.</summary>
+        Disconnect
     };
 
     /// <summary>Enum for operand types.</summary>
@@ -113,17 +115,19 @@ namespace Database_Handler
         } // end Constructor
 
         /// <summary>Constructor for creating a display students command.</summary>
-        /// <param name="ct">Command type, must be set to display students.</param>
+        /// <param name="ct">Command type for this command.</param>
+        /// <remarks>The argument must be DisplayStudents/DisplayCourses or Disconnect.</remarks>
         public DatabaseCommand(CommandType ct)
         {
             ct_commandType = ct;
         } // end Constructor
 
-        /// <summary>Constructor for Update/Delete returns containing relevant info about execution of the command.</summary>
+        /// <summary>Constructor for postback from DBH; contains relevant info about execution of the command.</summary>
         /// <param name="code">The error code, or 0 if execution was successful.</param>
         /// <param name="msg">A message detailing an error, "No Errors" if no issues occurred.</param>
         /// <param name="students">A list of students for the display students command.</param>
         /// <param name="courses">A list of courses for the display courses command.</param>
+        /// <remarks>This command type should not be sent to DBH, it is only intended for DBH to return information to the client.</remarks>
         public DatabaseCommand(int code = 0, string msg = "No Errors", List<Student> students = null, List<Course> courses = null)
         {
             ct_commandType = CommandType.Return;
@@ -132,6 +136,13 @@ namespace Database_Handler
             l_students = students;
             l_courses = courses;
         } // end Constructor
+
+        /// <summary>Getter for the error code.</summary>
+        /// <remarks>0 means normal execution, 99 means disconnect command received, and everything else is an error (specified in error message).</remarks>
+        public int ReturnCode => i_returnCode;
+
+        /// <summary>Getter for the error message.</summary>
+        public string ErrorMessage => s_errorMsg;
 
         /// <summary>Getter for the type of command.</summary>
         public CommandType CommandType => ct_commandType;
