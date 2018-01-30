@@ -2200,7 +2200,8 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\ricohelvidadrian\\.nuget\\packages\\": {},
+    "C:\\Users\\brian\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackagesFallback\\": {},
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
@@ -2209,18 +2210,20 @@
       "hideWarningsAndErrors": true
     },
     "restore": {
-      "projectUniqueName": "C:\\Users\\ricohelvidadrian\\Desktop\\CSadvisingproject\\cwu-cs-advising\\Code\\Database_Handler\\Database_Handler.csproj",
+      "projectUniqueName": "C:\\Users\\brian\\Documents\\cwu-cs-advising\\Code\\Database_Handler\\Database_Handler.csproj",
       "projectName": "Database_Handler",
-      "projectPath": "C:\\Users\\ricohelvidadrian\\Desktop\\CSadvisingproject\\cwu-cs-advising\\Code\\Database_Handler\\Database_Handler.csproj",
-      "packagesPath": "C:\\Users\\ricohelvidadrian\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\ricohelvidadrian\\Desktop\\CSadvisingproject\\cwu-cs-advising\\Code\\Database_Handler\\obj\\",
+      "projectPath": "C:\\Users\\brian\\Documents\\cwu-cs-advising\\Code\\Database_Handler\\Database_Handler.csproj",
+      "packagesPath": "C:\\Users\\brian\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\brian\\Documents\\cwu-cs-advising\\Code\\Database_Handler\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackagesFallback\\",
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
       ],
       "configFilePaths": [
-        "C:\\Users\\ricohelvidadrian\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "C:\\Users\\brian\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.Fallback.config"
       ],
       "originalTargetFrameworks": [
         "netcoreapp2.0"
@@ -2243,14 +2246,14 @@
     "frameworks": {
       "netcoreapp2.0": {
         "dependencies": {
-          "MySql.Data": {
-            "target": "Package",
-            "version": "6.10.5"
-          },
           "Microsoft.NETCore.App": {
             "target": "Package",
-            "version": "2.0.0",
+            "version": "[2.0.0, )",
             "autoReferenced": true
+          },
+          "MySql.Data": {
+            "target": "Package",
+            "version": "[6.10.5, )"
           }
         },
         "imports": [
