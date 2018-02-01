@@ -34,6 +34,9 @@
         <member name="F:Database_Handler.CommandType.Return">
             <summary>Result from DBH.</summary>
         </member>
+        <member name="F:Database_Handler.CommandType.Disconnect">
+            <summary>Terminates the connection to DBH, and kills the running DBH thread.</summary>
+        </member>
         <member name="T:Database_Handler.OperandType">
             <summary>Enum for operand types.</summary>
         </member>
@@ -94,14 +97,23 @@
         </member>
         <member name="M:Database_Handler.DatabaseCommand.#ctor(Database_Handler.CommandType)">
             <summary>Constructor for creating a display students command.</summary>
-            <param name="ct">Command type, must be set to display students.</param>
+            <param name="ct">Command type for this command.</param>
+            <remarks>The argument must be DisplayStudents/DisplayCourses or Disconnect.</remarks>
         </member>
         <member name="M:Database_Handler.DatabaseCommand.#ctor(System.Int32,System.String,System.Collections.Generic.List{Database_Object_Classes.Student},System.Collections.Generic.List{Database_Object_Classes.Course})">
-            <summary>Constructor for Update/Delete returns containing relevant info about execution of the command.</summary>
+            <summary>Constructor for postback from DBH; contains relevant info about execution of the command.</summary>
             <param name="code">The error code, or 0 if execution was successful.</param>
             <param name="msg">A message detailing an error, "No Errors" if no issues occurred.</param>
             <param name="students">A list of students for the display students command.</param>
             <param name="courses">A list of courses for the display courses command.</param>
+            <remarks>This command type should not be sent to DBH, it is only intended for DBH to return information to the client.</remarks>
+        </member>
+        <member name="P:Database_Handler.DatabaseCommand.ReturnCode">
+            <summary>Getter for the error code.</summary>
+            <remarks>0 means normal execution, 99 means disconnect command received, and everything else is an error (specified in error message).</remarks>
+        </member>
+        <member name="P:Database_Handler.DatabaseCommand.ErrorMessage">
+            <summary>Getter for the error message.</summary>
         </member>
         <member name="P:Database_Handler.DatabaseCommand.CommandType">
             <summary>Getter for the type of command.</summary>
@@ -118,8 +130,42 @@
         <member name="T:Database_Handler.DatabaseHandler">
             <summary>Database Handler is the middleman between the website and the databases. It retrieves, updates, creates, and deletes database entries.</summary>
         </member>
+        <member name="F:Database_Handler.DatabaseHandler.i_HASH_ITERATIONS">
+            <summary>The number of iterations for hashing the password.</summary>
+        </member>
         <member name="F:Database_Handler.DatabaseHandler.s_logFilePath">
             <summary>The path to the log file which will contain the log entries created by DBH.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseHandler.s_MYSQL_DB_NAME">
+            <summary>Names of all database related components.</summary>
+            <remarks>These can be set using the constructor, or the defaults can be used.</remarks>
+        </member>
+        <member name="F:Database_Handler.DatabaseHandler.i_SALT_LENGTH">
+            <summary>The length, in bytes, of the password salt.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseHandler.ui_COL_COUNT">
+            <summary>The length of the longest plan in the s_PLAN_TABLE mysql table, stored in the master record.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseHandler.ba_ressourcesInUse">
+            <summary>This keeps track of which resources are currently in use, to prevent threads from trying to access the same resources.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseHandler.DB_CONNECTION">
+            <summary>The master connection to the MySql database, which should never be closed, except during cleanup.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseHandler.RNG">
+            <summary>A RNG for building password salts.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseHandler.tcpListener">
+            <summary>The main Tcp Listener which talks with the main Website thread.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseHandler.address">
+            <summary>Localhost IP address for the Tcp Socket</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseHandler.TCPMainSocket">
+            <summary>The main Tcp Socket used to establish a connection with the website.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseHandler.stream">
+            <summary>The network stream used to received data via the Tcp Socket.</summary>
         </member>
         <member name="M:Database_Handler.DatabaseHandler.#ctor">
             <summary>Default Constructor</summary>
@@ -176,7 +222,7 @@
             <returns>A return command containing information about execution success.</returns>
         </member>
         <member name="M:Database_Handler.DatabaseHandler.ExecutePasswordChangeCommand(Database_Handler.DatabaseCommand)">
-            <summary>Executed a password change.</summary>
+            <summary>Executes a password change.</summary>
             <param name="cmd">Command containing credentials of user trying to change password.</param>
             <returns>A return command containing information about execution success.</returns>
         </member>
@@ -187,6 +233,11 @@
         <member name="M:Database_Handler.DatabaseHandler.ExecuteDisplayCoursesCommand">
             <summary>Executes a display courses command.</summary>
             <returns>A return command containing a list of all courses in the database.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.ExecuteGetSaltCommand(Database_Handler.DatabaseCommand)">
+            <summary>Executes a retrieve password salt command.</summary>
+            <param name="cmd">Command containing the credentials of the user whose salt is to be retrieved.</param>
+            <returns>A return command containing the password salt for the requested user.</returns>
         </member>
         <member name="M:Database_Handler.DatabaseHandler.WaitForCommand(System.String@)">
             <summary>The listener which waits for a command, blocking the run method.</summary>
@@ -207,6 +258,7 @@
             <summary>Sets up all necessary components for DBH.</summary>
             <returns>An error code or 0 if setup was successful.</returns>
             <exception cref="T:System.Exception">Thrown if it the master record could not be retrieved from the database.</exception>
+            <remarks>Setup will block until an initial website connection is established.</remarks>
         </member>
         <member name="M:Database_Handler.DatabaseHandler.CleanUp">
             <summary>Cleans up after DBH is closed.</summary>

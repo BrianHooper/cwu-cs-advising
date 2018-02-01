@@ -2,6 +2,13 @@
     padding: 5px;
 }
 
+html, body {
+    overflow-x: hidden;
+    padding: 0px;
+    margin: 0px;
+    background-color: #262626;
+}
+
 a:link, a:visited {
     color: #0055bb;
     font-weight: bold;

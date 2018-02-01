@@ -1,14 +1,55 @@
-﻿#PageContainer {
+﻿@font-face {
+    font-family: 'roboto-light';
+    src: url('../fonts/roboto/roboto-light.ttf') format('truetype');
+    
+}
+
+@font-face {
+    font-family: 'roboto';
+    src: url('../fonts/roboto/Roboto-Regular.ttf') format('truetype');
+}
+
+#PageContainer {
     margin: auto;
     width: 80%;
     padding: 10px;
+    background-color: white;
 }
+
 
 #TopLogo {
     text-align: center;
+    background: repeating-linear-gradient(135deg,#ffffff,#ffffff 1px,#DCDCE0 1px,#DCDCE0 6px);
+    font-family: roboto;
+}
+
+#TopSpacer {
+    height: 20px;
+    background-color: #ffffff;
+}
+
+#InnerTopLogo {
+    display: inline-block;
     font-size: 4em;
-    padding: 20px;
-    border-radius: 8px;
+    background-color: black;
+    color: white;
+    box-shadow: 0px 0px 5px 25px rgba(0,0,0,1);
+}
+
+#CwuHome {
+    margin: auto;
+    width: 80%;
+    color: #000000;
+    font-size: .75em;
+    font-family: roboto-light;
+}
+
+.HorizontalBar {
+    text-align: center;
+    border: 1px solid black;
+    background-color: #A70632;
+    height: 3px;
+    
 }
 
 #Navigation {
