@@ -83,7 +83,7 @@ namespace PlanGenerationAlgorithm
             }
             else
             {
-
+                
             }
             if (!schedules.Any())
             {
