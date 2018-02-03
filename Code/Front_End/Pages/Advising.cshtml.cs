@@ -9,7 +9,13 @@ namespace CwuAdvising.Pages
 {
     public class AdvisingModel : PageModel
     {
+        public string generateinput()
+        {
+            string html = "";
 
+
+            return html;
+        }
 
 
         public void OnGet()
