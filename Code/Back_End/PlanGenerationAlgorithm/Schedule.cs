@@ -5,23 +5,31 @@ using Database_Object_Classes;
 
 namespace PlanGenerationAlgorithm
 {
-    class Schedule
+    public class Schedule
     {
-        HashSet<Course> h = new HashSet<Course>();
-        public Schedule(Quarter quarter, uint ui_numberCredits,List<Course> courses)
+        public Quarter quarterName = new Quarter(2018, Season.Fall);
+        static private uint ui_numberCredits = 5;
+        public List<Course> courses1;
+        public Schedule NextQuarter;
+        Schedule nextquarter1;
+        //HashSet<Course> h = new HashSet<Course>();
+        public Schedule(Quarter quarter, uint ui_numberCredits)
         {
-            this.quarter = quarter;
-
-            this.ui_numberCredits = ui_numberCredits;
-            this.courses = new List<Course>();
-            this.NextQuarter = nextquarter1;
+            quarter = new Quarter(3, Season.Fall);
+            ui_numberCredits = 5;
+            courses1 = new List<Course>();
+            NextQuarter = nextquarter1;
         } // end Constructor
 
-        Quarter quarter;
-        private uint ui_numberCredits;
-        int credits;
-        List<Course> courses;
-        private Schedule NextQuarter;
-        Schedule nextquarter1;
+        public List<Course> addClass(Course c) {
+            courses1.Add(c);
+            return courses1;
+        }
+        public List<Course> removeClass(Course c)
+        {
+            courses1.Remove(c);
+            return courses1;
+        }
+      
     }
 }
