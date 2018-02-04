@@ -11,7 +11,7 @@
 
 #PageContainer {
     margin: auto;
-    width: 80%;
+    width: 85%;
     padding: 10px;
     background-color: white;
 }
@@ -38,7 +38,7 @@
 
 #CwuHome {
     margin: auto;
-    width: 80%;
+    width: 95%;
     color: #000000;
     font-size: .75em;
     font-family: roboto-light;
@@ -121,6 +121,18 @@
 }
 
 .DeleteCourse {
+    color: #000000;
+    margin-left: 5px;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid black;
+    background-color: #c8c8c8;
+    border-radius: 2px;
+    padding: 2px;
+    cursor: pointer;
+}
+
+.AddCourse {
     color: #000000;
     margin-left: 5px;
     text-align: center;
