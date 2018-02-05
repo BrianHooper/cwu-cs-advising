@@ -8,13 +8,10 @@ using System.Threading;
 
 namespace Database_Handler
 {
-    class Class1
+    class TestClass
     {
         public static void Main()
         {
-            DatabaseHandler dbh = new DatabaseHandler();
-            dbh.SetUp();
-
             /*
             Course c = new Course("Computer Architecture 1", "CS311", 4, false);
 
@@ -38,8 +35,8 @@ namespace Database_Handler
             //*
             Console.WriteLine("\n[Test Class]: Object data to be sent:\n{0}", c.ToString());
 
-
-
+            DatabaseHandler dbh = new DatabaseHandler();
+            dbh.SetUp();
 
             MemoryStream ms = new MemoryStream();
             BinaryFormatter format = new BinaryFormatter();

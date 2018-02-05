@@ -29,7 +29,7 @@ namespace Database_Object_Classes
     {
         // Structure fields:
         /// <summary>The year of this Quarter.</summary>
-        private uint   ui_year;
+        private uint ui_year;
 
         /// <summary>The season of this Quarter.</summary>
         private Season s_quarter;
@@ -45,7 +45,7 @@ namespace Database_Object_Classes
         /// </remarks>
         public Quarter(uint ui_yr, Season s_qtr)
         {
-            ui_year   = ui_yr;
+            ui_year = ui_yr;
             s_quarter = s_qtr;
         } // end Constructor
 
@@ -77,6 +77,41 @@ namespace Database_Object_Classes
             get => s_quarter;
             set => s_quarter = value;
         } // end StartQuarter
+
+        /// <summary>Postfix increment operator</summary>
+        /// <param name="q">Operand</param>
+        /// <returns>The next quarter.</returns>
+        public static Quarter operator ++(Quarter q)
+        {
+            if (q.s_quarter == Season.Fall)
+            {
+                q.s_quarter = Season.Winter;
+                q.ui_year++;
+            } // end if
+            else
+            {
+                q.s_quarter++;
+            } // end else
+            return q;
+        } // end operator++
+
+        /// <summary>Equality operator.</summary>
+        /// <param name="lhs">Left-hand side operand.</param>
+        /// <param name="rhs">Right-hand side operand.</param>
+        /// <returns>True iff lhs is the same as rhs, otherwise false.</returns>
+        public static bool operator==(Quarter lhs, Quarter rhs)
+        {
+            return lhs.s_quarter == rhs.s_quarter && lhs.ui_year == rhs.ui_year;
+        } // end operator ==
+
+        /// <summary>Inequality operator.</summary>
+        /// <param name="lhs">Left-hand side operand.</param>
+        /// <param name="rhs">Right-hand side operand.</param>
+        /// <returns>True iff lhs is not the same as rhs, otherwise false.</returns>
+        public static bool operator !=(Quarter lhs, Quarter rhs)
+        {
+            return !(lhs == rhs);
+        } // end operator !=
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 

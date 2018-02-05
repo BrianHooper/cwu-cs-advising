@@ -267,6 +267,11 @@
         <member name="P:Database_Object_Classes.Quarter.QuarterSeason">
             <summary>Getter/Setter for the season member of this quarter.</summary>
         </member>
+        <member name="M:Database_Object_Classes.Quarter.op_Increment(Database_Object_Classes.Quarter)">
+            <summary>Prefix increment operator</summary>
+            <param name="q">Operand</param>
+            <returns>The next quarter.</returns>
+        </member>
         <member name="M:Database_Object_Classes.Quarter.ToString">
             <summary>For outputting Quarters to console.</summary>
             <returns>A string representation of this quarter.</returns>

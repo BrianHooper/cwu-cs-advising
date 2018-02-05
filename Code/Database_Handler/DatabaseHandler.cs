@@ -678,7 +678,7 @@ namespace Database_Handler
             RNG = new RNGCryptoServiceProvider();
 
             // TCP setup
-            address = IPAddress.Parse("localhost");
+            address = IPAddress.Parse("127.0.0.1");
             tcpListener = new TcpListener(address, 44765); 
             
 
