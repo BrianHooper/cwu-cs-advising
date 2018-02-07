@@ -8,30 +8,40 @@ namespace PlanGenerationAlgorithm
     public class Schedule
     {
         public Quarter quarterName = new Quarter(2018, Season.Fall);
-        private static uint ui_numberCredits = 5;
-        public List<Course> courses1;
-        public Schedule NextQuarter;
-        Schedule nextquarter1;
+        private static uint ui_numberCredits = 0;
+        public List<Course> courses;
+        public Schedule NextQuarter, previousQuarter;
         //HashSet<Course> h = new HashSet<Course>();
         public Schedule(Quarter quarter, uint ui_numberCredits)
         {
             quarter = new Quarter(3, Season.Fall);
             ui_numberCredits = 5;
-            courses1 = new List<Course>();
-            NextQuarter = nextquarter1;
+            courses = new List<Course>();
         } // end Constructor
 
 
         public List<Course> addClass(Course c) {
-            courses1.Add(c);
-            return courses1;
+            courses.Add(c);
+            return courses;
+        }
+        public Schedule nextQuarter()
+        {
+            
+            if (NextQuarter==null)
+            {
+                NextQuarter = new Schedule(quarterName,0);
+                NextQuarter.previousQuarter = this;
+            }
+            
+            return NextQuarter;
+            
         }
 
 
         public List<Course> removeClass(Course c)
         {
-            courses1.Remove(c);
-            return courses1;
+            courses.Remove(c);
+            return courses;
         }
       
     }
