@@ -55,15 +55,15 @@ namespace PlanGenerationAlgorithm
             bool[] QuartersOfferedTwo = { true, true, false, true };
 
             //courses and the prerequisites
-            ICollection<Course> NoPrereq = new List<Course>();
+            List<Course> NoPrereq = new List<Course>();
             //NoPrereq.Clear();
-            ICollection<Course> Need110 = new List<Course>();
+            List<Course> Need110 = new List<Course>();
             Course CS110 = new Course("bs", "CS110", 4, true, CS110Offered, NoPrereq);
             Course gened1 = new Course("gened1", "Eng101", 5, true, CS110Offered, NoPrereq);
             Course gened2 = new Course("gened2", "US Cultures", 5, true, CS110Offered, NoPrereq);
             Course gened3 = new Course("gened3", "Philosophies", 5, true, CS110Offered, NoPrereq);
             Course gened4 = new Course("gened4", "Aesthetic", 5, true, CS110Offered, NoPrereq);
-            ICollection<Course> NeedEng102 = new List<Course>();
+            List<Course> NeedEng102 = new List<Course>();
             NeedEng102.Add(gened1);
             Course gened5 = new Course("gened5", "Eng102", 5, true, CS110Offered, NeedEng102);
             Need110.Add(CS110);
@@ -73,33 +73,25 @@ namespace PlanGenerationAlgorithm
             Course Math172 = new Course("bac", "Math172", 4, true, CS110Offered, NoPrereq);
             Course CS311 = new Course("bq", "CS311", 4, true, CS311Offered, Need110);
             Course CS112 = new Course("bc", "CS112", 4, true, CS110Offered, NoPrereq);
-            ICollection<Course> Prereq301 = new List<Course>();
+            List<Course> Prereq301 = new List<Course>();
             Prereq301.Add(CS110);
             Prereq301.Add(CS111);
-            ICollection<Course> Prereq312 = new List<Course>();
+            List<Course> Prereq312 = new List<Course>();
             Prereq312.Add(CS311);
-            ICollection<Course> prereqMath260 = new List<Course>();
+            List<Course> prereqMath260 = new List<Course>();
             prereqMath260.Add(Math172);
             Course CS301 = new Course("ba", "CS301", 4, true, CS311Offered, Prereq301);
-            ICollection<Course> prereqCS302 = new List<Course>();
+            List<Course> prereqCS302 = new List<Course>();
             prereqCS302.Add(Math172);
             prereqCS302.Add(CS301);
             Course CS302 = new Course("bvv", "CS302", 4, true, CS312Offered, prereqCS302);
             Course CS312 = new Course("bb", "CS312", 4, true, CS312Offered, Prereq312);
             Course Math260 = new Course("baa", "Math260", 5, true, CS110Offered, prereqMath260);
-            ICollection<Course> prereqMath330 = new List<Course>();
+            List<Course> prereqMath330 = new List<Course>();
             prereqMath330.Add(Math260);
             Course Math330 = new Course("bcc", "Math 330", 4, true, CS311Offered, prereqMath330);
             List<Course> coursesList = new List<Course>();
-
-            //temporary unused::
-            DegreeRequirements deg1 = new DegreeRequirements(coursesList, coursesList, coursesList, coursesList,
-                                 ui_minElectiveCredits, d_minCumulativeGPA, s_name);
-            deg1.GeneralRequirements.Append(CS110);
-            deg1.GeneralRequirements.Append(CS111);
-            deg1.GeneralRequirements.Append(CS311);
-            catalog.DegreeRequirements.Append(deg1);
-
+            
             //Add courses to a list of courses
 
             coursesList.Add(CS110);
@@ -120,27 +112,16 @@ namespace PlanGenerationAlgorithm
             coursesList.Add(CS302);
             coursesList.Add(Math260);
             coursesList.Add(Math330);
-
-
-
-
-            Schedule schedule = new Schedule(q_startingQuarter, 0);
+            
+            Schedule schedule = new Schedule(q_startingQuarter);
             Schedule completed = GenerateSchedule(coursesList, schedule);
+
+            Console.WriteLine("Running algorithm: ");
 
             while (completed != null)
             {
-                    Console.WriteLine(completed.quarterName.QuarterSeason + " " + completed.quarterName.Year + " schedule :");
-                    Console.WriteLine("");
-                    Console.WriteLine(String.Join("\n", completed.courses));
-                    Console.WriteLine("");
-                    if (completed.NextQuarter != null)
-                    {
-                    //schedule.quarterName++;
-                        completed.quarterName++;
-                        completed.nextQuarter().quarterName = completed.quarterName;
-                    }
-                    completed = completed.NextQuarter;
-
+                Console.WriteLine(completed);
+                completed = completed.NextQuarter;
             }
             Console.ReadKey();
         }
@@ -222,87 +203,6 @@ namespace PlanGenerationAlgorithm
                 }
             }
             return true;
-
-
         }
     }
 }
-
-
-//temporary unused:: until asd.ForEach(Console.WriteLine);
-//schedule.NextQuarter = new Schedule(new Quarter(2018, Season.Winter), 0);
-//schedule.NextQuarter.NextQuarter = new Schedule(new Quarter(2018, Season.Spring), 0);
-//schedule.NextQuarter.NextQuarter.NextQuarter = new Schedule(new Quarter(2019, Season.Fall), 0);
-//schedule.addClass(courses[0]);
-//h.Add(courses[0]);
-//courses.Remove(courses[0]);
-//schedule.NextQuarter.addClass(courses[0]);
-//h.Add(courses[0]);
-//courses.Remove(courses[0]);
-//schedule.NextQuarter.NextQuarter.addClass(courses[0]);
-//h.Add(courses[0]);
-//courses.Remove(courses[0]);
-//List<Course> graduation = new List<Course>();
-//graduation.Add(course);
-//graduation.Add(course5);
-//asd = ListofCourse(schedule, courses, h);
-//asd.ForEach(Console.WriteLine);
-
-//a for loop to list the schedule in each quarter(12 of them)
-/*for (int i = 0; i < 12; i++)
-{
-    List<Course> possibleCourses = ListofCourse(schedule, coursesList, coursesTaken);
-    for (int j = 0; j < possibleCourses.Count; j++)
-    {
-        if (schedule.courses1.Count < 3)
-        {
-            schedule.addClass(possibleCourses[j]);
-        }
-    }
-    //print the final schedule of each quarter to the console
-    Console.WriteLine(schedule.quarterName.QuarterSeason + " " + schedule.quarterName.Year + " schedule :");
-    Console.WriteLine("");
-    Console.WriteLine(String.Join("\n", schedule.courses1));
-    Console.WriteLine("");
-    //add into hashset and remove the current possible Courses
-    for (int k = 0; k < schedule.courses1.Count; k++)
-    {
-        coursesTaken.Add(schedule.courses1[k]);
-    }
-    for (int k = 0; k < possibleCourses.Count; k++)
-    {
-        schedule.removeClass(possibleCourses[k]);
-    }
-
-    schedule.quarterName++; // go to next quarter
-}*/
-
-//unused variables for now:: all the way until Console.ReadKey()
-//Console.WriteLine(asd[i]);
-//asd.ForEach(Console.WriteLine);
-// Console.WriteLine(String.Join("\n", h));
-//Console.Write("asd");
-//Print();
-//to do:add courses list with prereq into course list
-//catalog.DegreeRequirement;
-
-/*List<Schedule> schedules = new List<Schedule>();
-schedules.Add(schedule);
-List<Student> students = new List<Student>();
-l_degreeRequirements.Add(new DegreeRequirements(coursesList, coursesList, coursesList, coursesList,
-                       ui_minElectiveCredits, d_minCumulativeGPA, s_name));
-l_degreeRequirements.Add(deg1);
-students.Add(student1);
-students.Add(student2);
-students.Add(student3);
-foreach (DegreeRequirements gradReq in catalog.DegreeRequirements)
-{
-    foreach (Course course1 in deg1.GeneralRequirements)
-    {
-        if (course1.IsOffered(s++))
-        {
-            coursesList.Add(course1);
-        }
-    }
-}
-Console.ReadKey();*/

@@ -11,11 +11,11 @@ namespace PlanGenerationAlgorithm
         private static uint ui_numberCredits = 0;
         public List<Course> courses;
         public Schedule NextQuarter, previousQuarter;
-        //HashSet<Course> h = new HashSet<Course>();
-        public Schedule(Quarter quarter, uint ui_numberCredits)
+
+
+        public Schedule(Quarter quarter)
         {
-            quarter = new Quarter(3, Season.Fall);
-            ui_numberCredits = 5;
+            this.quarterName = quarter;
             courses = new List<Course>();
         } // end Constructor
 
@@ -29,16 +29,23 @@ namespace PlanGenerationAlgorithm
 
             if (NextQuarter == null)
             {
-                //quarterName = this.quarterName++;
-                NextQuarter = new Schedule(quarterName, 0);
+                NextQuarter = new Schedule(GetNextQuarter());
                 NextQuarter.previousQuarter = this;
             }
-            
-               // NextQuarter.quarterName = this.quarterName++;
-            
-            //this.quarterName++;
+
             return NextQuarter;
             
+        }
+
+        private Quarter GetNextQuarter()
+        {
+            switch (quarterName.QuarterSeason)
+            {
+                case Season.Fall: return new Quarter(quarterName.Year + 1, Season.Winter);
+                case Season.Winter: return new Quarter(quarterName.Year, Season.Spring);
+                case Season.Spring: return new Quarter(quarterName.Year, Season.Fall);
+                default: return quarterName;
+            }
         }
 
 
@@ -47,6 +54,34 @@ namespace PlanGenerationAlgorithm
             courses.Remove(c);
             return courses;
         }
-      
+
+
+        public override string ToString()
+        {
+            String outputStr = "";
+            Schedule ScheduleIterator = this;
+
+            while (ScheduleIterator != null)
+            {
+                outputStr += ScheduleIterator.quarterName + "\n";
+
+                if (ScheduleIterator.courses.Count == 0)
+                {
+                    outputStr += "---EMPTY--\n";
+                }
+
+                else
+                {
+                    foreach (Course c in ScheduleIterator.courses)
+                    {
+                        outputStr += "Course: " + c.ID + "\n";
+                    }
+                }
+                ScheduleIterator = ScheduleIterator.NextQuarter;
+            }
+
+            return outputStr;
+        }
+
     }
 }
