@@ -36,7 +36,7 @@ namespace PlanGenerationAlgorithm
             Season s = Season.Fall; //starting quarter
             //hashset of course to put courses that are already taken::
             HashSet<Course> coursesTaken = new HashSet<Course>();
-           
+
             Quarter q_startingQuarter = new Quarter(quarter, s); //starting quarter
             List<DegreeRequirements> l_degreeRequirements = new List<DegreeRequirements>();
             string s_name = "asd";
@@ -47,7 +47,7 @@ namespace PlanGenerationAlgorithm
                 d_minCumulativeGPA, ccr_creditRequirements, l_degreeRequirements);
             //quarter(s) when the classes are offered (boolean)
             bool[] CS111Offered = { true, true, false, false }; //CS111
-            bool[] CS110Offered = { true, true, true, true }; //cs110 and math172,CS112 and Math 260
+            bool[] CS110Offered = { true, true, false, true }; //cs110 and math172,CS112 and Math 260
             bool[] CS311Offered = { false, true, false, true }; //CS311, CS301
             bool[] CS312Offered = { true, false, false, true }; //CS312
             //2 other possible combination(unused)
@@ -101,16 +101,17 @@ namespace PlanGenerationAlgorithm
             catalog.DegreeRequirements.Append(deg1);
 
             //Add courses to a list of courses
-            coursesList.Add(CS111);
+
             coursesList.Add(CS110);
+            coursesList.Add(CS111);
             coursesList.Add(gened6);
             coursesList.Add(gened7);
-            coursesList.Add(CS312);          
-            coursesList.Add(gened1);  
+            coursesList.Add(CS312);
+            coursesList.Add(gened1);
             coursesList.Add(gened2);
             coursesList.Add(gened3);
             coursesList.Add(gened4);
-           
+
             coursesList.Add(gened5);
             coursesList.Add(Math172);
             coursesList.Add(CS311);
@@ -119,20 +120,27 @@ namespace PlanGenerationAlgorithm
             coursesList.Add(CS302);
             coursesList.Add(Math260);
             coursesList.Add(Math330);
-          
-           
+
+
 
 
             Schedule schedule = new Schedule(q_startingQuarter, 0);
             Schedule completed = GenerateSchedule(coursesList, schedule);
 
-            while(completed!=null) { 
-                    Console.WriteLine(schedule.quarterName.QuarterSeason + " " + schedule.quarterName.Year + " schedule :");
+            while (completed != null)
+            {
+                    Console.WriteLine(completed.quarterName.QuarterSeason + " " + completed.quarterName.Year + " schedule :");
                     Console.WriteLine("");
                     Console.WriteLine(String.Join("\n", completed.courses));
-                     Console.WriteLine("");
+                    Console.WriteLine("");
+                    if (completed.NextQuarter != null)
+                    {
+                    //schedule.quarterName++;
+                        completed.quarterName++;
+                        completed.nextQuarter().quarterName = completed.quarterName;
+                    }
                     completed = completed.NextQuarter;
-                    schedule.quarterName++;
+
             }
             Console.ReadKey();
         }
@@ -141,31 +149,38 @@ namespace PlanGenerationAlgorithm
         public Schedule GenerateSchedule(List<Course> requirements, Schedule currentSchedule)
         {
             List<Course> possibleCourses = ListofCourse(currentSchedule, requirements);
-            if (requirements.Count >0)
+
+            if (requirements.Count > 0)
             {
-                if (possibleCourses.Count==0)
+                if (possibleCourses.Count == 0)
                 {
                     return currentSchedule;
                 }
                 else
                 {
-                    foreach(Course c in possibleCourses)
+
+                    foreach (Course c in possibleCourses)
                     {
-                        if (currentSchedule.courses.Count<3&&!currentSchedule.courses.Contains(c))
-                        { 
+                        if (possibleCourses.Count != 0)
+                        {
+                            if (currentSchedule.courses.Count < 3 && !currentSchedule.courses.Contains(c))
+                            {
                                 currentSchedule.addClass(c);
                                 requirements.Remove(c);
                                 GenerateSchedule(requirements, currentSchedule);
-                            
+                                // currentSchedule.quarterName++;
+                            }
                         }
 
                     }
-                          GenerateSchedule(requirements, currentSchedule.nextQuarter());
+                    currentSchedule.nextQuarter().quarterName++;
+                    GenerateSchedule(requirements, currentSchedule.nextQuarter());
                 }
-                 //GenerateSchedule(requirements, currentSchedule.nextQuarter());
+
+                //GenerateSchedule(requirements, currentSchedule.nextQuarter());
             }
-           
-                return currentSchedule;
+
+            return currentSchedule;
         }
 
         //method to list possible courses for each quarter
@@ -176,7 +191,7 @@ namespace PlanGenerationAlgorithm
             foreach (Course c in graduation)
             {
                 if (c.IsOffered(currentQuarter.quarterName.QuarterSeason)
-                    && prereqsMet(c,currentQuarter))
+                    && prereqsMet(c, currentQuarter))
                 {
                     possibleCourses.Add(c);
                 }
@@ -196,11 +211,12 @@ namespace PlanGenerationAlgorithm
                     coursesTaken.Add(course);
                 }
                 iterator = iterator.previousQuarter;
+                
             }
 
-            foreach(Course prereq in c.PreRequisites)
+            foreach (Course prereq in c.PreRequisites)
             {
-                if (!coursesTaken.Contains(prereq)||currentQuarter.courses.Contains(prereq))
+                if (!coursesTaken.Contains(prereq) ||currentQuarter.courses.Contains(prereq))
                 {
                     return false;
                 }

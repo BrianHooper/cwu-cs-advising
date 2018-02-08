@@ -26,13 +26,17 @@ namespace PlanGenerationAlgorithm
         }
         public Schedule nextQuarter()
         {
-            
-            if (NextQuarter==null)
+
+            if (NextQuarter == null)
             {
-                NextQuarter = new Schedule(quarterName,0);
+                //quarterName = this.quarterName++;
+                NextQuarter = new Schedule(quarterName, 0);
                 NextQuarter.previousQuarter = this;
             }
             
+               // NextQuarter.quarterName = this.quarterName++;
+            
+            //this.quarterName++;
             return NextQuarter;
             
         }
