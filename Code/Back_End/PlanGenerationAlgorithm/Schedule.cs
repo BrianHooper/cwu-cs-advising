@@ -8,53 +8,39 @@ namespace PlanGenerationAlgorithm
     public class Schedule
     {
         public Quarter quarterName = new Quarter(2018, Season.Fall);
-        private static uint ui_numberCredits = 0;
         public List<Course> courses;
         public Schedule NextQuarter, previousQuarter;
 
-
-        public Schedule(Quarter quarter)
+        public Schedule(Quarter quarter, uint ui_numberCredits)
         {
-            this.quarterName = quarter;
+            ui_numberCredits = 0;
+            quarter = new Quarter(2018, Season.Fall);
             courses = new List<Course>();
         } // end Constructor
 
-
-        public List<Course> addClass(Course c) {
+        //add course to the list
+        public List<Course> addClass(Course c)
+        {
             courses.Add(c);
             return courses;
         }
+
         public Schedule nextQuarter()
         {
-
             if (NextQuarter == null)
             {
-                NextQuarter = new Schedule(GetNextQuarter());
+                NextQuarter = new Schedule(quarterName, 0);
                 NextQuarter.previousQuarter = this;
             }
-
             return NextQuarter;
-            
         }
 
-        private Quarter GetNextQuarter()
-        {
-            switch (quarterName.QuarterSeason)
-            {
-                case Season.Fall: return new Quarter(quarterName.Year + 1, Season.Winter);
-                case Season.Winter: return new Quarter(quarterName.Year, Season.Spring);
-                case Season.Spring: return new Quarter(quarterName.Year, Season.Fall);
-                default: return quarterName;
-            }
-        }
-
-
+        //remove course from list
         public List<Course> removeClass(Course c)
         {
             courses.Remove(c);
             return courses;
         }
-
 
         public override string ToString()
         {
@@ -85,3 +71,4 @@ namespace PlanGenerationAlgorithm
 
     }
 }
+
