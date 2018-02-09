@@ -7,36 +7,70 @@ namespace PlanGenerationAlgorithm
 {
     public class Schedule
     {
-        public Quarter quarterName = new Quarter(2018, Season.Fall);
+        public Quarter quarterName;
         public List<Course> courses;
         public Schedule NextQuarter, previousQuarter;
+        public uint ui_numberCredits = 0;
+        public bool TakeSummerCourses = false;
 
-        public Schedule(Quarter quarter, uint ui_numberCredits)
+        public Schedule(Quarter quarter)
         {
-            ui_numberCredits = 0;
-            quarter = new Quarter(2018, Season.Fall);
+            quarterName = quarter;
             courses = new List<Course>();
         } // end Constructor
 
-        //add course to the list
-        public List<Course> addClass(Course c)
+        public bool MeetsConstraints(Course c)
         {
-            courses.Add(c);
-            return courses;
+            return (courses.Count < 3 && !courses.Contains(c));
         }
 
-        public Schedule nextQuarter()
+        //add course to the list
+        public bool AddCourse(Course c)
+        {
+            if(MeetsConstraints(c))
+            {
+                courses.Add(c);
+                return true;
+            } else
+            {
+                return false;
+            }
+            
+        }
+
+        public Schedule NextSchedule()
         {
             if (NextQuarter == null)
             {
-                NextQuarter = new Schedule(quarterName, 0);
+                NextQuarter = new Schedule(GetNextQuarter());
                 NextQuarter.previousQuarter = this;
             }
             return NextQuarter;
         }
+        
+        private Quarter GetNextQuarter()
+        {
+            switch (quarterName.QuarterSeason)
+            {
+                case Season.Fall: return new Quarter(quarterName.Year + 1, Season.Winter);
+                case Season.Winter: return new Quarter(quarterName.Year, Season.Spring);
+                case Season.Spring:
+                {
+                        if (TakeSummerCourses)
+                        {
+                            return new Quarter(quarterName.Year, Season.Summer);
+                        }
+                        else
+                        {
+                            return new Quarter(quarterName.Year, Season.Fall);
+                        }
+                }
+                default: return quarterName;
+            }
+        }
 
         //remove course from list
-        public List<Course> removeClass(Course c)
+        public List<Course> RemoveCourse(Course c)
         {
             courses.Remove(c);
             return courses;
@@ -60,7 +94,7 @@ namespace PlanGenerationAlgorithm
                 {
                     foreach (Course c in ScheduleIterator.courses)
                     {
-                        outputStr += "Course: " + c.ID + "\n";
+                        outputStr += "\t" + c.ID + "\n";
                     }
                 }
                 ScheduleIterator = ScheduleIterator.NextQuarter;
@@ -69,6 +103,17 @@ namespace PlanGenerationAlgorithm
             return outputStr;
         }
 
+        public Schedule GetFirstSchedule()
+        {
+            if(previousQuarter == null)
+            {
+                return this;
+            }
+            else
+            {
+                return previousQuarter.GetFirstSchedule();
+            }
+        }
     }
 }
 
