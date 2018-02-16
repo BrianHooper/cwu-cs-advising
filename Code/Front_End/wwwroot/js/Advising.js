@@ -44,15 +44,15 @@ $(document).on("click", ".DeleteCourse", function () {
     var selectedCourse = $(this).parent().children().get(0).value;
 
     // Remove the div element containg the select
-    //alert($(this).parent().parent().parent().html());
     $(this).parent().remove();
 
     // Update all select elements to contain the newly removed course
-    //RemoveCourseFromQuarter(selectedCourse);
+
     if (selectedCourse.length > 0) {
         AddToUnmetRequirements(selectedCourse);
-        UpdateSelectWithNewlyRemovedCourse(selectedCourse);
     }
+
+    UpdateSelectWithAllCourses();
 
     // ignore "href ='#'"
     return false;
@@ -94,7 +94,6 @@ $(document).on("focus", ".CourseSelection", function () {
 });
 
 $(document).on("change", ".CourseSelection", function () {
-    // Take the old selection and add it to the unmet requirements
     if (PreviousSelect.length > 0) {
         AddToUnmetRequirements(PreviousSelect);
         PreviousSelect = "";
@@ -105,7 +104,6 @@ $(document).on("change", ".CourseSelection", function () {
 
     // Remove all occurences of the course, except from this quarter
     RemoveCourseFromAllSelects(courseName);
-
     // Remove the new course from the list of unmet requirements
     RemoveFromUnmetRequriements(courseName);
 
@@ -115,12 +113,17 @@ $(document).on("change", ".CourseSelection", function () {
     // Set the selected value to the new course
     $(this).val(courseName);
 
+    // Clear any empty values in this select
     $(this).children().each(function () {
         if ($(this).val().length == 0) {
             $(this).remove();
         }
     });
+
+    UpdateSelectWithAllCourses();
+    $(this).blur(); // Deselect so focus can be obtained again
 });
+
 
 
 function ModifyRequirements() {
@@ -154,8 +157,7 @@ function UpdateSelectWithNewlyRemovedCourse(courseName) {
 }
 
 function UpdateSelectWithAllCourses() {
-    // Iterate over the list of unmet requirements and add them to each select
-    for (i = 0; i < unmetRequirements.length; i++) {
+    for (var i = 0, len = unmetRequirements.length; i < len; i++) {
         UpdateSelectWithNewlyRemovedCourse(unmetRequirements[i]);
     }
 }
