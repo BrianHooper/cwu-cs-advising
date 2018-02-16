@@ -1,85 +1,126 @@
 ﻿var incomplete = "Incomplete Graduation Requirements:";
 var complete = "All requirements completed!";
 var unmetRequirements = [];
+var PreviousSelect;
 
 
 $(document).ready(function () {
     ModifyRequirements();
-    var PreviousSelect;
-
-    $(".DeleteCourse").click(function () {
-        // Get the current selected value of the course that is to be deleted
-        var selectedCourse = $(this).parent().children().get(0).value;
-
-        // Add the course to the list of unmet requirements
-        AddToUnmetRequirements(selectedCourse);
-
-        // Remove the div element containg the select
-        $(this).parent().remove();
-
-        // Update all select elements to contain the newly removed course
-        //RemoveCourseFromQuarter(selectedCourse);
-        UpdateSelectWithNewlyRemovedCourse(selectedCourse);
-
-        // ignore "href ='#'"
-        return false;
-    });
-
-    $(".CourseSelection").on("focus", function () {
-        // Take the old selection and add it to the unmet requirements
-        PreviousSelect = ($(this).val());
-    }).change(function () {
-        // Take the old selection and add it to the unmet requirements
-        AddToUnmetRequirements(PreviousSelect);
-        PreviousSelect = "";
-
-        // Get the new selection
-        var courseName = $(this).val();
-        
-        // Remove all occurences of the course, except from this quarter
-        RemoveCourseFromAllSelects(courseName, $(this).parent().parent().children().eq(0).html());
-
-        // Remove the new course from the list of unmet requirements
-        RemoveFromUnmetRequriements(courseName);
-
-        // Add the new course back into the list
-        $(this).append($("<option></option>").text(courseName).attr("value", courseName));
-
-        // Set the selected value to the new course
-        $(this).val(courseName);
-        });
-
-    $(".AddCourse").click(function () {
-        // Create the div container and set its class
-        var CourseDiv = $("<div></div>");
-        CourseDiv.attr("class", "Flex MiddleFlex");
-
-        // Create the Select attribute and get its class
-        var CourseSelect = $("<select></select>");
-        CourseSelect.attr("class", "CourseSelection WideFlex");
-        CourseDiv.append(CourseSelect);
-
-        // Create a blank value
-        CourseSelect.append($("<option></option>"));
-
-        // Add in the delete button
-        CourseDiv.append(DeleteButton());
-
-        // Remove the old add button
-        var Parent = $(this).parent().parent();
-        $(this).parent().remove();
-
-        // Add the new course element
-        Parent.append(CourseDiv);
-
-        // Add in a new add button
-        Parent.append(AddButton());
-
-        // Update the course element with any unmet requirements
-        UpdateSelectWithAllCourses();
-    });
 });
 
+// Generate button click
+$(document).on("click", "#GenerateButton", function () {
+    // Create a list of quarters
+    var Schedule = { Quarters: [] };
+
+    // For each quarter in the schedule
+    $(".Quarter").each(function () {
+        // Get the title
+        var Quarter = { Title: "", Courses: [] };
+        Quarter.Title = $(this).children().eq(0).html();
+
+        // Get each course
+        var children = $(this).children();
+        children.each(function () {
+            var element = $(this).children().eq(0);
+            if (element.hasClass("CourseSelection")) {
+                Quarter.Courses.push(element.val());
+            }
+        });
+
+        // Add the quarter to the list of schedules
+        Schedule.Quarters.push(Quarter);
+    });
+
+    // Convert to JSON format
+    var ScheduleJSON = JSON.stringify(Schedule);
+    
+    console.log(ScheduleJSON);
+    return false; // ignore href
+});
+
+$(document).on("click", ".DeleteCourse", function () {
+    // Get the current selected value of the course that is to be deleted
+    var selectedCourse = $(this).parent().children().get(0).value;
+
+    // Remove the div element containg the select
+    //alert($(this).parent().parent().parent().html());
+    $(this).parent().remove();
+
+    // Update all select elements to contain the newly removed course
+    //RemoveCourseFromQuarter(selectedCourse);
+    if (selectedCourse.length > 0) {
+        AddToUnmetRequirements(selectedCourse);
+        UpdateSelectWithNewlyRemovedCourse(selectedCourse);
+    }
+
+    // ignore "href ='#'"
+    return false;
+});
+
+$(document).on("click", ".AddCourse", function () {
+    // Create the div container and set its class
+    var CourseDiv = $("<div></div>");
+    CourseDiv.attr("class", "Flex MiddleFlex");
+
+    // Create the Select attribute and get its class
+    var CourseSelect = $("<select></select>");
+    CourseSelect.attr("class", "CourseSelection WideFlex");
+    CourseDiv.append(CourseSelect);
+
+    // Create a blank value
+    CourseSelect.append($("<option></option>"));
+
+    // Add in the delete button
+    CourseDiv.append(DeleteButton());
+
+    // Remove the old add button
+    var Parent = $(this).parent().parent();
+    $(this).parent().remove();
+
+    // Add the new course element
+    Parent.append(CourseDiv);
+
+    // Add in a new add button
+    Parent.append(AddButton());
+
+    // Update the course element with any unmet requirements
+    UpdateSelectWithAllCourses();
+});
+
+$(document).on("focus", ".CourseSelection", function () {
+    // Take the old selection and add it to the unmet requirements
+    PreviousSelect = ($(this).val());
+});
+
+$(document).on("change", ".CourseSelection", function () {
+    // Take the old selection and add it to the unmet requirements
+    if (PreviousSelect.length > 0) {
+        AddToUnmetRequirements(PreviousSelect);
+        PreviousSelect = "";
+    }
+
+    // Get the new selection
+    var courseName = $(this).val();
+
+    // Remove all occurences of the course, except from this quarter
+    RemoveCourseFromAllSelects(courseName);
+
+    // Remove the new course from the list of unmet requirements
+    RemoveFromUnmetRequriements(courseName);
+
+    // Add the new course back into the list
+    $(this).append($("<option></option>").text(courseName).attr("value", courseName));
+
+    // Set the selected value to the new course
+    $(this).val(courseName);
+
+    $(this).children().each(function () {
+        if ($(this).val().length == 0) {
+            $(this).remove();
+        }
+    });
+});
 
 
 function ModifyRequirements() {
@@ -87,6 +128,7 @@ function ModifyRequirements() {
     $("#RemainingRequirements").empty();
     $("#RemainingRequirementsList").empty();
     
+
     // Update the list
     if (unmetRequirements.length > 0) {
         $("#RemainingRequirements").html(incomplete);
@@ -103,6 +145,7 @@ function UpdateSelectWithNewlyRemovedCourse(courseName) {
     $(".CourseSelection").each(function () {
         // Get a list of the select objects 'option' children
         var OptionList = $(this).children();
+
         // If the list of options does not contain the course, add it
         if (!SelectListContains(OptionList, courseName)) {
             $(this).append("<option>" + courseName + "</option>");
@@ -127,19 +170,14 @@ function SelectListContains(OptionList, courseName) {
     return false;
 }
 
-function RemoveCourseFromAllSelects(courseName, skip) {
+function RemoveCourseFromAllSelects(courseName) {
     // Iterate over each select element
     $(".CourseSelection").each(function () {
-        if (skip.indexOf($(this).parent().parent().children().eq(0).html()) < 0) {
-
-
-            //alert(skip + ": " + $(this).parent().parent().children().eq(0).html());
-            // Get the selected value of the select element
-            var selected = $(this).val();
-            if (selected.indexOf(courseName) >= 0) {
-                $(this).parent().remove();
+        $(this).children().each(function () {
+            if ($(this).val().indexOf(courseName) >= 0) {
+                $(this).remove();
             }
-        }
+        });
     });
 }
 
@@ -193,12 +231,9 @@ function AddButton() {
 
 /* Creates a delete button element */
 function DeleteButton() {
-    var CourseDiv = $("<div></div>");
-    CourseDiv.attr("class", "Flex MiddleFlex");
     var Button = $("<span>X</span>");
     Button.attr("class", "DeleteCourse WideFlex");
-    CourseDiv.append(Button);
-    return CourseDiv;
+    return Button;
 }
 
 /* Adds a course to the list of unmet requirements */
