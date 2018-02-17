@@ -2,32 +2,174 @@
 var complete = "All requirements completed!";
 var unmetRequirements = [];
 var PreviousCourse = { "Title": "", "Credits": "0", "Offered": "0" };
+var lockIcon = "&#128274;";
+var deleteIcon = "&#10060;";
 
+var StartingJSON = '{"Quarters":[{"Title":"Summer 17","Locked":true,"Courses":[]},{"Title":"Fall 17","Locked":false,"Courses":[{"Title":"UNIV 101","Credits":"1","Offered":"124"},{"Title":"MATH 153","Credits":"5","Offered":"124"},{"Title":"ENG 101","Credits":"5","Offered":"124"},{"Title":"CS 112","Credits":"4","Offered":"124"}]},{"Title":"Winter 18","Locked":false,"Courses":[{"Title":"MATH 154","Credits":"5","Offered":"124"},{"Title":"CS 110","Credits":"4","Offered":"124"},{"Title":"ENG 102","Credits":"5","Offered":"124"},{"Title":"COMPUTING","Credits":"5","Offered":"124"}]},{"Title":"Spring 18","Locked":false,"Courses":[{"Title":"MATH 172","Credits":"5","Offered":"124"},{"Title":"CS 111","Credits":"4","Offered":"124"},{"Title":"BREADTH 1","Credits":"5","Offered":"124"}]},{"Title":"Summer 17","Locked":true,"Courses":[]},{"Title":"Fall 18","Locked":false,"Courses":[{"Title":"CS 301","Credits":"4","Offered":"124"},{"Title":"CS 311","Credits":"4","Offered":"124"},{"Title":"BREADTH 2","Credits":"5","Offered":"124"},{"Title":"BREADTH 3","Credits":"5","Offered":"124"}]},{"Title":"Winter 19","Locked":false,"Courses":[{"Title":"CS 302","Credits":"4","Offered":"124"},{"Title":"CS 312","Credits":"4","Offered":"124"},{"Title":"CS 325","Credits":"3","Offered":"124"},{"Title":"BREADTH 4","Credits":"5","Offered":"124"}]},{"Title":"Spring 19","Locked":false,"Courses":[{"Title":"MATH 260","Credits":"5","Offered":"124"},{"Title":"CS 446","Credits":"4","Offered":"124"},{"Title":"BREADTH 5","Credits":"5","Offered":"124"}]},{"Title":"Summer 17","Locked":true,"Courses":[]},{"Title":"Fall 19","Locked":false,"Courses":[{"Title":"CS 361","Credits":"4","Offered":"124"},{"Title":"MATH 330","Credits":"5","Offered":"124"},{"Title":"BREADTH 6","Credits":"5","Offered":"124"}]},{"Title":"Winter 20","Locked":false,"Courses":[{"Title":"CS 362","Credits":"4","Offered":"124"},{"Title":"CS 470","Credits":"4","Offered":"124"},{"Title":"CS ELECTIVE 1","Credits":"4","Offered":"124"}]},{"Title":"Spring 20","Locked":false,"Courses":[{"Title":"CS 380","Credits":"4","Offered":"124"},{"Title":"CS 420","Credits":"4","Offered":"124"},{"Title":"CS ELECTIVE 2","Credits":"4","Offered":"124"},{"Title":"BREADTH 7","Credits":"5","Offered":"124"}]},{"Title":"Summer 17","Locked":true,"Courses":[]},{"Title":"Fall 20","Locked":false,"Courses":[{"Title":"CS 480","Credits":"4","Offered":"124"},{"Title":"CS 427","Credits":"4","Offered":"124"},{"Title":"UNIV ELECTIVE 1","Credits":"5","Offered":"124"},{"Title":"CS 392","Credits":"1","Offered":"124"}]},{"Title":"Winter 21","Locked":false,"Courses":[{"Title":"CS 481","Credits":"4","Offered":"124"},{"Title":"BREADTH 8","Credits":"5","Offered":"124"},{"Title":"CS ELECTIVE 3","Credits":"4","Offered":"124"},{"Title":"UNIV ELECTIVE 2","Credits":"5","Offered":"124"}]},{"Title":"Spring 21","Locked":false,"Courses":[{"Title":"CS 489","Credits":"1","Offered":"124"},{"Title":"CS 492","Credits":"2","Offered":"124"},{"Title":"BREADTH 9","Credits":"5","Offered":"124"}]}],"UnmetRequirements":[{"Title":"CS ELECTIVE 5","Credits":"4","Offered":"124"},{"Title":"CS ELECTIVE 4","Credits":"4","Offered":"124"}]}';
+var Schedule = JSON.parse(StartingJSON);
 
+/*  Given a parsed JSON objects, loads the schedule onto the QuarterContainer   */
+function LoadSchedule(Schedule) {
+    unmetRequirements = Schedule.UnmetRequirements;
+    for (var i = 0; i < Schedule.Quarters.length; i++) {
+        var Quarter = CreateQuarter(Schedule.Quarters[i].Title, QuarterNameToIndex(Schedule.Quarters[i].Title), Schedule.Quarters[i].Locked);
+        for (var j = 0; j < Schedule.Quarters[i].Courses.length; j++) {
+            AssignCourse(Quarter, Schedule.Quarters[i].Courses[j]);
+        }
+        $("#QuarterContainer").append(Quarter);
+    }
 
-var StartingJSON = {
-    "Quarters":
-    [{ "Title": "Fall 17", "Courses": ["UNIV 101", "MATH 153", "ENG 101", "CS 112"] },
-        { "Title": "Winter 18", "Courses": ["MATH 154", "CS 110", "ENG 102", "COMPUTING"] },
-        { "Title": "Spring 18", "Courses": ["MATH 172", "CS 111", "BREADTH 1"] },
-        { "Title": "Fall 18", "Courses": ["CS 301", "CS 311", "BREADTH 2", "BREADTH 3"] },
-        { "Title": "Winter 19", "Courses": ["CS 302", "CS 312", "CS 325", "BREADTH 4"] },
-        { "Title": "Spring 19", "Courses": ["MATH 260", "CS 446", "BREADTH 5"] },
-        { "Title": "Fall 19", "Courses": ["CS 361", "MATH 330", "BREADTH 6"] },
-        { "Title": "Winter 20", "Courses": ["CS 362", "CS 470", "CS ELECTIVE 1"] },
-        { "Title": "Spring 20", "Courses": ["CS 380", "CS 420", "CS ELECTIVE 2", "BREADTH 7"] },
-        { "Title": "Fall 20", "Courses": ["CS 480", "UNIVERSITY ELECTIVE 1", "CS 392", "CS 427"] },
-        { "Title": "Winter 21", "Courses": ["CS 481", "BREADTH 8", "CS ELECTIVE 3", "UNIVERSITY ELECTIVE 2"] },
-        { "Title": "Spring 21", "Courses": ["CS 489", "CS 492", "BREADTH 9"] }], 
-    "UnmetRequirements": ["CS ELECTIVE 4", "CS ELECTIVE 5"]
-};
-
-$(document).ready(function () {
+    // Update remaining requirements list
     ModifyRequirements();
-    var select = $("#QuarterContainer").children().eq(0).children().eq(1).children().eq(0);
+
+    // Update each select to reflect remaining requirements
+    UpdateSelectWithAllCourses();
+
+    // Calculate the number of credits for each quarter
+    AddCredits();
+}
+
+// Document Load
+$(document).ready(function () {
+    LoadSchedule(Schedule);
+});
+
+// Returns true if the quarter is locked
+function locked(Quarter) {
+    return (Quarter.attr("locked").indexOf("true") == 0);
+}
+
+// Returns true if the quarter is locked
+function SetLocked(Quarter, lock) {
+    Quarter.attr("locked", lock.toString());
+}
+
+// Converts an integer quarter index to a string quarter name
+function IndexToQuarterName(strIndex) {
+    if (isNaN(strIndex)) {
+        return "Error";
+    } else {
+        var index = parseInt(strIndex);
+        switch (index) {
+            case 1: return "Winter";
+            case 2: return "Spring"; 
+            case 3: return "Summer"; 
+            case 4: return "Fall"; 
+            default: return "Error";
+        }
+    }
+}
+
+// Converts a string quarter name to an integer quarter index
+function QuarterNameToIndex(strIndex) {
+    if (strIndex.indexOf("Winter") == 0) {
+        return 1;
+    } else if (strIndex.indexOf("Spring") == 0) {
+        return 2;
+    } else if (strIndex.indexOf("Summer") == 0) {
+        return 3;
+    } else if (strIndex.indexOf("Fall") == 0) {
+        return 4;
+    } else {
+        return -1;
+    }
+}
+
+/*  Returns the next quarter after the last quarter, in "Season Year" format */
+function GetNextQuarter(lastQuarter) {
+    var split = lastQuarter.split(" ");
+    if (split[0].indexOf("Fall") == 0) {
+        return "Winter " + (parseInt(split[1]) + 1);
+    } else if (split[0].indexOf("Winter") == 0) {
+        return "Spring " + split[1];
+    } else if (split[0].indexOf("Spring") == 0) {
+        return "Summer " + split[1];
+    } else {
+        return "Fall " + split[1];
+    }
+}
+
+/*  Toggles the quarter lock    */
+$(document).on("click", ".LockQuarter", function () {
+    var Quarter = $(this).parent().parent();
+    ToggleCover(Quarter);
+    if (locked(Quarter)) {
+        SetLocked(Quarter, false);
+    } else {
+        SetLocked(Quarter, true);
+    }
+});
+
+/*  Toggles opacity for locked quarters */
+function ToggleCover(Quarter) {
+    if (locked(Quarter)) {
+        Quarter.attr("style", "");
+        Quarter.children().each(function () {
+            if (!$(this).children().eq(1).hasClass("Title")) {
+                $(this).attr("style", "");
+            }
+        });
+    } else {
+        Quarter.attr("style", "background-color: #DCDCDC;");
+        Quarter.children().each(function () {
+            
+            if (!$(this).children().eq(1).hasClass("Title")) {
+                $(this).attr("style", "opacity: 0.3;");
+            }
+        });
+    }
+}
+
+//  Add a new quarter to the schedule after the last quarter
+$(document).on("click", "#AddQuarter", function () {
+    $("#QuarterContainer").append(CreateNextQuarter());
+    return false;
+});
+
+
+/*  Deletes a quarter from the schedule, and adds all of its selected
+    courses to the list of unmet requirements.
+    If the quarter is not the last quarter in the schedule, the empty quarter is
+    not removed. */
+$(document).on("click", ".DeleteQuarter", function () {
+    // Get the name of this quarter
+    var thisQuarterName = $(this).parent().children().eq(1).html();
+
+    // Confirm that the user wants to delete this quarter
+    if (!confirm("Are you sure you want to delete " + thisQuarterName + "?")) {
+        return;
+    }
+
+    // Temporarily remove the calculated number of credits
+    RemoveCredits();
+
+    // Check whether or not this quarter is the last quarter
+    var lastQuarterName = $("#QuarterContainer").children().last().children().eq(0).children().eq(1).html();
+    var isLastQuarter = (thisQuarterName.indexOf(lastQuarterName) == 0);
+
+    // For each CourseSelection object in the quarter
+    // If there is a value selected, add it to the unmet requirements
+    $(this).parent().parent().children().each(function () {
+        var select = $(this).children().first();
+        if (select.hasClass("CourseSelection")) {
+            if (select.val().length > 0) {
+                AddToUnmetRequirements(GetCourse(select));
+            } 
+            select.parent().remove();
+        }
+    });
+
+    // Remove the quarter object if it is the final quarter
+    if (isLastQuarter) {
+        $(this).parent().parent().remove();
+    }
+
+    // Update all other quarters
+    UpdateSelectWithAllCourses();
     AddCredits();
 });
 
+// Returns a Course object containing the title, number of credits, and quarters offered
 function GetCourse(SelectObject) {
     var CourseObject = { "Title": "", "Credits": "0", "Offered": "0" };
     CourseObject.Title = $('option:selected', SelectObject).attr('value');
@@ -39,26 +181,28 @@ function GetCourse(SelectObject) {
 // Generate button click
 $(document).on("click", "#GenerateButton", function () {
     // Create a list of quarters
-    var Schedule = { Quarters: [] };
+    var Schedule = { Quarters: [], UnmetRequirements: [] };
 
     // For each quarter in the schedule
     $(".Quarter").each(function () {
         // Get the title
-        var Quarter = { Title: "", Courses: [] };
-        Quarter.Title = $(this).children().eq(0).html();
-
+        var Quarter = { Title: "", Locked:true, Courses: [] };
+        Quarter.Title = $(this).children().eq(0).children().eq(1).html();
+        Quarter.Locked = locked($(this));
         // Get each course
         var children = $(this).children();
         children.each(function () {
             var element = $(this).children().eq(0);
             if (element.hasClass("CourseSelection")) {
-                Quarter.Courses.push(element.val());
+                Quarter.Courses.push(GetCourse(element));
             }
         });
 
         // Add the quarter to the list of schedules
         Schedule.Quarters.push(Quarter);
     });
+
+    Schedule.UnmetRequirements = unmetRequirements;
 
     // Convert to JSON format
     var ScheduleJSON = JSON.stringify(Schedule);
@@ -67,6 +211,7 @@ $(document).on("click", "#GenerateButton", function () {
     return false; // ignore href
 });
 
+/*  Removes a course from a quarter and adds it back into the unmet requirements    */
 $(document).on("click", ".DeleteCourse", function () {
     RemoveCredits();
     // Get the current selected value of the course that is to be deleted
@@ -121,11 +266,15 @@ $(document).on("click", ".AddCourse", function () {
     AddCredits();
 });
 
+/*  Retreives the last selected value when a select object is changed   */
 $(document).on("focus", ".CourseSelection", function () {
-    // Take the old selection and add it to the unmet requirements
     PreviousCourse = GetCourse($(this));
 });
 
+/*  For a select object, the previously selected value is added to the
+    unmet requirements, and the newly selected course is removed
+    from unmet requirements
+*/
 $(document).on("change", ".CourseSelection", function () {
     RemoveCredits();
     if (PreviousCourse.Title != undefined && PreviousCourse.Title.length > 0) {
@@ -159,6 +308,10 @@ $(document).on("change", ".CourseSelection", function () {
     AddCredits();
 });
 
+/*
+    Calculates the total number of credits in a each quarter
+    and appends it to the bottom
+*/
 function AddCredits() {
     $(".Quarter").each(function () {
         var credits = 0;
@@ -172,10 +325,15 @@ function AddCredits() {
                 }
             });
         });
-        $(this).append('<span class="TotalCredits">Total Credits: ' + credits + '</span>');
+        if (credits > 0) {
+            $(this).append('<div class="TotalCredits CenterFlex">Total Credits: ' + credits + '</div>');
+        }
     });
 }
 
+/*
+    Removes the calculated credit total
+*/
 function RemoveCredits() {
     $(".Quarter").children().each(function () {
         if ($(this).hasClass("TotalCredits")) {
@@ -184,6 +342,7 @@ function RemoveCredits() {
     });
 }
 
+/*  Update the display showing the list of unmet requirements   */
 function ModifyRequirements() {
     // Clear out any old entries in html list
     $("#RemainingRequirements").empty();
@@ -194,13 +353,23 @@ function ModifyRequirements() {
     if (unmetRequirements.length > 0) {
         $("#RemainingRequirements").html(incomplete);
         for (i = 0; i < unmetRequirements.length; i++) {
-            $("#RemainingRequirementsList").append("<li>" + unmetRequirements[i].Title + "</li>");
+            var listElement = unmetRequirements[i].Title;
+            listElement += " (" + unmetRequirements[i].Credits + ") [ ";
+            var QuartersOffered = unmetRequirements[i].Offered.split("");
+            for (var j = 0; j < QuartersOffered.length; j++) {
+                listElement += IndexToQuarterName(QuartersOffered[j]) + " ";
+            }
+            listElement += "]";
+            
+
+            $("#RemainingRequirementsList").append("<li>" + listElement + "</li>");
         }
     } else {
         $("#RemainingRequirements").html(complete);
     }
 }
 
+/*  Returns an <option> element based on a course object    */
 function CreateCourseOption(course) {
     var option = $("<option>" + course.Title + "</option>");
     option.attr("value", course.Title);
@@ -209,19 +378,25 @@ function CreateCourseOption(course) {
     return option;
 }
 
+/*  Updates each select value with a course, if it is available */
 function UpdateSelectWithNewlyRemovedCourse(course) {
     // Iterate over each select object
     $(".CourseSelection").each(function () {
-        // Get a list of the select objects 'option' children
-        var OptionList = $(this).children();
 
-        // If the list of options does not contain the course, add it
-        if (!SelectListContains(OptionList, course.Title)) {
-            $(this).append(CreateCourseOption(course));
+        var QuarterId = $(this).parent().parent().attr("quarterId");
+        if (course.Offered.indexOf(QuarterId) >= 0) {
+            // Get a list of the select objects 'option' children
+            var OptionList = $(this).children();
+
+            // If the list of options does not contain the course, add it
+            if (!SelectListContains(OptionList, course.Title)) {
+                $(this).append(CreateCourseOption(course));
+            }
         }
     });
 }
 
+/*  Updates all select values with the unmet requirements   */
 function UpdateSelectWithAllCourses() {
     for (var i = 0, len = unmetRequirements.length; i < len; i++) {
         UpdateSelectWithNewlyRemovedCourse(unmetRequirements[i]);
@@ -238,6 +413,7 @@ function SelectListContains(OptionList, courseName) {
     return false;
 }
 
+/*  Removes a course from all select objects    */
 function RemoveCourseFromAllSelects(course) {
     if (course.Title == undefined) {
         return;
@@ -249,44 +425,6 @@ function RemoveCourseFromAllSelects(course) {
                 $(this).remove();
             }
         });
-    });
-}
-
-function RemoveCourseFromQuarter(courseName) {  
-    $(".Quarter").each(function () {
-        if ($(this).html().indexOf(courseName) < 0) {
-            var QuarterChildren = $(this).children();
-            for (j = 1; j < QuarterChildren.length; j++) {
-                var course = document.createElement("option");
-                course.text = courseName;
-                //QuarterChildren[j].childNodes[0].add(course);
-            }
-        }
-    });
-}
-
-function AddCourseToQuarter(courseName) {
-    $(".Quarter").each(function () {
-        if ($(this).html().indexOf(courseName) >= 0) {
-            var QuarterChildren = $(this).children();
-            for (j = 1; j < QuarterChildren.length; j++) {
-                var SelectList = QuarterChildren[j].childNodes;
-                for (k = 0; k < SelectList.length; k++) {
-                    var OptionList = SelectList[k].childNodes;
-                    for (l = 0; l < OptionList.length; l++) {
-                        if(OptionList[l].value != undefined && OptionList[l].value.indexOf(courseName) >= 0) {
-                            SelectList[k].removeChild(OptionList[l]);
-                        }
-                    }
-                }
-            }
-        }
-    });
-
-    $(".CourseSelection").each(function () {
-        if ($(this).children().length < 1) {
-            $(this).parent().remove();
-        }
     });
 }
 
@@ -314,10 +452,7 @@ function AddToUnmetRequirements(course) {
             return;
         }
     }
-
-
     unmetRequirements.push(course);
-
     ModifyRequirements();
 }
 
@@ -335,11 +470,57 @@ function RemoveFromUnmetRequriements(course) {
     ModifyRequirements();
 }
 
-function CreateQuarter(QuarterTitle, index) {
-    var QuarterDiv = $("<div>Test</div>");
+// Returns a Quarter element
+function CreateQuarter(Title, Index, Locked) {
+    var QuarterDiv = $("<div></div>");
     QuarterDiv.attr("class", "Quarter Border");
-    QuarterDiv.attr("quarterId", index);
-    QuarterDiv.append("<div>" + QuarterTitle + "</div>");
+    QuarterDiv.attr("quarterId", Index.toString());
+    QuarterDiv.attr("locked", false);
+    var QuarterTitle = $("<div></div>");
+    QuarterTitle.attr("class", "Flex MiddleFlex");
+    QuarterTitle.append($("<div class='LockQuarter'>" + lockIcon + "</div>"));
+    QuarterTitle.append($("<div class='Title WideFlex'>" + Title + "</div>"));
+    QuarterTitle.append($("<div class='DeleteQuarter'>" + deleteIcon + "</div>"));
+    QuarterDiv.append(QuarterTitle);
     QuarterDiv.append(AddButton());
+    if (Locked) {
+        
+        ToggleCover(QuarterDiv);
+        SetLocked(QuarterDiv, true);
+    }
     return QuarterDiv;
+}
+
+// Returns a quarter element with the incremented attributes from the last quarter in a schedule
+function CreateNextQuarter() {
+    var Title = GetNextQuarter($("#QuarterContainer").children().last().children().eq(0).children().eq(1).html());
+    var Index = QuarterNameToIndex(Title);
+    return CreateQuarter(Title, Index, false);
+}
+
+// Assigns a course to a specific quarter
+function AssignCourse(Quarter, Course) {
+    //Get rid of the add course button
+    Quarter.children().last().remove();
+
+    // Create the div container and set its class
+    var CourseDiv = $("<div></div>");
+    CourseDiv.attr("class", "Flex MiddleFlex");
+
+    // Create the Select attribute and get its class
+    var CourseSelect = $("<select></select>");
+    CourseSelect.attr("class", "CourseSelection WideFlex");
+    CourseDiv.append(CourseSelect);
+
+    // Create a blank value
+    CourseSelect.append(CreateCourseOption(Course));
+
+    // Add in the delete button
+    CourseDiv.append(DeleteButton());
+
+    // Add the new course element
+    Quarter.append(CourseDiv);
+
+    // Add in a new add button
+    Quarter.append(AddButton());
 }

@@ -111,8 +111,14 @@
     vertical-align: middle;
 }
 
+#QuarterContainer {
+    max-width: 1000px;
+    flex-wrap: wrap;
+}
+
 .Quarter {
     min-width: 200px;
+    max-width: 200px;
     margin-bottom: 20px;
     margin-left: 10px;
     margin-right: 10px;
@@ -197,4 +203,13 @@
 
 .CourseNumberInput {
     width: 50px;
+}
+
+.DeleteQuarter {
+    cursor: pointer;
+}
+
+.LockQuarter {
+    cursor: pointer;
+    opacity: 1.0;
 }
