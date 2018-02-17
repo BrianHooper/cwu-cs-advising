@@ -1,12 +1,40 @@
 ﻿var incomplete = "Incomplete Graduation Requirements:";
 var complete = "All requirements completed!";
 var unmetRequirements = [];
-var PreviousSelect;
+var PreviousCourse = { "Title": "", "Credits": "0", "Offered": "0" };
 
+
+
+var StartingJSON = {
+    "Quarters":
+    [{ "Title": "Fall 17", "Courses": ["UNIV 101", "MATH 153", "ENG 101", "CS 112"] },
+        { "Title": "Winter 18", "Courses": ["MATH 154", "CS 110", "ENG 102", "COMPUTING"] },
+        { "Title": "Spring 18", "Courses": ["MATH 172", "CS 111", "BREADTH 1"] },
+        { "Title": "Fall 18", "Courses": ["CS 301", "CS 311", "BREADTH 2", "BREADTH 3"] },
+        { "Title": "Winter 19", "Courses": ["CS 302", "CS 312", "CS 325", "BREADTH 4"] },
+        { "Title": "Spring 19", "Courses": ["MATH 260", "CS 446", "BREADTH 5"] },
+        { "Title": "Fall 19", "Courses": ["CS 361", "MATH 330", "BREADTH 6"] },
+        { "Title": "Winter 20", "Courses": ["CS 362", "CS 470", "CS ELECTIVE 1"] },
+        { "Title": "Spring 20", "Courses": ["CS 380", "CS 420", "CS ELECTIVE 2", "BREADTH 7"] },
+        { "Title": "Fall 20", "Courses": ["CS 480", "UNIVERSITY ELECTIVE 1", "CS 392", "CS 427"] },
+        { "Title": "Winter 21", "Courses": ["CS 481", "BREADTH 8", "CS ELECTIVE 3", "UNIVERSITY ELECTIVE 2"] },
+        { "Title": "Spring 21", "Courses": ["CS 489", "CS 492", "BREADTH 9"] }], 
+    "UnmetRequirements": ["CS ELECTIVE 4", "CS ELECTIVE 5"]
+};
 
 $(document).ready(function () {
     ModifyRequirements();
+    var select = $("#QuarterContainer").children().eq(0).children().eq(1).children().eq(0);
+    AddCredits();
 });
+
+function GetCourse(SelectObject) {
+    var CourseObject = { "Title": "", "Credits": "0", "Offered": "0" };
+    CourseObject.Title = $('option:selected', SelectObject).attr('value');
+    CourseObject.Credits = $('option:selected', SelectObject).attr('credits');
+    CourseObject.Offered = $('option:selected', SelectObject).attr('offered');
+    return CourseObject;
+}
 
 // Generate button click
 $(document).on("click", "#GenerateButton", function () {
@@ -40,25 +68,29 @@ $(document).on("click", "#GenerateButton", function () {
 });
 
 $(document).on("click", ".DeleteCourse", function () {
+    RemoveCredits();
     // Get the current selected value of the course that is to be deleted
-    var selectedCourse = $(this).parent().children().get(0).value;
+    var selectObject = $(this).parent().children().eq(0);
+    var selectedCourse = GetCourse(selectObject);
 
     // Remove the div element containg the select
     $(this).parent().remove();
 
     // Update all select elements to contain the newly removed course
 
-    if (selectedCourse.length > 0) {
+    if (selectedCourse.Title != undefined && selectedCourse.Title.length > 0) {
         AddToUnmetRequirements(selectedCourse);
     }
 
     UpdateSelectWithAllCourses();
 
     // ignore "href ='#'"
+    AddCredits();
     return false;
 });
 
 $(document).on("click", ".AddCourse", function () {
+    RemoveCredits();
     // Create the div container and set its class
     var CourseDiv = $("<div></div>");
     CourseDiv.attr("class", "Flex MiddleFlex");
@@ -86,32 +118,34 @@ $(document).on("click", ".AddCourse", function () {
 
     // Update the course element with any unmet requirements
     UpdateSelectWithAllCourses();
+    AddCredits();
 });
 
 $(document).on("focus", ".CourseSelection", function () {
     // Take the old selection and add it to the unmet requirements
-    PreviousSelect = ($(this).val());
+    PreviousCourse = GetCourse($(this));
 });
 
 $(document).on("change", ".CourseSelection", function () {
-    if (PreviousSelect.length > 0) {
-        AddToUnmetRequirements(PreviousSelect);
-        PreviousSelect = "";
+    RemoveCredits();
+    if (PreviousCourse.Title != undefined && PreviousCourse.Title.length > 0) {
+        AddToUnmetRequirements(PreviousCourse);
     }
 
+    var course = GetCourse($(this));
     // Get the new selection
     var courseName = $(this).val();
 
     // Remove all occurences of the course, except from this quarter
-    RemoveCourseFromAllSelects(courseName);
+    RemoveCourseFromAllSelects(course);
     // Remove the new course from the list of unmet requirements
-    RemoveFromUnmetRequriements(courseName);
+    RemoveFromUnmetRequriements(course);
 
     // Add the new course back into the list
-    $(this).append($("<option></option>").text(courseName).attr("value", courseName));
+    $(this).append(CreateCourseOption(course));
 
     // Set the selected value to the new course
-    $(this).val(courseName);
+    $(this).val(course.Title);
 
     // Clear any empty values in this select
     $(this).children().each(function () {
@@ -122,9 +156,33 @@ $(document).on("change", ".CourseSelection", function () {
 
     UpdateSelectWithAllCourses();
     $(this).blur(); // Deselect so focus can be obtained again
+    AddCredits();
 });
 
+function AddCredits() {
+    $(".Quarter").each(function () {
+        var credits = 0;
+        $(this).children().each(function () {
+            $(this).children().eq(0).each(function () {
+                if ($(this).hasClass("CourseSelection")) {
+                    var courseCredits = $('option:selected', this).attr('credits');
+                    if (courseCredits != undefined) {
+                        credits = credits + parseInt(courseCredits);
+                    }                     
+                }
+            });
+        });
+        $(this).append('<span class="TotalCredits">Total Credits: ' + credits + '</span>');
+    });
+}
 
+function RemoveCredits() {
+    $(".Quarter").children().each(function () {
+        if ($(this).hasClass("TotalCredits")) {
+            $(this).remove();
+        }
+    });
+}
 
 function ModifyRequirements() {
     // Clear out any old entries in html list
@@ -136,22 +194,30 @@ function ModifyRequirements() {
     if (unmetRequirements.length > 0) {
         $("#RemainingRequirements").html(incomplete);
         for (i = 0; i < unmetRequirements.length; i++) {
-            $("#RemainingRequirementsList").append("<li>" + unmetRequirements[i] + "</li>");
+            $("#RemainingRequirementsList").append("<li>" + unmetRequirements[i].Title + "</li>");
         }
     } else {
         $("#RemainingRequirements").html(complete);
     }
 }
 
-function UpdateSelectWithNewlyRemovedCourse(courseName) {
+function CreateCourseOption(course) {
+    var option = $("<option>" + course.Title + "</option>");
+    option.attr("value", course.Title);
+    option.attr("credits", course.Credits);
+    option.attr("offered", course.Offered);
+    return option;
+}
+
+function UpdateSelectWithNewlyRemovedCourse(course) {
     // Iterate over each select object
     $(".CourseSelection").each(function () {
         // Get a list of the select objects 'option' children
         var OptionList = $(this).children();
 
         // If the list of options does not contain the course, add it
-        if (!SelectListContains(OptionList, courseName)) {
-            $(this).append("<option>" + courseName + "</option>");
+        if (!SelectListContains(OptionList, course.Title)) {
+            $(this).append(CreateCourseOption(course));
         }
     });
 }
@@ -172,11 +238,14 @@ function SelectListContains(OptionList, courseName) {
     return false;
 }
 
-function RemoveCourseFromAllSelects(courseName) {
+function RemoveCourseFromAllSelects(course) {
+    if (course.Title == undefined) {
+        return;
+    } 
     // Iterate over each select element
     $(".CourseSelection").each(function () {
         $(this).children().each(function () {
-            if ($(this).val().indexOf(courseName) >= 0) {
+            if ($(this).val().indexOf(course.Title) >= 0) {
                 $(this).remove();
             }
         });
@@ -239,19 +308,38 @@ function DeleteButton() {
 }
 
 /* Adds a course to the list of unmet requirements */
-function AddToUnmetRequirements(courseName) {
-    if (unmetRequirements.indexOf(courseName) < 0) {
-        unmetRequirements.push(courseName);
+function AddToUnmetRequirements(course) {
+    for (var i = 0; i < unmetRequirements.length; i++) {
+        if (unmetRequirements[i].Title.indexOf(course.Title) > 0) {
+            return;
+        }
     }
+
+
+    unmetRequirements.push(course);
+
     ModifyRequirements();
 }
 
 /* Removes a course from the list of unmet requirements */
-function RemoveFromUnmetRequriements(courseName) {
-    var index = unmetRequirements.indexOf(courseName);
-    if (index >= 0) {
-        unmetRequirements.splice(index, 1);
+function RemoveFromUnmetRequriements(course) {
+    var index = unmetRequirements.length;
+    var newRequirements = unmetRequirements.slice();
+    var match = course.Title;
+    for (var i = 0; i < unmetRequirements.length; i++) {
+        var element = unmetRequirements[i].Title;
+        if (match.indexOf(element) == 0) {
+            unmetRequirements.splice(i, 1);
+        }
     }
     ModifyRequirements();
 }
 
+function CreateQuarter(QuarterTitle, index) {
+    var QuarterDiv = $("<div>Test</div>");
+    QuarterDiv.attr("class", "Quarter Border");
+    QuarterDiv.attr("quarterId", index);
+    QuarterDiv.append("<div>" + QuarterTitle + "</div>");
+    QuarterDiv.append(AddButton());
+    return QuarterDiv;
+}

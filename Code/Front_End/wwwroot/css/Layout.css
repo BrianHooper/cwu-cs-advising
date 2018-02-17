@@ -63,6 +63,8 @@
 .PageRow {
     padding: 10px;
     margin: 10px;
+    max-width: 80%;
+    flex-wrap: wrap;
 }
 
 .Flex {
@@ -110,7 +112,8 @@
 }
 
 .Quarter {
-    width: 200px;
+    min-width: 200px;
+    margin-bottom: 20px;
     margin-left: 10px;
     margin-right: 10px;
 }
