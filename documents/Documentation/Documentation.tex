@@ -1,0 +1,76 @@
+\documentclass[letterpaper]{report}
+\title{Computer Science Advising Tool \\ Technical Documentation}
+\author{Last Place Champions \\ Rico Adrian, Brian Hooper, Nick Rohde}
+\date{8th of March 2018}
+
+
+\begin{document}
+	\maketitle
+	\tableofcontents
+	\chapter{Overview}
+	\section{Problem}
+	Desgin a user friendly website able to pull data from the catalog and allow the user (advisor) to easily manipulate different scenarios for the student based on multiple constraints (i.e. prerequisites, time of the class	being offered in the academic year, minimum number of credits, etc.).
+	\section{Requirements}
+	\begin{enumerate}
+		\item Login Page
+		\begin{enumerate}
+			\item Accept credentials from user
+			\item Verify provided credentials
+			\item Redirect user to homepage, or display error
+		\end{enumerate}
+	
+		\item Advising Page
+		\begin{enumerate}
+			\item Retrieve existing graduation plan
+			\item Create new graduation plan
+			\item Import student transcript
+			\item Input plan constraints
+			\item Manually modify graduation plan
+			\item Print advising documents
+		\end{enumerate}	
+	
+		\item Administrator Page
+		\begin{enumerate}
+			\item Modify Databases
+			\item Create/Modify/Delete users\\
+		\end{enumerate}
+	
+		\item Graduation Plan Generation Algorithm
+		\begin{enumerate}
+			\item Generate most efficient plan based on constraints
+			\item Finish within 2 minutes
+			\item Create a valid plan
+		\end{enumerate}
+	
+		\item Databases
+		\begin{enumerate}
+			\item Store sensitive data in an encrypted environment
+			\item Store graduation plans for all students
+			\item Store user credentials
+		\end{enumerate}
+	\end{enumerate}
+	\section{Design}
+	\chapter{Website}
+	\chapter{Algorithm}
+	\chapter{Databases}
+	\section{MySql Database}
+	The MySql database stores the user credentials, as well as the student graduation plans. Both are stored within the same database, but in separate tables, credentials are stored in the table "user\_credentials", and graduation plans in the table "student\_plans" (these names can be altered in the "DBH.service" file in the section [TABLES]).\\ \\This database is encrypted and cannot be accessed without credentials. All sensitive information is stored within this database.
+	\section{NoSql Databases}
+	The NoSql Database (DB4O) stores information about Courses, Catalogs, and Students (only directory information - e.g. Name, Starting Quarter). This database has no encryption, as it \textbf{does not} contain protected information, however, it is stored in a binary format making unauthorized access dificult.
+	\section{Database Handler}
+	The database handler is the middle man between the databases and the client(s). Its purposes are:
+	\begin{enumerate}
+		\item \textbf{Encapsulate database operations} - It provides query-less database access to all users. Instead, database commands are sent to the Database handler, which translates them into queries. Database commands require no knowledge as to where or how information is stored.
+		\item \textbf{Prevent multiple writes} - two users cannot overwrite eachother's modifications, a user can only update a database entry if it they have the current version. This is controlled via a "write-protect" property which is part of all database entries. Before a write instruction is executed, the write protect on original and new data are compared, if they do not match, the instruction is not executed to prevent overwriting changes the user may not be aware of.
+		\item \textbf{Manage databases} - The database handler manages the databases for the administrator. The administrator should never need to directly access the databases, except during the creation step. The handler is not capable of creating the Database, however, once the database is created it can create all required tables, and set them up. \\ \textbf{Note: The tables have a special format, altering this format by manually editing the database can make the table unusable.}
+	\end{enumerate}
+	The database handler runs in a multithreaded mode. Specifically:
+	\begin{enumerate}
+		\item \textbf{Master Thread} - A daemon which always runs on the server
+		\item \textbf{Client Thread(s)} - Each client is assigned a dedicated thread which only communicates with its assigned client, and executes all commands for this client. This allows non-critical code to be executed in parallel as much as possible, speeding up operations during periods of high-traffic.
+		\item \textbf{Keep Alive Thread} - A thread which periodically accesses the database to prevent the connection from timing out. This is a result of our testing, as the connection would time out over night.
+	\end{enumerate}
+	Upon starting the master thread the password for the MySql database must be supplied. After the setup has completed, it awaits new clients to connect to it through a specific TCP port (all details pertaining to the connection are specified in the "DBH.service" file under the [CONNECTION] section). The master thread continues to run even if no clients are connected. Should the service crash, or the server is restarted, the database password must be supplied upon restarting the service to reestablish a connection. \\ \\ The database handler has two accompanying files, namely, "DBH Setup.pdf" which contains a detailed discussion of how to setup, start, use, and troubleshoot errors pertaining to the Database Handler; and "DBH.service" which is the service file which must be used to start the database handler. 
+	\chapter{Testing}
+	
+\end{document}
