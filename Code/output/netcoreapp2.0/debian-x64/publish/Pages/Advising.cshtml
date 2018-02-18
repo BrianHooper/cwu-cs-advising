@@ -1,0 +1,143 @@
+﻿@page
+@model CwuAdvising.Pages.AdvisingModel
+@{
+    ViewData["Title"] = "Advising";
+}
+<script src="~/js/Advising.js"></script>
+<div style="border: thin solid black; font-size: 1.5em; display: inline-block; margin: auto;">
+    Student: @DemoController.StudentName<br />
+    ID: @DemoController.StudentID<br />
+    Starting Quarter: @DemoController.StudentQuarter @DemoController.StudentYear<br />
+    Degree: @DemoController.StudentDegree<br />
+                                         <p>
+                                             Import Transcript:<br />
+                                             <input name="myFile" type="file">
+                                             <input type="submit" value="Import" />
+                                         </p>
+</div>
+
+<div id="QuarterContainer" style="min-width: 600px;">
+    <div class="PageRow CenterFlex ">
+        <div class="Quarter Border">
+            <div class="Title">Fall 17</div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>UNIV 101</option><option>ENG 102</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>MATH 153</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>ENG 101</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>CS 112</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><span class="AddCourse WideFlex">+</span></div>
+        </div>
+
+        <div class="Quarter Border">
+            <div class="Title">Winter 18</div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>MATH 154</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>CS 110</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>ENG 102</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>COMPUTING</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><span class="AddCourse WideFlex">+</span></div>
+        </div>
+
+        <div class="Quarter Border">
+            <div class="Title">Spring 18</div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>MATH 172</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>CS 111</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>BREADTH 1</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><span class="AddCourse WideFlex">+</span></div>
+        </div>
+    </div>
+    <div class="PageRow CenterFlex ">
+        <div class="Quarter Border">
+            <div class="Title">Fall 18</div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>CS 301</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>CS 311</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>BREADTH 2</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>BREADTH 3</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><span class="AddCourse WideFlex">+</span></div>
+        </div>
+
+        <div class="Quarter Border">
+            <div class="Title">Winter 19</div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>CS 302</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>CS 312</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>CS 325</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>BREADTH 4</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><span class="AddCourse WideFlex">+</span></div>
+        </div>
+
+        <div class="Quarter Border">
+            <div class="Title">Spring 19</div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>MATH 260</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>CS 446</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>BREADTH 5</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><span class="AddCourse WideFlex">+</span></div>
+        </div>
+    </div>
+    <div class="PageRow CenterFlex ">
+        <div class="Quarter Border">
+            <div class="Title">Fall 19</div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>CS 361</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>MATH 330</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>BREADTH 6</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><span class="AddCourse WideFlex">+</span></div>
+        </div>
+
+        <div class="Quarter Border">
+            <div class="Title">Winter 20</div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>CS 362</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>CS 470</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>CS ELECTIVE 1</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><span class="AddCourse WideFlex">+</span></div>
+        </div>
+
+        <div class="Quarter Border">
+            <div class="Title">Spring 20</div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>CS 380</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>CS 420</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>CS ELECTIVE 2</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>BREADTH 7</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><span class="AddCourse WideFlex">+</span></div>
+        </div>
+    </div>
+    <div class="PageRow CenterFlex ">
+        <div class="Quarter Border">
+            <div class="Title">Fall 20</div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>CS 480</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>CS 427</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>UNIVERSITY ELECTIVE 1</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>CS 392</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><span class="AddCourse WideFlex">+</span></div>
+        </div>
+
+        <div class="Quarter Border">
+            <div class="Title">Winter 21</div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>CS 481</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>BREADTH 8</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>CS ELECTIVE 3</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>UNIVERSITY ELECTIVE 2</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><span class="AddCourse WideFlex">+</span></div>
+        </div>
+
+        <div class="Quarter Border">
+            <div class="Title">Spring 21</div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>CS 489</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>CS 492</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>BREADTH 9</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>CS ELECTIVE 4</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><select class="CourseSelection WideFlex"><option>CS ELECTIVE 5</option></select><span class="DeleteCourse WideFlex ">X</span></div>
+            <div class="Flex MiddleFlex"><span class="AddCourse WideFlex">+</span></div>
+        </div>
+    </div>
+</div>
+
+<div class="CenterFlex">
+    <div class="Block">
+        <div class="Title" id="RemainingRequirements">&nbsp;</div>
+
+        <ul id="RemainingRequirementsList"></ul>
+    </div>
+</div>
+
+<div class="Flex CenterFlex">
+    <a href="#" class="DivButton">Add Additional Quarter</a>
+    <a href="#" class="DivButton">Generate Remaining Courses</a>
+    <a href="#" class="DivButton">Print</a>
+</div>

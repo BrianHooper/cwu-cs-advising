@@ -22,7 +22,14 @@ namespace Database_Handler
 
         /// <summary>The path to the log file which will contain the log entries created by DBH.</summary>
         public  static   string s_logFilePath       = "log.txt"         ;
-        
+
+        /// <summary>Mutex locks for databases.</summary>
+        private static Mutex MySqlLock              = new Mutex()       ;
+        private static Mutex StudentLock            = new Mutex()       ;
+        private static Mutex CatalogLock            = new Mutex()       ;
+        private static Mutex CourseLock             = new Mutex()       ;
+        private static Mutex LogLock                = new Mutex()       ;
+
 
         // Class fields:
         /// <summary>Names of all database related components.</summary>
@@ -38,6 +45,9 @@ namespace Database_Handler
         private readonly string s_CATALOG_DB        = "Catalogs.db4o"   ;
         private readonly string s_CREDENTIALS_KEY   = "username"        ;
         private readonly string s_PLAN_KEY          = "SID"             ;
+        private readonly string s_IP_ADDRESS        = "127.0.0.1"       ;
+
+        private readonly int    i_TCP_PORT          = 44765             ;
 
         /// <summary>The length, in bytes, of the password salt.</summary>
         private const int i_SALT_LENGTH             = 32                ;
@@ -45,26 +55,23 @@ namespace Database_Handler
         /// <summary>The length of the longest plan in the s_PLAN_TABLE mysql table, stored in the master record.</summary>
         private uint ui_COL_COUNT;
 
-        /// <summary>This keeps track of which resources are currently in use, to prevent threads from trying to access the same resources.</summary>
-        private bool[] ba_ressourcesInUse;
-
         /// <summary>The master connection to the MySql database, which should never be closed, except during cleanup.</summary>
         private MySqlConnection DB_CONNECTION;
 
         /// <summary>A RNG for building password salts.</summary>
         private RNGCryptoServiceProvider RNG;
 
-        /// <summary>The main Tcp Listener which talks with the main Website thread.</summary>
+        /// <summary>The main Tcp Listener used to talk with clients.</summary>
         private TcpListener tcpListener;
 
         /// <summary>Localhost IP address for the Tcp Socket</summary>
         private IPAddress address;
 
-        /// <summary>The main Tcp Socket used to establish a connection with the website.</summary>
-        private Socket TCPMainSocket;
+        /// <summary>List of all client threads currently running.</summary>
+        private List<Thread> clientThreads;
 
-        /// <summary>The network stream used to received data via the Tcp Socket.</summary>
-        private NetworkStream stream;
+        /// <summary>List of all clients currently connected to DBH.</summary>
+        private List<TcpClient> clients;
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -86,10 +93,12 @@ namespace Database_Handler
         /// <param name="s_COURSE_DB">Path of the course database, e.g. courses.db4o</param>
         /// <param name="s_CATALOG_DB">Path of the catalog database, e.g. catalogs.db4o</param>
         /// <param name="s_logFilePath">Path of the DBH log file to use, e.g. log.txt</param>
+        /// <param name="s_IP_ADDRESS">The IP address from where to accept TCP client requests.</param>
+        /// <param name="i_TCP_PORT">The TCP port on which to accept client requests.</param>
         /// <remarks>Changes made by the constructor are not persistent, upon restarting, the default values will be used again.</remarks>
         public DatabaseHandler(string s_MYSQL_DB_NAME, string s_MYSQL_DB_SERVER, string s_MYSQL_DB_PORT, string s_MYSQL_DB_USER_ID,
                                string s_CREDENTIALS_TABLE, string s_CREDENTIALS_KEY, string s_PLAN_TABLE, string s_PLAN_KEY,
-                               string s_STUDENT_DB, string s_COURSE_DB, string s_CATALOG_DB, string s_logFilePath)
+                               string s_STUDENT_DB, string s_COURSE_DB, string s_CATALOG_DB, string s_logFilePath, string s_IP_ADDRESS, int i_TCP_PORT)
         {
             // readonly field changes:
             // MySQL connection
@@ -111,6 +120,10 @@ namespace Database_Handler
             this.s_COURSE_DB         = s_COURSE_DB;
             this.s_CATALOG_DB        = s_CATALOG_DB;
 
+            // TCP connection settings
+            this.s_IP_ADDRESS        = s_IP_ADDRESS;
+            this.i_TCP_PORT          = i_TCP_PORT;
+
             // static variable changes
             DatabaseHandler.s_logFilePath = s_logFilePath;
         } // end Constructor
@@ -122,17 +135,40 @@ namespace Database_Handler
         /// <param name="args">Unused.</param>
         public static void Main2(string[] args)
         {            
-            WriteToLog(" -- Database Handler was started.");
+            WriteToLog(" -- DBH was started.");
 
             DatabaseHandler DBH;
 
-            if(args.Length == 12) // custom settings for DBH
+            if(args.Length == 14) // custom settings for DBH
             {
-                DBH = new DatabaseHandler(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11]);
+                if (Int32.TryParse(args[13], out int port))
+                {
+                    DBH = new DatabaseHandler(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], port);
+                } // end if
+                else
+                {
+                    WriteToLog(" -- DBH startup failed due to incorrect command line arguments.");
+                    Console.WriteLine("The arguements supplied were not correct.");
+                    Console.WriteLine("Required arguments (14 in total):");
+                    Console.WriteLine("(0)Name of MySql Database\n(1)IP of MySql Database\n(2)Port of MySql Database\n(3)User ID for MySql Database\n(4)Name of MySql table containing user credentials" +
+                                      "\n(5)Name of key in credentials table\n(6)Name of MySql table containing student plans\n(7)Name of key in student plans table\n(8)Name of DB4O student database" +
+                                      "\n(9)Name of DB4O course database\n(10)Name of DB4O catalog database\n(11)Path to log file\n(12)IP address to accept clients from\n(13)TCPIP port to use for clients");
+                    return;
+                } // end else
             } // end if
-            else // default settings for DBH
+            else if(args.Length == 0) // default settings for DBH
             {
                 DBH = new DatabaseHandler();
+            } // end else
+            else
+            {
+                WriteToLog(" -- DBH startup failed due to incorrect command line arguments.");
+                Console.WriteLine("The arguements supplied were not correct.");
+                Console.WriteLine("Required arguments (14 in total):");
+                Console.WriteLine("(0)Name of MySql Database\n(1)IP of MySql Database\n(2)Port of MySql Database\n(3)User ID for MySql Database\n(4)Name of MySql table containing user credentials" +
+                                  "\n(5)Name of key in credentials table\n(6)Name of MySql table containing student plans\n(7)Name of key in student plans table\n(8)Name of DB4O student database" +
+                                  "\n(9)Name of DB4O course database\n(10)Name of DB4O catalog database\n(11)Path to log file\n(12)IP address to accept clients from\n(13)TCPIP port to use for clients");
+                return;
             } // end else
 
 
@@ -140,7 +176,7 @@ namespace Database_Handler
 
             try
             {
-                i_errorCode = DBH.Run();
+                i_errorCode = DBH.RunHost();
 
                 switch (i_errorCode)
                 {
@@ -172,7 +208,7 @@ namespace Database_Handler
                 i_errorCode = -1;
             } // end catch            
             finally
-            {
+            {               
                 try
                 {
                     WriteToLog(" -- DBH is cleaning up...");
@@ -186,7 +222,15 @@ namespace Database_Handler
                 {
                     WriteToLog(" -- DBH clean up was unsuccessfull.");
                     WriteToLog(" -- DBH encountered an exception while cleaning up. Msg: " + e.Message);
-                } // end catch   
+                } // end catch
+                finally
+                {
+                    MySqlLock.Dispose();
+                    StudentLock.Dispose();
+                    CatalogLock.Dispose();
+                    CourseLock.Dispose();
+                    LogLock.Dispose();
+                } // end finally
             } // end finally                    
         } // end Main
     
@@ -194,45 +238,26 @@ namespace Database_Handler
 
         // Run:
         /// <summary>The main program loop. Receives, and executes commands.</summary>
+        /// <param name="stream">The network stream which is used to communicate with the client.</param>
         /// <returns>Error code or 0 if application exited as expected.</returns>
-        private int Run()
+        private int Run(NetworkStream stream)
         {            
-            try
-            {
-                if (SetUp() == 1)
-                {
-                    return 1;
-                } // end if
-            } // end try
-            catch(Exception e)
-            {
-                WriteToLog(" -- DBH setup failed. Msg: " + e.Message);
-                return 3;
-            } // end catch
-
             try
             {
                 for (; ; )
                 {
-                    DatabaseCommand command = WaitForCommand(out string s_sender);
+                    DatabaseCommand command = WaitForCommand(stream);
 
-                    // if the session expires, attempt to reopen it
-                    if (DB_CONNECTION.State != System.Data.ConnectionState.Open)
-                    {
-                        WriteToLog(" -- DBH is attempting to reconnect after losing DB connection.");
-                        AttemptReconnect();
-                    } // end if
-
-                    int i = ExecuteCommand(command, s_sender);
+                    int i = ExecuteCommand(command, stream);
 
                     switch(i)
                     {
                         case 1:
-                            WriteToLog(" -- DBH was not able to send return command due to serialisation error.");
-                            SendResult(new DatabaseCommand(1, "An error occurred while trying to send the requested data."), s_sender);
+                            WriteToLog(" -- DBH was not able to send return command due to an error.");
+                            SendResult(new DatabaseCommand(1, "An error occurred while trying to send the requested data."), stream);
                             break;
                         case 99: // exit command
-                            WriteToLog(" -- DBH received the exit signal and is preparing to exit.");
+                            WriteToLog(" -- DBH client is terminating the connection.");
                             return 0;
                         default:
                             break;
@@ -250,19 +275,118 @@ namespace Database_Handler
             } // end catch
         } // end method Run
 
+        /// <summary>Client thread entry point.</summary>
+        /// <param name="client">The client this thread is responsible for.</param>
+        private void RunClient(Object client)
+        {
+            TcpClient tcpClient = (TcpClient)client;
+            NetworkStream clientStream = tcpClient.GetStream();
+
+
+            int exitCode = 1;
+
+            try
+            {
+                exitCode = Run(clientStream);
+            } // end try
+            catch (Exception e)
+            {
+                WriteToLog(" -- DBH run caused an exception: " + e.Message);
+            } // end catch
+            finally
+            {
+                switch (exitCode)
+                {
+                    case 0:
+                        WriteToLog(" -- DBH Client connection successfully terminated.");
+                        break;
+                    default:
+                        WriteToLog(" -- DBH An error occurred during execution of client thread.");
+                        break;
+                } // end switch
+
+                tcpClient.Close();
+            } // end finally
+        } // end method RunClient
+
+        /// <summary>Host thread handling all client threads, and managing new connections.</summary>
+        /// <returns>Never returns in normal operation, returns error code if a fatal error occurs.</returns>
+        private int RunHost()
+        {
+            var output = 0;
+
+            try
+            {
+                if (SetUp() == 1)
+                {
+                    return 1;
+                } // end if
+            } // end try
+            catch (Exception e)
+            {
+                WriteToLog(" -- DBH setup failed. Msg: " + e.Message);
+                return 3;
+            } // end catch
+
+            Thread stayAlive = new Thread(KeepAlive);
+            stayAlive.Start();
+
+            for(; ; )
+            {
+                TcpClient newClient = tcpListener.AcceptTcpClient();
+                Thread newClientThread = new Thread(RunClient);
+
+                // if the session expires, attempt to reopen it
+                if (DB_CONNECTION.State != System.Data.ConnectionState.Open)
+                {
+                    WriteToLog(" -- DBH is attempting to reconnect after losing DB connection.");
+                    try
+                    {
+                        AttemptReconnect();
+                    } // end try
+                    catch(Exception)
+                    {
+                        output = 2;
+                        
+                        WriteToLog(" -- DBH lost the database connection and is terminating all client threads.");
+                        foreach (Thread t in clientThreads)
+                        {
+                            t.Abort();
+                        } // end foreach
+                        foreach (TcpClient c in clients)
+                        {
+                            c.Close();
+                        } // end foreach
+
+                        stayAlive.Abort();
+
+                        break;
+                    } // end catch
+                } // end if
+
+                clients.Add(newClient);
+                clientThreads.Add(newClientThread);
+                newClientThread.Start(newClient);
+
+                // clean up list in case any connections are gone
+                clients.RemoveAll(null);
+                clientThreads.RemoveAll(delegate (Thread t) { return t.ThreadState == ThreadState.Stopped || !t.IsAlive; });
+            } // end for
+
+            return output;
+        } // end method RunHost
+
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
         // Command methods:
         /// <summary>Unwraps the command type, and executes the specified command.</summary>
         /// <param name="cmd">The command to be executed.</param>
-        /// <param name="s_sender">The sender who will receive the response.</param>
+        /// <param name="stream">The stream to send data back to the client.</param>
         /// <returns>An error code, or 0 if execution was successful.</returns>
-        private int ExecuteCommand(DatabaseCommand cmd, string s_sender)
+        private int ExecuteCommand(DatabaseCommand cmd, NetworkStream stream)
         {
             DatabaseCommand output;
-
-            WriteToLog(" -- DBH is executing a command from " + s_sender + ".");
 
             switch(cmd.CommandType)
             {
@@ -298,7 +422,7 @@ namespace Database_Handler
                     break;
             } // end switch
 
-            return SendResult(output, s_sender);
+            return SendResult(output, stream);
         } // end method ExecuteCommand
 
         /// <summary>Executes a Retrieve command.</summary>
@@ -562,15 +686,13 @@ namespace Database_Handler
         } // end method ExecuteGetSaltCommand
 
         /// <summary>The listener which waits for a command, blocking the run method.</summary>
-        /// <param name="s_sender">The sender who requested an action.</param>
+        /// <param name="stream">Network stream to the connected client.</param>
         /// <returns>The command that is to be executed.</returns>
-        private DatabaseCommand WaitForCommand(out string s_sender)
+        private DatabaseCommand WaitForCommand(NetworkStream stream)
         {           
             byte[] ba_data = new byte[2048];
 
-            int i = TCPMainSocket.Receive(ba_data);
-
-            s_sender = i.ToString();
+            stream.Read(ba_data, 0, 2048);
 
             MemoryStream ms = new MemoryStream(ba_data);
             BinaryFormatter formatter = new BinaryFormatter();
@@ -582,9 +704,9 @@ namespace Database_Handler
 
         /// <summary>Sends the command back to the sender of the initial request.</summary>
         /// <param name="cmd">The return command to be sent.</param>
-        /// <param name="s_sender">The ID of the client who will receive the result.</param>
+        /// <param name="stream">Network stream to send the data back.</param>
         /// <returns>0 or error code.</returns>
-        private int SendResult(DatabaseCommand cmd, string s_sender)
+        private int SendResult(DatabaseCommand cmd, NetworkStream stream)
         {
             MemoryStream ms = new MemoryStream();
             BinaryFormatter formatter = new BinaryFormatter();
@@ -592,7 +714,9 @@ namespace Database_Handler
             try
             {
                 formatter.Serialize(ms, cmd);
-                // TODO send info back via socket to sender
+                byte[] ba_data = ms.ToArray();
+
+                stream.Write(ba_data, 0, ba_data.Length);
             } // end try
             catch (Exception e)
             {
@@ -617,7 +741,7 @@ namespace Database_Handler
             {
                 if (i < 10)
                 {
-                    WriteToLog(" -- A login attempt failed, remaining tries: " + i.ToString());
+                    WriteToLog(" -- DBH A login attempt failed, remaining tries: " + i.ToString());
                     Console.WriteLine("\n\nPassword was invalid. Tries remaining: {0}", i.ToString());
                     Console.Write("Please enter password for {0}: ", s_MYSQL_DB_NAME);
                 } // end if
@@ -654,7 +778,7 @@ namespace Database_Handler
 
                 if (ConnectToDB(ref s_pw))
                 {
-                    WriteToLog(" -- A user sucessfully logged in, remaining tries: " + i.ToString());
+                    WriteToLog(" -- DBH A user sucessfully logged in, remaining tries: " + i.ToString());
                     Console.WriteLine("Login was successful.");
                     return true;
                 } // end if
@@ -678,12 +802,9 @@ namespace Database_Handler
             RNG = new RNGCryptoServiceProvider();
 
             // TCP setup
-            address = IPAddress.Parse("127.0.0.1");
-            tcpListener = new TcpListener(address, 44765); 
+            address = IPAddress.Parse(s_IP_ADDRESS);
+            tcpListener = new TcpListener(address, i_TCP_PORT); 
             
-
-            ba_ressourcesInUse = new bool[4] { false, false, false, false };
-
 
             // retrieve master record from MySql db
             MySqlCommand cmd = GetCommand("-1", 'S', s_PLAN_TABLE, s_PLAN_KEY, "*");
@@ -702,11 +823,10 @@ namespace Database_Handler
                 throw new Exception("Database set up failed because the master record was not found in: " + s_MYSQL_DB_NAME + "." + s_PLAN_TABLE);
             } // end else
 
-
-            // Block until the website connects for the first time
             tcpListener.Start();
-            TCPMainSocket = tcpListener.AcceptSocket();
-            stream = new NetworkStream(TCPMainSocket);
+
+            clientThreads = new List<Thread>();
+            clients = new List<TcpClient>();
 
             return 0;
         } // end method SetUp
@@ -720,7 +840,17 @@ namespace Database_Handler
             } // end if
 
             RNG.Dispose();
-        } // end method CleanUp
+            tcpListener.Stop();
+
+            foreach(TcpClient t in clients)
+            {
+                t.Close();
+            } // end foreach
+            foreach(Thread t in clientThreads)
+            {
+                t.Abort();
+            } // end foreach
+    } // end method CleanUp
 
         /// <summary>Creates a random 256 bit salt for login credentials.</summary>
         /// <returns>A byte array filled with a random sequence of bytes.</returns>
@@ -740,12 +870,14 @@ namespace Database_Handler
             // Variables:
             string s_timeStamp = DateTime.Today.ToLongDateString() + "  " + DateTime.Now.ToLongTimeString();
 
-            StreamWriter log = new StreamWriter(s_logFilePath, true);
+            LogLock.WaitOne();
 
+            StreamWriter log = new StreamWriter(s_logFilePath, true);
 
             log.WriteLine(s_timeStamp + s_msg);
 
             log.Close();
+            LogLock.ReleaseMutex();
         } // end method WriteToLog
 
 
@@ -877,22 +1009,28 @@ namespace Database_Handler
                     case 'S':
                         using (IObjectContainer db = Db4oFactory.OpenFile(s_STUDENT_DB))
                         {
+                            StudentLock.WaitOne();
                             Student student = db.Query(delegate (Student proto) { return proto.ID == s_ID; })[0];
                             db.Close();
+                            StudentLock.ReleaseMutex();
                             return student;
                         } // end using
                     case 'Y':
                         using (IObjectContainer db = Db4oFactory.OpenFile(s_CATALOG_DB))
                         {
+                            CatalogLock.WaitOne();
                             CatalogRequirements catalog = db.Query(delegate (CatalogRequirements proto) { return proto.ID == s_ID; })[0];
                             db.Close();
+                            CatalogLock.ReleaseMutex();
                             return catalog;
                         } // end using
                     case 'C':
                         using (IObjectContainer db = Db4oFactory.OpenFile(s_COURSE_DB))
                         {
+                            CourseLock.WaitOne();
                             Course course = db.Query(delegate (Course proto) { return proto.ID == s_ID; })[0];
                             db.Close();
+                            CourseLock.ReleaseMutex();
                             return course;
                         } // end using
                     default:
@@ -1004,12 +1142,13 @@ namespace Database_Handler
         private void UpdateRecord(char c_type, Database_Object dbo)
         {
             try
-            {
+            {          
                 switch (c_type)
                 {
                     case 'S':
                         using (IObjectContainer db = Db4oFactory.OpenFile(s_STUDENT_DB))
                         {
+                            StudentLock.WaitOne();
                             Student student = db.Query(delegate (Student proto) { return proto.ID == dbo.ID; })[0];
                             db.Delete(student);
                             Student s = (Student)dbo; // cast to correct type to avoid slicing
@@ -1017,11 +1156,13 @@ namespace Database_Handler
                             db.Store(s);
                             db.Commit();
                             db.Close();
+                            StudentLock.ReleaseMutex();
                         } // end using
                         break;
                     case 'Y':
                         using (IObjectContainer db = Db4oFactory.OpenFile(s_CATALOG_DB))
                         {
+                            CatalogLock.WaitOne();
                             CatalogRequirements catalog = db.Query(delegate (CatalogRequirements proto) { return proto.ID == dbo.ID; })[0];
                             db.Delete(catalog);
                             CatalogRequirements y = (CatalogRequirements)dbo; // cast to correct type to avoid slicing
@@ -1029,11 +1170,13 @@ namespace Database_Handler
                             db.Store(y);
                             db.Commit();
                             db.Close();
+                            CatalogLock.ReleaseMutex();
                         } // end using
                         break;
                     case 'C':
                         using (IObjectContainer db = Db4oFactory.OpenFile(s_COURSE_DB))
                         {
+                            CourseLock.WaitOne();
                             Course course = db.Query(delegate (Course proto) { return proto.ID == dbo.ID; })[0];
                             db.Delete(course);
                             Course c = (Course)dbo; // cast to correct type to avoid slicing
@@ -1041,6 +1184,7 @@ namespace Database_Handler
                             db.Store(c);
                             db.Commit();
                             db.Close();
+                            CourseLock.ReleaseMutex();
                         } // end using
                         break;
                     default:
@@ -1066,31 +1210,37 @@ namespace Database_Handler
                     case 'S':
                         using (IObjectContainer db = Db4oFactory.OpenFile(s_STUDENT_DB))
                         {
+                            StudentLock.WaitOne();
                             Student s = (Student)dbo;
                             s.ObjectAltered();
                             db.Store(s);
                             db.Commit();
                             db.Close();
+                            StudentLock.ReleaseMutex();
                         } // end using
                         break;
                     case 'Y':
                         using (IObjectContainer db = Db4oFactory.OpenFile(s_CATALOG_DB))
                         {
+                            CatalogLock.WaitOne();
                             CatalogRequirements c = (CatalogRequirements)dbo;
                             c.ObjectAltered();
                             db.Store(c);
                             db.Commit();
                             db.Close();
+                            CatalogLock.ReleaseMutex();
                         } // end using
                         break;
                     case 'C':
                         using (IObjectContainer db = Db4oFactory.OpenFile(s_COURSE_DB))
                         {
+                            CourseLock.WaitOne();
                             Course c = (Course)dbo;
                             c.ObjectAltered();
                             db.Store(c);
                             db.Commit();
                             db.Close();
+                            CourseLock.ReleaseMutex();
                         } // end using
                         break;
                     default:
@@ -1120,28 +1270,34 @@ namespace Database_Handler
                     case 'S':
                         using (IObjectContainer db = Db4oFactory.OpenFile(s_STUDENT_DB))
                         {
+                            StudentLock.WaitOne();
                             Student student = db.Query(delegate (Student proto) { return proto.ID == s_ID; })[0];
                             db.Delete(student);
                             db.Commit();
                             db.Close();
+                            StudentLock.ReleaseMutex();
                         } // end using
                         break;
                     case 'Y':
                         using (IObjectContainer db = Db4oFactory.OpenFile(s_CATALOG_DB))
                         {
+                            CatalogLock.WaitOne();
                             CatalogRequirements catalog = db.Query(delegate (CatalogRequirements proto) { return proto.ID == s_ID; })[0];
                             db.Delete(catalog);
                             db.Commit();
                             db.Close();
+                            CatalogLock.ReleaseMutex();
                         } // end using
                         break;
                     case 'C':
                         using (IObjectContainer db = Db4oFactory.OpenFile(s_COURSE_DB))
                         {
+                            CourseLock.WaitOne();
                             Course course = db.Query(delegate (Course proto) { return proto.ID == s_ID; })[0];
                             db.Delete(course);
                             db.Commit();
                             db.Close();
+                            CourseLock.ReleaseMutex();
                         } // end using
                         break;
                     default:
@@ -1153,7 +1309,6 @@ namespace Database_Handler
                 WriteToLog(" -- DBH delete failed of DB4O object of type " + c_type + ". Msg: " + e.Message);
                 return 1;
             } // end catch
-
 
             return 0;
         } // end method DeleteRecord
@@ -1180,45 +1335,54 @@ namespace Database_Handler
 
             MySqlCommand cmd = GetCommand(s_ID, 'S', s_PLAN_TABLE, s_PLAN_KEY, "*");
 
+            MySqlLock.WaitOne();
 
             reader = cmd.ExecuteReader();
-
             reader.Read();
 
-            if (reader.HasRows)
+            try
             {
-                // Variables:
-                int i_offset = 3; // offset for the SID, WP, and start quarter columns
-                int i_fields = reader.FieldCount - i_offset; // number of rows in actual plan
-
-
-                sa_data = new string[i_fields];
-
-                ui_WP = reader.GetUInt32(1);
-                s_qtr = reader.GetString(2);
-
-                // extract classes in plan
-                for (int i = 0; i < i_fields; i++)
+                if (reader.HasRows)
                 {
-                    string temp = reader.GetString(i + i_offset);
+                    // Variables:
+                    int i_offset = 3; // offset for the SID, WP, and start quarter columns
+                    int i_fields = reader.FieldCount - i_offset; // number of rows in actual plan
 
-                    if (temp != null)
+
+                    sa_data = new string[i_fields];
+
+                    ui_WP = reader.GetUInt32(1);
+                    s_qtr = reader.GetString(2);
+
+                    // extract classes in plan
+                    for (int i = 0; i < i_fields; i++)
                     {
-                        sa_data[i] = string.Copy(temp);
-                    } // end if
-                    else
-                    {
-                        break;
-                    } // end else
-                } // end while
-            } // end if
-            else // if the reader has no rows, then the key doesn't exist in the DB
+                        string temp = reader.GetString(i + i_offset);
+
+                        if (temp != null)
+                        {
+                            sa_data[i] = string.Copy(temp);
+                        } // end if
+                        else
+                        {
+                            break;
+                        } // end else
+                    } // end while
+                } // end if
+                else // if the reader has no rows, then the key doesn't exist in the DB
+                {
+                    throw new KeyNotFoundException(s_ID);
+                } // end else
+            } // end try
+            catch(Exception e)
+            {
+                throw e;
+            } // end catch
+            finally
             {
                 reader.Close();
-                throw new KeyNotFoundException(s_ID);
-            } // end else
-
-            reader.Close();
+                MySqlLock.ReleaseMutex();
+            } // end finally            
 
             return new PlanInfo(s_ID, ui_WP, s_qtr, sa_data);
         } // end method RetrieveStudentPlan
@@ -1236,32 +1400,42 @@ namespace Database_Handler
 
             MySqlCommand cmd = GetCommand(s_ID, 'S', s_CREDENTIALS_TABLE, s_CREDENTIALS_KEY, "*");
 
+            MySqlLock.WaitOne();
 
             reader = cmd.ExecuteReader();
-
             reader.Read();
 
-            if (reader.HasRows)
+            try
             {
-                // Variables:
-                byte[] ba_salt = new byte[i_SALT_LENGTH];
+                if (reader.HasRows)
+                {
+                    // Variables:
+                    byte[] ba_salt = new byte[i_SALT_LENGTH];
 
-                bool b_isAdmin = reader.GetBoolean(3),
-                    b_isActive = reader.GetBoolean(5);
+                    bool b_isAdmin = reader.GetBoolean(3),
+                        b_isActive = reader.GetBoolean(5);
 
-                uint i_WP = reader.GetUInt32(1);
+                    uint i_WP = reader.GetUInt32(1);
 
-                reader.GetBytes(4, 0, ba_salt, 0, i_SALT_LENGTH);
+                    reader.GetBytes(4, 0, ba_salt, 0, i_SALT_LENGTH);
 
-                credentials = new Credentials(s_ID, i_WP, b_isAdmin, b_isActive, ba_salt);
-            } // end if
-            else
+                    credentials = new Credentials(s_ID, i_WP, b_isAdmin, b_isActive, ba_salt);
+                } // end if
+                else
+                {
+                    reader.Close();
+                    throw new KeyNotFoundException(s_ID);
+                } // end else
+            } // end try
+            catch (Exception e)
+            {
+                throw e;
+            } // end catch
+            finally
             {
                 reader.Close();
-                throw new KeyNotFoundException(s_ID);
-            } // end else
-
-            reader.Close();
+                MySqlLock.ReleaseMutex();
+            } // end finally
 
             return credentials;
         } // end method RetrieveUserCredentials
@@ -1281,6 +1455,8 @@ namespace Database_Handler
             try
             {
                 MySqlCommand cmd = GetCommand(plan.StudentID, 'S', s_PLAN_TABLE, s_PLAN_KEY, "*");
+
+                MySqlLock.WaitOne();
 
                 MySqlDataReader reader = cmd.ExecuteReader();
 
@@ -1348,6 +1524,10 @@ namespace Database_Handler
             {
                 WriteToLog(" -- DBH update failed for the student plan with ID: " + plan.StudentID + " Msg: " + e.Message);
             } // end catch
+            finally
+            {
+                MySqlLock.ReleaseMutex();
+            } // end finally
 
             return 0;
         } // end method Update
@@ -1367,6 +1547,8 @@ namespace Database_Handler
             try
             {
                 MySqlCommand cmd = GetCommand(credentials.UserName, 'S', s_CREDENTIALS_TABLE, s_CREDENTIALS_KEY, "*");
+
+                MySqlLock.WaitOne();
 
                 MySqlDataReader reader = cmd.ExecuteReader();
 
@@ -1401,13 +1583,18 @@ namespace Database_Handler
                 WriteToLog(" -- DBH update failed for the user credentials with username: " + credentials.UserName + " Msg: " + e.Message);
                 output = 1;
             } // end catch
-            
+            finally
+            {
+                MySqlLock.ReleaseMutex();
+            } // end finally
+
             return output;
         } // end method Update
         
         /// <summary>Creates a new user with the specified properties.</summary>
         /// <param name="credentials">Should contain the username, and isAdmin fields. Others will be ignored.</param>
         /// <returns>True if creation was successful, false otherwise.</returns>
+        /// <remarks>The database is already locked upon entering this method, thus, it does not lock the database itself.</remarks>
         private int CreateUser(Credentials credentials)
         {
             var output = 1;
@@ -1446,6 +1633,7 @@ namespace Database_Handler
 
             MySqlCommand cmd = GetCommand(s_ID, 'U', s_CREDENTIALS_TABLE, s_CREDENTIALS_KEY, "password", "\"" + Utilities.SecureStringToString(ss_pw) + "\"");
 
+            MySqlLock.WaitOne();
 
             try
             {
@@ -1461,6 +1649,7 @@ namespace Database_Handler
             {
                 cmd.CommandText = null;
                 ss_pw.Dispose();
+                MySqlLock.ReleaseMutex();
             } // end finally
 
             return output;
@@ -1479,7 +1668,7 @@ namespace Database_Handler
             } // end try
             catch (KeyNotFoundException e)
             {
-                WriteToLog(" -- The user " + s_ID + " does not exist, status could not be changed. Msg: " + e.Message);
+                WriteToLog(" -- DBH The user " + s_ID + " does not exist, status could not be changed. Msg: " + e.Message);
                 return 1;
             } // end catch
 
@@ -1487,16 +1676,21 @@ namespace Database_Handler
 
             try
             {
+                MySqlLock.WaitOne();
                 cmd.ExecuteNonQuery();
             } // end try
             catch(Exception e)
             {
-                WriteToLog(" -- The user " + s_ID + "'s status could not be changed. Msg: " + e.Message);
+                WriteToLog(" -- DBH The user " + s_ID + "'s status could not be changed. Msg: " + e.Message);
                 return 1;
             } // end catch
+            finally
+            {
+                MySqlLock.ReleaseMutex();
+            } // end finally
 
             return 0;
-        }
+        } // end method ChangeUserStatus
 
         // MySQL delete methods:
         /// <summary>Deletes a record from the credentials database.</summary>
@@ -1511,6 +1705,7 @@ namespace Database_Handler
 
             try
             {
+                MySqlLock.WaitOne();
                 cmd.ExecuteNonQuery();
                 output = 0;
             } // end try
@@ -1518,6 +1713,10 @@ namespace Database_Handler
             {
                 WriteToLog(" -- DBH could not delete the user " + cred.UserName + ". Msg: " + e.Message);
             } // end catch
+            finally
+            {
+                MySqlLock.ReleaseMutex();
+            } // end finally
 
             return output;
         } // end method DeleteRecord
@@ -1534,6 +1733,7 @@ namespace Database_Handler
 
             try
             {
+                MySqlLock.WaitOne();
                 cmd.ExecuteNonQuery();
                 output = 0;
             } // end try
@@ -1541,6 +1741,10 @@ namespace Database_Handler
             {
                 WriteToLog(" -- DBH could not delete the plan belonging to " + plan.StudentID + ". Msg: " + e.Message);
             } // end catch
+            finally
+            {
+                MySqlLock.ReleaseMutex();
+            } // end finally
 
             return output;
         } // end method DeleteRecord
@@ -1800,6 +2004,24 @@ namespace Database_Handler
             } // end catch
         } // end method AttemptReconnect
 
+        /// <summary>Keeps the DB_CONNECTION alive by accessing the DB every 2 minutes</summary>
+        private void KeepAlive()
+        {
+            for (; ; )
+            {
+                MySqlCommand cmd = GetCommand("-1", 'S', s_PLAN_TABLE, s_PLAN_KEY, "*");
+
+                MySqlLock.WaitOne();
+
+                MySqlDataReader reader = cmd.ExecuteReader();
+                reader.Close();
+
+                MySqlLock.ReleaseMutex();
+
+                Thread.Sleep(120000);
+            } // end for
+        } // end method KeepAlive
+
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -1826,6 +2048,8 @@ namespace Database_Handler
             string query = "DROP TABLE IF EXISTS " + s_MYSQL_DB_NAME + "." + s_PLAN_TABLE + ";";
 
             MySqlCommand cmd = new MySqlCommand(query, DB_CONNECTION);
+
+            MySqlLock.WaitOne();
             cmd.ExecuteNonQuery();
 
             // create the student plan table
@@ -1844,6 +2068,7 @@ namespace Database_Handler
 
             cmd.CommandText = query;
             cmd.ExecuteNonQuery();
+            MySqlLock.ReleaseMutex();
         } // end method MakeStudentPlanTable
 
         /// <summary>Creates the User Credentials table in the MySQL database.</summary>
@@ -1866,6 +2091,8 @@ namespace Database_Handler
             string query = "DROP TABLE IF EXISTS " + s_MYSQL_DB_NAME + "." + s_CREDENTIALS_TABLE + ";";
 
             MySqlCommand cmd = new MySqlCommand(query, DB_CONNECTION);
+
+            MySqlLock.WaitOne();
             cmd.ExecuteNonQuery();
 
             // create the student plan table
@@ -1878,6 +2105,7 @@ namespace Database_Handler
             query += "\nUNIQUE INDEX password_salt_UNIQUE (password_salt ASC));";
 
             cmd.ExecuteNonQuery();
+            MySqlLock.ReleaseMutex();
         } // end method MakeCredentialsTable
 
         /// <summary>Adds k columns to the student_plans table and updates the master record accordingly.</summary>
@@ -1940,7 +2168,7 @@ namespace Database_Handler
         {
             //SetUp();
 
-            DatabaseCommand cmd = WaitForCommand(out string sender);
+            DatabaseCommand cmd = new DatabaseCommand();
             Course a;
             Credentials d;
             Student b;

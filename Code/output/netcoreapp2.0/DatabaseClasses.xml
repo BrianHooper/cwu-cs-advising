@@ -268,9 +268,21 @@
             <summary>Getter/Setter for the season member of this quarter.</summary>
         </member>
         <member name="M:Database_Object_Classes.Quarter.op_Increment(Database_Object_Classes.Quarter)">
-            <summary>Prefix increment operator</summary>
+            <summary>Postfix increment operator</summary>
             <param name="q">Operand</param>
             <returns>The next quarter.</returns>
+        </member>
+        <member name="M:Database_Object_Classes.Quarter.op_Equality(Database_Object_Classes.Quarter,Database_Object_Classes.Quarter)">
+            <summary>Equality operator.</summary>
+            <param name="lhs">Left-hand side operand.</param>
+            <param name="rhs">Right-hand side operand.</param>
+            <returns>True iff lhs is the same as rhs, otherwise false.</returns>
+        </member>
+        <member name="M:Database_Object_Classes.Quarter.op_Inequality(Database_Object_Classes.Quarter,Database_Object_Classes.Quarter)">
+            <summary>Inequality operator.</summary>
+            <param name="lhs">Left-hand side operand.</param>
+            <param name="rhs">Right-hand side operand.</param>
+            <returns>True iff lhs is not the same as rhs, otherwise false.</returns>
         </member>
         <member name="M:Database_Object_Classes.Quarter.ToString">
             <summary>For outputting Quarters to console.</summary>

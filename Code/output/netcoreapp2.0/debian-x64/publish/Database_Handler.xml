@@ -1,0 +1,551 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Database_Handler</name>
+    </assembly>
+    <members>
+        <member name="T:Database_Handler.CommandType">
+            <summary>Enum for command types.</summary>
+        </member>
+        <member name="F:Database_Handler.CommandType.Retrieve">
+            <summary>Retrieve command.</summary>
+        </member>
+        <member name="F:Database_Handler.CommandType.Login">
+            <summary>Login command.</summary>
+        </member>
+        <member name="F:Database_Handler.CommandType.ChangePW">
+            <summary>Change user password command.</summary>
+        </member>
+        <member name="F:Database_Handler.CommandType.Update">
+            <summary>Update command.</summary>
+        </member>
+        <member name="F:Database_Handler.CommandType.Delete">
+            <summary>Delete command.</summary>
+        </member>
+        <member name="F:Database_Handler.CommandType.DisplayStudents">
+            <summary>Display student list command.</summary>
+        </member>
+        <member name="F:Database_Handler.CommandType.DisplayCourses">
+            <summary>Display course list command.</summary>
+        </member>
+        <member name="F:Database_Handler.CommandType.GetSalt">
+            <summary>Get password salt command.</summary>
+        </member>
+        <member name="F:Database_Handler.CommandType.Return">
+            <summary>Result from DBH.</summary>
+        </member>
+        <member name="F:Database_Handler.CommandType.Disconnect">
+            <summary>Terminates the connection to DBH, and kills the running DBH thread.</summary>
+        </member>
+        <member name="T:Database_Handler.OperandType">
+            <summary>Enum for operand types.</summary>
+        </member>
+        <member name="F:Database_Handler.OperandType.Student">
+            <summary>Student operand.</summary>
+        </member>
+        <member name="F:Database_Handler.OperandType.Course">
+            <summary>Course operand.</summary>
+        </member>
+        <member name="F:Database_Handler.OperandType.CatalogRequirements">
+            <summary>CatalogRequirements operand.</summary>
+        </member>
+        <member name="F:Database_Handler.OperandType.PlanInfo">
+            <summary>PlanInfo operand.</summary>
+        </member>
+        <member name="F:Database_Handler.OperandType.Credentials">
+            <summary>Credentials operand.</summary>
+        </member>
+        <member name="T:Database_Handler.DatabaseCommand">
+            <summary>Wrapper class for Database instructions.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseCommand.ct_commandType">
+            <summary>Type of Command to execute.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseCommand.o_operand">
+            <summary>The operand to execute the command on.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseCommand.l_students">
+            <summary>A list of students for display students command.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseCommand.l_courses">
+            <summary>A list of courses for display courses command.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseCommand.ot_type">
+            <summary>The type of the o_operand object.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseCommand.i_returnCode">
+            <summary>Return code of a return command, will either be 0 (no error) or an error code.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseCommand.s_errorMsg">
+            <summary>If i_returnCode is not 0, there will be an error message contained in this variable.</summary>
+        </member>
+        <member name="M:Database_Handler.DatabaseCommand.#ctor(Database_Handler.CommandType,Database_Object_Classes.Database_Object,Database_Handler.OperandType)">
+            <summary>Constructor for DB4O commands.</summary>
+            <param name="ct">Type of command.</param>
+            <param name="dbo">The operand for this command.</param>
+            <param name="ot">The type of this operand.</param>
+        </member>
+        <member name="M:Database_Handler.DatabaseCommand.#ctor(Database_Handler.CommandType,Database_Object_Classes.Credentials)">
+            <summary>Constructor for MySQL credentials commands.</summary>
+            <param name="ct">The type of command.</param>
+            <param name="cred">The operand credentials.</param>
+        </member>
+        <member name="M:Database_Handler.DatabaseCommand.#ctor(Database_Handler.CommandType,Database_Object_Classes.PlanInfo)">
+            <summary>Constructor for MySQL plan commands.</summary>
+            <param name="ct">Type of command to execute.</param>
+            <param name="plan">The operand plan.</param>
+        </member>
+        <member name="M:Database_Handler.DatabaseCommand.#ctor(Database_Handler.CommandType)">
+            <summary>Constructor for creating a display students command.</summary>
+            <param name="ct">Command type for this command.</param>
+            <remarks>The argument must be DisplayStudents/DisplayCourses or Disconnect.</remarks>
+        </member>
+        <member name="M:Database_Handler.DatabaseCommand.#ctor(System.Int32,System.String,System.Collections.Generic.List{Database_Object_Classes.Student},System.Collections.Generic.List{Database_Object_Classes.Course})">
+            <summary>Constructor for postback from DBH; contains relevant info about execution of the command.</summary>
+            <param name="code">The error code, or 0 if execution was successful.</param>
+            <param name="msg">A message detailing an error, "No Errors" if no issues occurred.</param>
+            <param name="students">A list of students for the display students command.</param>
+            <param name="courses">A list of courses for the display courses command.</param>
+            <remarks>This command type should not be sent to DBH, it is only intended for DBH to return information to the client.</remarks>
+        </member>
+        <member name="P:Database_Handler.DatabaseCommand.ReturnCode">
+            <summary>Getter for the error code.</summary>
+            <remarks>0 means normal execution, 99 means disconnect command received, and everything else is an error (specified in error message).</remarks>
+        </member>
+        <member name="P:Database_Handler.DatabaseCommand.ErrorMessage">
+            <summary>Getter for the error message.</summary>
+        </member>
+        <member name="P:Database_Handler.DatabaseCommand.CommandType">
+            <summary>Getter for the type of command.</summary>
+        </member>
+        <member name="P:Database_Handler.DatabaseCommand.OperandType">
+            <summary>Getter for the type of operand.</summary>
+        </member>
+        <member name="P:Database_Handler.DatabaseCommand.StudentList">
+            <summary>Getter for the list of students for a display command.</summary>
+        </member>
+        <member name="P:Database_Handler.DatabaseCommand.Operand">
+            <summary>Getter for the operand.</summary>
+        </member>
+        <member name="T:Database_Handler.DatabaseHandler">
+            <summary>Database Handler is the middleman between the website and the databases. It retrieves, updates, creates, and deletes database entries.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseHandler.i_HASH_ITERATIONS">
+            <summary>The number of iterations for hashing the password.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseHandler.s_logFilePath">
+            <summary>The path to the log file which will contain the log entries created by DBH.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseHandler.s_MYSQL_DB_NAME">
+            <summary>Names of all database related components.</summary>
+            <remarks>These can be set using the constructor, or the defaults can be used.</remarks>
+        </member>
+        <member name="F:Database_Handler.DatabaseHandler.i_SALT_LENGTH">
+            <summary>The length, in bytes, of the password salt.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseHandler.ui_COL_COUNT">
+            <summary>The length of the longest plan in the s_PLAN_TABLE mysql table, stored in the master record.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseHandler.ba_ressourcesInUse">
+            <summary>This keeps track of which resources are currently in use, to prevent threads from trying to access the same resources.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseHandler.DB_CONNECTION">
+            <summary>The master connection to the MySql database, which should never be closed, except during cleanup.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseHandler.RNG">
+            <summary>A RNG for building password salts.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseHandler.tcpListener">
+            <summary>The main Tcp Listener which talks with the main Website thread.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseHandler.address">
+            <summary>Localhost IP address for the Tcp Socket</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseHandler.TCPMainSocket">
+            <summary>The main Tcp Socket used to establish a connection with the website.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseHandler.stream">
+            <summary>The network stream used to received data via the Tcp Socket.</summary>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.#ctor">
+            <summary>Default Constructor</summary>
+            <remarks>This constructor does nothing, it will use all default values for variables.</remarks>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.#ctor(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String)">
+            <summary>Constructor which sets the database information for this DBH object to the given values.</summary>
+            <param name="s_MYSQL_DB_NAME">Name of the MySQL database, e.g. test_db.</param>
+            <param name="s_MYSQL_DB_SERVER">Name of the server hosting the MySQL db, e.g. localhost.</param>
+            <param name="s_MYSQL_DB_PORT">Port of the MySQL database in arg 1, e.g. 3306.</param>
+            <param name="s_MYSQL_DB_USER_ID">User ID that this DBH object should use to log in to the MySQL db, e.g. test_user.</param>
+            <param name="s_CREDENTIALS_TABLE">Name of the user credentials table, e.g. user_credentials.</param>
+            <param name="s_CREDENTIALS_KEY">Key used by the user credentials table, e.g. username.</param>
+            <param name="s_PLAN_TABLE">Name of the student plan table, e.g. student_plans.</param>
+            <param name="s_PLAN_KEY">Key used by the student plan table, e.g. SID.</param>
+            <param name="s_STUDENT_DB">Path of the student database, e.g. students.db4o.</param>
+            <param name="s_COURSE_DB">Path of the course database, e.g. courses.db4o</param>
+            <param name="s_CATALOG_DB">Path of the catalog database, e.g. catalogs.db4o</param>
+            <param name="s_logFilePath">Path of the DBH log file to use, e.g. log.txt</param>
+            <remarks>Changes made by the constructor are not persistent, upon restarting, the default values will be used again.</remarks>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.Main2(System.String[])">
+            <summary>Program entry point. Initializes program and handles fatal errors.</summary>
+            <param name="args">Unused.</param>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.Run">
+            <summary>The main program loop. Receives, and executes commands.</summary>
+            <returns>Error code or 0 if application exited as expected.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.ExecuteCommand(Database_Handler.DatabaseCommand,System.String)">
+            <summary>Unwraps the command type, and executes the specified command.</summary>
+            <param name="cmd">The command to be executed.</param>
+            <param name="s_sender">The sender who will receive the response.</param>
+            <returns>An error code, or 0 if execution was successful.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.ExecuteRetrieveCommand(Database_Handler.DatabaseCommand)">
+            <summary>Executes a Retrieve command.</summary>
+            <param name="cmd">Command containing object to be retrieved.</param>
+            <returns>A return command containing information about execution success, and, if successful, the requested data.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.ExecuteUpdateCommand(Database_Handler.DatabaseCommand)">
+            <summary>Executes an Update command.</summary>
+            <param name="cmd">Command containing object to be updated.</param>
+            <returns>A return command containing information about execution success.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.ExecuteDeleteCommand(Database_Handler.DatabaseCommand)">
+            <summary>Executes a Delete command.</summary>
+            <param name="cmd">Command containing object to be deleted.</param>
+            <returns>A return command containing information about execution success.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.ExecuteLoginCommand(Database_Handler.DatabaseCommand)">
+            <summary>Executes a login command.</summary>
+            <param name="cmd">Command containing credentials of user trying to login.</param>
+            <returns>A return command containing information about execution success.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.ExecutePasswordChangeCommand(Database_Handler.DatabaseCommand)">
+            <summary>Executes a password change.</summary>
+            <param name="cmd">Command containing credentials of user trying to change password.</param>
+            <returns>A return command containing information about execution success.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.ExecuteDisplayStudentsCommand">
+            <summary>Executes a display students command.</summary>
+            <returns>A return command containing a list of all students in the database.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.ExecuteDisplayCoursesCommand">
+            <summary>Executes a display courses command.</summary>
+            <returns>A return command containing a list of all courses in the database.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.ExecuteGetSaltCommand(Database_Handler.DatabaseCommand)">
+            <summary>Executes a retrieve password salt command.</summary>
+            <param name="cmd">Command containing the credentials of the user whose salt is to be retrieved.</param>
+            <returns>A return command containing the password salt for the requested user.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.WaitForCommand(System.String@)">
+            <summary>The listener which waits for a command, blocking the run method.</summary>
+            <param name="s_sender">The sender who requested an action.</param>
+            <returns>The command that is to be executed.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.SendResult(Database_Handler.DatabaseCommand,System.String)">
+            <summary>Sends the command back to the sender of the initial request.</summary>
+            <param name="cmd">The return command to be sent.</param>
+            <param name="s_sender">The ID of the client who will receive the result.</param>
+            <returns>0 or error code.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.Login">
+            <summary>Logs the DBH into the MySQL database.</summary>
+            <returns>True if successful, false otherwise.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.SetUp">
+            <summary>Sets up all necessary components for DBH.</summary>
+            <returns>An error code or 0 if setup was successful.</returns>
+            <exception cref="T:System.Exception">Thrown if it the master record could not be retrieved from the database.</exception>
+            <remarks>Setup will block until an initial website connection is established.</remarks>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.CleanUp">
+            <summary>Cleans up after DBH is closed.</summary>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.GetPasswordSalt">
+            <summary>Creates a random 256 bit salt for login credentials.</summary>
+            <returns>A byte array filled with a random sequence of bytes.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.WriteToLog(System.String)">
+            <summary>Writes the given message into the DBH log with a current time stamp.</summary>
+            <param name="s_msg">The message to log.</param>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.LoginAttempt(System.String,System.Security.SecureString,System.Boolean@)">
+            <summary>Checks the password entered by a user against the database record.</summary>
+            <param name="s_ID">The username of the person attempting to log in.</param>
+            <param name="ss_pw">A secure string containing the user's password.</param>
+            <param name="b_isAdmin">Return parameter, indicates whether the user is an admin or not.</param>
+            <returns>True if the password entered matches the database record and out parameter b_isAdmin.</returns>
+            <remarks>The parameter ss_pw will be destroyed during method execution, and can not be used afterwards.</remarks>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.Retrieve(System.String,System.Char)">
+            <summary>Retrieves an object from the specified database.</summary>
+            <param name="s_ID">The key associated with this object.</param>
+            <param name="c_type">The type of object to retrieve.</param>
+            <returns>The requested object.</returns>
+            <exception cref="T:Database_Handler.RetrieveError">Thrown if an invalid type is passed in arg 2.</exception>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.RetrieveHelper(System.String,System.Char)">
+            <summary>Retrieves the requested object from the appropriate database.</summary>
+            <param name="s_ID">The key of the specified object.</param>
+            <param name="c_type">The type of object to retrieve.</param>
+            <returns>The requested object, or null if the object was not found.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.Update(System.Char,Database_Object_Classes.Database_Object,System.String@)">
+            <summary>Updates the specified object by either adding it to the DB, or updating an existing object.</summary>
+            <param name="c_type">The type of object passed in arg 2.</param>
+            <param name="dbo">The object to update.</param>
+            <param name="s_msg">Error message, empty if no error is encountered.</param>
+            <returns>An error code, or 0 if update was successful.</returns>
+            <remarks>
+                        Return codes:
+                        0  - success
+                        1  - arg 2 was null 
+                        2  - Write protection error
+                        -1 - Unknown exception occurred
+            </remarks>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.UpdateHelper(System.Char,Database_Object_Classes.Database_Object)">
+            <summary>Helper method for <see cref="M:Database_Handler.DatabaseHandler.Update(System.Char,Database_Object_Classes.Database_Object,System.String@)"/>.</summary>
+            <param name="c_type">Type of object to update.</param>
+            <param name="dbo">Object to update.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when the object in arg 2 is null.</exception>
+            <exception cref="T:System.InvalidOperationException">Thrown if the update fails due to write protection.</exception>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.UpdateRecord(System.Char,Database_Object_Classes.Database_Object)">
+            <summary>Updates an existing record.</summary>
+            <param name="c_type">The type of object to update.</param>
+            <param name="dbo">The new state of the object.</param>
+            <exception cref="T:System.ArgumentException">Thrown if an invalid input is passed.</exception>
+            <remarks>
+                     The existing object will be destroyed, the new object should be a copy of the old
+                     object with the desired changes.
+            </remarks>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.CreateRecord(System.Char,Database_Object_Classes.Database_Object)">
+            <summary>Creates a new record for the specified object.</summary>
+            <param name="c_type">The type of object being passed.</param>
+            <param name="dbo">The object to store.</param>
+            <exception cref="T:System.ArgumentException">Thrown if an invalid input is passed.</exception>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.DeleteRecord(System.Char,System.String)">
+            <summary>Deletes the object with specified ID from the appropriate DB4O database.</summary>
+            <param name="c_type">The type of object to delete.</param>
+            <param name="s_ID">The ID of the object to delete.</param>
+            <returns>True if deletion was successful, otherwise false.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.RetrieveStudentPlan(System.String)">
+            <summary>Retrieves the requested student plan information from the database.</summary>
+            <param name="s_ID">The key associated with the requested plan.</param>
+            <returns>A PlanInfo structure containing the requested info.</returns>
+            <exception cref="T:System.Collections.Generic.KeyNotFoundException">Thrown if the key passed in arg 1 does not exist in the database.</exception>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.RetrieveUserCredentials(System.String)">
+            <summary>Retrieves the requested user credentials from the database.</summary>
+            <param name="s_ID">The key associated with the requested credentials.</param>
+            <returns>A Credentials structure containing the requested info.</returns>
+            <exception cref="T:System.Collections.Generic.KeyNotFoundException">Thrown if the key passed in arg 1 does not exist in the database.</exception>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.Update(Database_Object_Classes.PlanInfo)">
+            <summary>Updates a student plan in the MySQL database.</summary>
+            <param name="plan">The plan to update.</param>
+            <returns>True if successful, otherwise false.</returns>
+            <remarks>
+                    If no plan with plan.StudentID exists, a new plan is created.
+            </remarks>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.Update(Database_Object_Classes.Credentials)">
+            <summary>Updates a credentials record in the MySQL database.</summary>
+            <param name="credentials">The credentials to update.</param>
+            <returns>True if successful, otherwise false.</returns>
+            <remarks>
+                    If no user with credentials.UserName exists, a new user is created.
+                    The new user will have a blank password, and UpdatePassword must be called
+                    to activate the user, and assign a password.
+            </remarks>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.CreateUser(Database_Object_Classes.Credentials)">
+            <summary>Creates a new user with the specified properties.</summary>
+            <param name="credentials">Should contain the username, and isAdmin fields. Others will be ignored.</param>
+            <returns>True if creation was successful, false otherwise.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.ChangePassword(System.String,System.Security.SecureString,System.Boolean)">
+            <summary>Changes the password of the specified user.</summary>
+            <param name="s_ID">The username of the person whose password is to be changed.</param>
+            <param name="ss_pw">The new password, in a secure string.</param>
+            <param name="b_activeStatus">Whether or not this user should be activated.</param>
+            <returns>True if the password change was successful, otherwise false.</returns>
+            <remarks>The password in the secure string object should already be hashed when it is received here. Otherwise a plain text password is stored.</remarks>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.ChangeUserStatus(System.String,System.Boolean)">
+            <summary>Activates/Deactivates a user account.</summary>
+            <param name="s_ID">The username of the account to activate/deactivate.</param>
+            <param name="b_newStatus">The new status. True = active, False = inactive.</param>
+            <returns>0 or an error code.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.DeleteRecord(Database_Object_Classes.Credentials)">
+            <summary>Deletes a record from the credentials database.</summary>
+            <param name="cred">The user to delete.</param>
+            <returns>0 or error code.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.DeleteRecord(Database_Object_Classes.PlanInfo)">
+            <summary>Deletes a record from the graduation plan database.</summary>
+            <param name="plan">The plan to delete.</param>
+            <returns>0 or error code.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.GetInsertQuery(System.String,System.String)">
+            <summary>Creates an insert query based on the input.</summary>
+            <param name="s_table">Table to insert to.</param>
+            <param name="s_values">Values for the new row.</param>
+            <returns>A ready to go insert sql query.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.GetInsertValues(Database_Object_Classes.PlanInfo)">
+            <summary>Creates the values string for a PlanInfo object.</summary>
+            <param name="plan">The plan to be inserted into the DB.</param>
+            <returns>A formated string containing the values to be inserted.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.GetInsertValues(Database_Object_Classes.Credentials)">
+            <summary>Creates the values string for a Credentials object.</summary>
+            <param name="credentials">The credentials to insert.</param>
+            <returns>A formatted string ready to be used with an insert query.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.GetSelectQuery(System.String,System.String,System.String,System.String)">
+            <summary>Creates an select query based on the input.</summary>
+            <param name="s_table">The table to access.</param>
+            <param name="s_column">The column to retrieve.</param>
+            <param name="s_keyType">The type of key to use to locate the row.</param>
+            <param name="s_keyValue">The value of the key.</param>
+            <returns>A ready to go select sql query.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.GetUpdateQuery(System.String,System.String,System.String,System.String,System.String)">
+            <summary>Creates an update query based on the input.</summary>
+            <param name="s_table">The table to access.</param>
+            <param name="s_columnToUpdate">The column(s) to update.</param>
+            <param name="s_keyType">The type of key to use to locate the row.</param>
+            <param name="s_keyValue">The value of the key.</param>
+            <param name="s_newValue">The new value for the specified column(s).</param>
+            <returns>A ready to go update sql query.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.GetDeleteQuery(System.String,System.String,System.String)">
+            <summary>Creates a delete query based on the input.</summary>
+            <param name="s_table">The table to access.</param>
+            <param name="s_keyType">The type of key to use to locate the row.</param>
+            <param name="s_keyValue">The key identifying the row to delete.</param>
+            <returns>A ready to go delete sql query.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.GetCommand(System.String,System.Char,System.String,System.String,System.String,System.String)">
+            <summary>Creates a MySQL command of the specified type.</summary>
+            <param name="s_ID">The key of the row this command shall apply to.</param>
+            <param name="c_type">The type of command to be created.</param>
+            <param name="s_table">The table this command should apply to.</param>
+            <param name="s_IDType">The type of the key value passed in arg 1.</param>
+            <param name="s_column">The column to be affected by an select/update instruction.</param>
+            <param name="s_values">The new value for the specified column(s) for insert/update instruction.</param>
+            <returns>A ready to be executed MySQL command of the specified type.</returns>
+            <exception cref="T:System.ArgumentException">Thrown if an invalid command type was passed in arg 2.</exception>
+            <remarks>
+                     The ID should be the key for the table, either the username for credentials, or the SID for student plans.
+                     The types of commands are: S - select, U - update, I - insert, D - delete
+                     The ID type is either SID for student_plans table, or username for user_credentials table.
+                     The column depends on the type of command (optional parameter):
+                                Select: either the column to select, or * for the whole row
+                                Update: the column to update, * should not be used
+                                Insert: unused
+                                Delete: unused
+                     The values depends on the type of command (optional parameter):
+                                Select: unused - may be left blank
+                                Update: the new value of the specified column
+                                Insert: the new values of the specified row, must be formatted correctly
+                                        Format: \"{SID}\", {WP}, \"{start quarter}\", \"{quarter1 classes}\", \"{quarter2 classes}\", ...
+                                        Note: The quarters passed may not exceed the number of quarters in the table, add columns as needed before inserting
+                                              The classes should be in a comma separated list
+                                Delete: unused
+                     Explanation of the commands: 
+                                Select: Will select the row with the specified ID
+                                Update: Will update the specified item with the new value in the row with specified ID
+                                Insert: Will insert a new row with specified values
+                                Delete: Will delete the row with specified key
+                                
+                     The Master record for student plans has the ID -1, and can be updated with: GetCommand("-1", 'U', "", "")
+            </remarks>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.ConnectToDB(System.String@)">
+            <summary>Connects to the MySQL database and initializes the class field DB_CONNECTION.</summary>
+            <param name="s_pw">The password for the MySQL database.</param>
+            <returns>True if login was successful, otherwise false.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.AttemptReconnect">
+            <summary>Attempts to reconnect to the MySQL database after connection was lost.</summary>
+            <exception cref="T:System.TimeoutException">Thrown when the connection cannot be reestablished.</exception>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.MakeStudentPlanTable(System.String)">
+            <summary>Creates the Student plan table in the MySQL database.</summary>
+            <param name="s_pw">The password to establish the connection with the MySQL db.</param>
+            <remarks>
+                    Calling this method will drop the table with the name stored in s_PLAN_TABLE
+                    This method will create a table with these three columns: 
+                        SID       - (key - unique, not null) type: VARCHAR(45) default: none
+                        WP        - (not null, unsigned)     type: INT(10)     default: 1
+                        start_qtr - ()                       type: VARCHAR(45) default: "" (empty string)
+                    
+                    Then, a master record will be created, this record must not be deleted, 
+                    doing so will break the table.
+                    The master record will be:
+                        SID: -1, WP: 0, start_qtr: "MASTER RECORD"
+            </remarks>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.MakeCredentialsTable(System.String)">
+            <summary>Creates the User Credentials table in the MySQL database.</summary>
+            <param name="s_pw">The password to establish the connection with the MySQL db.</param>
+            <remarks>
+                    Calling this method will drop the table with the name stored in s_CREDENTIALS_TABLE
+                    This method will create a table with these three columns: 
+                        username      - (key - unique, not null) type: VARCHAR(45) default: none
+                        WP            - (not null, unsigned)     type: INT(10)     default: 1
+                        password      - (not null)               type: CHAR(64)    default: none
+                        admin         - (not null)               type: TINYINT(4)  default: false
+                        password_salt - (not null, unique)       type: BINARY(32)  default: none
+                        active        - (not null)               type: TINYINT(4)  default: none
+            </remarks>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.AddColumns(System.Int32)">
+            <summary>Adds k columns to the student_plans table and updates the master record accordingly.</summary>
+            <param name="k">Number of columns to add.</param>
+            <returns>True if successful, otherwise false.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.TestRun">
+            <summary>Test method.</summary>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.TestData">
+            <summary>Dummy records for testing.</summary>
+        </member>
+        <member name="T:Database_Handler.RetrieveError">
+            <summary>Exception class for an error that occurs while retrieving an object from a database.</summary>
+        </member>
+        <member name="P:Database_Handler.RetrieveError.Type">
+            <summary>Type of object that was supposed to be retrieved.</summary>
+        </member>
+        <member name="M:Database_Handler.RetrieveError.#ctor(System.String,System.Char)">
+            <summary>Constructor for this exception.</summary>
+            <param name="msg">The message.</param>
+            <param name="type">The type of object that was supposed to be retrieved.</param>
+        </member>
+        <member name="T:Database_Handler.Utilities">
+            <summary>Utilities class containing any utility functions needed by DBH.</summary>
+        </member>
+        <member name="M:Database_Handler.Utilities.SecureStringEqual(System.Security.SecureString,System.Security.SecureString)">
+            <summary>Checks whether two secure string objects contain the same string.</summary>
+            <param name="ss_s1">First secure string.</param>
+            <param name="ss_s2">Second secure string</param>
+            <returns>True if the two secure strings passed in arg1 and arg2 contain the same string.</returns>
+            <remarks>Stolen from: https://stackoverflow.com/a/4502736/7687278 </remarks>
+        </member>
+        <member name="M:Database_Handler.Utilities.SecureStringToString(System.Security.SecureString)">
+            <summary>Turns a secure string into a managed string.</summary>
+            <param name="ss_string">The secure string to extract.</param>
+            <returns>The string contained within arg1.</returns>
+            <remarks>Stolen from: https://stackoverflow.com/a/819705/7687278 </remarks>
+        </member>
+    </members>
+</doc>
