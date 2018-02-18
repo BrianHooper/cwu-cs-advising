@@ -113,6 +113,22 @@ namespace Database_Object_Classes
             return !(lhs == rhs);
         } // end operator !=
 
+        /// <summary>Checks if this object represents the same quarter as the given object.</summary>
+        /// <param name="obj">Quarter to compare to.</param>
+        /// <returns>True if the objects represent the same quarter, false otherwise.</returns>
+        public override bool Equals(object obj)
+        {
+            Quarter rhs = (Quarter)obj;
+            return s_quarter == rhs.s_quarter && ui_year == rhs.ui_year;
+        } // end operator equals
+
+        /// <summary>Hashes this object's data.</summary>
+        /// <returns>A basic hash code representing this object.</returns>
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        } // end method GetHashCode
+
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
         // Methods:
@@ -716,7 +732,7 @@ namespace Database_Object_Classes
         ///          Retrieve will not fill this variable.
         ///          This variable should only be set when the user's password is to be changed.
         /// </remarks>
-        private readonly SecureString ss_pw;
+        private readonly string s_pw;
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -727,22 +743,23 @@ namespace Database_Object_Classes
         /// <param name="b_isAdmin">Whether or not this user is an administrator.</param>
         /// <param name="b_isActive">Whether or not this user's account is active.</param>
         /// <param name="ba_PWSalt">The password salt for this user.</param>
-        /// <remarks>The only thing that should be changed in this structure is the IsAdmin value.
+        /// <param name="s_password">A hash of the user's password.</param>
+        /// <remarks>The only thing that should be changed in this structure is the IsAdmin, IsActive, or Password value.
         ///          Changing the username will create a new user upon write back to the DB.
         ///          Changing the password salt will have no effect on the DB, 
         ///          as this value will be disregarded upon write back.
         ///          Changing the write protect will either cause an error, or data corruption.
         /// </remarks>
-        public Credentials(string s_ID, uint ui_WP, bool b_isAdmin, bool b_isActive, byte[] ba_PWSalt)
+        public Credentials(string s_ID, uint ui_WP, bool b_isAdmin, bool b_isActive, byte[] ba_PWSalt, string s_password)
         {
             s_userName      = string.Copy(s_ID);
             this.ba_PWSalt  = new byte[ba_PWSalt.Length];
             this.ui_WP      = ui_WP;
             this.b_isAdmin  = b_isAdmin;
             this.b_isActive = b_isActive;
+            s_pw            = string.Copy(s_password);
 
             Array.Copy(ba_PWSalt, this.ba_PWSalt, this.ba_PWSalt.Length);
-            ss_pw           = new SecureString();
         } // end Constructor
 
         /// <summary>Copy Constructor for this structure.</summary>
@@ -755,7 +772,7 @@ namespace Database_Object_Classes
             ui_WP       = other.WP;
             b_isAdmin   = other.IsAdmin;
             b_isActive  = other.IsActive;
-            ss_pw       = new SecureString();
+            s_pw        = String.Empty;
         } // end Copy Constructor              
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -794,14 +811,9 @@ namespace Database_Object_Classes
         /// <summary>Getter for the write protect value of these user credentials.</summary>
         public uint WP => ui_WP;
 
-        /// <summary>Returns the secure string containing the password. </summary>
-        public SecureString Password => ss_pw;
-
-        /// <summary>Adds the specified character to the password.</summary>
-        public char AddToPW
-        {
-            set => ss_pw.AppendChar(value);
-        } // end AddToPW
+        /// <summary>Returns the string containing the password hash. </summary>
+        public string Password => s_pw;
+        
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 

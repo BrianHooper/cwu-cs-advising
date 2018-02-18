@@ -569,8 +569,7 @@ namespace Database_Handler
             Credentials cred = (Credentials)cmd.Operand;
 
             bool b_success = LoginAttempt(cred.UserName, cred.Password, out bool b_isAdmin);
-
-            cred.Password.Dispose(); // delete password
+            
 
             if(b_success)
             {
@@ -808,6 +807,8 @@ namespace Database_Handler
 
             // retrieve master record from MySql db
             MySqlCommand cmd = GetCommand("-1", 'S', s_PLAN_TABLE, s_PLAN_KEY, "*");
+
+            MySqlLock.WaitOne();
             MySqlDataReader reader = cmd.ExecuteReader();
 
             if (reader.HasRows)
@@ -815,10 +816,12 @@ namespace Database_Handler
                 reader.Read();
                 ui_COL_COUNT = reader.GetUInt32(1);
                 reader.Close();
+                MySqlLock.ReleaseMutex();
             } // end if
             else
             {
                 reader.Close();
+                MySqlLock.ReleaseMutex();
                 WriteToLog(" -- DBH Setup failed because the master record was not found in " + s_MYSQL_DB_NAME + "." + s_PLAN_TABLE);
                 throw new Exception("Database set up failed because the master record was not found in: " + s_MYSQL_DB_NAME + "." + s_PLAN_TABLE);
             } // end else
@@ -890,7 +893,7 @@ namespace Database_Handler
         /// <param name="b_isAdmin">Return parameter, indicates whether the user is an admin or not.</param>
         /// <returns>True if the password entered matches the database record and out parameter b_isAdmin.</returns>
         /// <remarks>The parameter ss_pw will be destroyed during method execution, and can not be used afterwards.</remarks>
-        public bool LoginAttempt(string s_ID, SecureString ss_pw, out bool b_isAdmin)
+        public bool LoginAttempt(string s_ID, string s_pw, out bool b_isAdmin)
         {
             // Variables:
             var             output = false;
@@ -899,13 +902,14 @@ namespace Database_Handler
 
             MySqlCommand    cmd = GetCommand(s_ID, 'S', s_CREDENTIALS_TABLE, s_CREDENTIALS_KEY, "*");
 
-            SecureString    ss_temp = new SecureString();
+            string    s_temp = String.Empty;
             
 
             b_isAdmin = false; // initialize output parameter
             
             try
             {
+                MySqlLock.WaitOne();
                 reader = cmd.ExecuteReader();
                 reader.Read(); 
 
@@ -914,20 +918,11 @@ namespace Database_Handler
                     WriteToLog("-- DBH the user " + s_ID + " is attempting to login.");
 
                     bool b_isActive = reader.GetBoolean(5);
-
-                    // check if user account is active
-                    if(!b_isActive)
-                    {
-                        return false;
-                    } // end if
-
-                    foreach (char c in reader.GetString(2).ToCharArray())
-                    {
-                        ss_temp.AppendChar(c);
-                    } // end foreach                
+                    
+                    s_temp = reader.GetString(2);          
 
                     // check if passwords match
-                    if (Utilities.SecureStringEqual(ss_pw, ss_temp))
+                    if (s_pw == s_temp)
                     {
                         WriteToLog("-- DBH the user " + s_ID + " sucessfully logged in.");
 
@@ -946,12 +941,9 @@ namespace Database_Handler
             } // end try
             finally
             {
-                // Delete passwords
-                ss_pw.Dispose();
-                ss_temp.Dispose();
-
                 // end DB connection
                 reader.Close();
+                MySqlLock.ReleaseMutex();
             } // end finally            
 
             return output;
@@ -1419,7 +1411,7 @@ namespace Database_Handler
 
                     reader.GetBytes(4, 0, ba_salt, 0, i_SALT_LENGTH);
 
-                    credentials = new Credentials(s_ID, i_WP, b_isAdmin, b_isActive, ba_salt);
+                    credentials = new Credentials(s_ID, i_WP, b_isAdmin, b_isActive, ba_salt, "");
                 } // end if
                 else
                 {
@@ -1623,15 +1615,15 @@ namespace Database_Handler
 
         /// <summary>Changes the password of the specified user.</summary>
         /// <param name="s_ID">The username of the person whose password is to be changed.</param>
-        /// <param name="ss_pw">The new password, in a secure string.</param>
+        /// <param name="s_pw">The new password hash for this user.</param>
         /// <param name="b_activeStatus">Whether or not this user should be activated.</param>
         /// <returns>True if the password change was successful, otherwise false.</returns>
         /// <remarks>The password in the secure string object should already be hashed when it is received here. Otherwise a plain text password is stored.</remarks>
-        private int ChangePassword(string s_ID, SecureString ss_pw, bool b_activeStatus)
+        private int ChangePassword(string s_ID, string s_pw, bool b_activeStatus)
         {
             var output = 1;
 
-            MySqlCommand cmd = GetCommand(s_ID, 'U', s_CREDENTIALS_TABLE, s_CREDENTIALS_KEY, "password", "\"" + Utilities.SecureStringToString(ss_pw) + "\"");
+            MySqlCommand cmd = GetCommand(s_ID, 'U', s_CREDENTIALS_TABLE, s_CREDENTIALS_KEY, "password", "\"" + s_pw + "\"");
 
             MySqlLock.WaitOne();
 
@@ -1647,8 +1639,6 @@ namespace Database_Handler
             } // end catch
             finally
             {
-                cmd.CommandText = null;
-                ss_pw.Dispose();
                 MySqlLock.ReleaseMutex();
             } // end finally
 
