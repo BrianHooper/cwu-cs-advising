@@ -1,4 +1,6 @@
-﻿var CourseHtml = '<div class="Flex CenterFlex Row">' + 
+﻿var deleteIcon = "&#10060;";
+
+var CourseHtml = '<div class="Flex CenterFlex Row">' + 
     '<div class="Element DeleteRow" >[X]</div >' +
     '<div class="Element CourseElement"><input type="text" value="" /></div>' +
     '<div class="Element CourseElement">' +
@@ -30,16 +32,17 @@ var RequirementHtml = '<div class="Flex CenterFlex Row">' +
     '</div>';
 
 $(document).ready(function () {
-    $('#CourseContainer').on('click', '.ToggleElement', function () {
+    /*$('#CourseContainer').on('click', '.ToggleElement', function () {
         var x = "X";
         var cur = $(this).html();
 
-        if ($(this).html() === "X") {
+        if ($(this).html() === deleteIcon) {
             $(this).html("&nbsp;");
         } else {
-            $(this).html("X");
+            $(this).html(deleteIcon);
         }
     });
+    */
     $("#AddNewCourseButton").click(function () {
         var CourseContainerHtml = $("#CourseContainer").html();
         $("#CourseContainer").html(CourseContainerHtml + CourseHtml);

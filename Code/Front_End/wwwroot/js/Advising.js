@@ -8,6 +8,11 @@ var deleteIcon = "&#10060;";
 var StartingJSON = '{"Quarters":[{"Title":"Summer 17","Locked":true,"Courses":[]},{"Title":"Fall 17","Locked":false,"Courses":[{"Title":"UNIV 101","Credits":"1","Offered":"124"},{"Title":"MATH 153","Credits":"5","Offered":"124"},{"Title":"ENG 101","Credits":"5","Offered":"124"},{"Title":"CS 112","Credits":"4","Offered":"124"}]},{"Title":"Winter 18","Locked":false,"Courses":[{"Title":"MATH 154","Credits":"5","Offered":"124"},{"Title":"CS 110","Credits":"4","Offered":"124"},{"Title":"ENG 102","Credits":"5","Offered":"124"},{"Title":"COMPUTING","Credits":"5","Offered":"124"}]},{"Title":"Spring 18","Locked":false,"Courses":[{"Title":"MATH 172","Credits":"5","Offered":"124"},{"Title":"CS 111","Credits":"4","Offered":"124"},{"Title":"BREADTH 1","Credits":"5","Offered":"124"}]},{"Title":"Summer 17","Locked":true,"Courses":[]},{"Title":"Fall 18","Locked":false,"Courses":[{"Title":"CS 301","Credits":"4","Offered":"124"},{"Title":"CS 311","Credits":"4","Offered":"124"},{"Title":"BREADTH 2","Credits":"5","Offered":"124"},{"Title":"BREADTH 3","Credits":"5","Offered":"124"}]},{"Title":"Winter 19","Locked":false,"Courses":[{"Title":"CS 302","Credits":"4","Offered":"124"},{"Title":"CS 312","Credits":"4","Offered":"124"},{"Title":"CS 325","Credits":"3","Offered":"124"},{"Title":"BREADTH 4","Credits":"5","Offered":"124"}]},{"Title":"Spring 19","Locked":false,"Courses":[{"Title":"MATH 260","Credits":"5","Offered":"124"},{"Title":"CS 446","Credits":"4","Offered":"124"},{"Title":"BREADTH 5","Credits":"5","Offered":"124"}]},{"Title":"Summer 17","Locked":true,"Courses":[]},{"Title":"Fall 19","Locked":false,"Courses":[{"Title":"CS 361","Credits":"4","Offered":"124"},{"Title":"MATH 330","Credits":"5","Offered":"124"},{"Title":"BREADTH 6","Credits":"5","Offered":"124"}]},{"Title":"Winter 20","Locked":false,"Courses":[{"Title":"CS 362","Credits":"4","Offered":"124"},{"Title":"CS 470","Credits":"4","Offered":"124"},{"Title":"CS ELECTIVE 1","Credits":"4","Offered":"124"}]},{"Title":"Spring 20","Locked":false,"Courses":[{"Title":"CS 380","Credits":"4","Offered":"124"},{"Title":"CS 420","Credits":"4","Offered":"124"},{"Title":"CS ELECTIVE 2","Credits":"4","Offered":"124"},{"Title":"BREADTH 7","Credits":"5","Offered":"124"}]},{"Title":"Summer 17","Locked":true,"Courses":[]},{"Title":"Fall 20","Locked":false,"Courses":[{"Title":"CS 480","Credits":"4","Offered":"124"},{"Title":"CS 427","Credits":"4","Offered":"124"},{"Title":"UNIV ELECTIVE 1","Credits":"5","Offered":"124"},{"Title":"CS 392","Credits":"1","Offered":"124"}]},{"Title":"Winter 21","Locked":false,"Courses":[{"Title":"CS 481","Credits":"4","Offered":"124"},{"Title":"BREADTH 8","Credits":"5","Offered":"124"},{"Title":"CS ELECTIVE 3","Credits":"4","Offered":"124"},{"Title":"UNIV ELECTIVE 2","Credits":"5","Offered":"124"}]},{"Title":"Spring 21","Locked":false,"Courses":[{"Title":"CS 489","Credits":"1","Offered":"124"},{"Title":"CS 492","Credits":"2","Offered":"124"},{"Title":"BREADTH 9","Credits":"5","Offered":"124"}]}],"UnmetRequirements":[{"Title":"CS ELECTIVE 5","Credits":"4","Offered":"124"},{"Title":"CS ELECTIVE 4","Credits":"4","Offered":"124"}]}';
 var Schedule = JSON.parse(StartingJSON);
 
+// Document Load
+$(document).ready(function () {
+    LoadSchedule(Schedule);
+});
+
 /*  Given a parsed JSON objects, loads the schedule onto the QuarterContainer   */
 function LoadSchedule(Schedule) {
     unmetRequirements = Schedule.UnmetRequirements;
@@ -29,10 +34,6 @@ function LoadSchedule(Schedule) {
     AddCredits();
 }
 
-// Document Load
-$(document).ready(function () {
-    LoadSchedule(Schedule);
-});
 
 // Returns true if the quarter is locked
 function locked(Quarter) {
