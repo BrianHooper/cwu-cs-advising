@@ -6,6 +6,11 @@
 \contentsline {chapter}{\numberline {3}Algorithm}{5}
 \contentsline {chapter}{\numberline {4}Databases}{6}
 \contentsline {section}{\numberline {4.1}MySql Database}{6}
-\contentsline {section}{\numberline {4.2}NoSql Databases}{6}
-\contentsline {section}{\numberline {4.3}Database Handler}{6}
-\contentsline {chapter}{\numberline {5}Testing}{8}
+\contentsline {subsection}{\numberline {4.1.1}PlanInfo Type}{6}
+\contentsline {subsection}{\numberline {4.1.2}Credentials Type}{6}
+\contentsline {section}{\numberline {4.2}NoSql Databases}{7}
+\contentsline {subsection}{\numberline {4.2.1}Database Classes}{7}
+\contentsline {section}{\numberline {4.3}Database Handler}{7}
+\contentsline {subsection}{\numberline {4.3.1}Database Command}{8}
+\contentsline {subsection}{\numberline {4.3.2}DBH.ini File}{8}
+\contentsline {chapter}{\numberline {5}Testing}{9}

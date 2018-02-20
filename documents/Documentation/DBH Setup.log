@@ -1,0 +1,149 @@
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6350 64-bit) (preloaded format=pdflatex 2017.12.21)  19 FEB 2018 18:10
+entering extended mode
+**"./DBH Setup.tex"
+("DBH Setup.tex"
+LaTeX2e <2017-04-15>
+Babel <3.10> and hyphenation patterns for 75 language(s) loaded.
+("C:\Users\nicol\AppData\Local\Programs\MiKTeX 2.9\tex\latex\base\report.cls"
+Document Class: report 2014/09/29 v1.4h Standard LaTeX document class
+("C:\Users\nicol\AppData\Local\Programs\MiKTeX 2.9\tex\latex\base\size10.clo"
+File: size10.clo 2014/09/29 v1.4h Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@chapter=\count80
+\c@section=\count81
+\c@subsection=\count82
+\c@subsubsection=\count83
+\c@paragraph=\count84
+\c@subparagraph=\count85
+\c@figure=\count86
+\c@table=\count87
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+) ("DBH Setup.aux")
+\openout1 = `"DBH Setup.aux"'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 7.
+LaTeX Font Info:    ... okay on input line 7.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 7.
+LaTeX Font Info:    ... okay on input line 7.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 7.
+LaTeX Font Info:    ... okay on input line 7.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 7.
+LaTeX Font Info:    ... okay on input line 7.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 7.
+LaTeX Font Info:    ... okay on input line 7.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 7.
+LaTeX Font Info:    ... okay on input line 7.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <12> on input line 8.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 8.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 8.
+ [1
+
+{C:/Users/nicol/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}] ("DBH Setup
+.toc"
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 2.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 2.
+)
+\tf@toc=\write3
+\openout3 = `"DBH Setup.toc"'.
+
+ [1
+
+]
+Chapter 1.
+
+Overfull \hbox (14.97296pt too wide) in paragraph at lines 14--15
+\OT1/cmr/m/n/10 https://docs.microsoft.com/en-us/dotnet/core/linux-prerequisite
+s?tabs=netcore2x 
+ []
+
+[2
+
+]
+Chapter 2.
+
+Underfull \hbox (badness 10000) in paragraph at lines 22--23
+
+ []
+
+
+Overfull \hbox (6.30627pt too wide) in paragraph at lines 24--25
+\OT1/cmr/m/n/10 Now, the out-put di-rec-tory should con-tain the di-rec-tory "/
+net-core-app2.0/publish".
+ []
+
+
+Overfull \hbox (66.6063pt too wide) in paragraph at lines 26--27
+\OT1/cmr/m/n/10 com-pil-ing the Database[]Object[]Classes.csproj first, and af-
+ter that the Database[]Handler.csproj. 
+ []
+
+
+Overfull \hbox (97.39523pt too wide) in paragraph at lines 28--29
+[]\OT1/cmr/m/n/10 Open a ter-mi-nal, and nav-i-gate to the di-rec-tory con-tain
+-ing the file Database[]Object[]Classes.csproj 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 29--30
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 31--32
+
+ []
+
+[3
+
+]
+Overfull \hbox (31.86192pt too wide) in paragraph at lines 33--34
+\OT1/cmr/m/n/10 Now, the out-put di-rec-tory should con-tain a di-rec-tory "/ou
+t-put/netcoreapp2.0/publish".
+ []
+
+[4]
+Chapter 3.
+[5
+
+]
+Chapter 4.
+[6
+
+]
+Chapter 5.
+[7
+
+]
+Chapter 6.
+[8
+
+] ("DBH Setup.aux") ) 
+Here is how much of TeX's memory you used:
+ 260 strings out of 493323
+ 2847 string characters out of 3130014
+ 56648 words of memory out of 3000000
+ 3871 multiletter control sequences out of 15000+200000
+ 8800 words of font info for 31 fonts, out of 3000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 23i,6n,19p,791b,191s stack positions out of 5000i,500n,10000p,200000b,50000s
+<C:/Users/nicol/AppData/Local/Programs/MiKTeX 2.9/fonts/ty
+pe1/public/amsfonts/cm/cmbx10.pfb><C:/Users/nicol/AppData/Local/Programs/MiKTeX
+ 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/nicol/AppData/Local/Pr
+ograms/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/nicol/AppD
+ata/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/User
+s/nicol/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr17.
+pfb>
+Output written on "DBH Setup.pdf" (9 pages, 90039 bytes).
+PDF statistics:
+ 52 PDF objects out of 1000 (max. 8388607)
+ 0 named destinations out of 1000 (max. 500000)
+ 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+

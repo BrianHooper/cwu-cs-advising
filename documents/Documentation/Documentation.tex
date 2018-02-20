@@ -51,12 +51,20 @@
 	\end{enumerate}
 	\section{Design}
 	\chapter{Website}
+	The website runs as a daemon, and, as such, runs permanently, even if no clients are connected. It uses nginx to forward connections from port 80 to port 5000, which is the port monitored by the website's underlying .Net MVC application.\\ \\ The website has two accompanying files, namely, "CwuAdvising.service" which contains the necessary settings to run the website as a daemon; and an nginx default configuration file which establishes the forwarding between port 80 and port 5000, this file is named "default" and it must be placed in this location: /etc/nginx/sites-available/. \textbf{Note: No other service/application/protocol can use port 5000 or port 80 on the server to prevent conflicts with the website.}
 	\chapter{Algorithm}
 	\chapter{Databases}
 	\section{MySql Database}
 	The MySql database stores the user credentials, as well as the student graduation plans. Both are stored within the same database, but in separate tables, credentials are stored in the table "user\_credentials", and graduation plans in the table "student\_plans" (these names can be altered in the "DBH.service" file in the section [TABLES]).\\ \\This database is encrypted and cannot be accessed without credentials. All sensitive information is stored within this database.
+	All interactions with the MySql Database will utilize one of two objects, namely, PlanInfo, or Credentials, these are discussed in detail below.
+	\subsection{PlanInfo Type}
+	The PlanInfo type contains the Student ID (SID), the starting quarter of a student, and an array of strings, where each index of the array contains the classes for one quarter. This type is used to access, create and modify records in the student\_plans table. 
+	\subsection{Credentials Type}
+	The Credentials type contains the username, password salt, and admin flag of a user. Furthermore, a password can also be given to this class, which will be ignored unless a change password Database Command is being executed. This type is used to access, create, and modify records in the user\_credentials table.
 	\section{NoSql Databases}
 	The NoSql Database (DB4O) stores information about Courses, Catalogs, and Students (only directory information - e.g. Name, Starting Quarter). This database has no encryption, as it \textbf{does not} contain protected information, however, it is stored in a binary format making unauthorized access dificult.
+	\subsection{Database Classes}
+	The DB4O database stores objects of type DatabaseObject, this is an abstract type, and it is inherited by three other types, namely, Course, Student, Catalog. The DB4O database stores these objects in a serialized state, and they can be retrieved as ready-to-use C\# objects, without the need for conversion or parsing. 
 	\section{Database Handler}
 	The database handler is the middle man between the databases and the client(s). Its purposes are:
 	\begin{enumerate}
@@ -70,7 +78,17 @@
 		\item \textbf{Client Thread(s)} - Each client is assigned a dedicated thread which only communicates with its assigned client, and executes all commands for this client. This allows non-critical code to be executed in parallel as much as possible, speeding up operations during periods of high-traffic.
 		\item \textbf{Keep Alive Thread} - A thread which periodically accesses the database to prevent the connection from timing out. This is a result of our testing, as the connection would time out over night.
 	\end{enumerate}
-	Upon starting the master thread the password for the MySql database must be supplied. After the setup has completed, it awaits new clients to connect to it through a specific TCP port (all details pertaining to the connection are specified in the "DBH.ini" file under the [MISC] section). The master thread continues to run even if no clients are connected. Should the service crash, or the server is restarted, the database password must be supplied upon restarting the service to reestablish a connection. \\ \\ The database handler has two accompanying files, namely, "DBH Setup.pdf" which contains a detailed discussion of how to setup, start, use, and troubleshoot errors pertaining to the Database Handler; and "DBH.ini" which is the configuration file which must be used to start the database handler.
+	Upon starting the master thread the setup will extract necessary configurations from the "DBH.ini" file to setup the running environment. After the setup has completed, it awaits new clients to connect to it through a specific TCP port (all details pertaining to the TCP/IP connection are specified in the "DBH.ini" file under the [MISC] section). The master thread runs as a daemon, and, as such, runs permanently, even if no clients are connected. Should the service database connection be lost, the service will restart to reestablish a connection to the database. \\ \\ The database handler has three accompanying files, namely, "DBH Setup.pdf" which contains a detailed discussion of how to setup, start, use, and troubleshoot errors pertaining to the Database Handler; "DBH.service" which is the service file responsible for the daemon; and "DBH.ini" which is the configuration file which must be used to start the database handler.
+	\subsection{Database Command}
+	The Database Handler communicates with other applications through DatabaseCommand objects. Objects of this type contain two main components, namely, CommandType (specifying what to do, e.g. Retrieve, Delete, etc.), and the CommandOperand (an object of the DatabaseClasses type which contains information needed to execute the command, e.g. a Student object with the SID field set for a Retrieve Command). Upon reception of a command object, the Database Handler will execute it, and then send a Database Command back to the client which contains return information (e.g. A student object with all fields filled out), or an error code if the operation could not be done (e.g. the write protect on the database record did not match the one supplied in the original request).
+	\subsection{DBH.ini File}
+	The DBH.ini file has the following structure:
+	\begin{enumerate}
+		\item [] [MySql Connection] -- group which contains information about the connection with the MySql Database
+		\item [] [MySql Tables] -- group which contains the names of all tables, and the name of the primary key of each table
+		\item [] [DB4O Files] -- group which contains the names of all DB4O database files
+		\item [] [MISC] -- group which contains the TCP/IP connection information, as well as the logfile path.
+	\end{enumerate}
 	\chapter{Testing}
 	
 \end{document}
