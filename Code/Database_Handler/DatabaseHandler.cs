@@ -3,13 +3,14 @@ using MySql.Data.MySqlClient;
 using Db4objects.Db4o;
 using Database_Object_Classes;
 using System.Collections.Generic;
-using System.Security;
 using System.Security.Cryptography;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Net.Sockets;
 using System.Net;
 using System.Threading;
+using IniParser;
+using IniParser.Model;
 
 namespace Database_Handler
 {
@@ -73,12 +74,51 @@ namespace Database_Handler
         /// <summary>List of all clients currently connected to DBH.</summary>
         private List<TcpClient> clients;
 
+
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
         // Constructors:
         /// <summary>Default Constructor</summary>
         /// <remarks>This constructor does nothing, it will use all default values for variables.</remarks>
-        public DatabaseHandler() { }// end default Constructor
+        public DatabaseHandler()
+        {
+            if (SetUp() == 1)
+            {
+                WriteToLog(" -- DBH setup returned 1 (login failed). Exiting.");
+                throw new Exception("Login failed.");
+            } // end if
+        }// end default Constructor
+
+        /// <summary>Loads the DBH configurations from the given .ini file.</summary>
+        /// <param name="s_FileName">Path of the .ini file containing the configurations DBH should use.</param>
+        public DatabaseHandler(string s_FileName)
+        {
+            var parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Configuration.ini");
+
+            s_MYSQL_DB_NAME = data["MySql Connection"]["DB"];
+            s_MYSQL_DB_SERVER = data["MySql Connection"]["host"];
+            s_MYSQL_DB_PORT = data["MySql Connection"]["port"];
+            s_MYSQL_DB_USER_ID = data["MySql Connection"]["user"];
+            string pw = data["MySql Connection"]["password"];
+
+            s_PLAN_TABLE = data["MySql Tables"]["grad_plans"];
+            s_PLAN_KEY = data["MySql Tables"]["grad_plans_key"];
+            s_CREDENTIALS_TABLE = data["MySql Tables"]["credentials"];
+            s_CREDENTIALS_KEY = data["MySql Tables"]["credentials_key"];
+
+            s_STUDENT_DB = data["DB4O Files"]["students"];
+            s_COURSE_DB = data["DB4O Files"]["courses"];
+            s_CATALOG_DB = data["DB4O Files"]["catalogs"];
+
+            s_IP_ADDRESS = data["Misc"]["IP"];
+            s_logFilePath = data["Misc"]["logfile_path"];
+            string TCPPort = data["Misc"]["TCPIP_port"];
+            i_TCP_PORT = int.Parse(TCPPort);
+
+            ConnectToDB(ref pw);
+            SetUp(false);
+        } // end Constructor
 
         /// <summary>Constructor which sets the database information for this DBH object to the given values.</summary>
         /// <param name="s_MYSQL_DB_NAME">Name of the MySQL database, e.g. test_db.</param>
@@ -126,7 +166,10 @@ namespace Database_Handler
 
             // static variable changes
             DatabaseHandler.s_logFilePath = s_logFilePath;
+
+            SetUp();
         } // end Constructor
+
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
         
@@ -139,7 +182,7 @@ namespace Database_Handler
 
             DatabaseHandler DBH;
 
-            if(args.Length == 14) // custom settings for DBH
+            if (args.Length == 14) // custom settings for DBH
             {
                 if (Int32.TryParse(args[13], out int port))
                 {
@@ -156,18 +199,34 @@ namespace Database_Handler
                     return;
                 } // end else
             } // end if
-            else if(args.Length == 0) // default settings for DBH
+            else if (args.Length == 0) // default settings for DBH
             {
                 DBH = new DatabaseHandler();
             } // end else
+            else if (args.Length == 1)
+            {
+                try
+                {
+                    DBH = new DatabaseHandler(args[1]);
+                } // end try
+                catch (Exception e)
+                {
+                    WriteToLog(" -- DBH startup failed, the .ini file was not found or corrupt. Msg: " + e.Message);
+                    return;
+                } // end catch
+            }
             else
             {
                 WriteToLog(" -- DBH startup failed due to incorrect command line arguments.");
                 Console.WriteLine("The arguements supplied were not correct.");
-                Console.WriteLine("Required arguments (14 in total):");
+                Console.WriteLine("(Option 1) Required arguments (0 in total): No arguments will use default settings.");
+                Console.WriteLine("(Option 2) Required arguments (1 in total): Will use configuration file at the specified path.");
+                Console.WriteLine("(0)Path to a file containing the configurations, this file must be of type *.ini");
+                Console.WriteLine("(Option 3) Required arguments (14 in total):");
                 Console.WriteLine("(0)Name of MySql Database\n(1)IP of MySql Database\n(2)Port of MySql Database\n(3)User ID for MySql Database\n(4)Name of MySql table containing user credentials" +
                                   "\n(5)Name of key in credentials table\n(6)Name of MySql table containing student plans\n(7)Name of key in student plans table\n(8)Name of DB4O student database" +
                                   "\n(9)Name of DB4O course database\n(10)Name of DB4O catalog database\n(11)Path to log file\n(12)IP address to accept clients from\n(13)TCPIP port to use for clients");
+
                 return;
             } // end else
 
@@ -184,11 +243,6 @@ namespace Database_Handler
                         Console.WriteLine("\n\nNo errors occurred during execution.\nCleaning up...");
                         WriteToLog(" -- DBH is preparing to exit (no errors).");
                         break; // end case 0
-                    case 1:
-                        Console.WriteLine("\n\nLogin Failed. Please restart the Daemon to try again.\nCleaning up...");
-                        WriteToLog(" -- DBH is preparing to exit (error code 1).");
-                        WriteToLog(" -- DBH is exiting because of a failed login attempt.");
-                        break; // end case 1
                     case 2:
                         Console.WriteLine("\n\nThe connection to the database timed out and reconnection failed. Cleaning up...");
                         WriteToLog(" -- DBH is preparing to exit (error code 2).");
@@ -234,6 +288,7 @@ namespace Database_Handler
             } // end finally                    
         } // end Main
     
+
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
         // Run:
@@ -314,19 +369,6 @@ namespace Database_Handler
         private int RunHost()
         {
             var output = 0;
-
-            try
-            {
-                if (SetUp() == 1)
-                {
-                    return 1;
-                } // end if
-            } // end try
-            catch (Exception e)
-            {
-                WriteToLog(" -- DBH setup failed. Msg: " + e.Message);
-                return 3;
-            } // end catch
 
             Thread stayAlive = new Thread(KeepAlive);
             stayAlive.Start();
@@ -790,11 +832,14 @@ namespace Database_Handler
         /// <returns>An error code or 0 if setup was successful.</returns>
         /// <exception cref="Exception">Thrown if it the master record could not be retrieved from the database.</exception>
         /// <remarks>Setup will block until an initial website connection is established.</remarks>
-        public int SetUp()
+        public int SetUp(bool login = true)
         {
-            if (!Login())
+            if (login)
             {
-                return 1; // login attempt failed
+                if (!Login())
+                {
+                    return 1; // login attempt failed
+                } // end if
             } // end if
 
             // RNG for salt creation

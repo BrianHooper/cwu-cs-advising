@@ -284,6 +284,15 @@
             <param name="rhs">Right-hand side operand.</param>
             <returns>True iff lhs is not the same as rhs, otherwise false.</returns>
         </member>
+        <member name="M:Database_Object_Classes.Quarter.Equals(System.Object)">
+            <summary>Checks if this object represents the same quarter as the given object.</summary>
+            <param name="obj">Quarter to compare to.</param>
+            <returns>True if the objects represent the same quarter, false otherwise.</returns>
+        </member>
+        <member name="M:Database_Object_Classes.Quarter.GetHashCode">
+            <summary>Hashes this object's data.</summary>
+            <returns>A basic hash code representing this object.</returns>
+        </member>
         <member name="M:Database_Object_Classes.Quarter.ToString">
             <summary>For outputting Quarters to console.</summary>
             <returns>A string representation of this quarter.</returns>
@@ -581,21 +590,22 @@
         <member name="F:Database_Object_Classes.Credentials.ui_WP">
             <summary>Write protect value of this object.</summary>
         </member>
-        <member name="F:Database_Object_Classes.Credentials.ss_pw">
+        <member name="F:Database_Object_Classes.Credentials.s_pw">
             <summary>Contains this user's password.</summary>
             <remarks>
                      Retrieve will not fill this variable.
                      This variable should only be set when the user's password is to be changed.
             </remarks>
         </member>
-        <member name="M:Database_Object_Classes.Credentials.#ctor(System.String,System.UInt32,System.Boolean,System.Boolean,System.Byte[])">
+        <member name="M:Database_Object_Classes.Credentials.#ctor(System.String,System.UInt32,System.Boolean,System.Boolean,System.Byte[],System.String)">
             <summary>Constructor for this structure.</summary>
             <param name="s_ID">Username of the owner of these credentials.</param>
             <param name="ui_WP">Write protect value of this object.</param>
             <param name="b_isAdmin">Whether or not this user is an administrator.</param>
             <param name="b_isActive">Whether or not this user's account is active.</param>
             <param name="ba_PWSalt">The password salt for this user.</param>
-            <remarks>The only thing that should be changed in this structure is the IsAdmin value.
+            <param name="s_password">A hash of the user's password.</param>
+            <remarks>The only thing that should be changed in this structure is the IsAdmin, IsActive, or Password value.
                      Changing the username will create a new user upon write back to the DB.
                      Changing the password salt will have no effect on the DB, 
                      as this value will be disregarded upon write back.
@@ -623,10 +633,7 @@
             <summary>Getter for the write protect value of these user credentials.</summary>
         </member>
         <member name="P:Database_Object_Classes.Credentials.Password">
-            <summary>Returns the secure string containing the password. </summary>
-        </member>
-        <member name="P:Database_Object_Classes.Credentials.AddToPW">
-            <summary>Adds the specified character to the password.</summary>
+            <summary>Returns the string containing the password hash. </summary>
         </member>
         <member name="M:Database_Object_Classes.Credentials.ToString">
             <summary>Turns the data in this object into a string for output.</summary>

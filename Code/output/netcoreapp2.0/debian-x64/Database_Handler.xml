@@ -136,6 +136,9 @@
         <member name="F:Database_Handler.DatabaseHandler.s_logFilePath">
             <summary>The path to the log file which will contain the log entries created by DBH.</summary>
         </member>
+        <member name="F:Database_Handler.DatabaseHandler.MySqlLock">
+            <summary>Mutex locks for databases.</summary>
+        </member>
         <member name="F:Database_Handler.DatabaseHandler.s_MYSQL_DB_NAME">
             <summary>Names of all database related components.</summary>
             <remarks>These can be set using the constructor, or the defaults can be used.</remarks>
@@ -146,9 +149,6 @@
         <member name="F:Database_Handler.DatabaseHandler.ui_COL_COUNT">
             <summary>The length of the longest plan in the s_PLAN_TABLE mysql table, stored in the master record.</summary>
         </member>
-        <member name="F:Database_Handler.DatabaseHandler.ba_ressourcesInUse">
-            <summary>This keeps track of which resources are currently in use, to prevent threads from trying to access the same resources.</summary>
-        </member>
         <member name="F:Database_Handler.DatabaseHandler.DB_CONNECTION">
             <summary>The master connection to the MySql database, which should never be closed, except during cleanup.</summary>
         </member>
@@ -156,22 +156,22 @@
             <summary>A RNG for building password salts.</summary>
         </member>
         <member name="F:Database_Handler.DatabaseHandler.tcpListener">
-            <summary>The main Tcp Listener which talks with the main Website thread.</summary>
+            <summary>The main Tcp Listener used to talk with clients.</summary>
         </member>
         <member name="F:Database_Handler.DatabaseHandler.address">
             <summary>Localhost IP address for the Tcp Socket</summary>
         </member>
-        <member name="F:Database_Handler.DatabaseHandler.TCPMainSocket">
-            <summary>The main Tcp Socket used to establish a connection with the website.</summary>
+        <member name="F:Database_Handler.DatabaseHandler.clientThreads">
+            <summary>List of all client threads currently running.</summary>
         </member>
-        <member name="F:Database_Handler.DatabaseHandler.stream">
-            <summary>The network stream used to received data via the Tcp Socket.</summary>
+        <member name="F:Database_Handler.DatabaseHandler.clients">
+            <summary>List of all clients currently connected to DBH.</summary>
         </member>
         <member name="M:Database_Handler.DatabaseHandler.#ctor">
             <summary>Default Constructor</summary>
             <remarks>This constructor does nothing, it will use all default values for variables.</remarks>
         </member>
-        <member name="M:Database_Handler.DatabaseHandler.#ctor(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String)">
+        <member name="M:Database_Handler.DatabaseHandler.#ctor(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Int32)">
             <summary>Constructor which sets the database information for this DBH object to the given values.</summary>
             <param name="s_MYSQL_DB_NAME">Name of the MySQL database, e.g. test_db.</param>
             <param name="s_MYSQL_DB_SERVER">Name of the server hosting the MySQL db, e.g. localhost.</param>
@@ -185,20 +185,31 @@
             <param name="s_COURSE_DB">Path of the course database, e.g. courses.db4o</param>
             <param name="s_CATALOG_DB">Path of the catalog database, e.g. catalogs.db4o</param>
             <param name="s_logFilePath">Path of the DBH log file to use, e.g. log.txt</param>
+            <param name="s_IP_ADDRESS">The IP address from where to accept TCP client requests.</param>
+            <param name="i_TCP_PORT">The TCP port on which to accept client requests.</param>
             <remarks>Changes made by the constructor are not persistent, upon restarting, the default values will be used again.</remarks>
         </member>
         <member name="M:Database_Handler.DatabaseHandler.Main2(System.String[])">
             <summary>Program entry point. Initializes program and handles fatal errors.</summary>
             <param name="args">Unused.</param>
         </member>
-        <member name="M:Database_Handler.DatabaseHandler.Run">
+        <member name="M:Database_Handler.DatabaseHandler.Run(System.Net.Sockets.NetworkStream)">
             <summary>The main program loop. Receives, and executes commands.</summary>
+            <param name="stream">The network stream which is used to communicate with the client.</param>
             <returns>Error code or 0 if application exited as expected.</returns>
         </member>
-        <member name="M:Database_Handler.DatabaseHandler.ExecuteCommand(Database_Handler.DatabaseCommand,System.String)">
+        <member name="M:Database_Handler.DatabaseHandler.RunClient(System.Object)">
+            <summary>Client thread entry point.</summary>
+            <param name="client">The client this thread is responsible for.</param>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.RunHost">
+            <summary>Host thread handling all client threads, and managing new connections.</summary>
+            <returns>Never returns in normal operation, returns error code if a fatal error occurs.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.ExecuteCommand(Database_Handler.DatabaseCommand,System.Net.Sockets.NetworkStream)">
             <summary>Unwraps the command type, and executes the specified command.</summary>
             <param name="cmd">The command to be executed.</param>
-            <param name="s_sender">The sender who will receive the response.</param>
+            <param name="stream">The stream to send data back to the client.</param>
             <returns>An error code, or 0 if execution was successful.</returns>
         </member>
         <member name="M:Database_Handler.DatabaseHandler.ExecuteRetrieveCommand(Database_Handler.DatabaseCommand)">
@@ -239,15 +250,15 @@
             <param name="cmd">Command containing the credentials of the user whose salt is to be retrieved.</param>
             <returns>A return command containing the password salt for the requested user.</returns>
         </member>
-        <member name="M:Database_Handler.DatabaseHandler.WaitForCommand(System.String@)">
+        <member name="M:Database_Handler.DatabaseHandler.WaitForCommand(System.Net.Sockets.NetworkStream)">
             <summary>The listener which waits for a command, blocking the run method.</summary>
-            <param name="s_sender">The sender who requested an action.</param>
+            <param name="stream">Network stream to the connected client.</param>
             <returns>The command that is to be executed.</returns>
         </member>
-        <member name="M:Database_Handler.DatabaseHandler.SendResult(Database_Handler.DatabaseCommand,System.String)">
+        <member name="M:Database_Handler.DatabaseHandler.SendResult(Database_Handler.DatabaseCommand,System.Net.Sockets.NetworkStream)">
             <summary>Sends the command back to the sender of the initial request.</summary>
             <param name="cmd">The return command to be sent.</param>
-            <param name="s_sender">The ID of the client who will receive the result.</param>
+            <param name="stream">Network stream to send the data back.</param>
             <returns>0 or error code.</returns>
         </member>
         <member name="M:Database_Handler.DatabaseHandler.Login">
@@ -271,7 +282,7 @@
             <summary>Writes the given message into the DBH log with a current time stamp.</summary>
             <param name="s_msg">The message to log.</param>
         </member>
-        <member name="M:Database_Handler.DatabaseHandler.LoginAttempt(System.String,System.Security.SecureString,System.Boolean@)">
+        <member name="M:Database_Handler.DatabaseHandler.LoginAttempt(System.String,System.String,System.Boolean@)">
             <summary>Checks the password entered by a user against the database record.</summary>
             <param name="s_ID">The username of the person attempting to log in.</param>
             <param name="ss_pw">A secure string containing the user's password.</param>
@@ -369,11 +380,12 @@
             <summary>Creates a new user with the specified properties.</summary>
             <param name="credentials">Should contain the username, and isAdmin fields. Others will be ignored.</param>
             <returns>True if creation was successful, false otherwise.</returns>
+            <remarks>The database is already locked upon entering this method, thus, it does not lock the database itself.</remarks>
         </member>
-        <member name="M:Database_Handler.DatabaseHandler.ChangePassword(System.String,System.Security.SecureString,System.Boolean)">
+        <member name="M:Database_Handler.DatabaseHandler.ChangePassword(System.String,System.String,System.Boolean)">
             <summary>Changes the password of the specified user.</summary>
             <param name="s_ID">The username of the person whose password is to be changed.</param>
-            <param name="ss_pw">The new password, in a secure string.</param>
+            <param name="s_pw">The new password hash for this user.</param>
             <param name="b_activeStatus">Whether or not this user should be activated.</param>
             <returns>True if the password change was successful, otherwise false.</returns>
             <remarks>The password in the secure string object should already be hashed when it is received here. Otherwise a plain text password is stored.</remarks>
@@ -478,6 +490,9 @@
         <member name="M:Database_Handler.DatabaseHandler.AttemptReconnect">
             <summary>Attempts to reconnect to the MySQL database after connection was lost.</summary>
             <exception cref="T:System.TimeoutException">Thrown when the connection cannot be reestablished.</exception>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.KeepAlive">
+            <summary>Keeps the DB_CONNECTION alive by accessing the DB every 2 minutes</summary>
         </member>
         <member name="M:Database_Handler.DatabaseHandler.MakeStudentPlanTable(System.String)">
             <summary>Creates the Student plan table in the MySQL database.</summary>
