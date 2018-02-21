@@ -63,7 +63,7 @@
 .PageRow {
     padding: 10px;
     margin: 10px;
-    max-width: 80%;
+    /*max-width: 80%;*/
     flex-wrap: wrap;
 }
 
@@ -251,4 +251,8 @@
     border: thin solid black;
     padding: 2px;
     margin-left: 2px;
+}
+
+#SearchBox {
+    width: 500px;
 }
