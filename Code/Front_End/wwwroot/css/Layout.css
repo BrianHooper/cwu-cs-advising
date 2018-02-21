@@ -181,8 +181,10 @@
 }
 
 .Row {
+    flex-wrap: nowrap;
     margin-bottom: 0px;
     padding: 0px;
+    background-color: #ffffff;
 }
 
 .CourseElement {
@@ -235,4 +237,18 @@
     left: 30%;
     top: 35%;
     background-color: #ffffff;
+    
+}
+
+.PrereqBox {
+    display: flex;
+    max-width: 300px;
+    cursor: pointer;
+    flex-wrap: wrap;
+}
+
+.Prereq {
+    border: thin solid black;
+    padding: 2px;
+    margin-left: 2px;
 }

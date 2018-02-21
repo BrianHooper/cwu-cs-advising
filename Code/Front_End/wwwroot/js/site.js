@@ -1,4 +1,13 @@
-﻿function StringMatch(strA, strB) {
+﻿function StringArrayContains(Array, Str) {
+    for (var i = 0; i < Array.length; i++) {
+        if (Array[i].indexOf(Str) >= 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function StringMatch(strA, strB) {
     return strA.indexOf(strB) >= 0;
 }
 

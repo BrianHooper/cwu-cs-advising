@@ -3,83 +3,9 @@
 @{
     ViewData["Title"] = "Manage Courses";
 }
+
 <script src="~/js/ListManager.js"></script>
 <script src="~/js/CourseManagement.js"></script>
-<!--
-<div class="PageRow Flex CenterFlex">
-    <div class="Block Border Padded">
-        <div class="Title">New Course</div>
-        <div class="Flex CenterFlex">
-            <div class="Flex ">
-                <div class="LabelLeft">Course Name:</div>
-                <div class="LabelRight"><input type="text" /></div>
-            </div>
-            <div class="Flex">
-                <div class="LabelLeft">Course Department:</div>
-                <div class="LabelRight">
-                    <select name="Department">
-                        <option>Computer Science</option>
-                        <option>Mathematics</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <div class="Flex CenterFlex">
-            <div class="Flex">
-                <div class="LabelLeft Border">Offered:</div>
-                <div class="LabelRight Flex">
-                    <input type="checkbox" /> Summer
-                    <input type="checkbox" value="checked" /> Fall
-                    <input type="checkbox" value="checked" /> Winter
-                    <input type="checkbox" value="checked" /> Spring
-                </div>
-            </div>
-
-            <div class="Flex">
-                <div class="LabelLeft">Course ID:</div>
-                <div class="LabelRight">
-                    <input type="text" />
-                </div>
-            </div>
-        </div>
-
-        <div class="Flex CenterFlex">
-            <div class="Flex">
-                <div class="LabelLeft">Credits:</div>
-                <div class="LabelRight">
-                    <input type="number" min="0" max="7" value="5" />
-                </div>
-            </div>
-
-            <div class="Flex">
-                <div class="LabelLeft Border">Prereqs:</div>
-                <div class="LabelRight Flex">
-                    <select class="WideFlex" style="width: 70%; margin-right: 5px;">
-                        <option value="cs480">CS 480 (4cr)</option>
-                        <option value="cs427">CS 427 (4cr)</option>
-                        <option value="cs361">CS 361 (4cr)</option>
-                    </select>
-                    <input type="button" value="Add" style="height: 100%; width: 25%;" />
-                </div>
-            </div>
-
-
-
-
-        </div>
-        <div class="PageRow CenterFlex">
-            <span class="Title">Prereqs:</span>
-            <div>
-                <a href="#" class="DivButton">CS 380</a>
-            </div>
-
-        </div>
-        <div><input type="submit" value="Add New Course" class="BigButton" /></div>
-    </div>
-</div>
--->
-
 
 <div class="PageRow Flex CenterFlex">
     <div class="Block Border Padded">
@@ -116,7 +42,7 @@
     </div>
 </div>
 
-<div class="Flex CenterFlex"  style="min-width: 1000px;">
+<div class="Flex CenterFlex" style="min-width: 1000px;">
     <div class="Block Padded" id="CourseContainer">
         <div class="Title">Courses</div>
         <div class="Flex CenterFlex Row skip" style="margin-bottom: 10px;">
@@ -132,74 +58,15 @@
             <div class="Element WideFlex">Prereqs</div>
         </div>
 
-        <div class="Flex CenterFlex Row" modified="true">
-            <div class="Element DeleteRow">[X]</div>
-            <div class="Element CourseElement"><input type="text" value="Computer Architecture II" /></div>
-            <div class="Element CourseElement">
-                <select>
-                    <option>Computer Science</option>
-                    <option>Mathematics</option>
-                </select>
-            </div>
-            <div class="Element CourseElement CourseNumberInput"><input type="text" value="312"></div>
-            <div class="Element CourseElement CourseNumberInput"><input type="text" value="4"></div>
-            <div class="Element ToggleElement" toggled="false">&nbsp;</div>
-            <div class="Element ToggleElement" toggled="false">&nbsp;</div>
-            <div class="Element ToggleElement" toggled="false">&nbsp;</div>
-            <div class="Element ToggleElement" toggled="false">&nbsp;</div>
-            <div class="Element WideFlex">
-                <a href="#">[ CS 361 ]</a>
-                <a href="#">[ CS 312 ]</a>
-                <a href="#">[+]</a>
-            </div>
-        </div>
 
-        <div class="Flex CenterFlex Row" modified="true">
-            <div class="Element DeleteRow">[X]</div>
-            <div class="Element CourseElement"><input type="text" value="Data Structures" /></div>
-            <div class="Element CourseElement">
-                <select>
-                    <option>Computer Science</option>
-                    <option>Mathematics</option>
-                </select>
-            </div>
-            <div class="Element CourseElement CourseNumberInput"><input type="text" value="302"></div>
-            <div class="Element CourseElement CourseNumberInput"><input type="text" value="4"></div>
-            <div class="Element ToggleElement" toggled="false">&nbsp;</div>
-            <div class="Element ToggleElement" toggled="false">&nbsp;</div>
-            <div class="Element ToggleElement" toggled="false">&nbsp;</div>
-            <div class="Element ToggleElement" toggled="false">&nbsp;</div>
-            <div class="Element WideFlex">
-                <a href="#">[ CS 361 ]</a>
-                <a href="#">[ CS 312 ]</a>
-                <a href="#">[+]</a>
-            </div>
-        </div>
 
-        <div class="Flex CenterFlex Row" modified="true">
-            <div class="Element DeleteRow">[X]</div>
-            <div class="Element CourseElement"><input type="text" value="Operating Systems" /></div>
-            <div class="Element CourseElement">
-                <select>
-                    <option>Computer Science</option>
-                    <option>Mathematics</option>
-                </select>
-            </div>
-            <div class="Element CourseElement CourseNumberInput"><input type="text" value="470"></div>
-            <div class="Element CourseElement CourseNumberInput"><input type="text" value="4"></div>
-            <div class="Element ToggleElement" toggled="false">&nbsp;</div>
-            <div class="Element ToggleElement" toggled="false">&nbsp;</div>
-            <div class="Element ToggleElement" toggled="false">&nbsp;</div>
-            <div class="Element ToggleElement" toggled="false">&nbsp;</div>
-            <div class="Element WideFlex PrereqBox">2</div>
-        </div>
     </div>
     <div style="width: 100%; text-align: center;">
         <button type="button" class="BigButton" style="width: 150px; margin-top: 5px;" id="AddNewCourseButton">Add New Course</button>
         <button type="button" class="BigButton" style="width: 150px; margin-top: 5px;" id="SaveCourses">Save Changes</button>
     </div>
 
-    
+
 </div>
 
 
