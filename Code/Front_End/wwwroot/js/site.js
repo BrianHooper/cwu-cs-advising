@@ -1,6 +1,6 @@
 ﻿function StringArrayContains(Array, Str) {
     for (var i = 0; i < Array.length; i++) {
-        if (Array[i].indexOf(Str) >= 0) {
+        if (Array[i].indexOf(Str) === 0) {
             return true;
         }
     }
