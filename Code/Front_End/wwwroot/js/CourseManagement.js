@@ -163,7 +163,7 @@ function CreateCourseRow() {
     RowDiv.append(CreditsBox);
 
     // Quarters offered
-    for (var i = 0; i < 4; i++) {
+    for (var j = 0; j < 4; j++) {
         var QuarterBox = $("<div></div>");
         QuarterBox.attr("class", "Element ToggleElement");
         QuarterBox.attr("toggled", "false");
