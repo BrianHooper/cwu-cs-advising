@@ -8,11 +8,16 @@ namespace PlanGenerationAlgorithm
 {
     public class Algorithm
     {
-        public static Schedule Generate(List<Course> requirements, Schedule currentSchedule)
+        public static uint minCredits = 10;
+        public static uint maxCredits = 18;
+        public static Schedule Generate(List<Course> requirements, Schedule currentSchedule, uint minCredits, uint maxCredits)
         {
+            minCredits = 10;
+            maxCredits = 18;
             Algorithm algorithm = new Algorithm();
             return algorithm.GenerateSchedule(requirements, currentSchedule);
         }
+
 
         //method to generate schedule(incomplete)
         private Schedule GenerateSchedule(List<Course> requirements, Schedule currentSchedule)
@@ -24,12 +29,17 @@ namespace PlanGenerationAlgorithm
             {
                 foreach (Course c in possibleCourses)
                 {
+
                     // Attempt to add the course to this schedule
-                    if (currentSchedule.AddCourse(c))
+
+                    if (maxCredits >= (currentSchedule.ui_numberCredits + c.Credits))
                     {
-                        // If it succeeded, adding another course this quarter
-                        requirements.Remove(c);
-                        return GenerateSchedule(requirements, currentSchedule);
+                        if (currentSchedule.AddCourse(c))
+                        {
+                            // If it succeeded, adding another course this quarter
+                            requirements.Remove(c);
+                            return GenerateSchedule(requirements, currentSchedule);
+                        }
                     }
                     else
                     {
@@ -48,7 +58,8 @@ namespace PlanGenerationAlgorithm
             return currentSchedule;
 
         }
-    
+
+
 
         //method to list possible courses for each quarter
         private List<Course> ListofCourse(Schedule currentQuarter,

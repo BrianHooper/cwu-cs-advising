@@ -41,6 +41,10 @@ namespace PlanGenerationAlgorithm
         {
             IsChosen = isChosen;
         }
+        int distance(List<Course> schedule)
+        {
+            return schedule.Count / 3+1;
+        }
         int bound(Node u, int n, int W, Course [] arr)
         {
             // if weight overcomes the knapsack capacity, return

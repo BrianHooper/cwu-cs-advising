@@ -22,6 +22,9 @@
     <Reference Include="Database_Handler">
       <HintPath>..\..\output\netcoreapp2.0\Database_Handler.dll</HintPath>
     </Reference>
+    <Reference Include="Db4objects.Db4o">
+      <HintPath>..\..\output\netcoreapp2.0\Dependencies\Db4objects.Db4o.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

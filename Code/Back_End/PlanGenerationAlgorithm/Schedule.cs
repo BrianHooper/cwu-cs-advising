@@ -7,7 +7,10 @@ namespace PlanGenerationAlgorithm
 {
     public class Schedule
     {
+        public Student student;
         public Quarter quarterName;
+        public bool locked = false;
+        public uint NumberOfQuarters = 0;
         public List<Course> courses;
         public Schedule NextQuarter, previousQuarter;
         public uint ui_numberCredits = 0;
@@ -21,22 +24,34 @@ namespace PlanGenerationAlgorithm
 
         public bool MeetsConstraints(Course c)
         {
-            return (courses.Count < 3 && !courses.Contains(c));
+            return (ui_numberCredits < 16 && !courses.Contains(c));
         }
 
+        public uint lowerBound()
+        {
+            uint totalRemainingCredits = 0;
+            foreach (Course c in courses)
+            {
+                totalRemainingCredits += c.Credits;
+            }
+            return NumberOfQuarters + (totalRemainingCredits / Algorithm.maxCredits);
+        }
         //add course to the list
         public bool AddCourse(Course c)
         {
-            if(MeetsConstraints(c))
+            if (MeetsConstraints(c))
             {
                 courses.Add(c);
+                ui_numberCredits += c.Credits;
                 return true;
-            } else
+            }
+            else
             {
                 return false;
             }
-            
+
         }
+
 
         public Schedule NextSchedule()
         {
@@ -45,26 +60,32 @@ namespace PlanGenerationAlgorithm
                 NextQuarter = new Schedule(GetNextQuarter());
                 NextQuarter.previousQuarter = this;
             }
+            if (NextQuarter.locked)
+            {
+                return NextQuarter.NextSchedule();
+            }
             return NextQuarter;
         }
-        
+
         private Quarter GetNextQuarter()
         {
             switch (quarterName.QuarterSeason)
             {
-                case Season.Fall: return new Quarter(quarterName.Year + 1, Season.Winter);
-                case Season.Winter: return new Quarter(quarterName.Year, Season.Spring);
+                case Season.Fall: NumberOfQuarters++; return new Quarter(quarterName.Year + 1, Season.Winter);
+                case Season.Winter: NumberOfQuarters++; return new Quarter(quarterName.Year, Season.Spring);
                 case Season.Spring:
-                {
+                    {
                         if (TakeSummerCourses)
                         {
+                            NumberOfQuarters++;
                             return new Quarter(quarterName.Year, Season.Summer);
                         }
                         else
                         {
+                            NumberOfQuarters++;
                             return new Quarter(quarterName.Year, Season.Fall);
                         }
-                }
+                    }
                 default: return quarterName;
             }
         }
@@ -105,7 +126,7 @@ namespace PlanGenerationAlgorithm
 
         public Schedule GetFirstSchedule()
         {
-            if(previousQuarter == null)
+            if (previousQuarter == null)
             {
                 return this;
             }

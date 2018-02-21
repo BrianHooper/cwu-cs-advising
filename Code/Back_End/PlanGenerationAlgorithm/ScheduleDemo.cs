@@ -20,7 +20,7 @@ namespace PlanGenerationAlgorithm
 
             Console.WriteLine("3 Courses, Max 3 per quarter, all prereqs, first course not offered in fall:");
             DemoWithAllPrereqs();
-
+            DemoFullSchedule();
             Console.ReadKey();
             Console.WriteLine("End of demo.");
         }
@@ -29,7 +29,7 @@ namespace PlanGenerationAlgorithm
         {
             // List of course requirements
             List<Course> Requirements = new List<Course>();
-
+            Student student;
             // Create 3 courses
             List<Course> CS311Prereqs = new List<Course>();
             Requirements.Add(new Course("Computer Architecture", "CS311", 4, true, new bool[] { true, true, false, false }, CS311Prereqs));
@@ -59,8 +59,8 @@ namespace PlanGenerationAlgorithm
             Schedule StudentSchedule = new Schedule(new Quarter(2018, Season.Fall));
 
             // Run the algorithm
-            Schedule GeneratedSchedule = Algorithm.Generate(Requirements, StudentSchedule);
-
+            Schedule GeneratedSchedule = Algorithm.Generate(Requirements, StudentSchedule,0,18);
+            
             // Output the results to the console
             Console.WriteLine("\n" + GeneratedSchedule.GetFirstSchedule());
         }
@@ -93,7 +93,7 @@ namespace PlanGenerationAlgorithm
             Schedule StudentSchedule = new Schedule(new Quarter(2018, Season.Fall));
 
             // Run the algorithm
-            Schedule GeneratedSchedule = Algorithm.Generate(Requirements, StudentSchedule);
+            Schedule GeneratedSchedule = Algorithm.Generate(Requirements, StudentSchedule,0,18);
 
             // Output the results to the console
             Console.WriteLine("\n" + GeneratedSchedule.GetFirstSchedule());
@@ -182,15 +182,29 @@ namespace PlanGenerationAlgorithm
             coursesList.Add(Math330);
 
             //create object schedule and call generate schedule for starting quarter
-            Schedule schedule = new Schedule(q_startingQuarter);
-            Schedule completed = Algorithm.Generate(coursesList, schedule);
+            //Schedule schedule = new Schedule(q_startingQuarter);
+           // Schedule completed = Algorithm.Generate(coursesList, schedule);
             //while requirements are not completed
 
-            while (completed != null)
+            Console.WriteLine("Course Requirements:");
+            foreach (Course c in coursesList)
             {
-                Console.WriteLine(completed);
-                completed = completed.NextQuarter;
+                Console.Write(c.ID + "  --  Prereq:");
+                foreach (Course prereq in c.PreRequisites)
+                {
+                    Console.Write(" " + prereq.ID);
+                }
+                Console.Write("\n");
             }
+
+            // Create an empty Schedule starting Fall 2018
+            Schedule StudentSchedule = new Schedule(new Quarter(2018, Season.Fall));
+
+            // Run the algorithm
+            Schedule GeneratedSchedule = Algorithm.Generate(coursesList, StudentSchedule,0,18);
+
+            // Output the results to the console
+            Console.WriteLine("\n" + GeneratedSchedule.GetFirstSchedule());
 
 
         }
