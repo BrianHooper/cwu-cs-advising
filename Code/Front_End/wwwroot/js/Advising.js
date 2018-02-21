@@ -37,7 +37,7 @@ function LoadSchedule(Schedule) {
 
 // Returns true if the quarter is locked
 function locked(Quarter) {
-    return (Quarter.attr("locked").indexOf("true") == 0);
+    return (Quarter.attr("locked").indexOf("true") === 0);
 }
 
 // Returns true if the quarter is locked
@@ -63,13 +63,13 @@ function IndexToQuarterName(strIndex) {
 
 // Converts a string quarter name to an integer quarter index
 function QuarterNameToIndex(strIndex) {
-    if (strIndex.indexOf("Winter") == 0) {
+    if (strIndex.indexOf("Winter") === 0) {
         return 1;
-    } else if (strIndex.indexOf("Spring") == 0) {
+    } else if (strIndex.indexOf("Spring") === 0) {
         return 2;
-    } else if (strIndex.indexOf("Summer") == 0) {
+    } else if (strIndex.indexOf("Summer") === 0) {
         return 3;
-    } else if (strIndex.indexOf("Fall") == 0) {
+    } else if (strIndex.indexOf("Fall") === 0) {
         return 4;
     } else {
         return -1;
@@ -79,11 +79,11 @@ function QuarterNameToIndex(strIndex) {
 /*  Returns the next quarter after the last quarter, in "Season Year" format */
 function GetNextQuarter(lastQuarter) {
     var split = lastQuarter.split(" ");
-    if (split[0].indexOf("Fall") == 0) {
+    if (split[0].indexOf("Fall") === 0) {
         return "Winter " + (parseInt(split[1]) + 1);
-    } else if (split[0].indexOf("Winter") == 0) {
+    } else if (split[0].indexOf("Winter") === 0) {
         return "Spring " + split[1];
-    } else if (split[0].indexOf("Spring") == 0) {
+    } else if (split[0].indexOf("Spring") === 0) {
         return "Summer " + split[1];
     } else {
         return "Fall " + split[1];
@@ -146,7 +146,7 @@ $(document).on("click", ".DeleteQuarter", function () {
 
     // Check whether or not this quarter is the last quarter
     var lastQuarterName = $("#QuarterContainer").children().last().children().eq(0).children().eq(1).html();
-    var isLastQuarter = (thisQuarterName.indexOf(lastQuarterName) == 0);
+    var isLastQuarter = (thisQuarterName.indexOf(lastQuarterName) === 0);
 
     // For each CourseSelection object in the quarter
     // If there is a value selected, add it to the unmet requirements
@@ -223,8 +223,7 @@ $(document).on("click", ".DeleteCourse", function () {
     $(this).parent().remove();
 
     // Update all select elements to contain the newly removed course
-
-    if (selectedCourse.Title != undefined && selectedCourse.Title.length > 0) {
+    if (selectedCourse.Title !== undefined && selectedCourse.Title.length > 0) {
         AddToUnmetRequirements(selectedCourse);
     }
 
@@ -278,7 +277,7 @@ $(document).on("focus", ".CourseSelection", function () {
 */
 $(document).on("change", ".CourseSelection", function () {
     RemoveCredits();
-    if (PreviousCourse.Title != undefined && PreviousCourse.Title.length > 0) {
+    if (PreviousCourse.Title !== undefined && PreviousCourse.Title.length > 0) {
         AddToUnmetRequirements(PreviousCourse);
     }
 
@@ -299,7 +298,7 @@ $(document).on("change", ".CourseSelection", function () {
 
     // Clear any empty values in this select
     $(this).children().each(function () {
-        if ($(this).val().length == 0) {
+        if ($(this).val().length === 0) {
             $(this).remove();
         }
     });
@@ -320,7 +319,7 @@ function AddCredits() {
             $(this).children().eq(0).each(function () {
                 if ($(this).hasClass("CourseSelection")) {
                     var courseCredits = $('option:selected', this).attr('credits');
-                    if (courseCredits != undefined) {
+                    if (courseCredits !== undefined) {
                         credits = credits + parseInt(courseCredits);
                     }                     
                 }
@@ -416,7 +415,7 @@ function SelectListContains(OptionList, courseName) {
 
 /*  Removes a course from all select objects    */
 function RemoveCourseFromAllSelects(course) {
-    if (course.Title == undefined) {
+    if (course.Title === undefined) {
         return;
     } 
     // Iterate over each select element
@@ -464,7 +463,7 @@ function RemoveFromUnmetRequriements(course) {
     var match = course.Title;
     for (var i = 0; i < unmetRequirements.length; i++) {
         var element = unmetRequirements[i].Title;
-        if (match.indexOf(element) == 0) {
+        if (match.indexOf(element) === 0) {
             unmetRequirements.splice(i, 1);
         }
     }
