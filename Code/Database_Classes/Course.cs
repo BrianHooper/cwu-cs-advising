@@ -26,6 +26,8 @@ namespace Database_Object_Classes
 
         /// <summary>Stores whether or not this quarter requires a student to be in the CS major to take it.</summary>
         private bool          b_requiresMajor;
+        public int weight;
+        public int value;
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -141,6 +143,10 @@ namespace Database_Object_Classes
             set => b_requiresMajor = value;
         } // end RequiresMajor
 
+        public uint Credits
+        {
+            get => ui_numberCredits;
+        }
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
         // IComparable Implementation:
