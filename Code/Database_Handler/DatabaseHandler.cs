@@ -2019,6 +2019,8 @@ namespace Database_Handler
                 reader.Close();
 
                 MySqlLock.ReleaseMutex();
+				
+				Console.WriteLine("Still Alive, sleeping 120000 ms).");
 
                 Thread.Sleep(120000);
             } // end for
