@@ -48,7 +48,7 @@ namespace Database_Handler
 
     /// <summary>Wrapper class for Database instructions.</summary>
     [Serializable]
-    class DatabaseCommand
+    public class DatabaseCommand
     {
         /// <summary>Type of Command to execute.</summary>
         private CommandType ct_commandType;
@@ -152,6 +152,7 @@ namespace Database_Handler
 
         /// <summary>Getter for the list of students for a display command.</summary>
         public List<Student> StudentList => l_students;
+        public List<Course> CourseList => l_courses;
 
         /// <summary>Getter for the operand.</summary>
         public object Operand => o_operand;

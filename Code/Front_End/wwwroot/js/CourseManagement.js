@@ -256,18 +256,37 @@ function ReadCoursesToList() {
     return Courses;
 }
 
+function GetCourseByName(Name) {
+    for (var i = 0; i < CourseList.length; i++) {
+        if (StringMatch(CourseList[i].Title, Name)) {
+            return CourseList[i];
+        }
+    }
+    return null;
+}
+
 $(document).on("click", ".PrereqBox", function () {
     var DialogBox = $("<div></div>");
     DialogBox.attr("class", "PrereqPopup");
     var PrereqBox = $("<div></div>");
     PrereqBox.attr("class", "PrereqPopubBox");
     PrereqBox.attr("style", "display: flex; flex-direction:column; justify-content:space-between;")
-
-
-    PrereqBox.append($("<div class='Flex CenterFlex'><div class='WideFlex'>Prereqs</div><div class='ClosePrereqs'>" + deleteIcon + "</div></div>"));
-    PrereqBox.append("<div style='height: 100%;'>CONTENT</div>");
-    PrereqBox.append($("<div class='Flex CenterFlex'><div id='SavePrereqs' class='DivButton'>Save</div><div class='ClosePrereqs DivButton'>Close</div></div>"));
     
+    PrereqBox.append($("<div class='Flex CenterFlex'><div class='WideFlex'>Prereqs</div><div class='ClosePrereqs'>" + deleteIcon + "</div></div>"));
+    var PrereqListContainer = $("<div></div>");
+
+    var Course = GetCourseByName($(this).parent().children().eq(1).children().first().html());
+    console.log(Course);
+
+    PrereqListContainer.append($("<div>Course: " + Course.Title + "</div>"));
+
+    for (var i = 0; i < $(this).children().length; i++) {
+        PrereqListContainer.append($("<span class='PrereqExit'>" + Course.PreReqs[i] + "</span>"));
+    }
+
+    PrereqBox.append(PrereqListContainer);
+    PrereqBox.append($("<div class='Flex CenterFlex'><button type='button' id='SavePrereqs' class='BigButton'>Save</button><button type='button' class='ClosePrereqs BigButton'>Close</button></div>"));
+
     $("#CourseContainer").append(DialogBox);
     $("#CourseContainer").append(PrereqBox);
 });
