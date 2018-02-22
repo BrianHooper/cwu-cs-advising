@@ -152,6 +152,7 @@ namespace Database_Handler
 
         /// <summary>Getter for the list of students for a display command.</summary>
         public List<Student> StudentList => l_students;
+        /// <summary>Getter for the list of courses for a display command.</summary>
         public List<Course> CourseList => l_courses;
 
         /// <summary>Getter for the operand.</summary>

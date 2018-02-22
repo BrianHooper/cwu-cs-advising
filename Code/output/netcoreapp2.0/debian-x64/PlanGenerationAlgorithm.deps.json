@@ -11,7 +11,8 @@
         "dependencies": {
           "Microsoft.NETCore.App": "2.0.0",
           "Database_Classes": "1.0.0.0",
-          "Database_Handler": "1.0.0.0"
+          "Database_Handler": "1.0.0.0",
+          "Db4objects.Db4o": "8.0.276.16149"
         },
         "runtime": {
           "PlanGenerationAlgorithm.dll": {}
@@ -255,6 +256,11 @@
         "runtime": {
           "Database_Handler.dll": {}
         }
+      },
+      "Db4objects.Db4o/8.0.276.16149": {
+        "runtime": {
+          "Db4objects.Db4o.dll": {}
+        }
       }
     }
   },
@@ -340,6 +346,11 @@
       "sha512": ""
     },
     "Database_Handler/1.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Db4objects.Db4o/8.0.276.16149": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""

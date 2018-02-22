@@ -19,17 +19,17 @@ namespace Database_Handler
     {
         // Static class fields:
         /// <summary>The number of iterations for hashing the password.</summary>
-        public  static   int i_HASH_ITERATIONS      = 10000             ;
+        public  static int    i_HASH_ITERATIONS     = 10000             ;
 
         /// <summary>The path to the log file which will contain the log entries created by DBH.</summary>
-        public  static   string s_logFilePath       = "log.txt"         ;
+        public  static string s_logFilePath         = "log.txt"         ;
 
         /// <summary>Mutex locks for databases.</summary>
-        private static Mutex MySqlLock              = new Mutex()       ;
-        private static Mutex StudentLock            = new Mutex()       ;
-        private static Mutex CatalogLock            = new Mutex()       ;
-        private static Mutex CourseLock             = new Mutex()       ;
-        private static Mutex LogLock                = new Mutex()       ;
+        private static Mutex  MySqlLock             = new Mutex()       ;
+        private static Mutex  StudentLock           = new Mutex()       ;
+        private static Mutex  CatalogLock           = new Mutex()       ;
+        private static Mutex  CourseLock            = new Mutex()       ;
+        private static Mutex  LogLock               = new Mutex()       ;
 
 
         // Class fields:
@@ -49,9 +49,10 @@ namespace Database_Handler
         private readonly string s_IP_ADDRESS        = "127.0.0.1"       ;
 
         private readonly int    i_TCP_PORT          = 44765             ;
-
+                                        
         /// <summary>The length, in bytes, of the password salt.</summary>
-        private const int i_SALT_LENGTH             = 32                ;
+        private const int       i_SALT_LENGTH       = 32                ;
+        private const int       BUFFER_SIZE         = 2048              ;
 
         /// <summary>The length of the longest plan in the s_PLAN_TABLE mysql table, stored in the master record.</summary>
         private uint ui_COL_COUNT;
@@ -90,11 +91,11 @@ namespace Database_Handler
         }// end default Constructor
 
         /// <summary>Loads the DBH configurations from the given .ini file.</summary>
-        /// <param name="s_FileName">Path of the .ini file containing the configurations DBH should use.</param>
-        public DatabaseHandler(string s_FileName)
+        /// <param name="s_fileName">Path of the .ini file containing the configurations DBH should use.</param>
+        public DatabaseHandler(string s_fileName)
         {
             var parser = new FileIniDataParser();
-            IniData data = parser.ReadFile("Configuration.ini");
+            IniData data = parser.ReadFile(s_fileName);
 
             s_MYSQL_DB_NAME = data["MySql Connection"]["DB"];
             s_MYSQL_DB_SERVER = data["MySql Connection"]["host"];
@@ -176,60 +177,11 @@ namespace Database_Handler
         // Main:
         /// <summary>Program entry point. Initializes program and handles fatal errors.</summary>
         /// <param name="args">Unused.</param>
-        public static void Main2(string[] args)
+        public static void Main(string[] args)
         {            
             WriteToLog(" -- DBH was started.");
 
-            DatabaseHandler DBH;
-
-            if (args.Length == 14) // custom settings for DBH
-            {
-                if (Int32.TryParse(args[13], out int port))
-                {
-                    DBH = new DatabaseHandler(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], port);
-                } // end if
-                else
-                {
-                    WriteToLog(" -- DBH startup failed due to incorrect command line arguments.");
-                    Console.WriteLine("The arguements supplied were not correct.");
-                    Console.WriteLine("Required arguments (14 in total):");
-                    Console.WriteLine("(0)Name of MySql Database\n(1)IP of MySql Database\n(2)Port of MySql Database\n(3)User ID for MySql Database\n(4)Name of MySql table containing user credentials" +
-                                      "\n(5)Name of key in credentials table\n(6)Name of MySql table containing student plans\n(7)Name of key in student plans table\n(8)Name of DB4O student database" +
-                                      "\n(9)Name of DB4O course database\n(10)Name of DB4O catalog database\n(11)Path to log file\n(12)IP address to accept clients from\n(13)TCPIP port to use for clients");
-                    return;
-                } // end else
-            } // end if
-            else if (args.Length == 0) // default settings for DBH
-            {
-                DBH = new DatabaseHandler();
-            } // end else
-            else if (args.Length == 1)
-            {
-                try
-                {
-                    DBH = new DatabaseHandler(args[1]);
-                } // end try
-                catch (Exception e)
-                {
-                    WriteToLog(" -- DBH startup failed, the .ini file was not found or corrupt. Msg: " + e.Message);
-                    return;
-                } // end catch
-            }
-            else
-            {
-                WriteToLog(" -- DBH startup failed due to incorrect command line arguments.");
-                Console.WriteLine("The arguements supplied were not correct.");
-                Console.WriteLine("(Option 1) Required arguments (0 in total): No arguments will use default settings.");
-                Console.WriteLine("(Option 2) Required arguments (1 in total): Will use configuration file at the specified path.");
-                Console.WriteLine("(0)Path to a file containing the configurations, this file must be of type *.ini");
-                Console.WriteLine("(Option 3) Required arguments (14 in total):");
-                Console.WriteLine("(0)Name of MySql Database\n(1)IP of MySql Database\n(2)Port of MySql Database\n(3)User ID for MySql Database\n(4)Name of MySql table containing user credentials" +
-                                  "\n(5)Name of key in credentials table\n(6)Name of MySql table containing student plans\n(7)Name of key in student plans table\n(8)Name of DB4O student database" +
-                                  "\n(9)Name of DB4O course database\n(10)Name of DB4O catalog database\n(11)Path to log file\n(12)IP address to accept clients from\n(13)TCPIP port to use for clients");
-
-                return;
-            } // end else
-
+            DatabaseHandler DBH = new DatabaseHandler("/var/aspnetcore/publish/Configuration.ini");
 
             int i_errorCode = -1;
 
@@ -730,12 +682,18 @@ namespace Database_Handler
         /// <param name="stream">Network stream to the connected client.</param>
         /// <returns>The command that is to be executed.</returns>
         private DatabaseCommand WaitForCommand(NetworkStream stream)
-        {           
-            byte[] ba_data = new byte[2048];
+        {
+            byte[] ba_data = new byte[BUFFER_SIZE];
 
-            stream.Read(ba_data, 0, 2048);
+            MemoryStream ms = new MemoryStream();
 
-            MemoryStream ms = new MemoryStream(ba_data);
+            // read from stream in chunks of 2048 bytes
+            for (int i = 0; stream.DataAvailable; i++)
+            {
+                stream.Read(ba_data, i * BUFFER_SIZE, BUFFER_SIZE);
+                ms.Write(ba_data, i * BUFFER_SIZE, BUFFER_SIZE);
+            } // end for
+
             BinaryFormatter formatter = new BinaryFormatter();
 
             DatabaseCommand cmd = (DatabaseCommand)formatter.Deserialize(ms);
@@ -755,9 +713,8 @@ namespace Database_Handler
             try
             {
                 formatter.Serialize(ms, cmd);
-                byte[] ba_data = ms.ToArray();
-
-                stream.Write(ba_data, 0, ba_data.Length);
+                
+                stream.Write(ms.ToArray(), 0, ms.ToArray().Length);
             } // end try
             catch (Exception e)
             {
@@ -846,7 +803,16 @@ namespace Database_Handler
             RNG = new RNGCryptoServiceProvider();
 
             // TCP setup
-            address = IPAddress.Parse(s_IP_ADDRESS);
+
+            if (s_IP_ADDRESS == "Any")
+            {
+                address = IPAddress.Any;
+            } // end if
+            else
+            {
+                address = IPAddress.Parse(s_IP_ADDRESS);
+            } // end else
+
             tcpListener = new TcpListener(address, i_TCP_PORT); 
             
 
@@ -871,10 +837,11 @@ namespace Database_Handler
                 throw new Exception("Database set up failed because the master record was not found in: " + s_MYSQL_DB_NAME + "." + s_PLAN_TABLE);
             } // end else
 
-            tcpListener.Start();
-
             clientThreads = new List<Thread>();
             clients = new List<TcpClient>();
+
+            // start listening for connection attempts
+            tcpListener.Start();
 
             return 0;
         } // end method SetUp
@@ -934,7 +901,7 @@ namespace Database_Handler
         // Website Login Handler:
         /// <summary>Checks the password entered by a user against the database record.</summary>
         /// <param name="s_ID">The username of the person attempting to log in.</param>
-        /// <param name="ss_pw">A secure string containing the user's password.</param>
+        /// <param name="s_pw">A string containing the user's password hash.</param>
         /// <param name="b_isAdmin">Return parameter, indicates whether the user is an admin or not.</param>
         /// <returns>True if the password entered matches the database record and out parameter b_isAdmin.</returns>
         /// <remarks>The parameter ss_pw will be destroyed during method execution, and can not be used afterwards.</remarks>
@@ -2052,6 +2019,8 @@ namespace Database_Handler
                 reader.Close();
 
                 MySqlLock.ReleaseMutex();
+				
+				Console.WriteLine("Still Alive, sleeping 120000 ms).");
 
                 Thread.Sleep(120000);
             } // end for

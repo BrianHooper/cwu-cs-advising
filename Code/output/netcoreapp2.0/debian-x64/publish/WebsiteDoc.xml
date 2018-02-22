@@ -4,5 +4,21 @@
         <name>CwuAdvising</name>
     </assembly>
     <members>
+        <member name="T:CwuAdvising.DatabaseInterface">
+            <summary></summary>
+        </member>
+        <member name="M:CwuAdvising.DatabaseInterface.#ctor">
+            <summary></summary>
+        </member>
+        <member name="M:CwuAdvising.DatabaseInterface.#ctor(System.String)">
+            <summary>Extracts settings from configuration file.</summary>
+            <param name="s_fileName">Ini file with configurations.</param>
+        </member>
+        <member name="M:CwuAdvising.DatabaseInterface.Finalize">
+            <summary></summary>
+        </member>
+        <member name="M:CwuAdvising.DatabaseInterface.GetAllCourses">
+            <summary></summary>
+        </member>
     </members>
 </doc>

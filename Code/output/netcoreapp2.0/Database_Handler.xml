@@ -124,6 +124,9 @@
         <member name="P:Database_Handler.DatabaseCommand.StudentList">
             <summary>Getter for the list of students for a display command.</summary>
         </member>
+        <member name="P:Database_Handler.DatabaseCommand.CourseList">
+            <summary>Getter for the list of courses for a display command.</summary>
+        </member>
         <member name="P:Database_Handler.DatabaseCommand.Operand">
             <summary>Getter for the operand.</summary>
         </member>
@@ -171,6 +174,10 @@
             <summary>Default Constructor</summary>
             <remarks>This constructor does nothing, it will use all default values for variables.</remarks>
         </member>
+        <member name="M:Database_Handler.DatabaseHandler.#ctor(System.String)">
+            <summary>Loads the DBH configurations from the given .ini file.</summary>
+            <param name="s_fileName">Path of the .ini file containing the configurations DBH should use.</param>
+        </member>
         <member name="M:Database_Handler.DatabaseHandler.#ctor(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Int32)">
             <summary>Constructor which sets the database information for this DBH object to the given values.</summary>
             <param name="s_MYSQL_DB_NAME">Name of the MySQL database, e.g. test_db.</param>
@@ -189,7 +196,7 @@
             <param name="i_TCP_PORT">The TCP port on which to accept client requests.</param>
             <remarks>Changes made by the constructor are not persistent, upon restarting, the default values will be used again.</remarks>
         </member>
-        <member name="M:Database_Handler.DatabaseHandler.Main2(System.String[])">
+        <member name="M:Database_Handler.DatabaseHandler.Main(System.String[])">
             <summary>Program entry point. Initializes program and handles fatal errors.</summary>
             <param name="args">Unused.</param>
         </member>
@@ -265,7 +272,7 @@
             <summary>Logs the DBH into the MySQL database.</summary>
             <returns>True if successful, false otherwise.</returns>
         </member>
-        <member name="M:Database_Handler.DatabaseHandler.SetUp">
+        <member name="M:Database_Handler.DatabaseHandler.SetUp(System.Boolean)">
             <summary>Sets up all necessary components for DBH.</summary>
             <returns>An error code or 0 if setup was successful.</returns>
             <exception cref="T:System.Exception">Thrown if it the master record could not be retrieved from the database.</exception>
@@ -285,7 +292,7 @@
         <member name="M:Database_Handler.DatabaseHandler.LoginAttempt(System.String,System.String,System.Boolean@)">
             <summary>Checks the password entered by a user against the database record.</summary>
             <param name="s_ID">The username of the person attempting to log in.</param>
-            <param name="ss_pw">A secure string containing the user's password.</param>
+            <param name="s_pw">A string containing the user's password hash.</param>
             <param name="b_isAdmin">Return parameter, indicates whether the user is an admin or not.</param>
             <returns>True if the password entered matches the database record and out parameter b_isAdmin.</returns>
             <remarks>The parameter ss_pw will be destroyed during method execution, and can not be used afterwards.</remarks>

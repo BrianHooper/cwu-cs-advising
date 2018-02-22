@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Advising</title>
+
+    <link rel="stylesheet" href="~/css/Layout.css" />
+    <link rel="stylesheet" href="~/css/Generics.css" />
+    <script src="~/js/site.js"></script>
+    <script src="~/js/jquery.js"></script>
+</head>
+<body>
+<div id="TopSpacer">
+    
+        <div id="CwuHome">
+            <a href="http://www.cwu.edu" style="color: #000000;">CENTRAL WASHINGTON UNIVERSITY</a>
+</div>
+    
+</div>
+<div id="TopLogo">
+    <div id="InnerTopLogo">
+        <a href="Index" style="color: white;">CWU Student Advising</a>
+    </div>
+</div>
+<div class="HorizontalBar">&nbsp;</div>
+    <div id="PageContainer">
+        
+
+        <div class="PageRow Flex">
+            <div class="WideFlex" id="Logout">Logged in as: <span id="CurrentUser">Admin</span> <a href="">[ Logout ]</a></div>
+            <div class="WideFlex" id="Navigation">
+                <span id="NavLinks">
+                    <a href="Index">Home</a> |
+                    <a href="Advising">Advising</a> |
+                    <a href="ManageCourses">Course Management</a> |
+                    <a href="ManageDegrees">Degree Management</a>
+                </span>
+            </div>
+        </div>
+        @RenderBody()
+    </div>
+</body>
+</html>
