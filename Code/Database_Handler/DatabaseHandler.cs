@@ -19,17 +19,17 @@ namespace Database_Handler
     {
         // Static class fields:
         /// <summary>The number of iterations for hashing the password.</summary>
-        public  static   int i_HASH_ITERATIONS      = 10000             ;
+        public  static int    i_HASH_ITERATIONS     = 10000             ;
 
         /// <summary>The path to the log file which will contain the log entries created by DBH.</summary>
-        public  static   string s_logFilePath       = "log.txt"         ;
+        public  static string s_logFilePath         = "log.txt"         ;
 
         /// <summary>Mutex locks for databases.</summary>
-        private static Mutex MySqlLock              = new Mutex()       ;
-        private static Mutex StudentLock            = new Mutex()       ;
-        private static Mutex CatalogLock            = new Mutex()       ;
-        private static Mutex CourseLock             = new Mutex()       ;
-        private static Mutex LogLock                = new Mutex()       ;
+        private static Mutex  MySqlLock             = new Mutex()       ;
+        private static Mutex  StudentLock           = new Mutex()       ;
+        private static Mutex  CatalogLock           = new Mutex()       ;
+        private static Mutex  CourseLock            = new Mutex()       ;
+        private static Mutex  LogLock               = new Mutex()       ;
 
 
         // Class fields:
@@ -49,9 +49,10 @@ namespace Database_Handler
         private readonly string s_IP_ADDRESS        = "127.0.0.1"       ;
 
         private readonly int    i_TCP_PORT          = 44765             ;
-
+                                        
         /// <summary>The length, in bytes, of the password salt.</summary>
-        private const int i_SALT_LENGTH             = 32                ;
+        private const int       i_SALT_LENGTH       = 32                ;
+        private const int       BUFFER_SIZE         = 2048              ;
 
         /// <summary>The length of the longest plan in the s_PLAN_TABLE mysql table, stored in the master record.</summary>
         private uint ui_COL_COUNT;
@@ -730,12 +731,18 @@ namespace Database_Handler
         /// <param name="stream">Network stream to the connected client.</param>
         /// <returns>The command that is to be executed.</returns>
         private DatabaseCommand WaitForCommand(NetworkStream stream)
-        {           
-            byte[] ba_data = new byte[2048];
+        {
+            byte[] ba_data = new byte[BUFFER_SIZE];
 
-            stream.Read(ba_data, 0, 2048);
+            MemoryStream ms = new MemoryStream();
 
-            MemoryStream ms = new MemoryStream(ba_data);
+            // read from stream in chunks of 2048 bytes
+            for (int i = 0; stream.DataAvailable; i++)
+            {
+                stream.Read(ba_data, i * BUFFER_SIZE, BUFFER_SIZE);
+                ms.Write(ba_data, i * BUFFER_SIZE, BUFFER_SIZE);
+            } // end for
+
             BinaryFormatter formatter = new BinaryFormatter();
 
             DatabaseCommand cmd = (DatabaseCommand)formatter.Deserialize(ms);
@@ -755,9 +762,8 @@ namespace Database_Handler
             try
             {
                 formatter.Serialize(ms, cmd);
-                byte[] ba_data = ms.ToArray();
-
-                stream.Write(ba_data, 0, ba_data.Length);
+                
+                stream.Write(ms.ToArray(), 0, ms.ToArray().Length);
             } // end try
             catch (Exception e)
             {
@@ -944,7 +950,7 @@ namespace Database_Handler
         // Website Login Handler:
         /// <summary>Checks the password entered by a user against the database record.</summary>
         /// <param name="s_ID">The username of the person attempting to log in.</param>
-        /// <param name="ss_pw">A secure string containing the user's password.</param>
+        /// <param name="s_pw">A string containing the user's password hash.</param>
         /// <param name="b_isAdmin">Return parameter, indicates whether the user is an admin or not.</param>
         /// <returns>True if the password entered matches the database record and out parameter b_isAdmin.</returns>
         /// <remarks>The parameter ss_pw will be destroyed during method execution, and can not be used afterwards.</remarks>
