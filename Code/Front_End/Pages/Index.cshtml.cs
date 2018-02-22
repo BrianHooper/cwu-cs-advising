@@ -11,9 +11,6 @@ namespace CwuAdvising.Pages
 
     public class IndexModel : PageModel
     {
-        
-
-
         public class StudentInfoModel
         {
             public string Name { get; set; }

@@ -54,6 +54,7 @@ namespace CwuAdvising
                 networkStream.Write(memoryStream.ToArray(), 0, memoryStream.ToArray().Length);
             } catch( Exception e)
             {
+                Console.Write(e);
                 return null;
             }
 
