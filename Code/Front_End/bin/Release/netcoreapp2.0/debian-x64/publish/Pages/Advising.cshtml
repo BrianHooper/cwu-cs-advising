@@ -1,0 +1,36 @@
+﻿@page
+@model CwuAdvising.Pages.AdvisingModel
+@{
+    ViewData["Title"] = "Advising";
+}
+<script src="~/js/Advising.js"></script>
+<div style="border: thin solid black; font-size: 1.5em; display: inline-block; margin: auto;">
+    Student: @DemoController.StudentName<br />
+    ID: @DemoController.StudentID<br />
+    Starting Quarter: @DemoController.StudentQuarter @DemoController.StudentYear<br />
+    Degree: @DemoController.StudentDegree<br />
+                                         <p>
+                                             Import Transcript:<br />
+                                             <input name="myFile" type="file">
+                                             <input type="submit" value="Import" />
+                                         </p>
+</div>
+
+<div class="CenterFlex">
+    <div id="QuarterContainer" class="CenterFlex">
+        &nbsp;
+    </div>
+</div>
+<div class="CenterFlex">
+    <div class="Block">
+        <div class="Title" id="RemainingRequirements">&nbsp;</div>
+
+        <ul id="RemainingRequirementsList"></ul>
+    </div>
+</div>
+
+<div class="Flex CenterFlex">
+    <a href="#" class="DivButton" id="AddQuarter">Add Additional Quarter</a>
+    <a href="#" class="DivButton" id="GenerateButton">Generate Remaining Courses</a>
+    <a href="#" class="DivButton">Print</a>
+</div>

@@ -1,7 +1,7 @@
 {
   "runtimeTarget": {
     "name": ".NETCoreApp,Version=v2.0/debian-x64",
-    "signature": "39a4c09cce29c6f566b43fc8bfc55a96db5d9b90"
+    "signature": "c58212078cae74a0931d1ba5aba7266c9a5d7cb6"
   },
   "compilationOptions": {
     "defines": [
@@ -26,11 +26,17 @@
           "Microsoft.AspNetCore.All": "2.0.5",
           "Microsoft.NETCore.App": "2.0.0",
           "Microsoft.VisualStudio.Web.CodeGeneration.Design": "2.0.2",
+          "ini-parser": "2.5.2",
           "Database_Classes": "1.0.0.0",
           "Database_Handler": "1.0.0.0"
         },
         "compile": {
           "CwuAdvising.dll": {}
+        }
+      },
+      "ini-parser/2.5.2": {
+        "compile": {
+          "lib/net20/INIFileParser.dll": {}
         }
       },
       "Libuv/1.10.0": {
@@ -3436,11 +3442,17 @@
           "Microsoft.AspNetCore.All": "2.0.5",
           "Microsoft.NETCore.App": "2.0.0",
           "Microsoft.VisualStudio.Web.CodeGeneration.Design": "2.0.2",
+          "ini-parser": "2.5.2",
           "Database_Classes": "1.0.0.0",
           "Database_Handler": "1.0.0.0"
         },
         "runtime": {
           "CwuAdvising.dll": {}
+        }
+      },
+      "ini-parser/2.5.2": {
+        "runtime": {
+          "lib/net20/INIFileParser.dll": {}
         }
       },
       "Libuv/1.10.0": {
@@ -6979,6 +6991,13 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
+    },
+    "ini-parser/2.5.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-hp3gKmC/14+6eKLgv7Jd1Z7OV86lO+tNfOXr/stQbwmRhdQuXVSvrRAuAe7G5+lwhkov0XkqZ8/bn1PYWMx6eg==",
+      "path": "ini-parser/2.5.2",
+      "hashPath": "ini-parser.2.5.2.nupkg.sha512"
     },
     "Libuv/1.10.0": {
       "type": "package",

@@ -1,7 +1,7 @@
 {
   "runtimeTarget": {
     "name": ".NETCoreApp,Version=v2.0/debian-x64",
-    "signature": "1a9076e5238fd3322d965a374fa4aa3a00a6e0fc"
+    "signature": "f0d74b80145b720476b1318c0c7f4cdeed9e3ee2"
   },
   "compilationOptions": {},
   "targets": {
@@ -11,10 +11,16 @@
         "dependencies": {
           "Microsoft.NETCore.App": "2.0.0",
           "MySql.Data": "6.10.5",
+          "ini-parser": "2.5.2",
           "Database_Classes": "1.0.0.0"
         },
         "runtime": {
           "Database_Handler.dll": {}
+        }
+      },
+      "ini-parser/2.5.2": {
+        "runtime": {
+          "lib/net20/INIFileParser.dll": {}
         }
       },
       "Microsoft.NETCore.App/2.0.0": {
@@ -484,6 +490,13 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
+    },
+    "ini-parser/2.5.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-hp3gKmC/14+6eKLgv7Jd1Z7OV86lO+tNfOXr/stQbwmRhdQuXVSvrRAuAe7G5+lwhkov0XkqZ8/bn1PYWMx6eg==",
+      "path": "ini-parser/2.5.2",
+      "hashPath": "ini-parser.2.5.2.nupkg.sha512"
     },
     "Microsoft.NETCore.App/2.0.0": {
       "type": "package",

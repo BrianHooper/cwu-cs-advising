@@ -4,5 +4,16 @@
         <name>PlanGenerationAlgorithm</name>
     </assembly>
     <members>
+        <member name="T:PlanGenerationAlgorithm.Heap`1">
+            <summary></summary>
+            <typeparam name="T"></typeparam>
+            <remarks>Stolen from https://stackoverflow.com/a/13776636/9176689 </remarks>
+        </member>
+        <member name="M:PlanGenerationAlgorithm.Node.AddArc(PlanGenerationAlgorithm.Node,System.Int32)">
+            <summary>
+            Create a new arc, connecting this Node to the Nod passed in the parameter
+            Also, it creates the inversed node in the passed node
+            </summary>
+        </member>
     </members>
 </doc>
