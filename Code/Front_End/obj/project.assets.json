@@ -2,6 +2,15 @@
   "version": 3,
   "targets": {
     ".NETCoreApp,Version=v2.0": {
+      "ini-parser/2.5.2": {
+        "type": "package",
+        "compile": {
+          "lib/net20/INIFileParser.dll": {}
+        },
+        "runtime": {
+          "lib/net20/INIFileParser.dll": {}
+        }
+      },
       "Libuv/1.10.0": {
         "type": "package",
         "dependencies": {
@@ -5032,6 +5041,18 @@
     }
   },
   "libraries": {
+    "ini-parser/2.5.2": {
+      "sha512": "hp3gKmC/14+6eKLgv7Jd1Z7OV86lO+tNfOXr/stQbwmRhdQuXVSvrRAuAe7G5+lwhkov0XkqZ8/bn1PYWMx6eg==",
+      "type": "package",
+      "path": "ini-parser/2.5.2",
+      "files": [
+        "ini-parser.2.5.2.nupkg.sha512",
+        "ini-parser.nuspec",
+        "lib/net20/INIFileParser.dll",
+        "lib/net20/INIFileParser.dll.mdb",
+        "lib/net20/INIFileParser.xml"
+      ]
+    },
     "Libuv/1.10.0": {
       "sha512": "GsCf4q+eyaI49rCPlgYxdxa1SQCysXFFdSJWdstrwxytg4+VPYLYrXD4AT2rjHVJ+UF7SSWX9CapWEYaU4ejVQ==",
       "type": "package",
@@ -13119,7 +13140,8 @@
     ".NETCoreApp,Version=v2.0": [
       "Microsoft.AspNetCore.All >= 2.0.5",
       "Microsoft.NETCore.App >= 2.0.0",
-      "Microsoft.VisualStudio.Web.CodeGeneration.Design >= 2.0.2"
+      "Microsoft.VisualStudio.Web.CodeGeneration.Design >= 2.0.2",
+      "ini-parser >= 2.5.2"
     ]
   },
   "packageFolders": {
@@ -13181,6 +13203,10 @@
           "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
             "target": "Package",
             "version": "[2.0.2, )"
+          },
+          "ini-parser": {
+            "target": "Package",
+            "version": "[2.5.2, )"
           }
         },
         "imports": [
@@ -13190,5 +13216,17 @@
         "warn": true
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Package 'ini-parser 2.5.2' was restored using '.NETFramework,Version=v4.6.1' instead of the project target framework '.NETCoreApp,Version=v2.0'. This package may not be fully compatible with your project.",
+      "libraryId": "ini-parser",
+      "targetGraphs": [
+        ".NETCoreApp,Version=v2.0"
+      ]
+    }
+  ]
 }

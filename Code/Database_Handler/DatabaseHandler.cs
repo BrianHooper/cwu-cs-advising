@@ -90,11 +90,11 @@ namespace Database_Handler
         }// end default Constructor
 
         /// <summary>Loads the DBH configurations from the given .ini file.</summary>
-        /// <param name="s_FileName">Path of the .ini file containing the configurations DBH should use.</param>
-        public DatabaseHandler(string s_FileName)
+        /// <param name="s_fileName">Path of the .ini file containing the configurations DBH should use.</param>
+        public DatabaseHandler(string s_fileName)
         {
             var parser = new FileIniDataParser();
-            IniData data = parser.ReadFile("Configuration.ini");
+            IniData data = parser.ReadFile(s_fileName);
 
             s_MYSQL_DB_NAME = data["MySql Connection"]["DB"];
             s_MYSQL_DB_SERVER = data["MySql Connection"]["host"];
@@ -846,7 +846,16 @@ namespace Database_Handler
             RNG = new RNGCryptoServiceProvider();
 
             // TCP setup
-            address = IPAddress.Parse(s_IP_ADDRESS);
+
+            if (s_IP_ADDRESS == "Any")
+            {
+                address = IPAddress.Any;
+            } // end if
+            else
+            {
+                address = IPAddress.Parse(s_IP_ADDRESS);
+            } // end else
+
             tcpListener = new TcpListener(address, i_TCP_PORT); 
             
 
@@ -871,10 +880,11 @@ namespace Database_Handler
                 throw new Exception("Database set up failed because the master record was not found in: " + s_MYSQL_DB_NAME + "." + s_PLAN_TABLE);
             } // end else
 
-            tcpListener.Start();
-
             clientThreads = new List<Thread>();
             clients = new List<TcpClient>();
+
+            // start listening for connection attempts
+            tcpListener.Start();
 
             return 0;
         } // end method SetUp
