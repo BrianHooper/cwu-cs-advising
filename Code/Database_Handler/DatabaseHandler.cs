@@ -19,40 +19,40 @@ namespace Database_Handler
     {
         // Static class fields:
         /// <summary>The number of iterations for hashing the password.</summary>
-        public  static int    i_HASH_ITERATIONS     = 10000             ;
+        public static int i_HASH_ITERATIONS = 10000;
 
         /// <summary>The path to the log file which will contain the log entries created by DBH.</summary>
-        public  static string s_logFilePath         = "log.txt"         ;
+        public static string s_logFilePath = "log.txt";
 
         /// <summary>Mutex locks for databases.</summary>
-        private static Mutex  MySqlLock             = new Mutex()       ;
-        private static Mutex  StudentLock           = new Mutex()       ;
-        private static Mutex  CatalogLock           = new Mutex()       ;
-        private static Mutex  CourseLock            = new Mutex()       ;
-        private static Mutex  LogLock               = new Mutex()       ;
+        private static Mutex MySqlLock = new Mutex();
+        private static Mutex StudentLock = new Mutex();
+        private static Mutex CatalogLock = new Mutex();
+        private static Mutex CourseLock = new Mutex();
+        private static Mutex LogLock = new Mutex();
 
 
         // Class fields:
         /// <summary>Names of all database related components.</summary>
         /// <remarks>These can be set using the constructor, or the defaults can be used.</remarks>
-        private readonly string s_MYSQL_DB_NAME     = "test_db"         ;
-        private readonly string s_MYSQL_DB_SERVER   = "localhost"       ;
-        private readonly string s_MYSQL_DB_PORT     = "3306"            ;
-        private readonly string s_MYSQL_DB_USER_ID  = "testuser"        ;
+        private readonly string s_MYSQL_DB_NAME = "test_db";
+        private readonly string s_MYSQL_DB_SERVER = "localhost";
+        private readonly string s_MYSQL_DB_PORT = "3306";
+        private readonly string s_MYSQL_DB_USER_ID = "testuser";
         private readonly string s_CREDENTIALS_TABLE = "user_credentials";
-        private readonly string s_PLAN_TABLE        = "student_plans"   ;
-        private readonly string s_STUDENT_DB        = "Students.db4o"   ;
-        private readonly string s_COURSE_DB         = "Courses.db4o"    ;
-        private readonly string s_CATALOG_DB        = "Catalogs.db4o"   ;
-        private readonly string s_CREDENTIALS_KEY   = "username"        ;
-        private readonly string s_PLAN_KEY          = "SID"             ;
-        private readonly string s_IP_ADDRESS        = "127.0.0.1"       ;
+        private readonly string s_PLAN_TABLE = "student_plans";
+        private readonly string s_STUDENT_DB = "Students.db4o";
+        private readonly string s_COURSE_DB = "Courses.db4o";
+        private readonly string s_CATALOG_DB = "Catalogs.db4o";
+        private readonly string s_CREDENTIALS_KEY = "username";
+        private readonly string s_PLAN_KEY = "SID";
+        private readonly string s_IP_ADDRESS = "127.0.0.1";
 
-        private readonly int    i_TCP_PORT          = 44765             ;
-                                        
+        private readonly int i_TCP_PORT = 44765;
+
         /// <summary>The length, in bytes, of the password salt.</summary>
-        private const int       i_SALT_LENGTH       = 32                ;
-        private const int       BUFFER_SIZE         = 2048              ;
+        private const int i_SALT_LENGTH = 32;
+        private const int BUFFER_SIZE = 2048;
 
         /// <summary>The length of the longest plan in the s_PLAN_TABLE mysql table, stored in the master record.</summary>
         private uint ui_COL_COUNT;
@@ -79,17 +79,6 @@ namespace Database_Handler
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
         // Constructors:
-        /// <summary>Default Constructor</summary>
-        /// <remarks>This constructor does nothing, it will use all default values for variables.</remarks>
-        public DatabaseHandler()
-        {
-            if (SetUp() == 1)
-            {
-                WriteToLog(" -- DBH setup returned 1 (login failed). Exiting.");
-                throw new Exception("Login failed.");
-            } // end if
-        }// end default Constructor
-
         /// <summary>Loads the DBH configurations from the given .ini file.</summary>
         /// <param name="s_fileName">Path of the .ini file containing the configurations DBH should use.</param>
         public DatabaseHandler(string s_fileName)
@@ -121,64 +110,14 @@ namespace Database_Handler
             SetUp(false);
         } // end Constructor
 
-        /// <summary>Constructor which sets the database information for this DBH object to the given values.</summary>
-        /// <param name="s_MYSQL_DB_NAME">Name of the MySQL database, e.g. test_db.</param>
-        /// <param name="s_MYSQL_DB_SERVER">Name of the server hosting the MySQL db, e.g. localhost.</param>
-        /// <param name="s_MYSQL_DB_PORT">Port of the MySQL database in arg 1, e.g. 3306.</param>
-        /// <param name="s_MYSQL_DB_USER_ID">User ID that this DBH object should use to log in to the MySQL db, e.g. test_user.</param>
-        /// <param name="s_CREDENTIALS_TABLE">Name of the user credentials table, e.g. user_credentials.</param>
-        /// <param name="s_CREDENTIALS_KEY">Key used by the user credentials table, e.g. username.</param>
-        /// <param name="s_PLAN_TABLE">Name of the student plan table, e.g. student_plans.</param>
-        /// <param name="s_PLAN_KEY">Key used by the student plan table, e.g. SID.</param>
-        /// <param name="s_STUDENT_DB">Path of the student database, e.g. students.db4o.</param>
-        /// <param name="s_COURSE_DB">Path of the course database, e.g. courses.db4o</param>
-        /// <param name="s_CATALOG_DB">Path of the catalog database, e.g. catalogs.db4o</param>
-        /// <param name="s_logFilePath">Path of the DBH log file to use, e.g. log.txt</param>
-        /// <param name="s_IP_ADDRESS">The IP address from where to accept TCP client requests.</param>
-        /// <param name="i_TCP_PORT">The TCP port on which to accept client requests.</param>
-        /// <remarks>Changes made by the constructor are not persistent, upon restarting, the default values will be used again.</remarks>
-        public DatabaseHandler(string s_MYSQL_DB_NAME, string s_MYSQL_DB_SERVER, string s_MYSQL_DB_PORT, string s_MYSQL_DB_USER_ID,
-                               string s_CREDENTIALS_TABLE, string s_CREDENTIALS_KEY, string s_PLAN_TABLE, string s_PLAN_KEY,
-                               string s_STUDENT_DB, string s_COURSE_DB, string s_CATALOG_DB, string s_logFilePath, string s_IP_ADDRESS, int i_TCP_PORT)
-        {
-            // readonly field changes:
-            // MySQL connection
-            this.s_MYSQL_DB_NAME     = s_MYSQL_DB_NAME;
-            this.s_MYSQL_DB_SERVER   = s_MYSQL_DB_SERVER;
-            this.s_MYSQL_DB_PORT     = s_MYSQL_DB_PORT;
-            this.s_MYSQL_DB_USER_ID  = s_MYSQL_DB_USER_ID;
-
-            // Credentials table
-            this.s_CREDENTIALS_TABLE = s_CREDENTIALS_TABLE;
-            this.s_CREDENTIALS_KEY   = s_CREDENTIALS_KEY;
-
-            // Plan ttable
-            this.s_PLAN_TABLE        = s_PLAN_TABLE;
-            this.s_PLAN_KEY          = s_PLAN_KEY;
-
-            // DB4O file paths
-            this.s_STUDENT_DB        = s_STUDENT_DB;
-            this.s_COURSE_DB         = s_COURSE_DB;
-            this.s_CATALOG_DB        = s_CATALOG_DB;
-
-            // TCP connection settings
-            this.s_IP_ADDRESS        = s_IP_ADDRESS;
-            this.i_TCP_PORT          = i_TCP_PORT;
-
-            // static variable changes
-            DatabaseHandler.s_logFilePath = s_logFilePath;
-
-            SetUp();
-        } // end Constructor
-
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
-        
+
         // Main:
         /// <summary>Program entry point. Initializes program and handles fatal errors.</summary>
         /// <param name="args">Unused.</param>
         public static void Main(string[] args)
-        {            
+        {
             WriteToLog(" -- DBH was started.");
 
             DatabaseHandler DBH = new DatabaseHandler("/var/aspnetcore/publish/Configuration.ini");
@@ -207,14 +146,14 @@ namespace Database_Handler
                         break; // end case 3
                 } // end switch
             } // end try
-            catch(Exception e)
+            catch (Exception e)
             {
                 WriteToLog(" -- DBH is preparing to exit (error code unknown).");
                 WriteToLog(" -- DBH encountered an unknown exception. Msg: " + e.Message);
                 i_errorCode = -1;
             } // end catch            
             finally
-            {               
+            {
                 try
                 {
                     WriteToLog(" -- DBH is cleaning up...");
@@ -239,7 +178,7 @@ namespace Database_Handler
                 } // end finally
             } // end finally                    
         } // end Main
-    
+
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -248,7 +187,7 @@ namespace Database_Handler
         /// <param name="stream">The network stream which is used to communicate with the client.</param>
         /// <returns>Error code or 0 if application exited as expected.</returns>
         private int Run(NetworkStream stream)
-        {            
+        {
             try
             {
                 for (; ; )
@@ -257,7 +196,7 @@ namespace Database_Handler
 
                     int i = ExecuteCommand(command, stream);
 
-                    switch(i)
+                    switch (i)
                     {
                         case 1:
                             WriteToLog(" -- DBH was not able to send return command due to an error.");
@@ -273,11 +212,11 @@ namespace Database_Handler
             } // end try
             catch (Exception e)
             {
-                if(!int.TryParse(e.Message, out int error))
+                if (!int.TryParse(e.Message, out int error))
                 {
                     throw e; // not an exception generated by DBH
                 } // end if      
-                
+
                 return error;
             } // end catch
         } // end method Run
@@ -325,7 +264,7 @@ namespace Database_Handler
             Thread stayAlive = new Thread(KeepAlive);
             stayAlive.Start();
 
-            for(; ; )
+            for (; ; )
             {
                 TcpClient newClient = tcpListener.AcceptTcpClient();
                 Thread newClientThread = new Thread(RunClient);
@@ -338,10 +277,10 @@ namespace Database_Handler
                     {
                         AttemptReconnect();
                     } // end try
-                    catch(Exception)
+                    catch (Exception)
                     {
                         output = 2;
-                        
+
                         WriteToLog(" -- DBH lost the database connection and is terminating all client threads.");
                         foreach (Thread t in clientThreads)
                         {
@@ -382,7 +321,7 @@ namespace Database_Handler
         {
             DatabaseCommand output;
 
-            switch(cmd.CommandType)
+            switch (cmd.CommandType)
             {
                 case CommandType.Retrieve:
                     output = ExecuteRetrieveCommand(cmd);
@@ -455,7 +394,7 @@ namespace Database_Handler
                     result = new DatabaseCommand(-1, "Invalid operand type");
                     break;
             } // end switch
-            
+
             return result;
         } // end method ExecuteRetrieveCommand
 
@@ -497,7 +436,7 @@ namespace Database_Handler
                     break;
             } // end switch
 
-            if(i_code == 0)
+            if (i_code == 0)
             {
                 return new DatabaseCommand(i_code);
             } // end if
@@ -540,7 +479,7 @@ namespace Database_Handler
                     i_code = DeleteRecord(plan);
                     break;
                 default:
-                    i_code = - 1;
+                    i_code = -1;
                     break;
             } // end switch
 
@@ -563,9 +502,9 @@ namespace Database_Handler
             Credentials cred = (Credentials)cmd.Operand;
 
             bool b_success = LoginAttempt(cred.UserName, cred.Password, out bool b_isAdmin);
-            
 
-            if(b_success)
+
+            if (b_success)
             {
                 output = new DatabaseCommand();
             } // end if
@@ -587,7 +526,7 @@ namespace Database_Handler
 
             int i_errorCode = ChangePassword(cred.UserName, cred.Password, cred.IsActive);
 
-            if(i_errorCode == 0)
+            if (i_errorCode == 0)
             {
                 output = new DatabaseCommand();
             } // end if
@@ -609,7 +548,7 @@ namespace Database_Handler
             {
                 using (IObjectContainer db = Db4oFactory.OpenFile(s_STUDENT_DB))
                 {
-                    IList<Student> list = db.Query(delegate (Student proto) { return proto.ID != ""; });                   
+                    IList<Student> list = db.Query(delegate (Student proto) { return proto.ID != ""; });
 
                     foreach (object item in list)
                     {
@@ -620,7 +559,7 @@ namespace Database_Handler
                     db.Close();
                 } // end using
             } // end try
-            catch(Exception e)
+            catch (Exception e)
             {
                 WriteToLog(" -- DBH display students command failed. Msg: " + e.Message);
                 return new DatabaseCommand(1, "Retrieving list of all students failed. Msg: " + e.Message);
@@ -670,7 +609,7 @@ namespace Database_Handler
             {
                 cred = (Credentials)Retrieve(cred.UserName, 'U');
             } // end try
-            catch(Exception e)
+            catch (Exception e)
             {
                 WriteToLog(" -- DBH retrieve salt command failed for user " + cred.UserName + ". Msg: " + e.Message);
                 return new DatabaseCommand(1, "Retrieving the salt for " + cred.UserName + " failed. Msg: " + e.Message);
@@ -713,7 +652,7 @@ namespace Database_Handler
             try
             {
                 formatter.Serialize(ms, cmd);
-                
+
                 stream.Write(ms.ToArray(), 0, ms.ToArray().Length);
             } // end try
             catch (Exception e)
@@ -745,13 +684,13 @@ namespace Database_Handler
                 } // end if
 
                 string s_pw = "";
-                ConsoleKeyInfo key;                
+                ConsoleKeyInfo key;
 
                 do // get password loop
                 {
                     key = Console.ReadKey(true); // extract keys w/o displaying them
-                    
-                    if(key.Key == ConsoleKey.Backspace)
+
+                    if (key.Key == ConsoleKey.Backspace)
                     {
                         if (s_pw.Length > 0)
                         {
@@ -762,7 +701,7 @@ namespace Database_Handler
                     } // end if
 
                     // ignore control keys (e.g. CTRL, ALT, etc.)
-                    if(char.IsControl(key.KeyChar))
+                    if (char.IsControl(key.KeyChar))
                     {
                         continue;
                     } // end if
@@ -813,8 +752,8 @@ namespace Database_Handler
                 address = IPAddress.Parse(s_IP_ADDRESS);
             } // end else
 
-            tcpListener = new TcpListener(address, i_TCP_PORT); 
-            
+            tcpListener = new TcpListener(address, i_TCP_PORT);
+
 
             // retrieve master record from MySql db
             MySqlCommand cmd = GetCommand("-1", 'S', s_PLAN_TABLE, s_PLAN_KEY, "*");
@@ -857,15 +796,15 @@ namespace Database_Handler
             RNG.Dispose();
             tcpListener.Stop();
 
-            foreach(TcpClient t in clients)
+            foreach (TcpClient t in clients)
             {
                 t.Close();
             } // end foreach
-            foreach(Thread t in clientThreads)
+            foreach (Thread t in clientThreads)
             {
                 t.Abort();
             } // end foreach
-    } // end method CleanUp
+        } // end method CleanUp
 
         /// <summary>Creates a random 256 bit salt for login credentials.</summary>
         /// <returns>A byte array filled with a random sequence of bytes.</returns>
@@ -877,7 +816,7 @@ namespace Database_Handler
 
             return ba_salt;
         } // end method GetPasswordSalt
-        
+
         /// <summary>Writes the given message into the DBH log with a current time stamp.</summary>
         /// <param name="s_msg">The message to log.</param>
         private static void WriteToLog(string s_msg)
@@ -908,30 +847,30 @@ namespace Database_Handler
         public bool LoginAttempt(string s_ID, string s_pw, out bool b_isAdmin)
         {
             // Variables:
-            var             output = false;
-            
+            var output = false;
+
             MySqlDataReader reader = null;
 
-            MySqlCommand    cmd = GetCommand(s_ID, 'S', s_CREDENTIALS_TABLE, s_CREDENTIALS_KEY, "*");
+            MySqlCommand cmd = GetCommand(s_ID, 'S', s_CREDENTIALS_TABLE, s_CREDENTIALS_KEY, "*");
 
-            string    s_temp = String.Empty;
-            
+            string s_temp = String.Empty;
+
 
             b_isAdmin = false; // initialize output parameter
-            
+
             try
             {
                 MySqlLock.WaitOne();
                 reader = cmd.ExecuteReader();
-                reader.Read(); 
+                reader.Read();
 
                 if (reader.HasRows) // check if user exists
                 {
                     WriteToLog("-- DBH the user " + s_ID + " is attempting to login.");
 
                     bool b_isActive = reader.GetBoolean(5);
-                    
-                    s_temp = reader.GetString(2);          
+
+                    s_temp = reader.GetString(2);
 
                     // check if passwords match
                     if (s_pw == s_temp)
@@ -994,7 +933,7 @@ namespace Database_Handler
                 return null;
             } // end catch
         } // end method Retrieve
-        
+
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -1070,17 +1009,17 @@ namespace Database_Handler
             {
                 UpdateHelper(c_type, dbo);
             } // end try
-            catch(ArgumentNullException e)
+            catch (ArgumentNullException e)
             {
                 s_msg = e.Message;
                 return 1;
             } // end catch
-            catch(InvalidOperationException e)
+            catch (InvalidOperationException e)
             {
                 s_msg = e.Message;
                 return 2;
             } // end catch
-            catch(Exception e)
+            catch (Exception e)
             {
                 s_msg = e.Message;
                 return -1;
@@ -1097,7 +1036,7 @@ namespace Database_Handler
         /// <exception cref="InvalidOperationException">Thrown if the update fails due to write protection.</exception>
         private void UpdateHelper(char c_type, Database_Object dbo)
         {
-            if(dbo == null)
+            if (dbo == null)
             {
                 throw new ArgumentNullException("Update received an object that was null.");
             } // end if
@@ -1146,7 +1085,7 @@ namespace Database_Handler
         private void UpdateRecord(char c_type, Database_Object dbo)
         {
             try
-            {          
+            {
                 switch (c_type)
                 {
                     case 'S':
@@ -1378,7 +1317,7 @@ namespace Database_Handler
                     throw new KeyNotFoundException(s_ID);
                 } // end else
             } // end try
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw e;
             } // end catch
@@ -1465,21 +1404,21 @@ namespace Database_Handler
                 MySqlDataReader reader = cmd.ExecuteReader();
 
 
-                reader.Read();                
+                reader.Read();
 
-                if(reader.HasRows)
+                if (reader.HasRows)
                 {
                     uint ui_WP = reader.GetUInt32(1);
 
                     reader.Close();
-                    
+
                     if (ui_WP != plan.WP)
                     {
                         WriteToLog(" -- DBH update failed for graduation plan of  " + plan.StudentID + " because of write protection.");
                         return 1;
                     } // end if
 
-                    ui_WP++;                    
+                    ui_WP++;
 
                     // update write protection
                     MySqlCommand temp = GetCommand(plan.StudentID, 'U', s_PLAN_TABLE, s_PLAN_KEY, "WP", ui_WP.ToString());
@@ -1489,7 +1428,7 @@ namespace Database_Handler
                     if (ui_COL_COUNT < plan.Classes.Length)
                     {
                         int k = plan.Classes.Length - (int)ui_COL_COUNT; // number of columns that must be added
-                        AddColumns(k);                        
+                        AddColumns(k);
                     } // end if
 
                     // store new data
@@ -1498,7 +1437,7 @@ namespace Database_Handler
 
                     int i = 0;
 
-                    foreach(string s in plan.Classes)
+                    foreach (string s in plan.Classes)
                     {
                         temp = GetCommand(plan.StudentID, 'U', s_PLAN_TABLE, s_PLAN_KEY, "qtr_" + i.ToString(), s);
                         temp.ExecuteNonQuery();
@@ -1524,7 +1463,7 @@ namespace Database_Handler
                     WriteToLog(" -- DBH successfully created the plan for " + plan.StudentID + ".");
                 } // end else
             } // end try
-            catch(Exception e)
+            catch (Exception e)
             {
                 WriteToLog(" -- DBH update failed for the student plan with ID: " + plan.StudentID + " Msg: " + e.Message);
             } // end catch
@@ -1556,7 +1495,7 @@ namespace Database_Handler
 
                 MySqlDataReader reader = cmd.ExecuteReader();
 
-                reader.Read();                
+                reader.Read();
 
                 if (reader.HasRows)
                 {
@@ -1594,7 +1533,7 @@ namespace Database_Handler
 
             return output;
         } // end method Update
-        
+
         /// <summary>Creates a new user with the specified properties.</summary>
         /// <param name="credentials">Should contain the username, and isAdmin fields. Others will be ignored.</param>
         /// <returns>True if creation was successful, false otherwise.</returns>
@@ -1603,19 +1542,19 @@ namespace Database_Handler
         {
             var output = 1;
 
-            for (int i = 0; i < 10 ; i++) // try 10 times to ensure the salt is not the problem
+            for (int i = 0; i < 10; i++) // try 10 times to ensure the salt is not the problem
             {
                 credentials.PWSalt = GetPasswordSalt(); // assign new salt
 
                 MySqlCommand cmd = GetCommand(credentials.UserName, 'I', s_CREDENTIALS_TABLE, s_CREDENTIALS_KEY, "", GetInsertValues(credentials));
-                
+
                 try
                 {
                     cmd.ExecuteNonQuery(); // create record
                     output = 0;
                     break;
                 } // end try
-                catch(Exception e)
+                catch (Exception e)
                 {
                     WriteToLog(" -- DBH creation of user \"" + credentials.UserName + "\" failed. Msg: " + e.Message);
                     continue;
@@ -1645,7 +1584,7 @@ namespace Database_Handler
                 output = 0;
                 ChangeUserStatus(s_ID, b_activeStatus);
             } // end try
-            catch(Exception e)
+            catch (Exception e)
             {
                 WriteToLog(" -- DBH password change for user " + s_ID + " failed. Msg: " + e.Message);
             } // end catch
@@ -1656,7 +1595,7 @@ namespace Database_Handler
 
             return output;
         } // end method ChangePassword
-        
+
         /// <summary>Activates/Deactivates a user account.</summary>
         /// <param name="s_ID">The username of the account to activate/deactivate.</param>
         /// <param name="b_newStatus">The new status. True = active, False = inactive.</param>
@@ -1681,7 +1620,7 @@ namespace Database_Handler
                 MySqlLock.WaitOne();
                 cmd.ExecuteNonQuery();
             } // end try
-            catch(Exception e)
+            catch (Exception e)
             {
                 WriteToLog(" -- DBH The user " + s_ID + "'s status could not be changed. Msg: " + e.Message);
                 return 1;
@@ -1711,7 +1650,7 @@ namespace Database_Handler
                 cmd.ExecuteNonQuery();
                 output = 0;
             } // end try
-            catch(Exception e)
+            catch (Exception e)
             {
                 WriteToLog(" -- DBH could not delete the user " + cred.UserName + ". Msg: " + e.Message);
             } // end catch
@@ -1779,17 +1718,17 @@ namespace Database_Handler
         /// <returns>A formated string containing the values to be inserted.</returns>
         private string GetInsertValues(PlanInfo plan)
         {
-                                             // \"{SID}\", {WP}, \"{start quarter}\", \"{quarter1 classes}\", \"{quarter2 classes}\", ...
+            // \"{SID}\", {WP}, \"{start quarter}\", \"{quarter1 classes}\", \"{quarter2 classes}\", ...
             string s_values = "\"" + plan.StudentID + "\", 1, \"" + plan.StartQuarter + "\"";
 
-            foreach(string s in plan.Classes)
+            foreach (string s in plan.Classes)
             {
                 s_values += ", \"" + s + "\"";
             } // end foreach
-            
+
             return s_values;
         } // end method GetInsertValues
-        
+
         /// <summary>Creates the values string for a Credentials object.</summary>
         /// <param name="credentials">The credentials to insert.</param>
         /// <returns>A formatted string ready to be used with an insert query.</returns>
@@ -1836,7 +1775,7 @@ namespace Database_Handler
         /// <param name="s_keyValue">The value of the key.</param>
         /// <param name="s_newValue">The new value for the specified column(s).</param>
         /// <returns>A ready to go update sql query.</returns>
-        private string GetUpdateQuery(string s_table, string s_columnToUpdate, string s_keyType, string s_keyValue,  string s_newValue)
+        private string GetUpdateQuery(string s_table, string s_columnToUpdate, string s_keyType, string s_keyValue, string s_newValue)
         {
             string query = "UPDATE ";
             query += s_MYSQL_DB_NAME;
@@ -1948,7 +1887,7 @@ namespace Database_Handler
 
             return cmd;
         } // end method GetCommand
-        
+
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -2019,8 +1958,8 @@ namespace Database_Handler
                 reader.Close();
 
                 MySqlLock.ReleaseMutex();
-				
-				Console.WriteLine("Still Alive, sleeping 120000 ms).");
+
+                Console.WriteLine("Still Alive, sleeping 120000 ms).");
 
                 Thread.Sleep(120000);
             } // end for
@@ -2028,89 +1967,6 @@ namespace Database_Handler
 
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
-
-        // MySQL Management:
-        /// <summary>Creates the Student plan table in the MySQL database.</summary>
-        /// <param name="s_pw">The password to establish the connection with the MySQL db.</param>
-        /// <remarks>
-        ///         Calling this method will drop the table with the name stored in s_PLAN_TABLE
-        ///         This method will create a table with these three columns: 
-        ///             SID       - (key - unique, not null) type: VARCHAR(45) default: none
-        ///             WP        - (not null, unsigned)     type: INT(10)     default: 1
-        ///             start_qtr - ()                       type: VARCHAR(45) default: "" (empty string)
-        ///         
-        ///         Then, a master record will be created, this record must not be deleted, 
-        ///         doing so will break the table.
-        ///         The master record will be:
-        ///             SID: -1, WP: 0, start_qtr: "MASTER RECORD"
-        /// </remarks>
-        public void MakeStudentPlanTable(string s_pw)
-        {
-            ConnectToDB(ref s_pw);
-
-            // drop old table
-            string query = "DROP TABLE IF EXISTS " + s_MYSQL_DB_NAME + "." + s_PLAN_TABLE + ";";
-
-            MySqlCommand cmd = new MySqlCommand(query, DB_CONNECTION);
-
-            MySqlLock.WaitOne();
-            cmd.ExecuteNonQuery();
-
-            // create the student plan table
-            query = "";
-            query += "CREATE TABLE IF NOT EXISTS " + s_MYSQL_DB_NAME + "." + s_PLAN_TABLE + " (";
-            query += "\n" + s_PLAN_KEY + " VARCHAR(45) NOT NULL,\nWP INT(10) UNSIGNED NOT NULL DEFAULT \"1\",";
-            query += "\nstart_qtr VARCHAR(45) NULL DEFAULT \"\",";
-            query += "\nPRIMARY KEY (" + s_PLAN_KEY + "),\nUNIQUE INDEX " + s_PLAN_KEY + "_UNIQUE (" + s_PLAN_KEY + " ASC));";
-
-            cmd.CommandText = query;
-            cmd.ExecuteNonQuery();
-
-            // create the master record
-            query = "";
-            query = "INSERT INTO " + s_MYSQL_DB_NAME + "." + s_PLAN_TABLE + " (" + s_PLAN_KEY + ", WP, start_qtr) VALUES (-1, 0, \"MASTER RECORD\");";
-
-            cmd.CommandText = query;
-            cmd.ExecuteNonQuery();
-            MySqlLock.ReleaseMutex();
-        } // end method MakeStudentPlanTable
-
-        /// <summary>Creates the User Credentials table in the MySQL database.</summary>
-        /// <param name="s_pw">The password to establish the connection with the MySQL db.</param>
-        /// <remarks>
-        ///         Calling this method will drop the table with the name stored in s_CREDENTIALS_TABLE
-        ///         This method will create a table with these three columns: 
-        ///             username      - (key - unique, not null) type: VARCHAR(45) default: none
-        ///             WP            - (not null, unsigned)     type: INT(10)     default: 1
-        ///             password      - (not null)               type: CHAR(64)    default: none
-        ///             admin         - (not null)               type: TINYINT(4)  default: false
-        ///             password_salt - (not null, unique)       type: BINARY(32)  default: none
-        ///             active        - (not null)               type: TINYINT(4)  default: none
-        /// </remarks>
-        public void MakeCredentialsTable(string s_pw)
-        {
-            ConnectToDB(ref s_pw);
-
-            // drop old table
-            string query = "DROP TABLE IF EXISTS " + s_MYSQL_DB_NAME + "." + s_CREDENTIALS_TABLE + ";";
-
-            MySqlCommand cmd = new MySqlCommand(query, DB_CONNECTION);
-
-            MySqlLock.WaitOne();
-            cmd.ExecuteNonQuery();
-
-            // create the student plan table
-            query = "";
-            query += "\nCREATE TABLE IF NOT EXISTS " + s_MYSQL_DB_NAME + "." + s_CREDENTIALS_TABLE + " (";
-            query += "\n" + s_CREDENTIALS_KEY + " VARCHAR(45) NOT NULL,\nWP INT(10) UNSIGNED NOT NULL DEFAULT 1,";
-            query += "\npassword CHAR(64) NOT NULL,\nadmin TINYINT(4) NOT NULL DEFAULT 0,";
-            query += "\npassword_salt BINARY(32) NOT NULL,\nactive TINYINT(4) NOT NULL DEFAULT 0,";
-            query += "\nPRIMARY KEY (" + s_CREDENTIALS_KEY + "),\nUNIQUE INDEX " + s_CREDENTIALS_KEY + "_UNIQUE (" + s_CREDENTIALS_KEY + " ASC),";
-            query += "\nUNIQUE INDEX password_salt_UNIQUE (password_salt ASC));";
-
-            cmd.ExecuteNonQuery();
-            MySqlLock.ReleaseMutex();
-        } // end method MakeCredentialsTable
 
         /// <summary>Adds k columns to the student_plans table and updates the master record accordingly.</summary>
         /// <param name="k">Number of columns to add.</param>
@@ -2151,130 +2007,5 @@ namespace Database_Handler
 
             return output;
         } // end method AddColumns
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        /// <summary>Test method.</summary>
-        public void TestRun()
-        {
-            //SetUp();
-
-            DatabaseCommand cmd = new DatabaseCommand();
-            Course a;
-            Credentials d;
-            Student b;
-            CatalogRequirements c;
-            PlanInfo e;
-
-
-            switch(cmd.OperandType)
-            {
-                case OperandType.Course:
-                    a = (Course)cmd.Operand;
-                    WriteToLog("[DBH]: Received course object: " + a.ToString());
-                    break;
-                case OperandType.Student:
-                    b = (Student)cmd.Operand;
-                    WriteToLog("[DBH]: Received student object: " + b.ToString());
-                    Console.WriteLine("\n\n[DBH]: Received student object:\n{0}\n\n", b.ToString());
-                    break;
-                case OperandType.CatalogRequirements:
-                    c = (CatalogRequirements)cmd.Operand;
-                    WriteToLog("[DBH]: Received catalog object: " + c.ToString());
-                    Console.WriteLine("\n\n[DBH]: Received catalog object:\n{0}\n\n", c.ToString());
-                    break;
-                case OperandType.Credentials:
-                    d = (Credentials)cmd.Operand;
-                    WriteToLog("[DBH]: Received credentials object: " + d.ToString());
-                    Console.WriteLine("\n\n[DBH]: Received credentials object:\n{0}\n\n", d.ToString());
-                    break;
-                case OperandType.PlanInfo:
-                    e = (PlanInfo)cmd.Operand;
-                    WriteToLog("[DBH]: Received plan object: " + e.ToString());
-                    Console.WriteLine("\n\n[DBH]: Received plan object:\n{0}\n\n", e.ToString());
-                    break;
-            }
-
-
-            /*
-            DatabaseCommand cmd = new DatabaseCommand(CommandType.GetSalt, new Credentials("test6",0,false,true,new byte[32]));
-
-            DatabaseCommand ret = ExecuteGetSaltCommand(cmd);
-
-            Console.WriteLine("The salt for test6 is: {0} ", ((Credentials)ret.Operand).PWSalt.ToString());
-
-            
-            foreach (Student student in ret.StudentList)
-            {
-                Console.WriteLine(student.ToString());
-            }
-           
-            Credentials test = new Credentials("test6", 0, false, false, new byte[32]);
-
-            DatabaseCommand cmd = new DatabaseCommand(CommandType.Delete, test);
-
-            ExecuteCommand(cmd, "test");
-            */
-
-            Console.WriteLine("DONE.");
-            CleanUp();
-            Console.ReadKey();
-        } // end method TestRun
-
-        /// <summary>Dummy records for testing.</summary>
-        private static void TestData()
-        {
-            using (IObjectContainer db = Db4oFactory.OpenFile("Students.db4o"))
-            {
-                db.Store(new Student(new Name("Al", "Gore"), "12345678", new Quarter(2014, Season.Fall), 0, 4.0, new AcademicStanding(false, false, true)));
-                db.Store(new Student(new Name("Brian", "Adams"), "22345678", new Quarter(2010, Season.Spring), 65, 3.1, new AcademicStanding(false, false, true)));
-                db.Store(new Student(new Name("Cal", "Brown"), "32345678", new Quarter(2011, Season.Fall), 90, 2.9, new AcademicStanding(false, true, true)));
-                db.Store(new Student(new Name("Dan", "Power"), "42345678", new Quarter(2012, Season.Winter), 12, 3.4, new AcademicStanding(false, false, true)));
-
-                db.Commit();
-
-                db.Close();
-            } // end using
-
-            using (IObjectContainer db = Db4oFactory.OpenFile("Catalogs.db4o"))
-            {
-                db.Store(new CatalogRequirements("Y2014", 3, 2.0, new CatalogCreditRequirements(), new List<DegreeRequirements>()));
-                db.Store(new CatalogRequirements("Y2010", 3, 2.0, new CatalogCreditRequirements(), new List<DegreeRequirements>()));
-                db.Store(new CatalogRequirements("Y2011", 3, 2.0, new CatalogCreditRequirements(), new List<DegreeRequirements>()));
-                db.Store(new CatalogRequirements("Y2012", 3, 2.0, new CatalogCreditRequirements(), new List<DegreeRequirements>()));
-
-                db.Commit();
-
-                db.Close();
-            } // end using
-
-            using (IObjectContainer db = Db4oFactory.OpenFile("Courses.db4o"))
-            {
-                db.Store(new Course("Computer Architecture 1", "CS311", 4, false));
-                db.Store(new Course("Computer Architecture 2", "CS312", 4, true));
-                db.Store(new Course("Intro to Software Engineering", "CS380", 4, true));
-                db.Store(new Course("Software Engineering Project 1", "CS480", 4, true));
-                db.Store(new Course("Software Engineering Project 2", "CS481", 4, true));
-                db.Store(new Course("Intro to Programming 1", "CS111", 4, false));
-                db.Store(new Course("Intro to Programming 2", "CS112", 4, false));
-
-                db.Commit();
-
-                db.Close();
-            } // end using
-        } // end method TestData
     } // end Class DatabaseHandler
-} // end namespace Database_Handler
+} // end Namespace Database_Handler
