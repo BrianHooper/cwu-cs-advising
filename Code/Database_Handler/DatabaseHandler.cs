@@ -177,60 +177,11 @@ namespace Database_Handler
         // Main:
         /// <summary>Program entry point. Initializes program and handles fatal errors.</summary>
         /// <param name="args">Unused.</param>
-        public static void Main2(string[] args)
+        public static void Main(string[] args)
         {            
             WriteToLog(" -- DBH was started.");
 
-            DatabaseHandler DBH;
-
-            if (args.Length == 14) // custom settings for DBH
-            {
-                if (Int32.TryParse(args[13], out int port))
-                {
-                    DBH = new DatabaseHandler(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], port);
-                } // end if
-                else
-                {
-                    WriteToLog(" -- DBH startup failed due to incorrect command line arguments.");
-                    Console.WriteLine("The arguements supplied were not correct.");
-                    Console.WriteLine("Required arguments (14 in total):");
-                    Console.WriteLine("(0)Name of MySql Database\n(1)IP of MySql Database\n(2)Port of MySql Database\n(3)User ID for MySql Database\n(4)Name of MySql table containing user credentials" +
-                                      "\n(5)Name of key in credentials table\n(6)Name of MySql table containing student plans\n(7)Name of key in student plans table\n(8)Name of DB4O student database" +
-                                      "\n(9)Name of DB4O course database\n(10)Name of DB4O catalog database\n(11)Path to log file\n(12)IP address to accept clients from\n(13)TCPIP port to use for clients");
-                    return;
-                } // end else
-            } // end if
-            else if (args.Length == 0) // default settings for DBH
-            {
-                DBH = new DatabaseHandler();
-            } // end else
-            else if (args.Length == 1)
-            {
-                try
-                {
-                    DBH = new DatabaseHandler(args[1]);
-                } // end try
-                catch (Exception e)
-                {
-                    WriteToLog(" -- DBH startup failed, the .ini file was not found or corrupt. Msg: " + e.Message);
-                    return;
-                } // end catch
-            }
-            else
-            {
-                WriteToLog(" -- DBH startup failed due to incorrect command line arguments.");
-                Console.WriteLine("The arguements supplied were not correct.");
-                Console.WriteLine("(Option 1) Required arguments (0 in total): No arguments will use default settings.");
-                Console.WriteLine("(Option 2) Required arguments (1 in total): Will use configuration file at the specified path.");
-                Console.WriteLine("(0)Path to a file containing the configurations, this file must be of type *.ini");
-                Console.WriteLine("(Option 3) Required arguments (14 in total):");
-                Console.WriteLine("(0)Name of MySql Database\n(1)IP of MySql Database\n(2)Port of MySql Database\n(3)User ID for MySql Database\n(4)Name of MySql table containing user credentials" +
-                                  "\n(5)Name of key in credentials table\n(6)Name of MySql table containing student plans\n(7)Name of key in student plans table\n(8)Name of DB4O student database" +
-                                  "\n(9)Name of DB4O course database\n(10)Name of DB4O catalog database\n(11)Path to log file\n(12)IP address to accept clients from\n(13)TCPIP port to use for clients");
-
-                return;
-            } // end else
-
+            DatabaseHandler DBH = new DatabaseHandler("/var/aspnetcore/publish/Configuration.ini");
 
             int i_errorCode = -1;
 

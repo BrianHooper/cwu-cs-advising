@@ -196,7 +196,7 @@
             <param name="i_TCP_PORT">The TCP port on which to accept client requests.</param>
             <remarks>Changes made by the constructor are not persistent, upon restarting, the default values will be used again.</remarks>
         </member>
-        <member name="M:Database_Handler.DatabaseHandler.Main2(System.String[])">
+        <member name="M:Database_Handler.DatabaseHandler.Main(System.String[])">
             <summary>Program entry point. Initializes program and handles fatal errors.</summary>
             <param name="args">Unused.</param>
         </member>
