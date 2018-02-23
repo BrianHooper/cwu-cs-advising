@@ -202,7 +202,7 @@ namespace PlanGenerationAlgorithm
             Schedule StudentSchedule = new Schedule(new Quarter(2018, Season.Fall));
 
             // Run the algorithm
-            Schedule GeneratedSchedule = Algorithm.Generate(coursesList, StudentSchedule,0,18);
+            Schedule GeneratedSchedule = Algorithm.Generate(coursesList, StudentSchedule,10,18);
 
             // Output the results to the console
             Console.WriteLine("\n" + GeneratedSchedule.GetFirstSchedule());
