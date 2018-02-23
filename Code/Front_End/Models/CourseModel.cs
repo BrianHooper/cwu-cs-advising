@@ -14,7 +14,7 @@ namespace CwuAdvising.Models
         public string Credits { get; set; }
         public string Offered { get; set; }
         public bool RequiresMajor { get; set; }
-        public List<CourseModel> PreReqs { get; set; } = new List<CourseModel>();
+        public List<String> PreReqs { get; set; } = new List<String>();
 
         /// <summary>Explicit cast operator for CourseModel to Course conversion.</summary>
         /// <returns>A Course object equivalent to the given CourseModel.</returns>
@@ -23,11 +23,6 @@ namespace CwuAdvising.Models
             List<Course> preRequs = new List<Course>();
 
             bool[] offered = new bool[4];
-
-            foreach(CourseModel m in model.PreReqs)
-            {
-                preRequs.Add((Course)m);
-            } // end foreach
 
             for (int i = 0; i < model.Offered.Length; i++)
             {

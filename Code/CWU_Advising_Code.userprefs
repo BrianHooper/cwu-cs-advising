@@ -1,0 +1,15 @@
+﻿<Properties StartupConfiguration="{683998E3-D7CC-4AD8-B8DD-B012248E4B4C}|Default">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Front_End/Models/CourseModel.cs">
+    <Files>
+      <File FileName="Database_Classes/Course.cs" Line="195" Column="28" />
+      <File FileName="Front_End/Models/CourseModel.cs" Line="17" Column="68" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.ItemProperties.CwuAdvising PreferredExecutionTarget="MonoDevelop.Default" />
+  <MultiItemStartupConfigurations />
+</Properties>

@@ -18,6 +18,7 @@ namespace Database_Object_Classes
 
         /// <summary>Name of this course.</summary>
         private string        s_name;
+        private string        s_department;
 
         /// <summary>Prerequisites for this course.</summary>
         private List<Course>  l_preRequisites;
@@ -167,12 +168,6 @@ namespace Database_Object_Classes
             model.Offered = offered;
             model.Title = course.Name;
 
-            foreach(Course c in course.PreRequisites)
-            {
-                CourseModel m = (CourseModel)c;
-                model.PreReqs.Add(m);
-            } // end foreach
-
             return model;
         }// end explicit cast operator
 
@@ -186,6 +181,12 @@ namespace Database_Object_Classes
             get => s_name;
             set => s_name = string.Copy(value);
         } // end Name
+
+        public string Department
+        {
+            get => s_department;
+            set => s_department = string.Copy(value);
+        } // end Department
 
         /// <summary>Getter for PreRequisites list of this course.</summary>
         /// <remarks>The returned collection will be a read-only collection, and may not be modified directly.</remarks>
