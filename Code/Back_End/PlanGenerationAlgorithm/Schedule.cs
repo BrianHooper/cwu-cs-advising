@@ -14,7 +14,7 @@ namespace PlanGenerationAlgorithm
         public uint NumberOfQuarters; //total number of quarters
         public List<Course> courses; //list of all courses taken
         public Schedule NextQuarter, previousQuarter;
-        public uint ui_numberCredits; 
+        public uint ui_numberCredits=0; 
         public bool TakeSummerCourses = false;
 
         //constructor
@@ -65,7 +65,7 @@ namespace PlanGenerationAlgorithm
             if (NextQuarter == null)
             {
                 NextQuarter = new Schedule(GetNextQuarter());
-                NumberOfQuarters++;
+                NextQuarter.NumberOfQuarters++;
                 NextQuarter.previousQuarter = this;
             }
             if (NextQuarter.locked)

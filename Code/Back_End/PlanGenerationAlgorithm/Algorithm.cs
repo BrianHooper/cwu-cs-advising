@@ -12,7 +12,8 @@ namespace PlanGenerationAlgorithm
         public static uint minCredits = 10; //set minimum number of credits
         public static uint maxCredits = 18; //set maximum number of credits
         public static Schedule bestSchedule; //variable to save the best possible schedule
-        public List<Course> copy= new List<Course>();
+        public List<Course> copy;
+        int i = 0;
 
         public static Schedule Generate(List<Course> requirements, Schedule currentSchedule, uint minCredits, uint maxCredits)
         {
@@ -30,48 +31,45 @@ namespace PlanGenerationAlgorithm
         {
             //bestSchedule = currentSchedule;
             copy = new List<Course>(requirements);
+            
+            if (i==0)
+            {
+                bestSchedule = currentSchedule;
+                i++;
+            }
             //if there are no requirements left
             if (copy.Count == 0)
             {
-                //copy = new List<Course>(requirements);
                 if (currentSchedule.NumberOfQuarters <= bestSchedule.NumberOfQuarters)
                 {
+                    bestSchedule = currentSchedule;
                     bestSchedule.courses = currentSchedule.courses;
                     bestSchedule.NumberOfQuarters = currentSchedule.NumberOfQuarters;
                     currentSchedule.NumberOfQuarters = 0;
-                    //Console.WriteLine("\n" + bestSchedule);
-                    //GenerateSchedule(copy, currentSchedule);
                     return;
-                }          
-                
+                }
+                currentSchedule.NumberOfQuarters = 0;
             }
-            //if there are still requirements left
-            else if(copy.Count>0)
+            else
             {
-                bestSchedule = currentSchedule;
-                bestSchedule.courses = currentSchedule.courses;
-                bestSchedule.NumberOfQuarters = currentSchedule.NumberOfQuarters;
                 uint lowerBound = currentSchedule.lowerBound();
                 if (lowerBound > bestSchedule.NumberOfQuarters)
                     return;
-                //currentSchedule.NumberOfQuarters = 0;
             }
-       
-         
+
             // Get a list of each course the student can take right now
-            List<Course> possibleCourses = ListofCourse(currentSchedule,requirements);
+            List<Course> possibleCourses = ListofCourse(currentSchedule,copy);
 
             //if possible course for this quarter is more than 0
             if (possibleCourses.Count > 0)
             {
-                copy = new List<Course>(requirements);
+                //copy = new List<Course>(requirements);
                 foreach (Course c in possibleCourses)
-                {
-                    
+                {                 
                     // Attempt to add the course to this schedule
                     if (maxCredits >= (currentSchedule.ui_numberCredits + c.Credits))
                     {
-                        //copy = new List<Course>(requirements);
+                        copy = new List<Course>(requirements);
                         if (currentSchedule.AddCourse(c))
                         {
                             // If it succeeded, adding another course this quarter
@@ -79,24 +77,25 @@ namespace PlanGenerationAlgorithm
                             copy.Remove(c);
                             GenerateSchedule(copy, currentSchedule);
                         }
-                    }
-                    else
-                    {
-                        currentSchedule.NumberOfQuarters++;
-                        // If it failed, try adding this course next quarter
-                        GenerateSchedule(copy, currentSchedule.NextSchedule());
-                    }
+                    }                    
                 }
             }
-            else if (copy.Count > 0)
+            else
             {
+                currentSchedule.NumberOfQuarters++;
+                // If it failed, try adding this course next quarter
+                GenerateSchedule(copy, currentSchedule.NextSchedule());
+            }
+            if (copy.Count > 0)
+            {
+                currentSchedule.NumberOfQuarters++;
                 // If there are still requirements left, try again next quarter
                 // Danger, could result in infinite recursion until
                 // checking for schedule length is implemented
                 GenerateSchedule(copy, currentSchedule.NextSchedule());
             }
-
-           // currentSchedule.NumberOfQuarters = 0;
+            
+           //currentSchedule.NumberOfQuarters = 0;
           //return;
 
         }
