@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Database_Object_Classes;
 
 namespace PlanGenerationAlgorithm
 {
@@ -12,12 +13,12 @@ namespace PlanGenerationAlgorithm
     }
     public class Node
     {
-        public string Name;
+        public Course Name;
         public List<Arc> Arcs = new List<Arc>();
         public int profit;
         public int weight;
         public int level;
-        public Node(string name)
+        public Node(Course name)
         {
             Name = name;
         }

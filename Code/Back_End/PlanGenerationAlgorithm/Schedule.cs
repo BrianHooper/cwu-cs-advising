@@ -10,10 +10,10 @@ namespace PlanGenerationAlgorithm
         public Student student;
         public Quarter quarterName;
         public bool locked = false;
-        public uint NumberOfQuarters = 0;
+        public uint NumberOfQuarters;
         public List<Course> courses;
         public Schedule NextQuarter, previousQuarter;
-        public uint ui_numberCredits = 0;
+        public uint ui_numberCredits;
         public bool TakeSummerCourses = false;
 
         public Schedule(Quarter quarter)
@@ -55,9 +55,11 @@ namespace PlanGenerationAlgorithm
 
         public Schedule NextSchedule()
         {
+            
             if (NextQuarter == null)
             {
                 NextQuarter = new Schedule(GetNextQuarter());
+                NumberOfQuarters++;
                 NextQuarter.previousQuarter = this;
             }
             if (NextQuarter.locked)
@@ -71,18 +73,18 @@ namespace PlanGenerationAlgorithm
         {
             switch (quarterName.QuarterSeason)
             {
-                case Season.Fall: NumberOfQuarters++; return new Quarter(quarterName.Year + 1, Season.Winter);
-                case Season.Winter: NumberOfQuarters++; return new Quarter(quarterName.Year, Season.Spring);
+                case Season.Fall:  return new Quarter(quarterName.Year + 1, Season.Winter);
+                case Season.Winter:  return new Quarter(quarterName.Year, Season.Spring);
                 case Season.Spring:
                     {
                         if (TakeSummerCourses)
                         {
-                            NumberOfQuarters++;
+                            //NumberOfQuarters++;
                             return new Quarter(quarterName.Year, Season.Summer);
                         }
                         else
                         {
-                            NumberOfQuarters++;
+                           //NumberOfQuarters++;
                             return new Quarter(quarterName.Year, Season.Fall);
                         }
                     }

@@ -6,9 +6,6 @@ using System.Text;
 
 namespace PlanGenerationAlgorithm
 {
-    /// <summary></summary>
-    /// <typeparam name="T"></typeparam>
-    /// <remarks>Stolen from https://stackoverflow.com/a/13776636/9176689 </remarks>
     public abstract class Heap<T> : IEnumerable<T>
     {
         private const int InitialCapacity = 0;
