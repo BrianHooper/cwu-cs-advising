@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using CwuAdvising.Models;
 
 namespace Database_Object_Classes
 {
@@ -26,8 +27,9 @@ namespace Database_Object_Classes
 
         /// <summary>Stores whether or not this quarter requires a student to be in the CS major to take it.</summary>
         private bool          b_requiresMajor;
-        public int weight;
-        public int value;
+
+        private int           i_weight;
+        private int           i_value;
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -119,6 +121,62 @@ namespace Database_Object_Classes
             l_preRequisites = new List<Course>(c_other.l_preRequisites);
         } // end Copy Constructor
 
+
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
+
+        /// <summary>Explicit cast operator for Course to CourseModel conversion.</summary>
+        /// <returns>A CourseModel equivalent to the given Course.</returns>
+        /// <param name="course">The course to be converted into a CourseModel.</param>
+        public static explicit operator CourseModel(Course course)
+        {
+            CourseModel model = new CourseModel();
+
+            model.Credits = course.Credits.ToString();
+
+            switch (course.ID.Substring(0, 2))
+            {
+                case "CS":
+                    model.Department = "Computer Science";
+                    model.Number = course.ID.Substring(2);
+                    break;
+                case "Ma":
+                    model.Department = "Mathematics";
+                    model.Number = course.ID.Substring(4);
+                    break;
+            } // end switch
+
+            string offered = string.Empty;
+
+            if (course.IsOffered(Season.Winter))
+            {
+                offered = "1";
+            } // end if
+            if (course.IsOffered(Season.Spring))
+            {
+                offered += "2";
+            } // end if
+            if (course.IsOffered(Season.Summer))
+            {
+                offered += "3";
+            } // end if
+            if (course.IsOffered(Season.Fall))
+            {
+                offered += "4";
+            } // end if
+
+            model.Offered = offered;
+            model.Title = course.Name;
+
+            foreach(Course c in course.PreRequisites)
+            {
+                CourseModel m = (CourseModel)c;
+                model.PreReqs.Add(m);
+            } // end foreach
+
+            return model;
+        }// end explicit cast operator
+
+
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
         // General Getters/Setters:
@@ -143,10 +201,24 @@ namespace Database_Object_Classes
             set => b_requiresMajor = value;
         } // end RequiresMajor
 
+        /// <summary>Getter for the number of credits of this course.</summary>
         public uint Credits
         {
             get => ui_numberCredits;
         }
+
+        /// <summary>Getter for the weight of this course.</summary>
+        public int Weight
+        {
+            get => i_weight;
+        }
+
+        /// <summary>Getter for the value of this course.</summary>
+        public int Value
+        {
+            get => i_value;
+        }
+
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
         // IComparable Implementation:
