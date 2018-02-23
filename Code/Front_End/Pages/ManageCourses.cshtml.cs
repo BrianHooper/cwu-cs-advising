@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using CwuAdvising.Models;
 using Newtonsoft.Json;
 using Database_Object_Classes;
+using System.IO;
 
 namespace CwuAdvising.Pages
 {
@@ -54,6 +55,26 @@ namespace CwuAdvising.Pages
                 return JsonConvert.SerializeObject(RecievedCourses);
             }
             return JsonConvert.SerializeObject(GetCoursesFromServer());
+        }
+
+        public ActionResult OnPostSendCourses()
+        {
+            MemoryStream stream = new MemoryStream();
+            Request.Body.CopyTo(stream);
+            stream.Position = 0;
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                string requestBody = reader.ReadToEnd();
+                if (requestBody.Length > 0)
+                {
+                    var obj = JsonConvert.DeserializeObject<List<CourseModel>>(requestBody);
+                    return new JsonResult("Courses saved succesfully.");
+                }
+                else
+                {
+                    return new JsonResult("Error passing data to server.");
+                }
+            }
         }
     }
 }

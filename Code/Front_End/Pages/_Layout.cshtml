@@ -9,6 +9,9 @@
     <link rel="stylesheet" href="~/css/Generics.css" />
     <script src="~/js/site.js"></script>
     <script src="~/js/jquery.js"></script>
+	
+	<script src="~/lib/jquery/dist/jquery.js"></script>
+	<script src="~/js/site.js" asp-append-version="true"></script>
 </head>
 <body>
 <div id="TopSpacer">
@@ -40,5 +43,6 @@
         </div>
         @RenderBody()
     </div>
+	@RenderSection("Scripts", required: false)
 </body>
 </html>

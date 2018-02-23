@@ -6,8 +6,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace CwuAdvising
+namespace ASPNetRazorPageDemo
 {
     public class Startup
     {
@@ -21,7 +22,11 @@ namespace CwuAdvising
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //services.AddMvc().WithRazorPagesRoot("/MyPages");
+            //services.AddMvc().WithRazorPagesAtContentRoot();
             services.AddMvc();
+            services.AddAntiforgery(o => o.HeaderName = "XSRF-TOKEN");
+            //services.Configure<RazorPagesOptions>(options => options.RootDirectory = "/MyPages");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -29,8 +34,8 @@ namespace CwuAdvising
         {
             if (env.IsDevelopment())
             {
-                app.UseBrowserLink();
                 app.UseDeveloperExceptionPage();
+                app.UseBrowserLink();
             }
             else
             {
@@ -39,7 +44,12 @@ namespace CwuAdvising
 
             app.UseStaticFiles();
 
-            app.UseMvc();
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(
+                    name: "default",
+                    template: "{controller}/{action=Index}/{id?}");
+            });
         }
     }
 }

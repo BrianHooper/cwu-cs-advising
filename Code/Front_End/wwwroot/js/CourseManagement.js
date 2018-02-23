@@ -248,12 +248,21 @@ function ToggleClick(Element) {
     }
 }
 
+function ResetModifiers() {
+    ModifiedCourses = false;
+    $(".Row").each(function () {
+        if (HasAttrValue($(this), "modified", "true")) {
+            $(this).attr("modified", "false");
+        }
+    });
+}
+
 /*  Builds the Json object to pass back to the server   */
 $(document).on("click", "#SaveCourses", function () {
     var Courses = ReadCoursesToList();
     var ModifiedCoursesJson = JSON.stringify(Courses);
-
     console.log(ModifiedCoursesJson);
+    PassCoursesToServer(Courses);
 });
 
 function ReadCoursesToList() {
