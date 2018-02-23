@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Net.Sockets;
@@ -72,7 +73,6 @@ namespace CwuAdvising
                 networkStream.Write(memoryStream.ToArray(), 0, memoryStream.ToArray().Length);
             } catch
             {
-                Console.Write(e);
                 return null;
             }
 

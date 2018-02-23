@@ -4,9 +4,12 @@
     ViewData["Title"] = "Manage Courses";
 }
 
+<script>
+    var CourseListFromServer = '@Html.Raw(Model.CourseListAsJson())';
+</script>
+
 <script src="~/js/ListManager.js"></script>
 <script src="~/js/CourseManagement.js"></script>
-<a href="#" id="TestButton">TEST</a>
 <div class="PageRow Flex CenterFlex">
     <div class="Border" id="SearchBox">
         <div class="Title">Course Search</div>

@@ -3,7 +3,7 @@ var checkIcon = "&#10004;";
 var editIcon = "&#9998;";
 
 var Departments = [];
-var StartingCourses = '[{"Title":"Discrete Math","Department":"Mathematics","Number":"MATH 330","Credits":"5","Offered":"32","PreReqs":["CS 301","CS 302","CS 370"]},{"Title":"Data Structures","Department":"Computer Science","Number":"CS 302","Credits":"4","Offered":"4","PreReqs":[]},{"Title":"Operating Systems","Department":"Computer Science","Number":"CS 470","Credits":"4","Offered":"1","PreReqs":["CS 361"]}]';
+var StartingCourses = CourseListFromServer;
 var CourseList = JSON.parse(StartingCourses);
 
 var ModifiedCourses = false;
@@ -12,6 +12,7 @@ var UniqueCourseId = 0;
 $(document).ready(function () {
     ResetCourseContainer();
     LoadDepartments(CourseList);
+    //console.log(CourseListFromServer);
 });
 
 function MatchesCourseNumber(Course, Min, Max) {
@@ -251,6 +252,7 @@ function ToggleClick(Element) {
 $(document).on("click", "#SaveCourses", function () {
     var Courses = ReadCoursesToList();
     var ModifiedCoursesJson = JSON.stringify(Courses);
+
     console.log(ModifiedCoursesJson);
 });
 
