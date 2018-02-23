@@ -4,6 +4,7 @@ using Database_Object_Classes;
 
 namespace PlanGenerationAlgorithm
 {
+    //Class for testing purposes
     class ScheduleDemo
     {
         public static void Main(string[] args)

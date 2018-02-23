@@ -7,26 +7,30 @@ namespace PlanGenerationAlgorithm
 {
     public class Schedule
     {
+        //variables
         public Student student;
         public Quarter quarterName;
         public bool locked = false;
-        public uint NumberOfQuarters;
-        public List<Course> courses;
+        public uint NumberOfQuarters; //total number of quarters
+        public List<Course> courses; //list of all courses taken
         public Schedule NextQuarter, previousQuarter;
-        public uint ui_numberCredits;
+        public uint ui_numberCredits; 
         public bool TakeSummerCourses = false;
 
+        //constructor
         public Schedule(Quarter quarter)
         {
             quarterName = quarter;
             courses = new List<Course>();
         } // end Constructor
 
+        //method to check if course meets constraints or not
         public bool MeetsConstraints(Course c)
         {
             return (ui_numberCredits < 16 && !courses.Contains(c));
         }
 
+        //method to get the lower bound to check the best possible solution
         public uint lowerBound()
         {
             uint totalRemainingCredits = 0;
@@ -36,13 +40,14 @@ namespace PlanGenerationAlgorithm
             }
             return NumberOfQuarters + (totalRemainingCredits / Algorithm.maxCredits);
         }
-        //add course to the list
+
+        //method to add course to the list
         public bool AddCourse(Course c)
         {
             if (MeetsConstraints(c))
             {
                 courses.Add(c);
-                ui_numberCredits += c.Credits;
+                ui_numberCredits += c.Credits; //add current number of credits with course c
                 return true;
             }
             else
@@ -53,6 +58,7 @@ namespace PlanGenerationAlgorithm
         }
 
 
+        //method to get the schedule for next quarter
         public Schedule NextSchedule()
         {
             
@@ -69,6 +75,7 @@ namespace PlanGenerationAlgorithm
             return NextQuarter;
         }
 
+        //method to increment the quarter season and/or year
         private Quarter GetNextQuarter()
         {
             switch (quarterName.QuarterSeason)
@@ -92,13 +99,14 @@ namespace PlanGenerationAlgorithm
             }
         }
 
-        //remove course from list
+        //method to remove course from list
         public List<Course> RemoveCourse(Course c)
         {
             courses.Remove(c);
             return courses;
         }
 
+        //toString method override to print all the schedules
         public override string ToString()
         {
             String outputStr = "";
@@ -126,6 +134,7 @@ namespace PlanGenerationAlgorithm
             return outputStr;
         }
 
+        //method to check schedule for previous quarter
         public Schedule GetFirstSchedule()
         {
             if (previousQuarter == null)

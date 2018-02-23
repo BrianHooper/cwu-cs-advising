@@ -8,18 +8,17 @@ namespace PlanGenerationAlgorithm
 {
     public class Algorithm
     {
-        public static uint minCredits = 10;
-        public static uint maxCredits = 18;
-        public static Schedule bestSchedule;
+        //variables
+        public static uint minCredits = 10; //set minimum number of credits
+        public static uint maxCredits = 18; //set maximum number of credits
+        public static Schedule bestSchedule; //variable to save the best possible schedule
         public List<Course> copy= new List<Course>();
-        int i = 0;
-        int j = 0;
+
         public static Schedule Generate(List<Course> requirements, Schedule currentSchedule, uint minCredits, uint maxCredits)
         {
             minCredits = 10;
             maxCredits = 18;
             Algorithm algorithm = new Algorithm();
-            //bestSchedule = currentSchedule;
             algorithm.GenerateSchedule(requirements, currentSchedule);
             //"\n" + Generated.GetFirstSchedule());
             return bestSchedule;
@@ -31,6 +30,7 @@ namespace PlanGenerationAlgorithm
         {
             //bestSchedule = currentSchedule;
             copy = new List<Course>(requirements);
+            //if there are no requirements left
             if (copy.Count == 0)
             {
                 //copy = new List<Course>(requirements);
@@ -45,6 +45,7 @@ namespace PlanGenerationAlgorithm
                 }          
                 
             }
+            //if there are still requirements left
             else if(copy.Count>0)
             {
                 bestSchedule = currentSchedule;
@@ -60,6 +61,7 @@ namespace PlanGenerationAlgorithm
             // Get a list of each course the student can take right now
             List<Course> possibleCourses = ListofCourse(currentSchedule,requirements);
 
+            //if possible course for this quarter is more than 0
             if (possibleCourses.Count > 0)
             {
                 copy = new List<Course>(requirements);
@@ -67,7 +69,6 @@ namespace PlanGenerationAlgorithm
                 {
                     
                     // Attempt to add the course to this schedule
-                    //copy = new List<Course>(requirements);
                     if (maxCredits >= (currentSchedule.ui_numberCredits + c.Credits))
                     {
                         //copy = new List<Course>(requirements);
