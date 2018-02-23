@@ -55,28 +55,35 @@ namespace CwuAdvising
         {
             DatabaseCommand disconnect = new DatabaseCommand(CommandType.Disconnect);
 
+
         }
 
 
-        /// <summary></summary>
-        public List<Course> GetAllCourses()
+        private void SendCommand(DatabaseCommand cmd)
         {
-            DatabaseCommand databaseCommand = new DatabaseCommand(CommandType.DisplayCourses);
-
             MemoryStream memoryStream = new MemoryStream();
 
             BinaryFormatter binaryFormatter = new BinaryFormatter();
 
             try
             {
-                binaryFormatter.Serialize(memoryStream, databaseCommand);
+                binaryFormatter.Serialize(memoryStream, cmd);
                 networkStream.Write(memoryStream.ToArray(), 0, memoryStream.ToArray().Length);
-            } catch
+            } // end try
+            catch(Exception e)
             {
-                return null;
-            }
+                Console.Write("Error sending database command to Database. Msg: {0}", e.Message);
+            } // end catch
 
             memoryStream.Dispose();
+        } // end method sendCommand
+
+
+        private DatabaseCommand ReceiveCommand()
+        {
+            MemoryStream memoryStream = new MemoryStream();
+
+            BinaryFormatter binaryFormatter = new BinaryFormatter();
 
             memoryStream = new MemoryStream();
 
@@ -89,7 +96,21 @@ namespace CwuAdvising
                 memoryStream.Write(ba_data, i * BUFFER_SIZE, BUFFER_SIZE);
             } // end for
 
-            DatabaseCommand dbCommand = (DatabaseCommand)binaryFormatter.Deserialize(memoryStream);
+            DatabaseCommand cmd = (DatabaseCommand)binaryFormatter.Deserialize(memoryStream);
+
+            return cmd;
+        } // end method ReceiveCommand
+
+
+        /// <summary></summary>
+        public List<Course> GetAllCourses()
+        {
+            DatabaseCommand databaseCommand = new DatabaseCommand(CommandType.DisplayCourses);
+
+
+            SendCommand(databaseCommand);
+            DatabaseCommand dbCommand = ReceiveCommand();
+
 
             if(dbCommand.ReturnCode == 0)
             {
