@@ -17,7 +17,6 @@ namespace CwuAdvising.Models
         /// <param name="admin">Boolean flag, true if the user is an admin</param>
         /// <param name="resetFlag">Reset flag, true if the users password should be reset</param>
         /// <param name="active">Active flag, true if the user is active</param>
-        /// <param name="salt">Byte array for password hash</param>
         public UserModel(string uName, bool admin, bool resetFlag, bool active)
         {
             this.Username = uName;

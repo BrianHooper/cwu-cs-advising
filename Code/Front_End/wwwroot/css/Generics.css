@@ -1,12 +1,7 @@
-﻿div {
-    padding: 5px;
-}
+﻿/*csslint box-sizing: false*/
 
-html, body {
-    overflow-x: hidden;
-    padding: 0px;
-    margin: 0px;
-    background-color: #262626;
+div {
+    padding: 5px;
 }
 
 a:link, a:visited {

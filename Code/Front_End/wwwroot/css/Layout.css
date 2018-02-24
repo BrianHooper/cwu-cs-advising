@@ -1,13 +1,19 @@
 ﻿@font-face {
-    font-family: 'roboto-light';
-    src: url('../fonts/roboto/roboto-light.ttf') format('truetype');
-    
+    font-family: 'Roboto';
+    src: url('Roboto-Light.eot');
+    src: url('Roboto-Light.eot?#iefix') format('embedded-opentype'), url('Roboto-Light.woff2') format('woff2'), url('Roboto-Light.woff') format('woff'), url('Roboto-Light.ttf') format('truetype'), url('Roboto-Light.svg#Roboto-Light') format('svg');
+    font-weight: 300;
+    font-style: normal;
 }
 
 @font-face {
-    font-family: 'roboto';
-    src: url('../fonts/roboto/Roboto-Regular.ttf') format('truetype');
+    font-family: 'Roboto';
+    src: url('Roboto-Regular.eot');
+    src: url('Roboto-Regular.eot?#iefix') format('embedded-opentype'), url('Roboto-Regular.woff2') format('woff2'), url('Roboto-Regular.woff') format('woff'), url('Roboto-Regular.ttf') format('truetype'), url('Roboto-Regular.svg#Roboto-Regular') format('svg');
+    font-weight: normal;
+    font-style: normal;
 }
+
 
 #PageContainer {
     margin: auto;
@@ -20,7 +26,7 @@
 #TopLogo {
     text-align: center;
     background: repeating-linear-gradient(135deg,#ffffff,#ffffff 1px,#DCDCE0 1px,#DCDCE0 6px);
-    font-family: roboto;
+    font-family: Roboto;
 }
 
 #TopSpacer {
@@ -41,7 +47,7 @@
     width: 95%;
     color: #000000;
     font-size: .75em;
-    font-family: roboto-light;
+    font-family: Roboto;
 }
 
 .HorizontalBar {
@@ -294,4 +300,10 @@
 
 .ClosePrereqs {
     cursor: pointer;
+}
+
+.ListHeader {
+    text-align: center;
+    line-height: 30px;
+    font-weight: bold;
 }

@@ -21,18 +21,13 @@ function GetCoursePrefix(Course) {
 }
 
 function MatchesCourseNumber(Course, Min, Max) {
-    console.log("Matches:");
-    console.log(Course);
     var CourseNumber = GetCourseNumber(Course);
     return CourseNumber >= Min && CourseNumber <= Max;
 }
 
 function SearchCourses(Min, Max, Department, Summer, Fall, Winter, Spring) {
     var MatchingCourses = [];
-    console.log(CourseList.length);
     for (var i = 0; i < CourseList.length; i++) {
-        console.log("Course: ");
-        console.log(CourseList[i]);
         var MatchesCourse = false;
 
         if (Summer && StringMatch(CourseList[i].Offered, "3")) {
@@ -48,8 +43,6 @@ function SearchCourses(Min, Max, Department, Summer, Fall, Winter, Spring) {
         if (!StringMatch(Department, "any") && !StringMatch(CourseList[i].Department, Department)) {
             MatchesCourse = false;
         }
-        console.log("Why:");
-        console.log(CourseList[i]);
         if (!MatchesCourseNumber(CourseList[i], Min, Max)) {
             MatchesCourse = false;
         }
@@ -109,8 +102,6 @@ function ResetCourseContainer() {
 }
 
 function LoadDepartments(Courses) {
-    console.log("Courses");
-    console.log(Courses);
 
     for (var i = 0; i < Courses.length; i++) {
         if (!StringArrayContains(Departments, Courses[i].Department)) {
@@ -123,7 +114,7 @@ function LoadDepartments(Courses) {
 function AddDepartment(DepartmentName) {
     Departments.push(DepartmentName);
     $("#DepartmentSearch").append("<option value='" + DepartmentName + "'>" + DepartmentName + "</option>");
-    $(".DepartmentSelect").each(function () {
+    $(".DepartmentSelectDropDown").each(function () {
         $(this).append("<option value='" + DepartmentName + "'>" + DepartmentName + "</option>");
     });
 }
@@ -191,8 +182,9 @@ function CreateCourseRow() {
 
     // Department
     var DepartmentBox = $("<div></div>");
-    DepartmentBox.attr("class", "Element CourseElement DepartmentSelect");
+    DepartmentBox.attr("class", "Element CourseElement");
     var DepartmentSelect = $("<select></select>");
+    DepartmentSelect.attr("class", "DepartmentSelectDropDown");
     
     for (var i = 0; i < Departments.length; i++) {
         DepartmentSelect.append($("<option value='" + Departments[i] + "'>" + Departments[i] + "</option>"));
@@ -287,7 +279,6 @@ function ResetModifiers() {
 $(document).on("click", "#SaveCourses", function () {
     var Courses = ReadCoursesToList();
     var ModifiedCoursesJson = JSON.stringify(Courses);
-    console.log(ModifiedCoursesJson);
     PassCoursesToServer(Courses);
 });
 

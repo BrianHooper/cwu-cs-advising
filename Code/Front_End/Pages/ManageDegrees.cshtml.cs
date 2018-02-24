@@ -7,11 +7,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace CwuAdvising.Pages
 {
+    /// <summary>Model for degree management</summary>
     public class ManageDegreesModel : PageModel
     {
-        public void OnGet()
-        {
-
-        }
     }
 }

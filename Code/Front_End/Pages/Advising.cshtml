@@ -5,10 +5,10 @@
 }
 <script src="~/js/Advising.js"></script>
 <div style="border: thin solid black; font-size: 1.5em; display: inline-block; margin: auto;">
-    Student: @DemoController.StudentName<br />
-    ID: @DemoController.StudentID<br />
-    Starting Quarter: @DemoController.StudentQuarter @DemoController.StudentYear<br />
-    Degree: @DemoController.StudentDegree<br />
+    Student: @AdvisingModel.CurrentStudent.Name<br />
+    ID: @AdvisingModel.CurrentStudent.ID<br />
+    Starting Quarter: @AdvisingModel.CurrentStudent.Quarter @AdvisingModel.CurrentStudent.Year<br />
+    Degree: @AdvisingModel.CurrentStudent.Degree<br />
                                          <p>
                                              Import Transcript:<br />
                                              <input name="myFile" type="file">

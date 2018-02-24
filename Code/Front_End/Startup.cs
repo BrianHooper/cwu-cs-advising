@@ -8,18 +8,22 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace ASPNetRazorPageDemo
+namespace CwuAdvising
 {
+    /// <summary>Startup configuration file</summary>
     public class Startup
     {
+        /// <summary></summary>
+        /// <param name="configuration"></param>
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
 
+        /// <summary></summary>
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        /// <summary>This method gets called by the runtime. Use this method to add services to the container.</summary>
         public void ConfigureServices(IServiceCollection services)
         {
             //services.AddMvc().WithRazorPagesRoot("/MyPages");
@@ -29,7 +33,7 @@ namespace ASPNetRazorPageDemo
             //services.Configure<RazorPagesOptions>(options => options.RootDirectory = "/MyPages");
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// <summary>This method gets called by the runtime. Use this method to configure the HTTP request pipeline.</summary>
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())

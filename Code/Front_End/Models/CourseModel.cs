@@ -6,14 +6,22 @@ using System.Threading.Tasks;
 
 namespace CwuAdvising.Models
 {
+    /// <summary>Model for Course Management</summary>
     public class CourseModel
     {
+        /// <summary></summary>
         public string Title { get; set; }
-        public string Department { get; set; } // Mathematics or Computer Science
+        /// <summary></summary>
+        public string Department { get; set; }
+        /// <summary></summary>
         public string Number { get; set; }
+        /// <summary></summary>
         public string Credits { get; set; }
+        /// <summary></summary>
         public string Offered { get; set; }
+        /// <summary></summary>
         public bool RequiresMajor { get; set; }
+        /// <summary></summary>
         public List<String> PreReqs { get; set; } = new List<String>();
 
         /// <summary>Explicit cast operator for CourseModel to Course conversion.</summary>
