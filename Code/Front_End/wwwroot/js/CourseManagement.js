@@ -1,6 +1,4 @@
-﻿var deleteIcon = "&#10060;";
-var checkIcon = "&#10004;";
-var editIcon = "&#9998;";
+﻿
 
 var Departments = [];
 var StartingCourses = CourseListFromServer;

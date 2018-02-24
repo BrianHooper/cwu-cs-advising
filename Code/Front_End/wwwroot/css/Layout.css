@@ -202,6 +202,12 @@
     cursor: pointer;
 }
 
+.WideToggleElement {
+    text-align: center;
+    width: 60px;
+    cursor: pointer;
+}
+
 .DeleteRow {
     text-align: center;
     width: 30px;

@@ -94,6 +94,35 @@
             <summary>Explicit cast operator for CourseModel to Course conversion.</summary>
             <returns>A Course object equivalent to the given CourseModel.</returns>
         </member>
+        <member name="T:CwuAdvising.Models.UserModel">
+            <summary>
+            Front-end model for database users
+            </summary>
+        </member>
+        <member name="M:CwuAdvising.Models.UserModel.#ctor(System.String,System.Boolean,System.Boolean,System.Boolean)">
+            <summary>Constructor for UserModel</summary>
+            <param name="uName">Username for the user</param>
+            <param name="admin">Boolean flag, true if the user is an admin</param>
+            <param name="resetFlag">Reset flag, true if the users password should be reset</param>
+            <param name="active">Active flag, true if the user is active</param>
+            <param name="salt">Byte array for password hash</param>
+        </member>
+        <member name="P:CwuAdvising.Models.UserModel.Username">
+            <summary>The user's ID, must be unique</summary>
+        </member>
+        <member name="P:CwuAdvising.Models.UserModel.Admin">
+            <summary>True if the user has administrative rights</summary>
+        </member>
+        <member name="P:CwuAdvising.Models.UserModel.ResetPassword">
+            <summary>Flag to force a password reset</summary>
+        </member>
+        <member name="P:CwuAdvising.Models.UserModel.IsActive">
+            <summary>True if the user is active</summary>
+        </member>
+        <member name="M:CwuAdvising.Models.UserModel.op_Explicit(CwuAdvising.Models.UserModel)~Database_Object_Classes.Credentials">
+            <summary>Explicit cast operator for UserModel to Credentials conversion.</summary>
+            <returns>A Credentials object equivalent to the given UserModel.</returns>
+        </member>
         <member name="T:CwuAdvising.Pages.ManageCoursesModel">
             <summary>
             Model for managing coures in database
@@ -131,6 +160,17 @@
             <returns>CourseModel list as serialized JSON string</returns>
         </member>
         <member name="M:CwuAdvising.Pages.ManageCoursesModel.OnPostSendCourses">
+            <summary>Retrieves a list of modified courses as JSON data from POST</summary>
+            <returns>JsonResult containing success/error status</returns>
+        </member>
+        <member name="M:CwuAdvising.Pages.UserManagementModel.UserListAsJson">
+            <summary>
+            Updates MasterCourseList from database and
+            Serializes CourseModel list to a JSON string.
+            </summary>
+            <returns>CourseModel list as serialized JSON string</returns>
+        </member>
+        <member name="M:CwuAdvising.Pages.UserManagementModel.OnPostSendUsers">
             <summary>Retrieves a list of modified courses as JSON data from POST</summary>
             <returns>JsonResult containing success/error status</returns>
         </member>
