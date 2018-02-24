@@ -16,10 +16,12 @@ namespace CwuAdvising.Pages
         /// <returns>JSON serialized list of degrees as a string</returns>
         public string GetDegrees()
         {
-            List<string> Degrees = new List<string>();
-            Degrees.Add("BS - Computer Science");
-            Degrees.Add("BS - Information Technology");
-            Degrees.Add("BS - Mathematics");
+            List<string> Degrees = new List<string>
+            {
+                "BS - Computer Science",
+                "BS - Information Technology",
+                "BS - Mathematics"
+            };
 
             return JsonConvert.SerializeObject(Degrees);
         }

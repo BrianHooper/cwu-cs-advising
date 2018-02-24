@@ -5037,6 +5037,19 @@
         "runtime": {
           "lib/netstandard1.3/Microsoft.WindowsAzure.Storage.dll": {}
         }
+      },
+      "PlanGenerationAlgorithm/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v2.0",
+        "dependencies": {
+          "Microsoft.NETCore.App": "2.0.0"
+        },
+        "compile": {
+          "bin/placeholder/PlanGenerationAlgorithm.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/PlanGenerationAlgorithm.dll": {}
+        }
       }
     }
   },
@@ -13134,6 +13147,11 @@
         "windowsazure.storage.8.1.4.nupkg.sha512",
         "windowsazure.storage.nuspec"
       ]
+    },
+    "PlanGenerationAlgorithm/1.0.0": {
+      "type": "project",
+      "path": "../Back_End/PlanGenerationAlgorithm/PlanGenerationAlgorithm.csproj",
+      "msbuildProject": "../Back_End/PlanGenerationAlgorithm/PlanGenerationAlgorithm.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -13141,6 +13159,7 @@
       "Microsoft.AspNetCore.All >= 2.0.5",
       "Microsoft.NETCore.App >= 2.0.0",
       "Microsoft.VisualStudio.Web.CodeGeneration.Design >= 2.0.2",
+      "PlanGenerationAlgorithm >= 1.0.0",
       "ini-parser >= 2.5.2"
     ]
   },
@@ -13179,7 +13198,11 @@
       },
       "frameworks": {
         "netcoreapp2.0": {
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Users\\brian\\Documents\\cwu-cs-advising\\Code\\Back_End\\PlanGenerationAlgorithm\\PlanGenerationAlgorithm.csproj": {
+              "projectPath": "C:\\Users\\brian\\Documents\\cwu-cs-advising\\Code\\Back_End\\PlanGenerationAlgorithm\\PlanGenerationAlgorithm.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

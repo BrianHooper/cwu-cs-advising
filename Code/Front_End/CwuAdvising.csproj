@@ -28,6 +28,9 @@
     <Folder Include="wwwroot\fonts\Roboto\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Back_End\PlanGenerationAlgorithm\PlanGenerationAlgorithm.csproj" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Update="Pages\Login.cshtml.cs">
       <DependentUpon>Login.cshtml</DependentUpon>
     </Compile>

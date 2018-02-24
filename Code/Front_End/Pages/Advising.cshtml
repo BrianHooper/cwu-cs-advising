@@ -3,18 +3,24 @@
 @{
     ViewData["Title"] = "Advising";
 }
-<script src="~/js/Advising.js"></script>
+@Html.AntiForgeryToken()
+
 <div style="border: thin solid black; font-size: 1.5em; display: inline-block; margin: auto;">
     Student: @AdvisingModel.CurrentStudent.Name<br />
     ID: @AdvisingModel.CurrentStudent.ID<br />
     Starting Quarter: @AdvisingModel.CurrentStudent.Quarter @AdvisingModel.CurrentStudent.Year<br />
     Degree: @AdvisingModel.CurrentStudent.Degree<br />
-                                         <p>
-                                             Import Transcript:<br />
-                                             <input name="myFile" type="file">
-                                             <input type="submit" value="Import" />
-                                         </p>
+    <p>
+        Import Transcript:<br />
+        <input name="myFile" type="file">
+        <input type="submit" value="Import" />
+    </p>
 </div>
+
+<script>
+
+</script>
+<script src="~/js/Advising.js"></script>
 
 <div class="CenterFlex">
     <div id="QuarterContainer" class="CenterFlex">
@@ -30,7 +36,17 @@
 </div>
 
 <div class="Flex CenterFlex">
-    <a href="#" class="DivButton" id="AddQuarter">Add Additional Quarter</a>
-    <a href="#" class="DivButton" id="GenerateButton">Generate Remaining Courses</a>
-    <a href="#" class="DivButton">Print</a>
+    <div class="MiddleFlex">
+        <div>Minimum Credits per quarter: <input type="text" id="MinCredits" style="width: 60px;" value="0"/></div>
+        <div>Maximum Credits per quarter: <input type="text" id="MaxCredits" style="width: 60px;" value="18"/></div>
+        <div>Taking Summer Courses: <input type="checkbox" id="TakingSummerCourses" /></div>
+    </div>
+</div>
+
+<div>
+    <div class="Flex CenterFlex">
+        <a href="#" class="DivButton" id="AddQuarter">Add Additional Quarter</a>
+        <a href="#" class="DivButton" id="GenerateButton">Generate Remaining Courses</a>
+        <a href="#" class="DivButton">Print</a>
+    </div>
 </div>

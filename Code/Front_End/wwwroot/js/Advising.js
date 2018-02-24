@@ -5,7 +5,7 @@ var PreviousCourse = { "Title": "", "Credits": "0", "Offered": "0" };
 var lockIcon = "&#128274;";
 var deleteIcon = "&#10060;";
 
-var StartingJSON = '{"Quarters":[{"Title":"Summer 17","Locked":true,"Courses":[]},{"Title":"Fall 17","Locked":false,"Courses":[{"Title":"UNIV 101","Credits":"1","Offered":"124"},{"Title":"MATH 153","Credits":"5","Offered":"124"},{"Title":"ENG 101","Credits":"5","Offered":"124"},{"Title":"CS 112","Credits":"4","Offered":"124"}]},{"Title":"Winter 18","Locked":false,"Courses":[{"Title":"MATH 154","Credits":"5","Offered":"124"},{"Title":"CS 110","Credits":"4","Offered":"124"},{"Title":"ENG 102","Credits":"5","Offered":"124"},{"Title":"COMPUTING","Credits":"5","Offered":"124"}]},{"Title":"Spring 18","Locked":false,"Courses":[{"Title":"MATH 172","Credits":"5","Offered":"124"},{"Title":"CS 111","Credits":"4","Offered":"124"},{"Title":"BREADTH 1","Credits":"5","Offered":"124"}]},{"Title":"Summer 17","Locked":true,"Courses":[]},{"Title":"Fall 18","Locked":false,"Courses":[{"Title":"CS 301","Credits":"4","Offered":"124"},{"Title":"CS 311","Credits":"4","Offered":"124"},{"Title":"BREADTH 2","Credits":"5","Offered":"124"},{"Title":"BREADTH 3","Credits":"5","Offered":"124"}]},{"Title":"Winter 19","Locked":false,"Courses":[{"Title":"CS 302","Credits":"4","Offered":"124"},{"Title":"CS 312","Credits":"4","Offered":"124"},{"Title":"CS 325","Credits":"3","Offered":"124"},{"Title":"BREADTH 4","Credits":"5","Offered":"124"}]},{"Title":"Spring 19","Locked":false,"Courses":[{"Title":"MATH 260","Credits":"5","Offered":"124"},{"Title":"CS 446","Credits":"4","Offered":"124"},{"Title":"BREADTH 5","Credits":"5","Offered":"124"}]},{"Title":"Summer 17","Locked":true,"Courses":[]},{"Title":"Fall 19","Locked":false,"Courses":[{"Title":"CS 361","Credits":"4","Offered":"124"},{"Title":"MATH 330","Credits":"5","Offered":"124"},{"Title":"BREADTH 6","Credits":"5","Offered":"124"}]},{"Title":"Winter 20","Locked":false,"Courses":[{"Title":"CS 362","Credits":"4","Offered":"124"},{"Title":"CS 470","Credits":"4","Offered":"124"},{"Title":"CS ELECTIVE 1","Credits":"4","Offered":"124"}]},{"Title":"Spring 20","Locked":false,"Courses":[{"Title":"CS 380","Credits":"4","Offered":"124"},{"Title":"CS 420","Credits":"4","Offered":"124"},{"Title":"CS ELECTIVE 2","Credits":"4","Offered":"124"},{"Title":"BREADTH 7","Credits":"5","Offered":"124"}]},{"Title":"Summer 17","Locked":true,"Courses":[]},{"Title":"Fall 20","Locked":false,"Courses":[{"Title":"CS 480","Credits":"4","Offered":"124"},{"Title":"CS 427","Credits":"4","Offered":"124"},{"Title":"UNIV ELECTIVE 1","Credits":"5","Offered":"124"},{"Title":"CS 392","Credits":"1","Offered":"124"}]},{"Title":"Winter 21","Locked":false,"Courses":[{"Title":"CS 481","Credits":"4","Offered":"124"},{"Title":"BREADTH 8","Credits":"5","Offered":"124"},{"Title":"CS ELECTIVE 3","Credits":"4","Offered":"124"},{"Title":"UNIV ELECTIVE 2","Credits":"5","Offered":"124"}]},{"Title":"Spring 21","Locked":false,"Courses":[{"Title":"CS 489","Credits":"1","Offered":"124"},{"Title":"CS 492","Credits":"2","Offered":"124"},{"Title":"BREADTH 9","Credits":"5","Offered":"124"}]}],"UnmetRequirements":[{"Title":"CS ELECTIVE 5","Credits":"4","Offered":"124"},{"Title":"CS ELECTIVE 4","Credits":"4","Offered":"124"}]}';
+var StartingJSON = '{"Quarters":[{"Title":"Summer 2017","Locked":true,"Courses":[]},{"Title":"Fall 2017","Locked":false,"Courses":[{"Title":"UNIV 101","Credits":"1","Offered":"124"},{"Title":"MATH 153","Credits":"5","Offered":"124"},{"Title":"ENG 101","Credits":"5","Offered":"124"},{"Title":"CS 112","Credits":"4","Offered":"124"}]},{"Title":"Winter 2018","Locked":false,"Courses":[{"Title":"MATH 154","Credits":"5","Offered":"124"},{"Title":"CS 110","Credits":"4","Offered":"124"},{"Title":"ENG 102","Credits":"5","Offered":"124"},{"Title":"COMPUTING","Credits":"5","Offered":"124"}]},{"Title":"Spring 2018","Locked":false,"Courses":[{"Title":"MATH 172","Credits":"5","Offered":"124"},{"Title":"CS 111","Credits":"4","Offered":"124"},{"Title":"BREADTH 1","Credits":"5","Offered":"124"}]},{"Title":"Summer 2018","Locked":true,"Courses":[]},{"Title":"Fall 2018","Locked":false,"Courses":[{"Title":"CS 301","Credits":"4","Offered":"124"},{"Title":"CS 311","Credits":"4","Offered":"124"},{"Title":"BREADTH 2","Credits":"5","Offered":"124"},{"Title":"BREADTH 3","Credits":"5","Offered":"124"}]},{"Title":"Winter 2019","Locked":false,"Courses":[{"Title":"CS 302","Credits":"4","Offered":"124"},{"Title":"CS 312","Credits":"4","Offered":"124"},{"Title":"CS 325","Credits":"3","Offered":"124"},{"Title":"BREADTH 4","Credits":"5","Offered":"124"}]},{"Title":"Spring 2019","Locked":false,"Courses":[{"Title":"MATH 260","Credits":"5","Offered":"124"},{"Title":"CS 446","Credits":"4","Offered":"124"},{"Title":"BREADTH 5","Credits":"5","Offered":"124"}]},{"Title":"Summer 2019","Locked":true,"Courses":[]},{"Title":"Fall 2019","Locked":false,"Courses":[{"Title":"CS 361","Credits":"4","Offered":"124"},{"Title":"MATH 330","Credits":"5","Offered":"124"},{"Title":"BREADTH 6","Credits":"5","Offered":"124"}]},{"Title":"Winter 2020","Locked":false,"Courses":[{"Title":"CS 362","Credits":"4","Offered":"124"},{"Title":"CS 470","Credits":"4","Offered":"124"},{"Title":"CS ELECTIVE 1","Credits":"4","Offered":"124"}]},{"Title":"Spring 2020","Locked":false,"Courses":[{"Title":"CS 380","Credits":"4","Offered":"124"},{"Title":"CS 420","Credits":"4","Offered":"124"},{"Title":"CS ELECTIVE 2","Credits":"4","Offered":"124"},{"Title":"BREADTH 7","Credits":"5","Offered":"124"}]},{"Title":"Summer 2020","Locked":true,"Courses":[]},{"Title":"Fall 2020","Locked":false,"Courses":[{"Title":"CS 480","Credits":"4","Offered":"124"},{"Title":"CS 427","Credits":"4","Offered":"124"},{"Title":"UNIV ELECTIVE 1","Credits":"5","Offered":"124"},{"Title":"CS 392","Credits":"1","Offered":"124"}]},{"Title":"Winter 2021","Locked":false,"Courses":[{"Title":"CS 481","Credits":"4","Offered":"124"},{"Title":"BREADTH 8","Credits":"5","Offered":"124"},{"Title":"CS ELECTIVE 3","Credits":"4","Offered":"124"},{"Title":"UNIV ELECTIVE 2","Credits":"5","Offered":"124"}]},{"Title":"Spring 2021","Locked":false,"Courses":[{"Title":"CS 489","Credits":"1","Offered":"124"},{"Title":"CS 492","Credits":"2","Offered":"124"},{"Title":"BREADTH 9","Credits":"5","Offered":"124"}]}],"UnmetRequirements":[{"Title":"CS ELECTIVE 5","Credits":"4","Offered":"124"},{"Title":"CS ELECTIVE 4","Credits":"4","Offered":"124"}]}';
 var Schedule = JSON.parse(StartingJSON);
 
 // Document Load
@@ -37,7 +37,7 @@ function LoadSchedule(Schedule) {
 
 // Returns true if the quarter is locked
 function locked(Quarter) {
-    return (Quarter.attr("locked").indexOf("true") === 0);
+    return Quarter.attr("locked").indexOf("true") === 0;
 }
 
 // Returns true if the quarter is locked
@@ -123,6 +123,9 @@ function ToggleCover(Quarter) {
 
 //  Add a new quarter to the schedule after the last quarter
 $(document).on("click", "#AddQuarter", function () {
+    if ($("#QuarterContainer").children().length === 0) {
+        return false;
+    }
     $("#QuarterContainer").append(CreateNextQuarter());
     return false;
 });
@@ -146,7 +149,7 @@ $(document).on("click", ".DeleteQuarter", function () {
 
     // Check whether or not this quarter is the last quarter
     var lastQuarterName = $("#QuarterContainer").children().last().children().eq(0).children().eq(1).html();
-    var isLastQuarter = (thisQuarterName.indexOf(lastQuarterName) === 0);
+    var isLastQuarter = thisQuarterName.indexOf(lastQuarterName) === 0;
 
     // For each CourseSelection object in the quarter
     // If there is a value selected, add it to the unmet requirements
@@ -181,8 +184,12 @@ function GetCourse(SelectObject) {
 
 // Generate button click
 $(document).on("click", "#GenerateButton", function () {
+    if ($("#QuarterContainer").children().length === 0) {
+        return false;
+    }
     // Create a list of quarters
-    var Schedule = { Quarters: [], UnmetRequirements: [] };
+    var Schedule = {
+        Quarters: [], UnmetRequirements: [], Constraints: { MinCredits: 0, MaxCredits: 18, TakingSummer : false } };
 
     // For each quarter in the schedule
     $(".Quarter").each(function () {
@@ -205,10 +212,31 @@ $(document).on("click", "#GenerateButton", function () {
 
     Schedule.UnmetRequirements = unmetRequirements;
 
-    // Convert to JSON format
-    var ScheduleJSON = JSON.stringify(Schedule);
+    Schedule.Constraints.MinCredits = $("#MinCredits").val();
+    Schedule.Constraints.MaxCredits = $("#MaxCredits").val();
+    Schedule.Constraints.TakingSummer = $("#TakingSummerCourses").is(":checked");
     
-    console.log(ScheduleJSON);
+    // Pass schedule to the server
+    $.ajax({
+        type: "POST",
+        url: "/Advising?handler=RecieveScheduleModel",
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("XSRF-TOKEN",
+                $('input:hidden[name="__RequestVerificationToken"]').val());
+        },
+        data: JSON.stringify(Schedule),
+
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (response) {
+            var url = '@Url.Action("/Advising")';
+            return false;
+        }, 
+        error: function (one, two, three) {
+            console.log(three);
+        }
+    });
+    
     return false; // ignore href
 });
 

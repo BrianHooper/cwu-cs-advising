@@ -90,9 +90,92 @@
             <returns><c>true</c>, if record was deleted, <c>false</c> otherwise.</returns>
             <param name="info">The object to delete.</param>
         </member>
+        <member name="T:CwuAdvising.Models.CourseModel">
+            <summary>Model for Course Management</summary>
+        </member>
+        <member name="P:CwuAdvising.Models.CourseModel.Title">
+            <summary></summary>
+        </member>
+        <member name="P:CwuAdvising.Models.CourseModel.Department">
+            <summary></summary>
+        </member>
+        <member name="P:CwuAdvising.Models.CourseModel.Number">
+            <summary></summary>
+        </member>
+        <member name="P:CwuAdvising.Models.CourseModel.Credits">
+            <summary></summary>
+        </member>
+        <member name="P:CwuAdvising.Models.CourseModel.Offered">
+            <summary></summary>
+        </member>
+        <member name="P:CwuAdvising.Models.CourseModel.RequiresMajor">
+            <summary></summary>
+        </member>
+        <member name="P:CwuAdvising.Models.CourseModel.PreReqs">
+            <summary></summary>
+        </member>
         <member name="M:CwuAdvising.Models.CourseModel.op_Explicit(CwuAdvising.Models.CourseModel)~Database_Object_Classes.Course">
             <summary>Explicit cast operator for CourseModel to Course conversion.</summary>
             <returns>A Course object equivalent to the given CourseModel.</returns>
+        </member>
+        <member name="T:CwuAdvising.Models.ScheduleModel">
+            <summary>
+            Model for Advising Schedule
+            </summary>
+        </member>
+        <member name="T:CwuAdvising.Models.ScheduleModel.ModelQuarter">
+            <summary>
+            Model quarter containing title, locked value, and list of course
+            </summary>
+        </member>
+        <member name="P:CwuAdvising.Models.ScheduleModel.ModelQuarter.Title">
+            <summary>Quarter title in "Season Year" format</summary>
+        </member>
+        <member name="P:CwuAdvising.Models.ScheduleModel.ModelQuarter.Locked">
+            <summary>True if the quarter is locked</summary>
+        </member>
+        <member name="P:CwuAdvising.Models.ScheduleModel.ModelQuarter.Courses">
+            <summary>List of courses for the quarter</summary>
+        </member>
+        <member name="T:CwuAdvising.Models.ScheduleModel.Requirement">
+            <summary>
+            Represents a single course
+            </summary>
+        </member>
+        <member name="P:CwuAdvising.Models.ScheduleModel.Requirement.Title">
+            <summary>Title if the course</summary>
+        </member>
+        <member name="P:CwuAdvising.Models.ScheduleModel.Requirement.Credits">
+            <summary>Number of credits</summary>
+        </member>
+        <member name="P:CwuAdvising.Models.ScheduleModel.Requirement.Offered">
+            <summary>
+            When the course is offerd in "1234" format, 
+            Representing "Winter Spring Summer Fall"
+            </summary>
+        </member>
+        <member name="T:CwuAdvising.Models.ScheduleModel.ConstraintModel">
+            <summary>
+            Contains the constraints for the schedule model
+            </summary>
+        </member>
+        <member name="P:CwuAdvising.Models.ScheduleModel.ConstraintModel.MinCredits">
+            <summary>Minimum Credits</summary>
+        </member>
+        <member name="P:CwuAdvising.Models.ScheduleModel.ConstraintModel.MaxCredits">
+            <summary>Maximim Credits</summary>
+        </member>
+        <member name="P:CwuAdvising.Models.ScheduleModel.ConstraintModel.TakingSummer">
+            <summary>If the student can take summer courses</summary>
+        </member>
+        <member name="P:CwuAdvising.Models.ScheduleModel.Quarters">
+            <summary>List of Quarters</summary>
+        </member>
+        <member name="P:CwuAdvising.Models.ScheduleModel.UnmetRequirements">
+            <summary>List of remaining requirements as Course objects</summary>
+        </member>
+        <member name="F:CwuAdvising.Models.ScheduleModel.Constraints">
+            <summary>Student Constraints</summary>
         </member>
         <member name="T:CwuAdvising.Models.UserModel">
             <summary>
@@ -105,7 +188,6 @@
             <param name="admin">Boolean flag, true if the user is an admin</param>
             <param name="resetFlag">Reset flag, true if the users password should be reset</param>
             <param name="active">Active flag, true if the user is active</param>
-            <param name="salt">Byte array for password hash</param>
         </member>
         <member name="P:CwuAdvising.Models.UserModel.Username">
             <summary>The user's ID, must be unique</summary>
@@ -164,6 +246,58 @@
             <summary>Create a new student</summary>
             <param name="Student">StudentModel containing student information</param>
         </member>
+        <member name="M:CwuAdvising.Pages.AdvisingModel.GetStudent">
+            <summary>
+            Attempts to retrieve a Student object from the database
+            matching the CurrentStudent model
+            </summary>
+            <returns>Student object matching the current student</returns>
+        </member>
+        <member name="M:CwuAdvising.Pages.AdvisingModel.OnPostRecieveScheduleModel">
+            <summary>
+            AJAX handler for loading student schedule
+            Passes Student ID to Advising model
+            </summary>
+            <returns>JsonResult containing success/error status</returns>
+        </member>
+        <member name="M:CwuAdvising.Pages.AdvisingModel.ScheduleModelToRemainingRequirements(CwuAdvising.Models.ScheduleModel)">
+            <summary>
+            Extracts the remaining requirements from a ScheduleModel
+            and attempts to match them to database Course objects
+            </summary>
+            <param name="model">ScheduleModel containing remaining requirements</param>
+            <returns>List of remaining Course objects</returns>
+        </member>
+        <member name="M:CwuAdvising.Pages.AdvisingModel.ScheduleModelToSchedule(CwuAdvising.Models.ScheduleModel)">
+            <summary>
+            Extracts a Schedule from a ScheduleModel
+            and attempts to match each course to database Coures objects
+            </summary>
+            <param name="model">ScheduleModel containing a schedule</param>
+            <returns>Schedule object matching the model</returns>
+        </member>
+        <member name="M:CwuAdvising.Pages.AdvisingModel.StringToQuarter(System.String)">
+            <summary>
+            Takes a string quarter name from the model
+            and converts it to database Quarter objects
+            </summary>
+            <param name="QuarterName">string quarter name in "Season Year" format</param>
+            <returns>Database quarter object matching the quarter name</returns>
+        </member>
+        <member name="M:CwuAdvising.Pages.AdvisingModel.CallSchedulingAlgorithm(CwuAdvising.Models.ScheduleModel)">
+            <summary>
+            Extracts requirements, schedule, and constraints from a ScheduleModel
+            and passes them to the scheduling algorithm
+            </summary>
+            <param name="model">ScheduleModel from the client</param>
+            <returns>Schedule from the scheduling algorithm</returns>
+        </member>
+        <member name="T:CwuAdvising.Pages.ErrorModel">
+            <summary>Model for index page</summary>
+        </member>
+        <member name="T:CwuAdvising.Pages.IndexModel">
+            <summary>Model for index page</summary>
+        </member>
         <member name="T:CwuAdvising.Pages.ManageCoursesModel">
             <summary>
             Model for managing coures in database
@@ -203,6 +337,9 @@
         <member name="M:CwuAdvising.Pages.ManageCoursesModel.OnPostSendCourses">
             <summary>Retrieves a list of modified courses as JSON data from POST</summary>
             <returns>JsonResult containing success/error status</returns>
+        </member>
+        <member name="T:CwuAdvising.Pages.ManageDegreesModel">
+            <summary>Model for degree management</summary>
         </member>
         <member name="T:CwuAdvising.Pages.StudentAdvisingModel">
             <summary>Model for student advising page</summary>
@@ -254,6 +391,34 @@
         <member name="M:CwuAdvising.Pages.UserManagementModel.OnPostSendUsers">
             <summary>Retrieves a list of modified courses as JSON data from POST</summary>
             <returns>JsonResult containing success/error status</returns>
+        </member>
+        <member name="T:CwuAdvising.Program">
+            <summary>Entry point of the application</summary>
+        </member>
+        <member name="M:CwuAdvising.Program.Main(System.String[])">
+            <summary>Main method</summary>
+            <param name="args">Arugments</param>
+        </member>
+        <member name="M:CwuAdvising.Program.BuildWebHost(System.String[])">
+            <summary></summary>
+            <param name="args"></param>
+            <returns></returns>
+        </member>
+        <member name="T:CwuAdvising.Startup">
+            <summary>Startup configuration file</summary>
+        </member>
+        <member name="M:CwuAdvising.Startup.#ctor(Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary></summary>
+            <param name="configuration"></param>
+        </member>
+        <member name="P:CwuAdvising.Startup.Configuration">
+            <summary></summary>
+        </member>
+        <member name="M:CwuAdvising.Startup.ConfigureServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>This method gets called by the runtime. Use this method to add services to the container.</summary>
+        </member>
+        <member name="M:CwuAdvising.Startup.Configure(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.AspNetCore.Hosting.IHostingEnvironment)">
+            <summary>This method gets called by the runtime. Use this method to configure the HTTP request pipeline.</summary>
         </member>
     </members>
 </doc>
