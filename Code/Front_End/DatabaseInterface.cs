@@ -14,7 +14,6 @@ namespace CwuAdvising
     /// <summary></summary>
     public class DatabaseInterface
     {
-
         private readonly TcpClient tcpClient;
 
         private readonly int tcpPort;
@@ -22,17 +21,6 @@ namespace CwuAdvising
         private readonly NetworkStream networkStream;
 
         private const int BUFFER_SIZE = 2048;
-
-        /// <summary></summary>
-        public DatabaseInterface()
-        {
-            string ipAddress = "127.0.0.1";
-            tcpPort = 44765;
-
-            IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse(ipAddress), tcpPort);
-            tcpClient = new TcpClient(endPoint);
-            networkStream = tcpClient.GetStream();
-        }
 
         /// <summary>Extracts settings from configuration file.</summary>
         /// <param name="s_fileName">Ini file with configurations.</param>
@@ -50,15 +38,16 @@ namespace CwuAdvising
             networkStream = tcpClient.GetStream();
         }
 
-        /// <summary></summary>
+        /// <summary>Default destructor, terminates database connection.</summary>
         ~DatabaseInterface()
         {
             DatabaseCommand disconnect = new DatabaseCommand(CommandType.Disconnect);
 
             SendCommand(disconnect);
-        }
+        } // end Destructor
 
-
+        /// <summary>Sends the given command to the database.</summary>
+        /// <param name="cmd">The command to be sent.</param>
         private void SendCommand(DatabaseCommand cmd)
         {
             MemoryStream memoryStream = new MemoryStream();
@@ -78,7 +67,8 @@ namespace CwuAdvising
             memoryStream.Dispose();
         } // end method sendCommand
 
-
+        /// <summary>Awaits a new command from the database.</summary>
+        /// <returns>The command received from the database.</returns>
         private DatabaseCommand ReceiveCommand()
         {
             MemoryStream memoryStream = new MemoryStream();
@@ -101,7 +91,10 @@ namespace CwuAdvising
             return cmd;
         } // end method ReceiveCommand
 
-
+        /// <summary>Executes a login attempt.</summary>
+        /// <returns>Whether or not the login was successful.</returns>
+        /// <param name="cred">User credentials of the user attempting to login.</param>
+        /// <remarks>The credentials object must contain the hashed password of the user.</remarks>
         public bool Login(Credentials cred)
         {
             DatabaseCommand cmd = new DatabaseCommand(CommandType.Login, cred);
@@ -116,12 +109,14 @@ namespace CwuAdvising
             } // end if
             else
             {
+                Console.WriteLine(retCmd.ErrorMessage);
                 return false;
             } // end else
-        }
+        } // end method 
 
 
-        /// <summary></summary>
+        /// <summary>Gets all courses stored in the database.</summary>
+        /// <returns>List of all courses stored in the database or null if not found.</returns>
         public List<Course> GetAllCourses()
         {
             DatabaseCommand databaseCommand = new DatabaseCommand(CommandType.DisplayCourses);
@@ -137,11 +132,15 @@ namespace CwuAdvising
             } // end if
             else
             {
+                Console.WriteLine(dbCommand.ErrorMessage);
                 return null;
             } // end else
-        }
+        } // end method GetAllCourses
 
-
+        /// <summary>Retrieves a record from the database.</summary>
+        /// <returns>The requested record or null if not found.</returns>
+        /// <param name="template">Template containing the key of the object to retrieve.</param>
+        /// <param name="ot_type">The type of object passed in arg 1.</param>
         public Database_Object RetrieveRecord(Database_Object template, OperandType ot_type)
         {
             DatabaseCommand cmd = new DatabaseCommand(CommandType.Retrieve, template, ot_type);
@@ -156,10 +155,14 @@ namespace CwuAdvising
             } // end if
             else
             {
+                Console.WriteLine(retCmd.ErrorMessage);
                 return null;
             } // end else
-        }
+        } // end method RetrieveRecord
 
+        /// <summary>Retrieves a record from the database.</summary>
+        /// <returns>The requested record or null if not found.</returns>
+        /// <param name="template">Template containing the key of the object to retrieve.</param>
         public Credentials RetrieveRecord(Credentials template)
         {
             DatabaseCommand cmd = new DatabaseCommand(CommandType.Retrieve, template);
@@ -174,11 +177,14 @@ namespace CwuAdvising
             } // end if
             else
             {
+                Console.WriteLine(retCmd.ErrorMessage);
                 return new Credentials();
             } // end else
-        }
+        } // end method RetrieveRecord
 
-
+        /// <summary>Retrieves a record from the database.</summary>
+        /// <returns>The requested record or null if not found.</returns>
+        /// <param name="template">Template containing the key of the object to retrieve.</param>
         public PlanInfo RetrieveRecord(PlanInfo template)
         {
             DatabaseCommand cmd = new DatabaseCommand(CommandType.Retrieve, template);
@@ -193,11 +199,14 @@ namespace CwuAdvising
             } // end if
             else
             {
+                Console.WriteLine(retCmd.ErrorMessage);
                 return new PlanInfo();
             } // end else
-        }
+        } // end method RetrieveRecord
 
-
+        /// <summary>Retrieves the password salt from the website.</summary>
+        /// <returns>A credentials object with the salt filled in.</returns>
+        /// <param name="template">Template containing the key of the object to retrieve.</param>
         public Credentials RetrieveSalt(Credentials template)
         {
             DatabaseCommand cmd = new DatabaseCommand(CommandType.GetSalt, template);
@@ -212,11 +221,16 @@ namespace CwuAdvising
             } // end if
             else
             {
+                Console.WriteLine(retCmd.ErrorMessage);
                 return new Credentials();
             } // end else
-        }
+        } // end method RetrieveSalt
 
 
+        /// <summary>Updates the record in the database</summary>
+        /// <returns><c>true</c>, if record was updated, <c>false</c> otherwise.</returns>
+        /// <param name="dbo">Object to update.</param>
+        /// <param name="ot_type">Type of object in arg1.</param>
         public bool UpdateRecord(Database_Object dbo, OperandType ot_type)
         {
             DatabaseCommand cmd = new DatabaseCommand(CommandType.Update, dbo, ot_type);
@@ -231,11 +245,15 @@ namespace CwuAdvising
             } // end if
             else
             {
+                Console.WriteLine(retCmd.ErrorMessage);
                 return false;
             } // end else
-        }
+        } // end method UpdateRecord
 
 
+        /// <summary>Updates the record in the database</summary>
+        /// <returns><c>true</c>, if record was updated, <c>false</c> otherwise.</returns>
+        /// <param name="cred">Object to update.</param>
         public bool UpdateRecord(Credentials cred)
         {
             DatabaseCommand cmd = new DatabaseCommand(CommandType.Update, cred);
@@ -250,11 +268,15 @@ namespace CwuAdvising
             } // end if
             else
             {
+                Console.WriteLine(retCmd.ErrorMessage);
                 return false;
             } // end else
-        }
+        } // end method UpdateRecord
 
 
+        /// <summary>Updates the record in the database</summary>
+        /// <returns><c>true</c>, if record was updated, <c>false</c> otherwise.</returns>
+        /// <param name="info">Object to update.</param>
         public bool UpdateRecord(PlanInfo info)
         {
             DatabaseCommand cmd = new DatabaseCommand(CommandType.Update, info);
@@ -269,11 +291,15 @@ namespace CwuAdvising
             } // end if
             else
             {
+                Console.WriteLine(retCmd.ErrorMessage);
                 return false;
             } // end else
-        }
+        } // end method UpdateRecord
 
 
+        /// <summary>Updates the password of the specified user.</summary>
+        /// <returns><c>true</c>, if password was updated, <c>false</c> otherwise.</returns>
+        /// <param name="cred">Credentials object containing the new password hash.</param>
         public bool UpdatePassword(Credentials cred)
         {
             DatabaseCommand cmd = new DatabaseCommand(CommandType.ChangePW, cred);
@@ -288,10 +314,16 @@ namespace CwuAdvising
             } // end if
             else
             {
+                Console.WriteLine(retCmd.ErrorMessage);
                 return false;
             } // end else
-        }
+        } // end method UpdatePassword
 
+
+        /// <summary>Deletes a record from the database.</summary>
+        /// <returns><c>true</c>, if record was deleted, <c>false</c> otherwise.</returns>
+        /// <param name="dbo">The object to delete.</param>
+        /// <param name="ot_type">The type of object in arg1.</param>
         public bool DeleteRecord(Database_Object dbo, OperandType ot_type)
         {
             DatabaseCommand cmd = new DatabaseCommand(CommandType.Delete, dbo, ot_type);
@@ -306,11 +338,15 @@ namespace CwuAdvising
             } // end if
             else
             {
+                Console.WriteLine(retCmd.ErrorMessage);
                 return false;
             } // end else
-        }
+        } // end method DeleteRecord
 
 
+        /// <summary>Deletes a record from the database.</summary>
+        /// <returns><c>true</c>, if record was deleted, <c>false</c> otherwise.</returns>
+        /// <param name="cred">The object to delete.</param>
         public bool DeleteRecord(Credentials cred)
         {
             DatabaseCommand cmd = new DatabaseCommand(CommandType.Delete, cred);
@@ -325,11 +361,15 @@ namespace CwuAdvising
             } // end if
             else
             {
+                Console.WriteLine(retCmd.ErrorMessage);
                 return false;
             } // end else
-        }
+        } // end method DeleteRecord
 
 
+        /// <summary>Deletes a record from the database.</summary>
+        /// <returns><c>true</c>, if record was deleted, <c>false</c> otherwise.</returns>
+        /// <param name="info">The object to delete.</param>
         public bool DeleteRecord(PlanInfo info)
         {
             DatabaseCommand cmd = new DatabaseCommand(CommandType.Delete, info);
@@ -344,9 +384,9 @@ namespace CwuAdvising
             } // end if
             else
             {
+                Console.WriteLine(retCmd.ErrorMessage);
                 return false;
             } // end else
-        }
-
-    }
-}
+        } // end method DeleteRecord
+    } // end Class DatabaseInterface
+} // end Namespace CwuAdvising

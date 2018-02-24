@@ -27,4 +27,9 @@
   <ItemGroup>
     <Folder Include="wwwroot\fonts\Roboto\" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Pages\Login.cshtml.cs">
+      <DependentUpon>Login.cshtml</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>
