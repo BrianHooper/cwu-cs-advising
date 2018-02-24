@@ -134,17 +134,7 @@ namespace Database_Object_Classes
 
             model.Credits = course.Credits.ToString();
 
-            switch (course.ID.Substring(0, 2))
-            {
-                case "CS":
-                    model.Department = "Computer Science";
-                    model.Number = course.ID.Substring(2);
-                    break;
-                case "Ma":
-                    model.Department = "Mathematics";
-                    model.Number = course.ID.Substring(4);
-                    break;
-            } // end switch
+            model.Department = course.Department;
 
             string offered = string.Empty;
 
@@ -167,6 +157,7 @@ namespace Database_Object_Classes
 
             model.Offered = offered;
             model.Title = course.Name;
+            model.Number = course.ID;
 
             return model;
         }// end explicit cast operator

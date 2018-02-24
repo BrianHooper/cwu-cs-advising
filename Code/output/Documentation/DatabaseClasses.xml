@@ -119,6 +119,11 @@
             <summary>Copy Constructor which creates a copy of the other course.</summary>
             <param name="c_other">Course to be copied.</param>
         </member>
+        <member name="M:Database_Object_Classes.Course.op_Explicit(Database_Object_Classes.Course)~CwuAdvising.Models.CourseModel">
+            <summary>Explicit cast operator for Course to CourseModel conversion.</summary>
+            <returns>A CourseModel equivalent to the given Course.</returns>
+            <param name="course">The course to be converted into a CourseModel.</param>
+        </member>
         <member name="P:Database_Object_Classes.Course.Name">
             <summary>Getter/Setter for name of this course.</summary>
         </member>
@@ -131,6 +136,15 @@
         </member>
         <member name="P:Database_Object_Classes.Course.RequiresMajor">
             <summary>Getter/Setter for whether this course requires a student to be a CS major.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Course.Credits">
+            <summary>Getter for the number of credits of this course.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Course.Weight">
+            <summary>Getter for the weight of this course.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Course.Value">
+            <summary>Getter for the value of this course.</summary>
         </member>
         <member name="M:Database_Object_Classes.Course.System#IComparable#CompareTo(System.Object)">
             <summary>Comparer for Course class. Required for using List class.</summary>

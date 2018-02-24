@@ -15,21 +15,26 @@ $(document).ready(function () {
 });
 
 function GetCourseNumber(Course) {
-    return Course.match(/\d+/);
+    return Course.Number.match(/\d+/);
 }
 
 function GetCoursePrefix(Course) {
-    return Course.match(/[a-zA-Z]/);
+    return Course.Number.match(/[a-zA-Z]/);
 }
 
 function MatchesCourseNumber(Course, Min, Max) {
+    console.log("Matches:");
+    console.log(Course);
     var CourseNumber = GetCourseNumber(Course);
     return CourseNumber >= Min && CourseNumber <= Max;
 }
 
 function SearchCourses(Min, Max, Department, Summer, Fall, Winter, Spring) {
     var MatchingCourses = [];
+    console.log(CourseList.length);
     for (var i = 0; i < CourseList.length; i++) {
+        console.log("Course: ");
+        console.log(CourseList[i]);
         var MatchesCourse = false;
 
         if (Summer && StringMatch(CourseList[i].Offered, "3")) {
@@ -45,8 +50,9 @@ function SearchCourses(Min, Max, Department, Summer, Fall, Winter, Spring) {
         if (!StringMatch(Department, "any") && !StringMatch(CourseList[i].Department, Department)) {
             MatchesCourse = false;
         }
-
-        if (!MatchesCourseNumber(CourseList[i].Number, Min, Max)) {
+        console.log("Why:");
+        console.log(CourseList[i]);
+        if (!MatchesCourseNumber(CourseList[i], Min, Max)) {
             MatchesCourse = false;
         }
 
@@ -105,6 +111,9 @@ function ResetCourseContainer() {
 }
 
 function LoadDepartments(Courses) {
+    console.log("Courses");
+    console.log(Courses);
+
     for (var i = 0; i < Courses.length; i++) {
         if (!StringArrayContains(Departments, Courses[i].Department)) {
             Departments.push(Courses[i].Department);
@@ -112,6 +121,22 @@ function LoadDepartments(Courses) {
         }
     }
 }
+
+function AddDepartment(DepartmentName) {
+    Departments.push(DepartmentName);
+    $("#DepartmentSearch").append("<option value='" + DepartmentName + "'>" + DepartmentName + "</option>");
+    $(".DepartmentSelect").each(function () {
+        $(this).append("<option value='" + DepartmentName + "'>" + DepartmentName + "</option>");
+    });
+}
+
+$(document).on('click', '#AddDepartment', function () {
+    var NewDeptName = $("#NewDepartmentName").val();
+    $("#NewDepartmentName").val("");
+    if (NewDeptName.length > 0 && !StringArrayContains(Departments, NewDepartmentName)) {
+        AddDepartment(NewDeptName);
+    }
+});
 
 function LoadCourses(Courses) {
     for (var i = 0; i < Courses.length; i++) {
@@ -168,7 +193,7 @@ function CreateCourseRow() {
 
     // Department
     var DepartmentBox = $("<div></div>");
-    DepartmentBox.attr("class", "Element CourseElement");
+    DepartmentBox.attr("class", "Element CourseElement DepartmentSelect");
     var DepartmentSelect = $("<select></select>");
     
     for (var i = 0; i < Departments.length; i++) {

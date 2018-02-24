@@ -29,12 +29,16 @@ namespace CwuAdvising.Pages
             List<Course> MasterList = new List<Course>();
 
             // Temporary values for testing
+            Course MATH330 = new Course("Discrete Math", "MATH330", 5, false, new bool[] { false, true, false, true });
+            MATH330.Department = "Mathematics";
+            MasterList.Add(MATH330);
+
             Course CS301 = new Course("Data Structures I", "CS301", 4, false, new bool[] { true, true, false, true });
             CS301.Department = "Computer Science";
             MasterList.Add(CS301);
 
             Course CS302 = new Course("Data Structures II", "CS302", 4, false, new bool[] { true, true, false, true });
-            CS301.Department = "Computer Science";
+            CS302.Department = "Computer Science";
             CS302.AddPreRequisite(CS301);
             MasterList.Add(CS302);
 

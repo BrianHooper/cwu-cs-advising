@@ -7,18 +7,132 @@
         <member name="T:CwuAdvising.DatabaseInterface">
             <summary></summary>
         </member>
-        <member name="M:CwuAdvising.DatabaseInterface.#ctor">
-            <summary></summary>
-        </member>
         <member name="M:CwuAdvising.DatabaseInterface.#ctor(System.String)">
             <summary>Extracts settings from configuration file.</summary>
             <param name="s_fileName">Ini file with configurations.</param>
         </member>
         <member name="M:CwuAdvising.DatabaseInterface.Finalize">
-            <summary></summary>
+            <summary>Default destructor, terminates database connection.</summary>
+        </member>
+        <member name="M:CwuAdvising.DatabaseInterface.SendCommand(Database_Handler.DatabaseCommand)">
+            <summary>Sends the given command to the database.</summary>
+            <param name="cmd">The command to be sent.</param>
+        </member>
+        <member name="M:CwuAdvising.DatabaseInterface.ReceiveCommand">
+            <summary>Awaits a new command from the database.</summary>
+            <returns>The command received from the database.</returns>
+        </member>
+        <member name="M:CwuAdvising.DatabaseInterface.Login(Database_Object_Classes.Credentials)">
+            <summary>Executes a login attempt.</summary>
+            <returns>Whether or not the login was successful.</returns>
+            <param name="cred">User credentials of the user attempting to login.</param>
+            <remarks>The credentials object must contain the hashed password of the user.</remarks>
         </member>
         <member name="M:CwuAdvising.DatabaseInterface.GetAllCourses">
-            <summary></summary>
+            <summary>Gets all courses stored in the database.</summary>
+            <returns>List of all courses stored in the database or null if not found.</returns>
+        </member>
+        <member name="M:CwuAdvising.DatabaseInterface.RetrieveRecord(Database_Object_Classes.Database_Object,Database_Handler.OperandType)">
+            <summary>Retrieves a record from the database.</summary>
+            <returns>The requested record or null if not found.</returns>
+            <param name="template">Template containing the key of the object to retrieve.</param>
+            <param name="ot_type">The type of object passed in arg 1.</param>
+        </member>
+        <member name="M:CwuAdvising.DatabaseInterface.RetrieveRecord(Database_Object_Classes.Credentials)">
+            <summary>Retrieves a record from the database.</summary>
+            <returns>The requested record or null if not found.</returns>
+            <param name="template">Template containing the key of the object to retrieve.</param>
+        </member>
+        <member name="M:CwuAdvising.DatabaseInterface.RetrieveRecord(Database_Object_Classes.PlanInfo)">
+            <summary>Retrieves a record from the database.</summary>
+            <returns>The requested record or null if not found.</returns>
+            <param name="template">Template containing the key of the object to retrieve.</param>
+        </member>
+        <member name="M:CwuAdvising.DatabaseInterface.RetrieveSalt(Database_Object_Classes.Credentials)">
+            <summary>Retrieves the password salt from the website.</summary>
+            <returns>A credentials object with the salt filled in.</returns>
+            <param name="template">Template containing the key of the object to retrieve.</param>
+        </member>
+        <member name="M:CwuAdvising.DatabaseInterface.UpdateRecord(Database_Object_Classes.Database_Object,Database_Handler.OperandType)">
+            <summary>Updates the record in the database</summary>
+            <returns><c>true</c>, if record was updated, <c>false</c> otherwise.</returns>
+            <param name="dbo">Object to update.</param>
+            <param name="ot_type">Type of object in arg1.</param>
+        </member>
+        <member name="M:CwuAdvising.DatabaseInterface.UpdateRecord(Database_Object_Classes.Credentials)">
+            <summary>Updates the record in the database</summary>
+            <returns><c>true</c>, if record was updated, <c>false</c> otherwise.</returns>
+            <param name="cred">Object to update.</param>
+        </member>
+        <member name="M:CwuAdvising.DatabaseInterface.UpdateRecord(Database_Object_Classes.PlanInfo)">
+            <summary>Updates the record in the database</summary>
+            <returns><c>true</c>, if record was updated, <c>false</c> otherwise.</returns>
+            <param name="info">Object to update.</param>
+        </member>
+        <member name="M:CwuAdvising.DatabaseInterface.UpdatePassword(Database_Object_Classes.Credentials)">
+            <summary>Updates the password of the specified user.</summary>
+            <returns><c>true</c>, if password was updated, <c>false</c> otherwise.</returns>
+            <param name="cred">Credentials object containing the new password hash.</param>
+        </member>
+        <member name="M:CwuAdvising.DatabaseInterface.DeleteRecord(Database_Object_Classes.Database_Object,Database_Handler.OperandType)">
+            <summary>Deletes a record from the database.</summary>
+            <returns><c>true</c>, if record was deleted, <c>false</c> otherwise.</returns>
+            <param name="dbo">The object to delete.</param>
+            <param name="ot_type">The type of object in arg1.</param>
+        </member>
+        <member name="M:CwuAdvising.DatabaseInterface.DeleteRecord(Database_Object_Classes.Credentials)">
+            <summary>Deletes a record from the database.</summary>
+            <returns><c>true</c>, if record was deleted, <c>false</c> otherwise.</returns>
+            <param name="cred">The object to delete.</param>
+        </member>
+        <member name="M:CwuAdvising.DatabaseInterface.DeleteRecord(Database_Object_Classes.PlanInfo)">
+            <summary>Deletes a record from the database.</summary>
+            <returns><c>true</c>, if record was deleted, <c>false</c> otherwise.</returns>
+            <param name="info">The object to delete.</param>
+        </member>
+        <member name="M:CwuAdvising.Models.CourseModel.op_Explicit(CwuAdvising.Models.CourseModel)~Database_Object_Classes.Course">
+            <summary>Explicit cast operator for CourseModel to Course conversion.</summary>
+            <returns>A Course object equivalent to the given CourseModel.</returns>
+        </member>
+        <member name="T:CwuAdvising.Pages.ManageCoursesModel">
+            <summary>
+            Model for managing coures in database
+            </summary>
+        </member>
+        <member name="F:CwuAdvising.Pages.ManageCoursesModel.MasterCourseList">
+            <summary>
+            Master list of courses contained in database
+            </summary>
+        </member>
+        <member name="M:CwuAdvising.Pages.ManageCoursesModel.GetCoursesFromDatabase">
+            <summary>
+            Retrieves master list of courses from database
+            </summary>
+        </member>
+        <member name="M:CwuAdvising.Pages.ManageCoursesModel.CourseListToCourseModelList(System.Collections.Generic.List{Database_Object_Classes.Course})">
+            <summary>
+            Converts Course list to CourseModel list
+            </summary>
+            <param name="CourseList">List of Course objects</param>
+            <returns>List of CourseModel objects</returns>
+        </member>
+        <member name="M:CwuAdvising.Pages.ManageCoursesModel.CourseModelListToCourseList(System.Collections.Generic.List{CwuAdvising.Models.CourseModel})">
+            <summary>
+            Converts CourseModel list to Course list
+            </summary>
+            <param name="ModelList">List of CourseModel objects</param>
+            <returns>List of Course objects</returns>
+        </member>
+        <member name="M:CwuAdvising.Pages.ManageCoursesModel.CourseListAsJson">
+            <summary>
+            Updates MasterCourseList from database and
+            Serializes CourseModel list to a JSON string.
+            </summary>
+            <returns>CourseModel list as serialized JSON string</returns>
+        </member>
+        <member name="M:CwuAdvising.Pages.ManageCoursesModel.OnPostSendCourses">
+            <summary>Retrieves a list of modified courses as JSON data from POST</summary>
+            <returns>JsonResult containing success/error status</returns>
         </member>
     </members>
 </doc>
