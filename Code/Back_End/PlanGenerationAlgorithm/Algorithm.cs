@@ -35,12 +35,13 @@ namespace PlanGenerationAlgorithm
             if (i==0)
             {
                 bestSchedule = currentSchedule;
+                bestSchedule.NumberOfQuarters = currentSchedule.NumberOfQuarters;
                 i++;
             }
             //if there are no requirements left
             if (copy.Count == 0)
             {
-                if (currentSchedule.NumberOfQuarters <= bestSchedule.NumberOfQuarters)
+                if (currentSchedule.NumberOfQuarters < bestSchedule.NumberOfQuarters)
                 {
                     bestSchedule = currentSchedule;
                     bestSchedule.courses = currentSchedule.courses;
@@ -48,7 +49,7 @@ namespace PlanGenerationAlgorithm
                     currentSchedule.NumberOfQuarters = 0;
                     return;
                 }
-                currentSchedule.NumberOfQuarters = 0;
+                
             }
             else
             {
@@ -77,13 +78,16 @@ namespace PlanGenerationAlgorithm
                             copy.Remove(c);
                             GenerateSchedule(copy, currentSchedule);
                         }
-                    }                    
+
+                    }  
+                    
                 }
             }
             else
             {
+                copy = new List<Course>(requirements);
                 currentSchedule.NumberOfQuarters++;
-                // If it failed, try adding this course next quarter
+                //If it failed, try adding this course next quarter
                 GenerateSchedule(copy, currentSchedule.NextSchedule());
             }
             if (copy.Count > 0)
@@ -94,9 +98,10 @@ namespace PlanGenerationAlgorithm
                 // checking for schedule length is implemented
                 GenerateSchedule(copy, currentSchedule.NextSchedule());
             }
-            
-           //currentSchedule.NumberOfQuarters = 0;
-          //return;
+
+            bestSchedule.NumberOfQuarters = currentSchedule.NumberOfQuarters;
+            bestSchedule = currentSchedule;
+            //return;
 
         }
 

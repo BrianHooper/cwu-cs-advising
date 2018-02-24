@@ -65,7 +65,7 @@ namespace PlanGenerationAlgorithm
             if (NextQuarter == null)
             {
                 NextQuarter = new Schedule(GetNextQuarter());
-                NextQuarter.NumberOfQuarters++;
+                this.NumberOfQuarters++;
                 NextQuarter.previousQuarter = this;
             }
             if (NextQuarter.locked)
