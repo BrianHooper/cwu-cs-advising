@@ -1,8 +1,9 @@
 ﻿<Properties StartupConfiguration="{683998E3-D7CC-4AD8-B8DD-B012248E4B4C}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Front_End/Models/CourseModel.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Front_End/DatabaseInterface.cs">
     <Files>
-      <File FileName="Database_Classes/Course.cs" Line="195" Column="28" />
-      <File FileName="Front_End/Models/CourseModel.cs" Line="17" Column="68" />
+      <File FileName="Database_Classes/Course.cs" Line="171" Column="13" />
+      <File FileName="Front_End/Models/CourseModel.cs" Line="26" Column="13" />
+      <File FileName="Front_End/DatabaseInterface.cs" Line="241" Column="75" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />

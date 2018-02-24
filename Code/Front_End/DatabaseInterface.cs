@@ -55,7 +55,7 @@ namespace CwuAdvising
         {
             DatabaseCommand disconnect = new DatabaseCommand(CommandType.Disconnect);
 
-
+            SendCommand(disconnect);
         }
 
 
@@ -102,6 +102,25 @@ namespace CwuAdvising
         } // end method ReceiveCommand
 
 
+        public bool Login(Credentials cred)
+        {
+            DatabaseCommand cmd = new DatabaseCommand(CommandType.Login, cred);
+
+            SendCommand(cmd);
+
+            DatabaseCommand retCmd = ReceiveCommand();
+
+            if (retCmd.CommandType == CommandType.Return && retCmd.ReturnCode == 0)
+            {
+                return true;
+            } // end if
+            else
+            {
+                return false;
+            } // end else
+        }
+
+
         /// <summary></summary>
         public List<Course> GetAllCourses()
         {
@@ -112,13 +131,221 @@ namespace CwuAdvising
             DatabaseCommand dbCommand = ReceiveCommand();
 
 
-            if(dbCommand.ReturnCode == 0)
+            if(dbCommand.ReturnCode == 0 && dbCommand.CommandType == CommandType.Return)
             {
                 return dbCommand.CourseList;
-            } else
+            } // end if
+            else
             {
                 return null;
-            }
+            } // end else
+        }
+
+
+        public Database_Object RetrieveRecord(Database_Object template, OperandType ot_type)
+        {
+            DatabaseCommand cmd = new DatabaseCommand(CommandType.Retrieve, template, ot_type);
+
+            SendCommand(cmd);
+
+            DatabaseCommand retCmd = ReceiveCommand();
+
+            if (retCmd.CommandType == CommandType.Return && retCmd.ReturnCode == 0)
+            {
+                return (Database_Object)retCmd.Operand;
+            } // end if
+            else
+            {
+                return null;
+            } // end else
+        }
+
+        public Credentials RetrieveRecord(Credentials template)
+        {
+            DatabaseCommand cmd = new DatabaseCommand(CommandType.Retrieve, template);
+
+            SendCommand(cmd);
+
+            DatabaseCommand retCmd = ReceiveCommand();
+
+            if (retCmd.CommandType == CommandType.Return && retCmd.ReturnCode == 0)
+            {
+                return (Credentials)retCmd.Operand;
+            } // end if
+            else
+            {
+                return new Credentials();
+            } // end else
+        }
+
+
+        public PlanInfo RetrieveRecord(PlanInfo template)
+        {
+            DatabaseCommand cmd = new DatabaseCommand(CommandType.Retrieve, template);
+
+            SendCommand(cmd);
+
+            DatabaseCommand retCmd = ReceiveCommand();
+
+            if (retCmd.CommandType == CommandType.Return && retCmd.ReturnCode == 0)
+            {
+                return (PlanInfo)retCmd.Operand;
+            } // end if
+            else
+            {
+                return new PlanInfo();
+            } // end else
+        }
+
+
+        public Credentials RetrieveSalt(Credentials template)
+        {
+            DatabaseCommand cmd = new DatabaseCommand(CommandType.GetSalt, template);
+
+            SendCommand(cmd);
+
+            DatabaseCommand retCmd = ReceiveCommand();
+
+            if (retCmd.CommandType == CommandType.Return && retCmd.ReturnCode == 0)
+            {
+                return (Credentials)retCmd.Operand;
+            } // end if
+            else
+            {
+                return new Credentials();
+            } // end else
+        }
+
+
+        public bool UpdateRecord(Database_Object dbo, OperandType ot_type)
+        {
+            DatabaseCommand cmd = new DatabaseCommand(CommandType.Update, dbo, ot_type);
+
+            SendCommand(cmd);
+
+            DatabaseCommand retCmd = ReceiveCommand();
+
+            if(retCmd.CommandType == CommandType.Return && retCmd.ReturnCode == 0)
+            {
+                return true;
+            } // end if
+            else
+            {
+                return false;
+            } // end else
+        }
+
+
+        public bool UpdateRecord(Credentials cred)
+        {
+            DatabaseCommand cmd = new DatabaseCommand(CommandType.Update, cred);
+
+            SendCommand(cmd);
+
+            DatabaseCommand retCmd = ReceiveCommand();
+
+            if (retCmd.CommandType == CommandType.Return && retCmd.ReturnCode == 0)
+            {
+                return true;
+            } // end if
+            else
+            {
+                return false;
+            } // end else
+        }
+
+
+        public bool UpdateRecord(PlanInfo info)
+        {
+            DatabaseCommand cmd = new DatabaseCommand(CommandType.Update, info);
+
+            SendCommand(cmd);
+
+            DatabaseCommand retCmd = ReceiveCommand();
+
+            if (retCmd.CommandType == CommandType.Return && retCmd.ReturnCode == 0)
+            {
+                return true;
+            } // end if
+            else
+            {
+                return false;
+            } // end else
+        }
+
+
+        public bool UpdatePassword(Credentials cred)
+        {
+            DatabaseCommand cmd = new DatabaseCommand(CommandType.ChangePW, cred);
+
+            SendCommand(cmd);
+
+            DatabaseCommand retCmd = ReceiveCommand();
+
+            if (retCmd.CommandType == CommandType.Return && retCmd.ReturnCode == 0)
+            {
+                return true;
+            } // end if
+            else
+            {
+                return false;
+            } // end else
+        }
+
+        public bool DeleteRecord(Database_Object dbo, OperandType ot_type)
+        {
+            DatabaseCommand cmd = new DatabaseCommand(CommandType.Delete, dbo, ot_type);
+
+            SendCommand(cmd);
+
+            DatabaseCommand retCmd = ReceiveCommand();
+
+            if (retCmd.CommandType == CommandType.Return && retCmd.ReturnCode == 0)
+            {
+                return true;
+            } // end if
+            else
+            {
+                return false;
+            } // end else
+        }
+
+
+        public bool DeleteRecord(Credentials cred)
+        {
+            DatabaseCommand cmd = new DatabaseCommand(CommandType.Delete, cred);
+
+            SendCommand(cmd);
+
+            DatabaseCommand retCmd = ReceiveCommand();
+
+            if (retCmd.CommandType == CommandType.Return && retCmd.ReturnCode == 0)
+            {
+                return true;
+            } // end if
+            else
+            {
+                return false;
+            } // end else
+        }
+
+
+        public bool DeleteRecord(PlanInfo info)
+        {
+            DatabaseCommand cmd = new DatabaseCommand(CommandType.Delete, info);
+
+            SendCommand(cmd);
+
+            DatabaseCommand retCmd = ReceiveCommand();
+
+            if (retCmd.CommandType == CommandType.Return && retCmd.ReturnCode == 0)
+            {
+                return true;
+            } // end if
+            else
+            {
+                return false;
+            } // end else
         }
 
     }
