@@ -12,16 +12,19 @@ var UniqueCourseId = 0;
 $(document).ready(function () {
     ResetCourseContainer();
     LoadDepartments(CourseList);
-    //console.log(CourseListFromServer);
 });
 
-function MatchesCourseNumber(Course, Min, Max) {
-    var split = Course.split(" ");
+function GetCourseNumber(Course) {
+    return Course.match(/\d+/);
+}
 
-    if (split.length !== 2) {
-        return false;
-    }
-    return split[1] >= Min && split[1] <= Max;
+function GetCoursePrefix(Course) {
+    return Course.match(/[a-zA-Z]/);
+}
+
+function MatchesCourseNumber(Course, Min, Max) {
+    var CourseNumber = GetCourseNumber(Course);
+    return CourseNumber >= Min && CourseNumber <= Max;
 }
 
 function SearchCourses(Min, Max, Department, Summer, Fall, Winter, Spring) {

@@ -11,52 +11,102 @@ using System.IO;
 
 namespace CwuAdvising.Pages
 {
+    /// <summary>
+    /// Model for managing coures in database
+    /// </summary>
     public class ManageCoursesModel : PageModel
     {
-        public static CourseModel RecievedCourses = null;
+        /// <summary>
+        /// Master list of courses contained in database
+        /// </summary>
+        public static List<Course> MasterCourseList = new List<Course>();
 
-        public List<CourseModel> GetCoursesFromServer()
+        /// <summary>
+        /// Retrieves master list of courses from database
+        /// </summary>
+        public void GetCoursesFromDatabase()
         {
-            List<CourseModel> CourseList = new List<CourseModel>();
+            List<Course> MasterList = new List<Course>();
 
-            // For Testing
-            Course CS301 = new Course("Data Structures I", "CS 301", 4, false);
-            CourseList.Add(ParseDatabaseCourse(CS301));
-            Course CS302 = new Course("Data Structures II", "CS 302", 4, false);
+            // Temporary values for testing
+            Course CS301 = new Course("Data Structures I", "CS301", 4, false, new bool[] { true, true, false, true });
+            CS301.Department = "Computer Science";
+            MasterList.Add(CS301);
+
+            Course CS302 = new Course("Data Structures II", "CS302", 4, false, new bool[] { true, true, false, true });
+            CS301.Department = "Computer Science";
             CS302.AddPreRequisite(CS301);
-            CourseList.Add(ParseDatabaseCourse(CS302));
-            Course CS470 = new Course("Operating Systems", "CS 470", 4, false);
-            CS470.AddPreRequisite(new Course("Prog. Language Design", "CS 362", 4, false));
-            CourseList.Add(ParseDatabaseCourse(CS470));
-            
+            MasterList.Add(CS302);
+
+            Course CS470 = new Course("Operating Systems", "CS470", 4, false, new bool[] { true, true, false, true });
+            CS470.Department = "Computer Science";
+            CS470.AddPreRequisite(new Course("Prog. Language Design", "CS362", 4, false));
+            MasterList.Add(CS470);
+
+            MasterCourseList = MasterList;
+        }
+
+        /// <summary>
+        /// Converts Course list to CourseModel list
+        /// </summary>
+        /// <param name="CourseList">List of Course objects</param>
+        /// <returns>List of CourseModel objects</returns>
+        public List<CourseModel> CourseListToCourseModelList(List<Course> CourseList)
+        {
+            List<CourseModel> ModelList = new List<CourseModel>();
+
+            foreach(Course course in CourseList)
+            {
+                CourseModel model = (CourseModel)course;
+                foreach(Course prereq in course.PreRequisites)
+                {
+                    model.PreReqs.Add(prereq.ID);
+                }
+
+                ModelList.Add(model);
+            }
+
+            return ModelList;
+        }
+
+        /// <summary>
+        /// Converts CourseModel list to Course list
+        /// </summary>
+        /// <param name="ModelList">List of CourseModel objects</param>
+        /// <returns>List of Course objects</returns>
+        public List<Course> CourseModelListToCourseList(List<CourseModel> ModelList)
+        {
+            List<Course> CourseList = new List<Course>();
+
+            foreach (CourseModel model in ModelList)
+            {
+                Course c = (Course)model;
+                
+                foreach(string prereq in model.PreReqs)
+                {
+                    c.AddPreRequisite(MasterCourseList.Find(delegate (Course masterCourse) { return masterCourse.ID == prereq; }));
+                }
+
+                CourseList.Add(c);
+            }
+
             return CourseList;
         }
 
-        public CourseModel ParseDatabaseCourse(Course DatabaseCourse)
-        {
-            CourseModel ModelCourse = new CourseModel();
-            ModelCourse.Title = DatabaseCourse.Name;
-            ModelCourse.Number = DatabaseCourse.ID;
-            ModelCourse.Department = "Computer Science";
-            ModelCourse.Offered = "124";
-            ModelCourse.Credits = DatabaseCourse.Credits.ToString();
-            for(int i = 0; i < DatabaseCourse.PreRequisites.Count; i++)
-            {
-                ModelCourse.PreReqs.Add(DatabaseCourse.PreRequisites[i].ID);
-            }
-
-            return ModelCourse;
-        }
-
+        /// <summary>
+        /// Updates MasterCourseList from database and
+        /// Serializes CourseModel list to a JSON string.
+        /// </summary>
+        /// <returns>CourseModel list as serialized JSON string</returns>
         public string CourseListAsJson()
         {
-            if(RecievedCourses != null)
-            {
-                return JsonConvert.SerializeObject(RecievedCourses);
-            }
-            return JsonConvert.SerializeObject(GetCoursesFromServer());
+            GetCoursesFromDatabase();
+            List<CourseModel> ModelList = CourseListToCourseModelList(MasterCourseList);
+            return JsonConvert.SerializeObject(ModelList);
         }
-
+        
+        /// <summary>Retrieves a list of modified courses as JSON data from POST</summary>
+        /// <returns>JsonResult containing success/error status</returns>
         public ActionResult OnPostSendCourses()
         {
             MemoryStream stream = new MemoryStream();
@@ -67,7 +117,8 @@ namespace CwuAdvising.Pages
                 string requestBody = reader.ReadToEnd();
                 if (requestBody.Length > 0)
                 {
-                    var obj = JsonConvert.DeserializeObject<List<CourseModel>>(requestBody);
+                    var ModifiedCourses = JsonConvert.DeserializeObject<List<CourseModel>>(requestBody);
+                    var DatabaseUpdate = CourseModelListToCourseList(ModifiedCourses);
                     return new JsonResult("Courses saved succesfully.");
                 }
                 else
