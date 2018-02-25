@@ -11,26 +11,49 @@ namespace PlanGenerationAlgorithm
         public Student student;
         public Quarter quarterName;
         public bool locked = false;
-        public uint NumberOfQuarters; //total number of quarters
+        public uint NumberOfQuarters = 0; //total number of quarters
         public List<Course> courses; //list of all courses taken
         public Schedule NextQuarter, previousQuarter;
-        public uint ui_numberCredits=0; 
+        public uint ui_numberCredits = 0;
         public bool TakeSummerCourses = false;
-
-        //constructor
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="quarter">current quarter</param>
         public Schedule(Quarter quarter)
         {
             quarterName = quarter;
             courses = new List<Course>();
         } // end Constructor
 
-        //method to check if course meets constraints or not
+        /// <summary>Copy Constructor which creates a copy of the other course.</summary>
+        /// <param name="allCourses">schedule to be copied.</param>
+        public Schedule(Schedule allCourses) 
+        {
+            this.NextQuarter = allCourses.NextQuarter;
+            this.previousQuarter = allCourses.previousQuarter;
+            this.ui_numberCredits = allCourses.ui_numberCredits;
+            this.quarterName = allCourses.quarterName;
+            this.NumberOfQuarters = allCourses.NumberOfQuarters;
+            this.courses = new List<Course>(allCourses.courses);
+
+        } // end Copy Constructor
+        /// <summary>
+        /// method to check if course meets constraints or not
+        /// </summary>
+        /// <param name="c">the course to be checked</param>
+        /// <returns>number of credits less than max number of credits and 
+        /// if list of courses taken does not contain the course to be checked
+        /// </returns>
         public bool MeetsConstraints(Course c)
         {
-            return (ui_numberCredits < 16 && !courses.Contains(c));
+            return (ui_numberCredits < 18 && !courses.Contains(c));
         }
 
-        //method to get the lower bound to check the best possible solution
+        /// <summary>
+        /// method to get the lower bound to check the best possible solution
+        /// </summary>
+        /// <returns>lower bound</returns>
         public uint lowerBound()
         {
             uint totalRemainingCredits = 0;
@@ -41,7 +64,12 @@ namespace PlanGenerationAlgorithm
             return NumberOfQuarters + (totalRemainingCredits / Algorithm.maxCredits);
         }
 
-        //method to add course to the list
+        /// <summary>
+        /// method to add course to the list
+        /// if the course meets constraints
+        /// </summary>
+        /// <param name="c">possible course to be added</param>
+        /// <returns>true or false depends on whether the course meet all the constraints or not</returns>
         public bool AddCourse(Course c)
         {
             if (MeetsConstraints(c))
@@ -57,11 +85,13 @@ namespace PlanGenerationAlgorithm
 
         }
 
-
-        //method to get the schedule for next quarter
+        /// <summary>
+        /// method to get the schedule for next quarter
+        /// </summary>
+        /// <returns>go to the next quarter schedule</returns>
         public Schedule NextSchedule()
         {
-            
+
             if (NextQuarter == null)
             {
                 NextQuarter = new Schedule(GetNextQuarter());
@@ -75,13 +105,16 @@ namespace PlanGenerationAlgorithm
             return NextQuarter;
         }
 
-        //method to increment the quarter season and/or year
+        /// <summary>
+        /// method to increment the quarter season and/or year
+        /// </summary>
+        /// <returns>new quarter with new quarter name and possible new year</returns>
         private Quarter GetNextQuarter()
         {
             switch (quarterName.QuarterSeason)
             {
-                case Season.Fall:  return new Quarter(quarterName.Year + 1, Season.Winter);
-                case Season.Winter:  return new Quarter(quarterName.Year, Season.Spring);
+                case Season.Fall: return new Quarter(quarterName.Year + 1, Season.Winter);
+                case Season.Winter: return new Quarter(quarterName.Year, Season.Spring);
                 case Season.Spring:
                     {
                         if (TakeSummerCourses)
@@ -91,7 +124,7 @@ namespace PlanGenerationAlgorithm
                         }
                         else
                         {
-                           //NumberOfQuarters++;
+                            //NumberOfQuarters++;
                             return new Quarter(quarterName.Year, Season.Fall);
                         }
                     }
@@ -99,14 +132,21 @@ namespace PlanGenerationAlgorithm
             }
         }
 
-        //method to remove course from list
+        /// <summary>
+        /// method to remove course from list
+        /// </summary>
+        /// <param name="c"></param>
+        /// <returns>the list of courses after removing course</returns>
         public List<Course> RemoveCourse(Course c)
         {
             courses.Remove(c);
             return courses;
         }
 
-        //toString method override to print all the schedules
+        /// <summary>
+        /// toString method override to print all the schedules
+        /// </summary>
+        /// <returns>printed schedule</returns>
         public override string ToString()
         {
             String outputStr = "";
@@ -134,7 +174,10 @@ namespace PlanGenerationAlgorithm
             return outputStr;
         }
 
-        //method to check schedule for previous quarter
+        /// <summary>
+        /// method to check schedule for previous quarter and if previous quarter exists or not
+        /// </summary>
+        /// <returns>previous quarter schedule if it exists</returns>
         public Schedule GetFirstSchedule()
         {
             if (previousQuarter == null)
