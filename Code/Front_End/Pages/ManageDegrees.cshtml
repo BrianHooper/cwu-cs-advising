@@ -1,9 +1,16 @@
 ﻿@page
-@model CwuAdvising.Pages.ManageCoursesModel
+@model CwuAdvising.Pages.ManageDegreesModel
 @{
     ViewData["Title"] = "Manage Degrees";
 }
-<script src="~/js/ListManager.js"></script>
+@Html.AntiForgeryToken()
+<script src="~/js/CourseSearch.js"></script>
+<script>
+    var CourseListFromServer = '@Html.Raw(ManageCoursesModel.CourseListAsJson())';
+    var DegreeModel = '@Html.Raw(ManageDegreesModel.LoadDatabaseDegrees())';
+</script>
+
+<script src="~/js/ManageDegrees.js"></script>
 
 <div class="PageRow Flex CenterFlex">
     <div class="Block Border Padded">
@@ -12,87 +19,85 @@
             <div class="Flex ">
                 <div class="LabelLeft">Academic Year:</div>
                 <div class="LabelRight">
-                    <input type="number" min="2014" max="2018" value="2017" />
+                    <input type="number" min="2012" max="2030" value="2017" id="CreateDegreeYear" />
                 </div>
             </div>
             <div class="Flex">
-                <div class="LabelLeft">Department:</div>
+                <div class="LabelLeft">Name:</div>
                 <div class="LabelRight">
-                    <input type="text" />
+                    <input type="text" id="CreateDegreeName" />
                 </div>
             </div>
         </div>
 
-        <div><input type="submit" value="Create" class="BigButton" /></div>
+        <div><button type="button" class="BigButton" id="CreateDegreeButton">Create Degree</button></div>
     </div>
 </div>
 
 <div class="PageRow Flex CenterFlex">
     <div class="Block Border Padded">
-        <div class="Title">Degree Search</div>
+        <div class="Title">Load Degree</div>
         <div class="Flex CenterFlex">
-            <div class="Flex ">
-                <div class="LabelLeft">Academic Year:</div>
-                <div class="LabelRight">
-                    <input type="number" min="2014" max="2018" value="2017" />
-                </div>
-            </div>
             <div class="Flex">
-                <div class="LabelLeft">Department:</div>
+                <div class="LabelLeft">Degree:</div>
                 <div class="LabelRight">
-                    <select name="Department">
-                        <option>Computer Science</option>
-                        <option>Mathematics</option>
-                    </select>
+                    <select name="Department" id="DegreeSelect"></select>
                 </div>
             </div>
         </div>
 
-        <div><input type="submit" value="Search" class="BigButton" /></div>
+        <div><button type="button" class="BigButton" id="LoadDegreeButton">Load Degree</button></div>
     </div>
 </div>
-
-<div class="Flex CenterFlex">
-    <div class="Block Padded" id="RequirementContainer"  style="min-width: 800px;">
-        <div class="Title">Current Degree: BS - Computer Science - 2017-2018</div>
-        <div class="Flex CenterFlex Row" style="margin-bottom: 10px;">
-            <div class="Element ButtonElement">[X]</div>
-            <div class="Element CourseElement">Requirement</div>
-            <div class="Element WideFlex">Possible Courses</div>
-        </div>
-
-        <div class="Flex CenterFlex Row">
-            <div class="Element DeleteRow">[X]</div>
-            <div class="Element CourseElement"><input type="text" value="Operating Systems" /></div>
-            <div class="Element WideFlex">
-                <a href="#">[ CS 470 ]</a>
-                <a href="#">[+]</a>
+<div id="ResultsContainer">
+    <div class="PageRow Flex CenterFlex">
+        <div class="Border" id="SearchBox">
+            <div class="Title">Course Search</div>
+            <div class="Flex CenterFlex">
+                <div class="Flex ">
+                    <div class="LabelLeft">Courses Numbered:</div>
+                    <div class="LabelRight"><input type="text" style="width: 20%;" value="0" id="MinCourseSearch" /> to <input type="text" style="width: 20%;" value="999" id="MaxCourseSearch" /></div>
+                </div>
+                <div class="Flex">
+                    <div class="LabelLeft">Department:</div>
+                    <div class="LabelRight">
+                        <select id="DepartmentSearch" name="Department">
+                            <option value="any">--- Any ---</option>
+                        </select>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <div class="Flex CenterFlex Row">
-            <div class="Element DeleteRow">[X]</div>
-            <div class="Element CourseElement"><input type="text" value="English Competency" /></div>
-            <div class="Element WideFlex">
-                <a href="#">[ ENG 101 ]</a>
-                <a href="#">[+]</a>
+            <div class="Flex CenterFlex">
+                <div class="Flex">
+                    <div class="LabelLeft Border">Courses Offered:</div>
+                    <div class="LabelRight Flex">
+                        <input type="checkbox" id="SummerSearch" /> Summer
+                        <input type="checkbox" id="FallSearch" checked /> Fall
+                        <input type="checkbox" id="WinterSearch" checked /> Winter
+                        <input type="checkbox" id="SpringSearch" checked /> Spring
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <div class="Flex CenterFlex Row">
-            <div class="Element DeleteRow">[X]</div>
-            <div class="Element CourseElement"><input type="text" value="Natural World" /></div>
-            <div class="Element WideFlex">
-                <a href="#">[ ANTH 110 ]</a>
-                <a href="#">[ BIOL 200 ]</a>
-                <a href="#">[ BIOL 201 ]</a>
-                <a href="#">[ BIOL 300 ]</a>
-                <a href="#">[+]</a>
-            </div>
+            <div><input type="submit" value="Search" class="BigButton" id="SearchCourses" /></div>
         </div>
     </div>
-    <div style="width: 100%; text-align: center;">
-        <button type="button" class="BigButton" style="width: 150px; margin-top: 5px;" id="AddNewRequirementButton">Add New Requirement</button>
-        <input type="submit" value="Save Changes" class="BigButton" style="width: 150px; margin-top: 5px;" />
+    <div class="Flex CenterFlex">
+        <div class="Border" style="width: 80%;">
+            <div class="Title" id="SearchResults">Search Results: </div>
+            <div class="Flex CenterFlex" id="CourseContainer"></div>
+        </div>
+    </div>
+    <div class="Flex CenterFlex">
+        <div class="Flex CenterFlex Border" style="width: 80%;">
+            <div class="Block Padded" id="RequirementContainer" style="min-width: 800px;">
+                <div class="Title">Current Degree:</div><div class="Title" id="CurrentDegreeName"></div>
+                <div id="DegreeRequirementBox">
+
+                </div>
+                <div><button class="BigButton" id="SaveDegreeButton">Save Changes</button></div>
+            </div>
+        </div>
     </div>
 </div>

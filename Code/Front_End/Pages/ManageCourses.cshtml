@@ -5,7 +5,7 @@
 }
 @Html.AntiForgeryToken()
 <script>
-    var CourseListFromServer = '@Html.Raw(Model.CourseListAsJson())';
+    var CourseListFromServer = '@Html.Raw(ManageCoursesModel.CourseListAsJson())';
     function PassCoursesToServer(CourseList) {
         if (CourseList.length == 0) {
             return;
@@ -33,7 +33,7 @@
     }
 </script>
 
-<script src="~/js/ListManager.js"></script>
+<script src="~/js/CourseSearch.js"></script>
 <script src="~/js/CourseManagement.js"></script>
 <div class="PageRow Flex CenterFlex">
     <div class="Border" id="SearchBox">

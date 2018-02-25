@@ -63,7 +63,7 @@ namespace CwuAdvising.Pages
         /// </summary>
         /// <param name="CourseList">List of Course objects</param>
         /// <returns>List of CourseModel objects</returns>
-        public List<CourseModel> CourseListToCourseModelList(List<Course> CourseList)
+        public static List<CourseModel> CourseListToCourseModelList(List<Course> CourseList)
         {
             List<CourseModel> ModelList = new List<CourseModel>();
 
@@ -110,7 +110,7 @@ namespace CwuAdvising.Pages
         /// Serializes CourseModel list to a JSON string.
         /// </summary>
         /// <returns>CourseModel list as serialized JSON string</returns>
-        public string CourseListAsJson()
+        public static string CourseListAsJson()
         {
             GetCoursesFromDatabase();
             List<CourseModel> ModelList = CourseListToCourseModelList(MasterCourseList);

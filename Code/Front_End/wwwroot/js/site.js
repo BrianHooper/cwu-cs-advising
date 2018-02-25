@@ -3,6 +3,16 @@ var deleteIcon = "&#10060;";
 var checkIcon = "&#10004;";
 var editIcon = "&#9998;";
 
+function RemoveStringFromArray(Array, Str) {
+    var NewArray = [];
+    for (var i = 0; i < Array.length; i++) {
+        if (!StringMatch(Array[i], Str)) {
+            NewArray.push(Array[i]);
+        }
+    }
+    return NewArray;
+}
+
 /*  Returns true if the array contains an element
     matching the given string */
 function StringArrayContains(Array, Str) {

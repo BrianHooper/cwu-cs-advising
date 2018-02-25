@@ -118,6 +118,23 @@
             <summary>Explicit cast operator for CourseModel to Course conversion.</summary>
             <returns>A Course object equivalent to the given CourseModel.</returns>
         </member>
+        <member name="T:CwuAdvising.Models.DegreeModel">
+            <summary>Model for degree management page</summary>
+        </member>
+        <member name="M:CwuAdvising.Models.DegreeModel.#ctor(System.String,System.UInt32)">
+            <summary>Constructor for Degree</summary>
+            <param name="name">Name of the degree</param>
+            <param name="year">Academic year</param>
+        </member>
+        <member name="P:CwuAdvising.Models.DegreeModel.name">
+            <summary>Name of the degree</summary>
+        </member>
+        <member name="P:CwuAdvising.Models.DegreeModel.year">
+            <summary>Academic year for the degree</summary>
+        </member>
+        <member name="P:CwuAdvising.Models.DegreeModel.requirements">
+            <summary>List of course IDs required for the degree</summary>
+        </member>
         <member name="T:CwuAdvising.Models.ScheduleModel">
             <summary>
             Model for Advising Schedule
@@ -340,6 +357,14 @@
         </member>
         <member name="T:CwuAdvising.Pages.ManageDegreesModel">
             <summary>Model for degree management</summary>
+        </member>
+        <member name="M:CwuAdvising.Pages.ManageDegreesModel.LoadDatabaseDegrees">
+            <summary>Loads degrees from the database</summary>
+            <returns>Returns a list of DegreeModels serialized as a JSON string</returns>
+        </member>
+        <member name="M:CwuAdvising.Pages.ManageDegreesModel.OnPostSendDegree">
+            <summary>Retrieves a modified degree as JSON data from POST</summary>
+            <returns>JsonResult containing success/error status</returns>
         </member>
         <member name="T:CwuAdvising.Pages.StudentAdvisingModel">
             <summary>Model for student advising page</summary>
