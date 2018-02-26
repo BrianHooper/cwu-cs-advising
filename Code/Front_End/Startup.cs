@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CwuAdvising
 {
@@ -26,11 +27,10 @@ namespace CwuAdvising
         /// <summary>This method gets called by the runtime. Use this method to add services to the container.</summary>
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddMvc().WithRazorPagesRoot("/MyPages");
-            //services.AddMvc().WithRazorPagesAtContentRoot();
-            services.AddMvc();
-            services.AddAntiforgery(o => o.HeaderName = "XSRF-TOKEN");
-            //services.Configure<RazorPagesOptions>(options => options.RootDirectory = "/MyPages");
+            services.AddMvc().AddRazorPagesOptions(o =>
+            {
+                o.Conventions.ConfigureFilter(new IgnoreAntiforgeryTokenAttribute());
+            });
         }
 
         /// <summary>This method gets called by the runtime. Use this method to configure the HTTP request pipeline.</summary>

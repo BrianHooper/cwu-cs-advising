@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Manage Courses";
 }
-@Html.AntiForgeryToken()
+
 <script>
     var CourseListFromServer = '@Html.Raw(ManageCoursesModel.CourseListAsJson())';
     function PassCoursesToServer(CourseList) {
@@ -14,12 +14,7 @@
         $.ajax({
             type: "POST",
             url: "/ManageCourses?handler=SendCourses",
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader("XSRF-TOKEN",
-                    $('input:hidden[name="__RequestVerificationToken"]').val());
-            },
             data: JSON.stringify(CourseList),
-
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (response) {

@@ -69,10 +69,6 @@ $(document).on("click", "#SaveDegreeButton", function () {
     $.ajax({
         type: "POST",
         url: "/ManageDegrees?handler=SendDegree",
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader("XSRF-TOKEN",
-                $('input:hidden[name="__RequestVerificationToken"]').val());
-        },
         data: JSON.stringify(CurrentDegree),
 
         contentType: "application/json; charset=utf-8",

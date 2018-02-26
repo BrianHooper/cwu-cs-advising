@@ -4,7 +4,7 @@
     ViewData["Title"] = "Student Advising";
 }
 
-@Html.AntiForgeryToken()
+
 
 <script>
     // Get degrees from the server
@@ -22,10 +22,6 @@
         $.ajax({
             type: "POST",
             url: "/StudentAdvising?handler=LoadStudent",
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader("XSRF-TOKEN",
-                    $('input:hidden[name="__RequestVerificationToken"]').val());
-            },
             data: JSON.stringify(StudentId),
 
             contentType: "application/json; charset=utf-8",
@@ -48,10 +44,6 @@
         $.ajax({
             type: "POST",
             url: "/StudentAdvising?handler=CreateStudent",
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader("XSRF-TOKEN",
-                    $('input:hidden[name="__RequestVerificationToken"]').val());
-            },
             data: JSON.stringify(Student),
 
             contentType: "application/json; charset=utf-8",

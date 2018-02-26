@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Manage Degrees";
 }
-@Html.AntiForgeryToken()
+
 <script src="~/js/CourseSearch.js"></script>
 <script>
     var CourseListFromServer = '@Html.Raw(ManageCoursesModel.CourseListAsJson())';

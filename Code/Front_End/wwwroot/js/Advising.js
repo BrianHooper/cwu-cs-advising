@@ -191,12 +191,7 @@ $(document).on("click", "#GenerateButton", function () {
     $.ajax({
         type: "POST",
         url: "/Advising?handler=RecieveScheduleForAlgorithm",
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader("XSRF-TOKEN",
-                $('input:hidden[name="__RequestVerificationToken"]').val());
-        },
         data: ScheduleJson,
-
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (response) {
@@ -573,10 +568,6 @@ $(document).on("click", "#SaveButton", function () {
     $.ajax({
         type: "POST",
         url: "/Advising?handler=RecieveScheduleForSavingStudent",
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader("XSRF-TOKEN",
-                $('input:hidden[name="__RequestVerificationToken"]').val());
-        },
         data: ScheduleJson,
 
         contentType: "application/json; charset=utf-8",
@@ -598,10 +589,6 @@ $(document).on("click", "#SaveBaseCaseButton", function () {
     $.ajax({
         type: "POST",
         url: "/Advising?handler=RecieveScheduleForSavingBaseCase",
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader("XSRF-TOKEN",
-                $('input:hidden[name="__RequestVerificationToken"]').val());
-        },
         data: ScheduleJson,
 
         contentType: "application/json; charset=utf-8",
@@ -623,10 +610,6 @@ $(document).on("click", "#PrintButton", function () {
     $.ajax({
         type: "POST",
         url: "/Advising?handler=RecieveScheduleForSavingBaseCase",
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader("XSRF-TOKEN",
-                $('input:hidden[name="__RequestVerificationToken"]').val());
-        },
         data: ScheduleJson,
 
         contentType: "application/json; charset=utf-8",

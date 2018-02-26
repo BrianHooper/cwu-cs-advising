@@ -27,10 +27,6 @@ $(document).on("click", "#SaveUsers", function () {
     $.ajax({
         type: "POST",
         url: "/UserManagement?handler=SendUsers",
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader("XSRF-TOKEN",
-                $('input:hidden[name="__RequestVerificationToken"]').val());
-        },
         data: JSON.stringify(ModifiedUsers),
 
         contentType: "application/json; charset=utf-8",
