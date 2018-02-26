@@ -10,11 +10,11 @@ namespace CwuAdvising.Models
     public class CourseModel
     {
         /// <summary></summary>
-        public string Title { get; set; }
+        public string Name { get; set; }
         /// <summary></summary>
         public string Department { get; set; }
         /// <summary></summary>
-        public string Number { get; set; }
+        public string ID { get; set; }
         /// <summary></summary>
         public string Credits { get; set; }
         /// <summary></summary>
@@ -23,6 +23,8 @@ namespace CwuAdvising.Models
         public bool RequiresMajor { get; set; }
         /// <summary></summary>
         public List<String> PreReqs { get; set; } = new List<String>();
+        /// <summary>If the course should be deleted</summary>
+        public bool Delete { get; set; } = false;
 
         /// <summary>Explicit cast operator for CourseModel to Course conversion.</summary>
         /// <returns>A Course object equivalent to the given CourseModel.</returns>
@@ -63,7 +65,7 @@ namespace CwuAdvising.Models
                     break;
             } // end switch
             
-            return new Course(model.Title, (string.Concat(ID, model.Number)), uint.Parse(model.Credits), model.RequiresMajor, offered, preRequs);
+            return new Course(model.Name, model.ID, uint.Parse(model.Credits), model.RequiresMajor, offered, preRequs);
         } // end explicit cast operator
     }
 }

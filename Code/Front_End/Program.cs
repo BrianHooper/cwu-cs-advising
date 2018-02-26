@@ -17,7 +17,7 @@ namespace CwuAdvising
         /// <param name="args">Arugments</param>
         public static void Main(string[] args)
         {
-            BuildWebHost(args).Run();
+            BuildWebHost(args).Run();            
         }
 
         /// <summary></summary>

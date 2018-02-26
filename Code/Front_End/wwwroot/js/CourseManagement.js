@@ -5,6 +5,7 @@ var StartingCourses = CourseListFromServer;
 var CourseList = JSON.parse(StartingCourses);
 
 var ModifiedCourses = false;
+var DeletedCourses = [];
 var UniqueCourseId = 0;
 
 $(document).ready(function () {
@@ -49,9 +50,9 @@ function ResetCourseContainer() {
     var CourseHeader = $("<div></div>");
     CourseHeader.attr("class", "Flex CenterFlex Row skip");
     CourseHeader.append($('<div class="Element ButtonElement">' + deleteIcon + '</div>'));
-    CourseHeader.append($('<div class="Element CourseElement">Course Title</div>'));
+    CourseHeader.append($('<div class="Element CourseElement">Course Name</div>'));
     CourseHeader.append($('<div class="Element CourseElement">Department</div>'));
-    CourseHeader.append($('<div class="Element CourseNumberElement">Number</div>'));
+    CourseHeader.append($('<div class="Element CourseNumberElement">ID</div>'));
     CourseHeader.append($('<div class="Element CourseElement CourseNumberInput">Credits</div>'));
     CourseHeader.append($('<div class="Element ButtonElement">Su</div>'));
     CourseHeader.append($('<div class="Element ButtonElement">F</div>'));
@@ -95,10 +96,10 @@ function LoadCourses(Courses) {
 
 function LoadCourse(Course) {
     var CourseRow = CreateCourseRow();
-    CourseRow.children().eq(1).children().first().val(Course.Title);
+    CourseRow.children().eq(1).children().first().val(Course.Name);
 
     CourseRow.children().eq(2).children().first().val(Course.Department);
-    CourseRow.children().eq(3).children().first().val(Course.Number);
+    CourseRow.children().eq(3).children().first().val(Course.ID);
     CourseRow.children().eq(4).children().first().val(Course.Credits);
 
     if (StringMatch(Course.Offered, "3")) {
@@ -199,9 +200,14 @@ $(document).on('click', '#AddNewCourseButton', function () {
 
 $(document).on('click', '.DeleteRow', function () {
     var CourseTitle = $(this).parent().children().eq(1).children().first().val();
+    
     if (CourseTitle.length > 0) {
         if (confirm("Are you sure you want to delete " + CourseTitle + "?")) {
             ModifiedCourses = true;
+            var CourseIndex = $(this).parent().attr("uniqueid");
+            var Course = CourseList[CourseIndex];
+            Course.Delete = true;
+            DeletedCourses.push(Course);
             $(this).parent().remove();
         }
     } else {
@@ -238,6 +244,11 @@ function ResetModifiers() {
 /*  Builds the Json object to pass back to the server   */
 $(document).on("click", "#SaveCourses", function () {
     var Courses = ReadCoursesToList();
+
+    for (var i = 0; i < DeletedCourses.length; i++) {
+        Courses.push(DeletedCourses[i]);
+    }
+
     var ModifiedCoursesJson = JSON.stringify(Courses);
     PassCoursesToServer(Courses);
 });
@@ -247,11 +258,11 @@ function ReadCoursesToList() {
     $(".Row").each(function () {
         if (!$(this).hasClass("skip")) {
             if (HasAttrValue($(this), "modified", "true")) {
-                var Course = { "Title": "", "Department": "", "Number": "", "Credits": "", "Offered": "", "PreReqs": [] };
+                var Course = { "Name": "", "Department": "", "ID": "", "Credits": "", "Offered": "", "PreReqs": [], "Delete": false};
                 var Row = $(this).children();
-                Course.Title = Row.eq(1).children().first().val();
+                Course.Name = Row.eq(1).children().first().val();
                 Course.Department = Row.eq(2).children().first().val();
-                Course.Number = Row.eq(3).children().first().val();
+                Course.ID = Row.eq(3).children().first().val();
                 Course.Credits = Row.eq(4).children().first().val();
 
                 var Offered = "";
@@ -269,12 +280,13 @@ function ReadCoursesToList() {
             }
         }
     });
+    console.log(Courses);
     return Courses;
 }
 
 function GetCourseByName(Name) {
     for (var i = 0; i < CourseList.length; i++) {
-        if (StringMatch(CourseList[i].Title, Name)) {
+        if (StringMatch(CourseList[i].Name, Name)) {
             return CourseList[i];
         }
     }
@@ -332,7 +344,7 @@ $(document).on('click', '#SearchForPrereqs', function () {
     var pSpring = $("#SpringPrereqSearch").is(":checked");
     var MatchingCourses = SearchCourses(min, max, dept, pSummer, pFall, pWinter, pSpring);
     for (var i = 0; i < MatchingCourses.length; i++) {
-        $("#PrereqSearchResults").append(AddedPrereqButtion(MatchingCourses[i].Number, checkIcon, "AddPrereq"));
+        $("#PrereqSearchResults").append(AddedPrereqButtion(MatchingCourses[i].ID, checkIcon, "AddPrereq"));
     }
 });
 

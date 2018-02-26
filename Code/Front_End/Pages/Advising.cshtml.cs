@@ -16,6 +16,7 @@ namespace CwuAdvising.Pages
     /// <summary>Model for student advising</summary>
     public class AdvisingModel : PageModel
     {
+        /// <summary>Example JSON for testing</summary>
         public static string ExampleSchedule = System.IO.File.ReadAllText("wwwroot/ExamplePlan.json");
 
         /// <summary>Current student loaded to advising page</summary>

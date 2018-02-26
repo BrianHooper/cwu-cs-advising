@@ -1,9 +1,9 @@
 ﻿function GetCourseNumber(Course) {
-    return Course.Number.match(/\d+/);
+    return Course.ID.match(/\d+/);
 }
 
 function GetCoursePrefix(Course) {
-    return Course.Number.match(/[a-zA-Z]/);
+    return Course.ID.match(/[a-zA-Z]/);
 }
 
 function MatchesCourseNumber(Course, Min, Max) {

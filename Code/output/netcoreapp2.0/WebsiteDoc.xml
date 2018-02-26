@@ -7,6 +7,9 @@
         <member name="T:CwuAdvising.DatabaseInterface">
             <summary></summary>
         </member>
+        <member name="F:CwuAdvising.DatabaseInterface.connected">
+            <summary>Set to true if the client connected to the database sucessfully</summary>
+        </member>
         <member name="M:CwuAdvising.DatabaseInterface.#ctor(System.String)">
             <summary>Extracts settings from configuration file.</summary>
             <param name="s_fileName">Ini file with configurations.</param>
@@ -93,13 +96,13 @@
         <member name="T:CwuAdvising.Models.CourseModel">
             <summary>Model for Course Management</summary>
         </member>
-        <member name="P:CwuAdvising.Models.CourseModel.Title">
+        <member name="P:CwuAdvising.Models.CourseModel.Name">
             <summary></summary>
         </member>
         <member name="P:CwuAdvising.Models.CourseModel.Department">
             <summary></summary>
         </member>
-        <member name="P:CwuAdvising.Models.CourseModel.Number">
+        <member name="P:CwuAdvising.Models.CourseModel.ID">
             <summary></summary>
         </member>
         <member name="P:CwuAdvising.Models.CourseModel.Credits">
@@ -113,6 +116,9 @@
         </member>
         <member name="P:CwuAdvising.Models.CourseModel.PreReqs">
             <summary></summary>
+        </member>
+        <member name="P:CwuAdvising.Models.CourseModel.Delete">
+            <summary>If the course should be deleted</summary>
         </member>
         <member name="M:CwuAdvising.Models.CourseModel.op_Explicit(CwuAdvising.Models.CourseModel)~Database_Object_Classes.Course">
             <summary>Explicit cast operator for CourseModel to Course conversion.</summary>
@@ -224,6 +230,9 @@
         </member>
         <member name="T:CwuAdvising.Pages.AdvisingModel">
             <summary>Model for student advising</summary>
+        </member>
+        <member name="F:CwuAdvising.Pages.AdvisingModel.ExampleSchedule">
+            <summary>Example JSON for testing</summary>
         </member>
         <member name="P:CwuAdvising.Pages.AdvisingModel.CurrentStudent">
             <summary>Current student loaded to advising page</summary>
@@ -337,7 +346,14 @@
             <param name="CourseList">List of Course objects</param>
             <returns>List of CourseModel objects</returns>
         </member>
-        <member name="M:CwuAdvising.Pages.ManageCoursesModel.CourseModelListToCourseList(System.Collections.Generic.List{CwuAdvising.Models.CourseModel})">
+        <member name="M:CwuAdvising.Pages.ManageCoursesModel.GetCoursesToDelete(System.Collections.Generic.List{CwuAdvising.Models.CourseModel})">
+            <summary>
+            Converts CourseModel list to Course list
+            </summary>
+            <param name="ModelList">List of CourseModel objects</param>
+            <returns>List of Course objects</returns>
+        </member>
+        <member name="M:CwuAdvising.Pages.ManageCoursesModel.GetCoursesToUpdate(System.Collections.Generic.List{CwuAdvising.Models.CourseModel})">
             <summary>
             Converts CourseModel list to Course list
             </summary>

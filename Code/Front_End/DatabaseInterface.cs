@@ -14,6 +14,9 @@ namespace CwuAdvising
     /// <summary></summary>
     public class DatabaseInterface
     {
+        /// <summary>Set to true if the client connected to the database sucessfully</summary>
+        public bool connected = false;
+
         private readonly TcpClient tcpClient;
 
         private readonly int tcpPort;
@@ -26,16 +29,25 @@ namespace CwuAdvising
         /// <param name="s_fileName">Ini file with configurations.</param>
         public DatabaseInterface(string s_fileName)
         {
-            var parser = new FileIniDataParser();
-            IniData data = parser.ReadFile(s_fileName);
+            try
+            {
+                var parser = new FileIniDataParser();
+                IniData data = parser.ReadFile(s_fileName);
+                string ip = data["Misc"]["IP"];
+                string TCPPort = data["Misc"]["TCPIP_port"];
+                tcpPort = int.Parse(TCPPort);
 
-            string ip = data["Misc"]["IP"];
-            string TCPPort = data["Misc"]["TCPIP_port"];
-            tcpPort = int.Parse(TCPPort);
+                IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse(ip), tcpPort);
+                tcpClient = new TcpClient(endPoint);
+                networkStream = tcpClient.GetStream();
+                connected = true;
+            } catch(Exception)
+            {
+                
+            } 
 
-            IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse(ip), tcpPort);
-            tcpClient = new TcpClient(endPoint);
-            networkStream = tcpClient.GetStream();
+            
+
         }
 
         /// <summary>Default destructor, terminates database connection.</summary>

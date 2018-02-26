@@ -26,36 +26,43 @@ namespace CwuAdvising.Pages
         /// </summary>
         public static void GetCoursesFromDatabase()
         {
-            List<Course> MasterList = new List<Course>();
-
-            // Temporary values for testing
-            Course MATH330 = new Course("Discrete Math", "MATH330", 5, false, new bool[] { false, true, false, true })
+            if (IndexModel.dbInterface.connected)
             {
-                Department = "Mathematics"
-            };
-            MasterList.Add(MATH330);
-
-            Course CS301 = new Course("Data Structures I", "CS301", 4, false, new bool[] { true, true, false, true })
+                MasterCourseList = IndexModel.dbInterface.GetAllCourses();
+            }
+            else
             {
-                Department = "Computer Science"
-            };
-            MasterList.Add(CS301);
+                List<Course> MasterList = new List<Course>();
 
-            Course CS302 = new Course("Data Structures II", "CS302", 4, false, new bool[] { true, true, false, true })
-            {
-                Department = "Computer Science"
-            };
-            CS302.AddPreRequisite(CS301);
-            MasterList.Add(CS302);
+                // Temporary values for testing
+                Course MATH330 = new Course("Discrete Math", "MATH330", 5, false, new bool[] { false, true, false, true })
+                {
+                    Department = "Mathematics"
+                };
+                MasterList.Add(MATH330);
 
-            Course CS470 = new Course("Operating Systems", "CS470", 4, false, new bool[] { true, true, false, true })
-            {
-                Department = "Computer Science"
-            };
-            CS470.AddPreRequisite(new Course("Prog. Language Design", "CS362", 4, false));
-            MasterList.Add(CS470);
+                Course CS301 = new Course("Data Structures I", "CS301", 4, false, new bool[] { true, true, false, true })
+                {
+                    Department = "Computer Science"
+                };
+                MasterList.Add(CS301);
 
-            MasterCourseList = MasterList;
+                Course CS302 = new Course("Data Structures II", "CS302", 4, false, new bool[] { true, true, false, true })
+                {
+                    Department = "Computer Science"
+                };
+                CS302.AddPreRequisite(CS301);
+                MasterList.Add(CS302);
+
+                Course CS470 = new Course("Operating Systems", "CS470", 4, false, new bool[] { true, true, false, true })
+                {
+                    Department = "Computer Science"
+                };
+                CS470.AddPreRequisite(new Course("Prog. Language Design", "CS362", 4, false));
+                MasterList.Add(CS470);
+
+                MasterCourseList = MasterList;
+            }
         }
 
         /// <summary>
@@ -86,20 +93,50 @@ namespace CwuAdvising.Pages
         /// </summary>
         /// <param name="ModelList">List of CourseModel objects</param>
         /// <returns>List of Course objects</returns>
-        public List<Course> CourseModelListToCourseList(List<CourseModel> ModelList)
+        public List<Course> GetCoursesToDelete(List<CourseModel> ModelList)
         {
             List<Course> CourseList = new List<Course>();
 
             foreach (CourseModel model in ModelList)
             {
-                Course c = (Course)model;
-                
-                foreach(string prereq in model.PreReqs)
+                if (model.Delete)
                 {
-                    c.AddPreRequisite(MasterCourseList.Find(delegate (Course masterCourse) { return masterCourse.ID == prereq; }));
-                }
+                    Course c = (Course)model;
 
-                CourseList.Add(c);
+                    foreach (string prereq in model.PreReqs)
+                    {
+                        c.AddPreRequisite(MasterCourseList.Find(delegate (Course masterCourse) { return masterCourse.ID == prereq; }));
+                    }
+
+                    CourseList.Add(c);
+                }
+            }
+
+            return CourseList;
+        }
+
+        /// <summary>
+        /// Converts CourseModel list to Course list
+        /// </summary>
+        /// <param name="ModelList">List of CourseModel objects</param>
+        /// <returns>List of Course objects</returns>
+        public List<Course> GetCoursesToUpdate(List<CourseModel> ModelList)
+        {
+            List<Course> CourseList = new List<Course>();
+
+            foreach (CourseModel model in ModelList)
+            {
+                if(!model.Delete)
+                {
+                    Course c = (Course)model;
+
+                    foreach (string prereq in model.PreReqs)
+                    {
+                        c.AddPreRequisite(MasterCourseList.Find(delegate (Course masterCourse) { return masterCourse.ID == prereq; }));
+                    }
+
+                    CourseList.Add(c);
+                }
             }
 
             return CourseList;
@@ -130,7 +167,20 @@ namespace CwuAdvising.Pages
                 if (requestBody.Length > 0)
                 {
                     var ModifiedCourses = JsonConvert.DeserializeObject<List<CourseModel>>(requestBody);
-                    var DatabaseUpdate = CourseModelListToCourseList(ModifiedCourses);
+
+                    List<Course> CoursesToDelete = GetCoursesToDelete(ModifiedCourses);
+                    List<Course> CoursesToUpdate = GetCoursesToUpdate(ModifiedCourses);
+
+                    if(!UpdateDatabaseCourses(CoursesToDelete))
+                    {
+                        return new JsonResult("Course update failed.");
+                    }
+
+                    if(!UpdateDatabaseCourses(CoursesToUpdate))
+                    {
+                        return new JsonResult("Course update failed.");
+                    }
+
                     return new JsonResult("Courses saved succesfully.");
                 }
                 else
@@ -138,6 +188,24 @@ namespace CwuAdvising.Pages
                     return new JsonResult("Error passing data to server.");
                 }
             }
+        }
+
+        private bool UpdateDatabaseCourses(List<Course> CourseList)
+        {
+            if(!IndexModel.dbInterface.connected)
+            {
+                return false;
+            }
+
+            foreach(Course c in CourseList)
+            {
+                if(!IndexModel.dbInterface.UpdateRecord(c, Database_Handler.OperandType.Course))
+                {
+                    return false;
+                }
+            }
+            
+            return true;
         }
     }
 }

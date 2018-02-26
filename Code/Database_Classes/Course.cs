@@ -156,8 +156,8 @@ namespace Database_Object_Classes
             } // end if
 
             model.Offered = offered;
-            model.Title = course.Name;
-            model.Number = course.ID;
+            model.Name = course.Name;
+            model.ID = course.ID;
 
             return model;
         }// end explicit cast operator
@@ -173,6 +173,7 @@ namespace Database_Object_Classes
             set => s_name = string.Copy(value);
         } // end Name
 
+        /// <summary>Getter/Setter for the department of this course</summary>
         public string Department
         {
             get => s_department;
