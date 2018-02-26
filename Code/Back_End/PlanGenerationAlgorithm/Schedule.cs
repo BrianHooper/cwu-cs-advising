@@ -91,10 +91,14 @@ namespace PlanGenerationAlgorithm
         /// <returns>go to the next quarter schedule</returns>
         public Schedule NextSchedule()
         {
-
+            Algorithm algorithm = new Algorithm();
             if (NextQuarter == null)
             {
                 NextQuarter = new Schedule(GetNextQuarter());
+                if (NextQuarter.quarterName.QuarterSeason.Equals(Season.Summer)&&!NextQuarter.locked)
+                {
+                    algorithm.takeSummerCourses = true;
+                }
                 this.NumberOfQuarters++;
                 NextQuarter.previousQuarter = this;
             }
@@ -111,13 +115,15 @@ namespace PlanGenerationAlgorithm
         /// <returns>new quarter with new quarter name and possible new year</returns>
         private Quarter GetNextQuarter()
         {
+            Algorithm algorithm = new Algorithm();
             switch (quarterName.QuarterSeason)
             {
                 case Season.Fall: return new Quarter(quarterName.Year + 1, Season.Winter);
                 case Season.Winter: return new Quarter(quarterName.Year, Season.Spring);
                 case Season.Spring:
                     {
-                        if (TakeSummerCourses)
+                        //algorithm.takeSummerCourses = true;
+                        if (algorithm.takeSummerCourses==true)
                         {
                             //NumberOfQuarters++;
                             return new Quarter(quarterName.Year, Season.Summer);
@@ -127,6 +133,10 @@ namespace PlanGenerationAlgorithm
                             //NumberOfQuarters++;
                             return new Quarter(quarterName.Year, Season.Fall);
                         }
+                    }
+                case Season.Summer:
+                    {
+                        return new Quarter(quarterName.Year, Season.Fall);
                     }
                 default: return quarterName;
             }

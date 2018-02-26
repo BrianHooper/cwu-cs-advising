@@ -15,12 +15,12 @@ namespace PlanGenerationAlgorithm
         public void Run()
         {
             Console.WriteLine("6 Courses, Max 3 per quarter, no prereqs, each course offered every quarter:");
-            //DemoWithNoConstraints();
+            DemoWithNoConstraints();
 
             Console.WriteLine("\n------------------\n");
 
             Console.WriteLine("3 Courses, Max 3 per quarter, all prereqs, first course not offered in fall:");
-            //DemoWithAllPrereqs();
+            DemoWithAllPrereqs();
             DemoFullSchedule();
             Console.ReadKey();
             Console.WriteLine("End of demo.");
@@ -60,7 +60,7 @@ namespace PlanGenerationAlgorithm
             Schedule StudentSchedule = new Schedule(new Quarter(2018, Season.Fall));
 
             // Run the algorithm
-            Schedule GeneratedSchedule = Algorithm.Generate(Requirements, StudentSchedule,10,18);
+            Schedule GeneratedSchedule = Algorithm.Generate(Requirements, StudentSchedule,10,18,true);
             
             // Output the results to the console
             Console.WriteLine("\n" + GeneratedSchedule.GetFirstSchedule());
@@ -83,8 +83,8 @@ namespace PlanGenerationAlgorithm
             Requirements.Add(gened1);
             Requirements.Add(new Course("Computer Architecture", "CS311", 4, true, new bool[] { true, true, false, true }, PreReqs));
             Requirements.Add(new Course("Algorithm Analysis", "CS427", 4, true, new bool[] { true, true, false, true }, PreReqs));
-            Requirements.Add(new Course("Operationg Systems", "CS470", 4, true, new bool[] { true, true, false, true }, PreReqs1));
-            Requirements.Add(new Course("Software Engineering", "CS480", 4, true, new bool[] { true, true, false, true }, PreReqs1));
+            Requirements.Add(new Course("Operationg Systems", "CS470", 4, true, new bool[] { true, true, false, true }, PreReqs));
+            Requirements.Add(new Course("Software Engineering", "CS480", 4, true, new bool[] { true, true, false, true }, PreReqs));
             Requirements.Add(new Course("Introduction to UNIX", "CS370", 4, true, new bool[] { true, true, false, true }, PreReqs));
             Requirements.Add(new Course("Programming Languages", "CS361", 4, true, new bool[] { true, true, false, true }, PreReqs));
            
@@ -99,7 +99,7 @@ namespace PlanGenerationAlgorithm
             Schedule StudentSchedule = new Schedule(new Quarter(2018, Season.Fall));
 
             // Run the algorithm
-            Schedule GeneratedSchedule = Algorithm.Generate(Requirements, StudentSchedule,10,18);
+            Schedule GeneratedSchedule = Algorithm.Generate(Requirements, StudentSchedule,10,18,true);
 
             // Output the results to the console
             Console.WriteLine("\n" + GeneratedSchedule.GetFirstSchedule());
@@ -207,10 +207,11 @@ namespace PlanGenerationAlgorithm
             Schedule StudentSchedule = new Schedule(new Quarter(2018, Season.Fall));
 
             // Run the algorithm
-            Schedule GeneratedSchedule = Algorithm.Generate(coursesList, StudentSchedule,10,18);
+            Schedule GeneratedSchedule = Algorithm.Generate(coursesList, StudentSchedule,10,18,true);
 
             // Output the results to the console
             Console.WriteLine("\n" + GeneratedSchedule.GetFirstSchedule());
+            Console.WriteLine("\n" + "asdsadsad");
             
         }
     }
