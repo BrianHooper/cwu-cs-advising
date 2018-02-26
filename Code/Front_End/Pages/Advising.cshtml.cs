@@ -17,7 +17,7 @@ namespace CwuAdvising.Pages
     public class AdvisingModel : PageModel
     {
         /// <summary>Example JSON for testing</summary>
-        public static string ExampleSchedule = System.IO.File.ReadAllText("wwwroot/ExamplePlan.json");
+        public static string ExampleSchedule = System.IO.File.ReadAllText("wwwroot/EmptyPlan.json");
 
         /// <summary>Current student loaded to advising page</summary>
         public static StudentModel CurrentStudent { get; set; }
@@ -54,6 +54,13 @@ namespace CwuAdvising.Pages
 
             /// <summary>Degree of current student loaded in advising page</summary>
             public string Degree { get; set; } = "NoDegree";
+        }
+
+        /// <summary>Gets the base case for the student's degree</summary>
+        /// <returns>Schedule as a JSON string</returns>
+        public static string LoadBaseCase()
+        {
+            return System.IO.File.ReadAllText("wwwroot/ExamplePlan.json");
         }
         
         /// <summary>Attempts to load a student plan from the database</summary>
@@ -111,7 +118,7 @@ namespace CwuAdvising.Pages
         /// Passes Student ID to Advising model
         /// </summary>
         /// <returns>JsonResult containing success/error status</returns>
-        public ActionResult OnPostRecieveScheduleModel()
+        public ActionResult OnPostRecieveScheduleForAlgorithm()
         {
             MemoryStream stream = new MemoryStream();
             Request.Body.CopyTo(stream);
@@ -123,6 +130,81 @@ namespace CwuAdvising.Pages
                 {
                     var scheduleModel = JsonConvert.DeserializeObject<ScheduleModel>(requestBody);
                     CallSchedulingAlgorithm(scheduleModel);
+                    return new JsonResult("Model sent succesfully.");
+                }
+                else
+                {
+                    return new JsonResult("Error passing data to server.");
+                }
+            }
+        }
+        
+        /// <summary>
+        /// AJAX handler for saving student schedule
+        /// </summary>
+        /// <returns>JsonResult containing success/error status</returns>
+        public ActionResult OnPostRecieveScheduleForSavingStudent()
+        {
+            MemoryStream stream = new MemoryStream();
+            Request.Body.CopyTo(stream);
+            stream.Position = 0;
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                string requestBody = reader.ReadToEnd();
+                if (requestBody.Length > 0)
+                {
+                    var scheduleModel = JsonConvert.DeserializeObject<ScheduleModel>(requestBody);
+                    
+                    return new JsonResult("Model sent succesfully.");
+                }
+                else
+                {
+                    return new JsonResult("Error passing data to server.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// AJAX handler for saving degree base case
+        /// </summary>
+        /// <returns>JsonResult containing success/error status</returns>
+        public ActionResult OnPostRecieveScheduleForSavingBaseCase()
+        {
+            MemoryStream stream = new MemoryStream();
+            Request.Body.CopyTo(stream);
+            stream.Position = 0;
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                string requestBody = reader.ReadToEnd();
+                if (requestBody.Length > 0)
+                {
+                    var scheduleModel = JsonConvert.DeserializeObject<ScheduleModel>(requestBody);
+
+                    return new JsonResult("Model sent succesfully.");
+                }
+                else
+                {
+                    return new JsonResult("Error passing data to server.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// AJAX handler for printing student schedule
+        /// </summary>
+        /// <returns>JsonResult containing success/error status</returns>
+        public ActionResult OnPostRecieveScheduleForPrint()
+        {
+            MemoryStream stream = new MemoryStream();
+            Request.Body.CopyTo(stream);
+            stream.Position = 0;
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                string requestBody = reader.ReadToEnd();
+                if (requestBody.Length > 0)
+                {
+                    var scheduleModel = JsonConvert.DeserializeObject<ScheduleModel>(requestBody);
+
                     return new JsonResult("Model sent succesfully.");
                 }
                 else

@@ -18,36 +18,37 @@
 #PageContainer {
     margin: auto;
     width: 85%;
+    min-width: 850px;
     padding: 10px;
     background-color: white;
 }
 
 
 #TopLogo {
-    text-align: center;
+    height: 100px;
     background: repeating-linear-gradient(135deg,#ffffff,#ffffff 1px,#DCDCE0 1px,#DCDCE0 6px);
-    font-family: Roboto;
 }
 
 #TopSpacer {
-    height: 20px;
+    padding-left: 15px;
+    height: 30px;
+    line-height: 30px;
     background-color: #ffffff;
-}
-
-#InnerTopLogo {
-    display: inline-block;
-    font-size: 4em;
-    background-color: black;
-    color: white;
-    box-shadow: 0 0 5px 25px rgba(0,0,0,1);
-}
-
-#CwuHome {
-    margin: auto;
-    width: 95%;
     color: #000000;
     font-size: .75em;
     font-family: Roboto;
+    vertical-align: middle;
+}
+
+#InnerTopLogo {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%);
+    background-color: white;
+    -webkit-box-shadow: 0px 0px 10px 30px rgba(255,255,255,1);
+    -moz-box-shadow: 0px 0px 10px 30px rgba(255,255,255,1);
+    box-shadow: 0px 0px 10px 30px rgba(255,255,255,1);
 }
 
 .HorizontalBar {

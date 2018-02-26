@@ -4,7 +4,7 @@
         <name>PlanGenerationAlgorithm</name>
     </assembly>
     <members>
-        <member name="M:PlanGenerationAlgorithm.Algorithm.Generate(System.Collections.Generic.List{Database_Object_Classes.Course},PlanGenerationAlgorithm.Schedule,System.UInt32,System.UInt32)">
+        <member name="M:PlanGenerationAlgorithm.Algorithm.Generate(System.Collections.Generic.List{Database_Object_Classes.Course},PlanGenerationAlgorithm.Schedule,System.UInt32,System.UInt32,System.Boolean)">
             <summary>
             call the generate schedule method
             and generate the schedules for all graduation requirements

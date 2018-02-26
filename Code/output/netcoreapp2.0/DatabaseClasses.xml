@@ -127,6 +127,9 @@
         <member name="P:Database_Object_Classes.Course.Name">
             <summary>Getter/Setter for name of this course.</summary>
         </member>
+        <member name="P:Database_Object_Classes.Course.Department">
+            <summary>Getter/Setter for the department of this course</summary>
+        </member>
         <member name="P:Database_Object_Classes.Course.PreRequisites">
             <summary>Getter for PreRequisites list of this course.</summary>
             <remarks>The returned collection will be a read-only collection, and may not be modified directly.</remarks>

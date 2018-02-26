@@ -23,8 +23,4 @@ namespace CwuAdvising.Pages
             return dbInterface.connected;
         }
     }
-
-    
-
-
 }

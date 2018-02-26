@@ -15,6 +15,7 @@ $(document).ready(function () {
 
 /*  Given a parsed JSON objects, loads the schedule onto the QuarterContainer   */
 function LoadSchedule(Schedule) {
+    $("#QuarterContainer").html("");
     unmetRequirements = Schedule.UnmetRequirements;
     for (var i = 0; i < Schedule.Quarters.length; i++) {
         var Quarter = CreateQuarter(Schedule.Quarters[i].Title, QuarterNameToIndex(Schedule.Quarters[i].Title), Schedule.Quarters[i].Locked);
@@ -184,17 +185,42 @@ function GetCourse(SelectObject) {
 
 // Generate button click
 $(document).on("click", "#GenerateButton", function () {
+    var ScheduleJson = StringifySchedule();
+
+    // Pass schedule to the server
+    $.ajax({
+        type: "POST",
+        url: "/Advising?handler=RecieveScheduleForAlgorithm",
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("XSRF-TOKEN",
+                $('input:hidden[name="__RequestVerificationToken"]').val());
+        },
+        data: ScheduleJson,
+
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (response) {
+            return false;
+        }, 
+        error: function (one, two, three) {
+            console.log(three);
+        }
+    });
+});
+
+function StringifySchedule() {
     if ($("#QuarterContainer").children().length === 0) {
         return false;
     }
     // Create a list of quarters
     var Schedule = {
-        Quarters: [], UnmetRequirements: [], Constraints: { MinCredits: 0, MaxCredits: 18, TakingSummer : false } };
+        Quarters: [], UnmetRequirements: [], Constraints: { MinCredits: 0, MaxCredits: 18, TakingSummer: false }
+    };
 
     // For each quarter in the schedule
     $(".Quarter").each(function () {
         // Get the title
-        var Quarter = { Title: "", Locked:true, Courses: [] };
+        var Quarter = { Title: "", Locked: true, Courses: [] };
         Quarter.Title = $(this).children().eq(0).children().eq(1).html();
         Quarter.Locked = locked($(this));
         // Get each course
@@ -215,30 +241,9 @@ $(document).on("click", "#GenerateButton", function () {
     Schedule.Constraints.MinCredits = $("#MinCredits").val();
     Schedule.Constraints.MaxCredits = $("#MaxCredits").val();
     Schedule.Constraints.TakingSummer = $("#TakingSummerCourses").is(":checked");
-    
-    // Pass schedule to the server
-    $.ajax({
-        type: "POST",
-        url: "/Advising?handler=RecieveScheduleModel",
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader("XSRF-TOKEN",
-                $('input:hidden[name="__RequestVerificationToken"]').val());
-        },
-        data: JSON.stringify(Schedule),
 
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (response) {
-            var url = '@Url.Action("/Advising")';
-            return false;
-        }, 
-        error: function (one, two, three) {
-            console.log(three);
-        }
-    });
-    
-    return false; // ignore href
-});
+    return JSON.stringify(Schedule);
+}
 
 /*  Removes a course from a quarter and adds it back into the unmet requirements    */
 $(document).on("click", ".DeleteCourse", function () {
@@ -552,3 +557,85 @@ function AssignCourse(Quarter, Course) {
     // Add in a new add button
     Quarter.append(AddButton());
 }
+
+
+$(document).on("click", "#LoadBaseCaseButton", function () {
+    if (confirm("Are you sure you want to load the base case? This will overwrite any unsaved changes to the student schedule.")) {
+        LoadSchedule(JSON.parse(BaseCase));
+    }    
+});
+
+// Generate button click
+$(document).on("click", "#SaveButton", function () {
+    var ScheduleJson = StringifySchedule();
+    console.log(ScheduleJson);
+    // Pass schedule to the server
+    $.ajax({
+        type: "POST",
+        url: "/Advising?handler=RecieveScheduleForSavingStudent",
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("XSRF-TOKEN",
+                $('input:hidden[name="__RequestVerificationToken"]').val());
+        },
+        data: ScheduleJson,
+
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (response) {
+            return false;
+        },
+        error: function (one, two, three) {
+            console.log(three);
+        }
+    });
+});
+
+// Generate button click
+$(document).on("click", "#SaveBaseCaseButton", function () {
+    var ScheduleJson = StringifySchedule();
+
+    // Pass schedule to the server
+    $.ajax({
+        type: "POST",
+        url: "/Advising?handler=RecieveScheduleForSavingBaseCase",
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("XSRF-TOKEN",
+                $('input:hidden[name="__RequestVerificationToken"]').val());
+        },
+        data: ScheduleJson,
+
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (response) {
+            return false;
+        },
+        error: function (one, two, three) {
+            console.log(three);
+        }
+    });
+});
+
+// Generate button click
+$(document).on("click", "#PrintButton", function () {
+    var ScheduleJson = StringifySchedule();
+
+    // Pass schedule to the server
+    $.ajax({
+        type: "POST",
+        url: "/Advising?handler=RecieveScheduleForSavingBaseCase",
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("XSRF-TOKEN",
+                $('input:hidden[name="__RequestVerificationToken"]').val());
+        },
+        data: ScheduleJson,
+
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (response) {
+            return false;
+        },
+        error: function (one, two, three) {
+            console.log(three);
+        }
+    });
+});

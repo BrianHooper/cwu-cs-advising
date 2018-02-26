@@ -7,3 +7,47 @@
 @{
     IndexModel.ConnectToDatabase();
 }
+
+<script>
+    var ShowLoginBox = true;
+
+    $(document).ready(function () {
+        $("#Userbox").hide();
+        $("#LoginBox").hide();
+
+        
+        if (ShowLoginBox) {
+            $("#LoginBox").show();
+        } else {
+            $("#Userbox").show();
+        }
+    });
+
+</script>
+
+<div class="Flex CenterFlex">
+    <div style="font-size: 3em;">Computer Science Advising Tool</div>
+</div>
+<div id="CredentialsContainer" class="Flex CenterFlex">
+
+
+    <div id="Userbox" class="Border" style="padding: 20px;">
+        You are currently logged in as:<br />
+        Admin<br />
+        <a href="#">[ Logout ]</a>
+    </div>
+
+
+    <div id="LoginBox" class="Border">
+        <div class="Title">User Login: </div>
+        <div class="Flex">
+            <div class="LabelLeft">Username</div>
+            <div class="LabelRight"><input type="text" /></div>
+        </div>
+        <div class="Flex">
+            <div class="LabelLeft">Password</div>
+            <div class="LabelRight"><input type="password" /></div>
+        </div>
+        <button type="button" id="LoginButton" class="BigButton">Login</button>
+    </div>
+</div>

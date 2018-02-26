@@ -26,8 +26,8 @@
 }
 
 <script>
-    var ExampleSchedule = '@Html.Raw(AdvisingModel.ExampleSchedule)'
-    console.log(ExampleSchedule);
+    var ExampleSchedule = '@Html.Raw(AdvisingModel.ExampleSchedule)';
+    var BaseCase = '@Html.Raw(AdvisingModel.LoadBaseCase())';
 
     $(document).ready(function () {
         $("#AdvisingContainer").hide();
@@ -67,6 +67,10 @@
             &nbsp;
         </div>
     </div>
+
+    <div class="CenterFlex">
+        <button type="button" class="RegularButton" id="AddQuarter">Add Quarter</button>
+    </div>
     <div class="CenterFlex">
         <div class="Block">
             <div class="Title" id="RemainingRequirements">&nbsp;</div>
@@ -85,9 +89,14 @@
 
     <div>
         <div class="Flex CenterFlex">
-            <a href="#" class="DivButton" id="AddQuarter">Add Additional Quarter</a>
-            <a href="#" class="DivButton" id="GenerateButton">Generate Remaining Courses</a>
-            <a href="#" class="DivButton">Print</a>
+            <button type="button" class="RegularButton" id="LoadBaseCaseButton">Load Base Case</button>
+            <button type="button" class="RegularButton" id="SaveBaseCaseButton">Save Base Case</button>
+        </div>
+
+        <div class="Flex CenterFlex">
+            <button type="button" class="RegularButton" id="GenerateButton">Generate Schedule</button>
+            <button type="button" class="RegularButton" id="PrintButton">Print</button>
+            <button type="button" class="RegularButton" id="SaveButton">Save Schedule</button>
         </div>
     </div>
 </div>

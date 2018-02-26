@@ -263,6 +263,10 @@
         <member name="P:CwuAdvising.Pages.AdvisingModel.StudentModel.Degree">
             <summary>Degree of current student loaded in advising page</summary>
         </member>
+        <member name="M:CwuAdvising.Pages.AdvisingModel.LoadBaseCase">
+            <summary>Gets the base case for the student's degree</summary>
+            <returns>Schedule as a JSON string</returns>
+        </member>
         <member name="M:CwuAdvising.Pages.AdvisingModel.LoadStudent(System.String)">
             <summary>Attempts to load a student plan from the database</summary>
             <param name="ID">ID of student</param>
@@ -279,10 +283,28 @@
             </summary>
             <returns>Student object matching the current student</returns>
         </member>
-        <member name="M:CwuAdvising.Pages.AdvisingModel.OnPostRecieveScheduleModel">
+        <member name="M:CwuAdvising.Pages.AdvisingModel.OnPostRecieveScheduleForAlgorithm">
             <summary>
             AJAX handler for loading student schedule
             Passes Student ID to Advising model
+            </summary>
+            <returns>JsonResult containing success/error status</returns>
+        </member>
+        <member name="M:CwuAdvising.Pages.AdvisingModel.OnPostRecieveScheduleForSavingStudent">
+            <summary>
+            AJAX handler for saving student schedule
+            </summary>
+            <returns>JsonResult containing success/error status</returns>
+        </member>
+        <member name="M:CwuAdvising.Pages.AdvisingModel.OnPostRecieveScheduleForSavingBaseCase">
+            <summary>
+            AJAX handler for saving degree base case
+            </summary>
+            <returns>JsonResult containing success/error status</returns>
+        </member>
+        <member name="M:CwuAdvising.Pages.AdvisingModel.OnPostRecieveScheduleForPrint">
+            <summary>
+            AJAX handler for printing student schedule
             </summary>
             <returns>JsonResult containing success/error status</returns>
         </member>
@@ -323,6 +345,13 @@
         </member>
         <member name="T:CwuAdvising.Pages.IndexModel">
             <summary>Model for index page</summary>
+        </member>
+        <member name="F:CwuAdvising.Pages.IndexModel.dbInterface">
+            <summary>Public interface for accessing the database</summary>
+        </member>
+        <member name="M:CwuAdvising.Pages.IndexModel.ConnectToDatabase">
+            <summary>Attempts to connect to the database</summary>
+            <returns>True if the connection was successful</returns>
         </member>
         <member name="T:CwuAdvising.Pages.ManageCoursesModel">
             <summary>
