@@ -35,4 +35,5 @@
       <DependentUpon>Login.cshtml</DependentUpon>
     </Compile>
   </ItemGroup>
+  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 </Project>

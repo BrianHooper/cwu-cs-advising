@@ -5,48 +5,89 @@
 }
 @Html.AntiForgeryToken()
 
-<div style="border: thin solid black; font-size: 1.5em; display: inline-block; margin: auto;">
-    Student: @AdvisingModel.CurrentStudent.Name<br />
-    ID: @AdvisingModel.CurrentStudent.ID<br />
-    Starting Quarter: @AdvisingModel.CurrentStudent.Quarter @AdvisingModel.CurrentStudent.Year<br />
-    Degree: @AdvisingModel.CurrentStudent.Degree<br />
-    <p>
-        Import Transcript:<br />
-        <input name="myFile" type="file">
-        <input type="submit" value="Import" />
-    </p>
-</div>
+
+@{ 
+    var StudentName = "Not found";
+    var StudentID = "Not found";
+    var StudentQuarter = "Not found";
+    var StudentYear = "Not found";
+    var StudentDegree = "Not found";
+    var DisplayStudent = false;
+    if(AdvisingModel.CurrentStudent != null)
+    {
+        StudentName = AdvisingModel.CurrentStudent.Name;
+        StudentID = AdvisingModel.CurrentStudent.ID;
+        StudentQuarter = AdvisingModel.CurrentStudent.Quarter;
+        StudentYear = AdvisingModel.CurrentStudent.Year;
+        StudentDegree = AdvisingModel.CurrentStudent.Degree;
+        DisplayStudent = true;
+
+    }
+}
 
 <script>
+    var ExampleSchedule = '@Html.Raw(AdvisingModel.ExampleSchedule)'
+    console.log(ExampleSchedule);
+
+    $(document).ready(function () {
+        $("#AdvisingContainer").hide();
+        $("#NotFound").hide();
+
+        if (StringMatch("@DisplayStudent", "True")) {
+            $("#AdvisingContainer").show();
+        } else {
+            $("#NotFound").show();
+        }
+    });
+
 
 </script>
 <script src="~/js/Advising.js"></script>
 
-<div class="CenterFlex">
-    <div id="QuarterContainer" class="CenterFlex">
-        &nbsp;
-    </div>
-</div>
-<div class="CenterFlex">
-    <div class="Block">
-        <div class="Title" id="RemainingRequirements">&nbsp;</div>
-
-        <ul id="RemainingRequirementsList"></ul>
-    </div>
+<div id="NotFound" class="Title" style="color: red;">
+    <h1>Error, student not found</h1>
 </div>
 
-<div class="Flex CenterFlex">
-    <div class="MiddleFlex">
-        <div>Minimum Credits per quarter: <input type="text" id="MinCredits" style="width: 60px;" value="0"/></div>
-        <div>Maximum Credits per quarter: <input type="text" id="MaxCredits" style="width: 60px;" value="18"/></div>
-        <div>Taking Summer Courses: <input type="checkbox" id="TakingSummerCourses" /></div>
+<div id="AdvisingContainer">
+    <div style="border: thin solid black; font-size: 1.5em; display: inline-block; margin: auto;">
+        Student: @StudentName<br />
+        ID: @StudentID<br />
+        Starting Quarter: @StudentQuarter @StudentYear<br />
+        Degree: @StudentDegree<br />
+        <p>
+            Import Transcript:<br />
+            <input name="myFile" type="file">
+            <input type="submit" value="Import" />
+        </p>
     </div>
-</div>
 
-<div>
+
+    <div class="CenterFlex">
+        <div id="QuarterContainer" class="CenterFlex">
+            &nbsp;
+        </div>
+    </div>
+    <div class="CenterFlex">
+        <div class="Block">
+            <div class="Title" id="RemainingRequirements">&nbsp;</div>
+
+            <ul id="RemainingRequirementsList"></ul>
+        </div>
+    </div>
+
     <div class="Flex CenterFlex">
-        <a href="#" class="DivButton" id="AddQuarter">Add Additional Quarter</a>
-        <a href="#" class="DivButton" id="GenerateButton">Generate Remaining Courses</a>
-        <a href="#" class="DivButton">Print</a>
+        <div class="MiddleFlex">
+            <div>Minimum Credits per quarter: <input type="text" id="MinCredits" style="width: 60px;" value="0" /></div>
+            <div>Maximum Credits per quarter: <input type="text" id="MaxCredits" style="width: 60px;" value="18" /></div>
+            <div>Taking Summer Courses: <input type="checkbox" id="TakingSummerCourses" /></div>
+        </div>
+    </div>
+
+    <div>
+        <div class="Flex CenterFlex">
+            <a href="#" class="DivButton" id="AddQuarter">Add Additional Quarter</a>
+            <a href="#" class="DivButton" id="GenerateButton">Generate Remaining Courses</a>
+            <a href="#" class="DivButton">Print</a>
+        </div>
     </div>
 </div>
