@@ -137,6 +137,15 @@ $(document).on("click", "#AddQuarter", function () {
     If the quarter is not the last quarter in the schedule, the empty quarter is
     not removed. */
 $(document).on("click", ".DeleteQuarter", function () {
+    if ($("#QuarterContainer").children().length < 2) {
+        return;
+    }
+
+    if ($(this).parent().parent().children().length < 3) {
+        $(this).parent().parent().remove();
+        return;
+    }
+
     // Get the name of this quarter
     var thisQuarterName = $(this).parent().children().eq(1).html();
 
@@ -145,6 +154,7 @@ $(document).on("click", ".DeleteQuarter", function () {
         return;
     }
 
+    
     // Temporarily remove the calculated number of credits
     RemoveCredits();
 
@@ -389,8 +399,16 @@ function ModifyRequirements() {
             }
             listElement += "]";
             
-
-            $("#RemainingRequirementsList").append("<li>" + listElement + "</li>");
+            var ListElement = $("<li></li>")
+            ListElement.append($("<div class='ReqListElement ReqTitle'>" + unmetRequirements[i].Title + "</div>"));
+            ListElement.append($("<div class='ReqListElement ReqCredits'>" + unmetRequirements[i].Credits + " Cr</div>"));
+            var QuartersString = "";
+            var QuartersOffered = unmetRequirements[i].Offered.split("");
+            for (var j = 0; j < QuartersOffered.length; j++) {
+                QuartersString += IndexToQuarterName(QuartersOffered[j]) + " ";
+            }
+            ListElement.append($("<div class='ReqListElement ReqQuarters'>" + QuartersString + "</div>"));
+            $("#RemainingRequirementsList").append(ListElement);
         }
     } else {
         $("#RemainingRequirements").html(complete);

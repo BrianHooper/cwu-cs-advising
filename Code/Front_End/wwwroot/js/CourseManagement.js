@@ -81,9 +81,9 @@ function AddDepartment(DepartmentName) {
 }
 
 $(document).on('click', '#AddDepartment', function () {
-    var NewDeptName = $("#NewDepartmentName").val();
-    $("#NewDepartmentName").val("");
-    if (NewDeptName.length > 0 && !StringArrayContains(Departments, NewDepartmentName)) {
+    var NewDeptName = prompt("Department name: ");
+    console.log(NewDeptName);
+    if (NewDeptName.length > 0 && !StringArrayContains(Departments, NewDeptName)) {
         AddDepartment(NewDeptName);
     }
 });
@@ -335,6 +335,7 @@ function CreatePrereqSearch() {
 }
 
 $(document).on('click', '#SearchForPrereqs', function () {
+    $("#PrereqSearchResults").html("");
     var min = $("#MinPrereqSearch").val();
     var max = $("#MaxPrereqSearch").val();
     var dept = $("#PrereqDepartmentSearch").val();

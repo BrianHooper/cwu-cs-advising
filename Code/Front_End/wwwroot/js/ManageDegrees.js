@@ -97,7 +97,7 @@ $(document).on('click', '#SearchCourses', function () {
 
     var MatchingCourses = SearchCourses(MinCourseNumber, MaxCourseNumber, Department, OfferedSummer, OfferedFall, OfferedWinter, OfferedSpring);
     for (var i = 0; i < MatchingCourses.length; i++) {
-        LoadCourse(MatchingCourses[i].Number);
+        LoadCourse(MatchingCourses[i].ID);
     }
 });
 

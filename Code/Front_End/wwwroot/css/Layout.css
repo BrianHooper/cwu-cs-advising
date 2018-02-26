@@ -322,3 +322,27 @@
     margin: 5px;
     cursor: pointer;
 }
+
+#RemainingRequirementsList {
+    list-style-type: none;
+}
+
+.ReqListElement {
+    padding: 4px;
+    margin-top: -1px;
+    margin-right: -1px;
+    float: left;
+    border: thin solid black;
+}
+
+.ReqTitle {
+    width: 130px;
+}
+
+.ReqCredits {
+    width: 50px;
+}
+
+.ReqQuarters {
+    width: 200px;
+}
