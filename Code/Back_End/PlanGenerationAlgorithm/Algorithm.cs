@@ -17,6 +17,7 @@ namespace PlanGenerationAlgorithm
         public bool takeSummerCourses=false;
         Schedule schedule = new Schedule(new Quarter(2018, Season.Fall));
         int i = 0;
+        int j = 0;
         /// <summary>
         /// call the generate schedule method
         /// and generate the schedules for all graduation requirements
@@ -58,6 +59,11 @@ namespace PlanGenerationAlgorithm
                 bestSchedule.quarterName = currentSchedule.quarterName;
                 bestSchedule.courses = currentSchedule.courses;
                 bestSchedule.NumberOfQuarters = currentSchedule.NumberOfQuarters;
+                foreach (Course c in currentSchedule.courses)
+                {
+                    copy.Remove(c);
+                    currentSchedule.ui_numberCredits += c.Credits;
+                }
                 i++;
             }
             //if there are no requirements left
@@ -87,7 +93,18 @@ namespace PlanGenerationAlgorithm
                 if (lowerBound > bestSchedule.NumberOfQuarters)
                     return;
             }
-
+            if(currentSchedule.quarterName.QuarterSeason==Season.Winter&&currentSchedule.quarterName.Year == 2019)
+            {
+                ICollection<Course> Need110 = new List<Course>();
+                bool[] CS111Offered = { true, true, false, false }; //CS111 etc
+                Course CS111 = new Course("bd", "CS111", 4, true, CS111Offered, Need110);
+                if (j == 0)
+                {
+                    currentSchedule.courses.Add(CS111);
+                    copy.Remove(CS111);
+                    j++;
+                }
+            }
             // Get a list of each course the student can take right now
             List<Course> possibleCourses = ListofCourse(currentSchedule, copy);
 
@@ -130,6 +147,11 @@ namespace PlanGenerationAlgorithm
                 // If there are still requirements left, try again next quarter
                 // Danger, could result in infinite recursion until
                 // checking for schedule length is implemented
+                foreach (Course c in currentSchedule.NextSchedule().courses)
+                {
+                    copy.Remove(c);
+                    currentSchedule.NextSchedule().ui_numberCredits += c.Credits;
+                }
                 GenerateSchedule(copy, currentSchedule.NextSchedule());
             }
       

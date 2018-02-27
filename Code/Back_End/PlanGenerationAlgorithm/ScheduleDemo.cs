@@ -205,7 +205,9 @@ namespace PlanGenerationAlgorithm
 
             // Create an empty Schedule starting Fall 2018
             Schedule StudentSchedule = new Schedule(new Quarter(2018, Season.Fall));
-
+            StudentSchedule.courses.Add(gened6);
+            StudentSchedule.courses.Add(CS110);
+            StudentSchedule.courses.Add(gened4);
             // Run the algorithm
             Schedule GeneratedSchedule = Algorithm.Generate(coursesList, StudentSchedule,10,18,true);
 

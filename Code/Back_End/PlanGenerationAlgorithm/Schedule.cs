@@ -113,7 +113,7 @@ namespace PlanGenerationAlgorithm
         /// method to increment the quarter season and/or year
         /// </summary>
         /// <returns>new quarter with new quarter name and possible new year</returns>
-        private Quarter GetNextQuarter()
+        public Quarter GetNextQuarter()
         {
             Algorithm algorithm = new Algorithm();
             switch (quarterName.QuarterSeason)
