@@ -193,10 +193,20 @@ function GetCourse(SelectObject) {
     return CourseObject;
 }
 
+function LoadingScreen() {
+    $("#AdvisingContainer").append($("<div class='PrereqPopup'>&nbsp;</div>"));
+    var loadingBox = $("<div></div>");
+    loadingBox.attr("id", "LoadingBox");
+    loadingBox.append("<div class='Title'>Generating base case</div>");
+    loadingBox.append("<div>Please wait while the schedule is generated. This box will close automatically when the operation is complete.");
+    $("#AdvisingContainer").append(loadingBox);
+}
+
 // Generate button click
 $(document).on("click", "#GenerateButton", function () {
+    
+    $("#Loading").show();
     var ScheduleJson = StringifySchedule();
-
     // Pass schedule to the server
     $.ajax({
         type: "POST",
@@ -205,7 +215,8 @@ $(document).on("click", "#GenerateButton", function () {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (response) {
-            return false;
+            LoadSchedule(JSON.parse(response));
+            $("#Loading").hide();
         }, 
         error: function (one, two, three) {
             console.log(three);
@@ -403,8 +414,8 @@ function ModifyRequirements() {
             ListElement.append($("<div class='ReqListElement ReqTitle'>" + unmetRequirements[i].Title + "</div>"));
             ListElement.append($("<div class='ReqListElement ReqCredits'>" + unmetRequirements[i].Credits + " Cr</div>"));
             var QuartersString = "";
-            var QuartersOffered = unmetRequirements[i].Offered.split("");
-            for (var j = 0; j < QuartersOffered.length; j++) {
+            QuartersOffered = unmetRequirements[i].Offered.split("");
+            for (j = 0; j < QuartersOffered.length; j++) {
                 QuartersString += IndexToQuarterName(QuartersOffered[j]) + " ";
             }
             ListElement.append($("<div class='ReqListElement ReqQuarters'>" + QuartersString + "</div>"));

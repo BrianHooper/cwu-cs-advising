@@ -29,6 +29,7 @@
     var BaseCase = '@Html.Raw(AdvisingModel.LoadBaseCase())';
 
     $(document).ready(function () {
+        $("#Loading").hide();
         $("#AdvisingContainer").hide();
         $("#NotFound").hide();
 
@@ -42,6 +43,14 @@
 
 </script>
 <script src="~/js/Advising.js"></script>
+
+<div id="Loading">
+    <div class="PrereqPopup">&nbsp;</div>
+    <div id="LoadingBox">
+        <div class="Title">Loading</div>
+        <div>Please wait while the schedule is generated. This box will close automatically when the operation is complete.</div>
+    </div>
+</div>
 
 <div id="NotFound" class="Title" style="color: red;">
     <h1>Error, student not found</h1>

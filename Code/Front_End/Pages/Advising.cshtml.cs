@@ -130,7 +130,12 @@ namespace CwuAdvising.Pages
                 {
                     var scheduleModel = JsonConvert.DeserializeObject<ScheduleModel>(requestBody);
                     CallSchedulingAlgorithm(scheduleModel);
-                    return new JsonResult("Model sent succesfully.");
+
+                    // Simulate the algorithm taking a while
+                    System.Threading.Thread.Sleep(10000);
+
+
+                    return new JsonResult(LoadBaseCase());
                 }
                 else
                 {
@@ -301,8 +306,10 @@ namespace CwuAdvising.Pages
         public static Schedule CallSchedulingAlgorithm(ScheduleModel model)
         {
             Schedule ConvertedScheduleModel = ScheduleModelToSchedule(model);
-            List<Course> RemainingRequirements = ScheduleModelToRemainingRequirements(model);
-            //Algorithm.Generate(RemainingRequirements, ConvertedScheduleModel, model.Constraints.MinCredits, model.Constraints.MaxCredits);
+            //List<Course> RemainingRequirements = ScheduleModelToRemainingRequirements(model);
+            //Algorithm.Generate(RemainingRequirements, ConvertedScheduleModel, model.Constraints.MinCredits, model.Constraints.MaxCredits, model.Constraints.TakingSummer);
+
+            
             return null;
         }
     }

@@ -26,6 +26,7 @@ namespace PlanGenerationAlgorithm
         /// <param name="currentSchedule">schedule for this quarter</param>
         /// <param name="minCredits">minimum possible number of credits</param>
         /// <param name="maxCredits">maximum possible number of credits</param>
+        /// <param name="takeSummerCourse">Whether or not the student is taking summer courses</param>
         /// <returns>best possible schedule</returns>
         public static Schedule Generate(List<Course> requirements, Schedule currentSchedule, uint minCredits, uint maxCredits,bool takeSummerCourse)
         {
