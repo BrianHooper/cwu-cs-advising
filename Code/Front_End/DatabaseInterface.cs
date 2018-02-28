@@ -41,13 +41,19 @@ namespace CwuAdvising
                 tcpClient = new TcpClient(endPoint);
                 networkStream = tcpClient.GetStream();
                 connected = true;
-            } catch(Exception)
+            }
+            catch (IniParser.Exceptions.ParsingException e)
             {
-                
-            } 
-
-            
-
+                Console.Write("Error reading configuration file. Msg: {0}", e.Message);
+            }
+            catch (ArgumentNullException e)
+            {
+                Console.Write(e);
+            }
+            catch (ArgumentOutOfRangeException e)
+            {
+                Console.Write(e);
+            }
         }
 
         /// <summary>Default destructor, terminates database connection.</summary>

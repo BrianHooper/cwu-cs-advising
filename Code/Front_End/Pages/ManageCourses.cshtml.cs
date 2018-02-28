@@ -26,9 +26,9 @@ namespace CwuAdvising.Pages
         /// </summary>
         public static void GetCoursesFromDatabase()
         {
-            if (IndexModel.dbInterface.connected)
+            if (Program.Database.connected)
             {
-                MasterCourseList = IndexModel.dbInterface.GetAllCourses();
+                MasterCourseList = Program.Database.GetAllCourses();
             }
             else
             {
@@ -192,14 +192,14 @@ namespace CwuAdvising.Pages
 
         private bool UpdateDatabaseCourses(List<Course> CourseList)
         {
-            if(!IndexModel.dbInterface.connected)
+            if(!Program.Database.connected)
             {
                 return false;
             }
 
             foreach(Course c in CourseList)
             {
-                if(!IndexModel.dbInterface.UpdateRecord(c, Database_Handler.OperandType.Course))
+                if(!Program.Database.UpdateRecord(c, Database_Handler.OperandType.Course))
                 {
                     return false;
                 }

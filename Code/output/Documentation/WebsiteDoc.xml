@@ -346,13 +346,6 @@
         <member name="T:CwuAdvising.Pages.IndexModel">
             <summary>Model for index page</summary>
         </member>
-        <member name="F:CwuAdvising.Pages.IndexModel.dbInterface">
-            <summary>Public interface for accessing the database</summary>
-        </member>
-        <member name="M:CwuAdvising.Pages.IndexModel.ConnectToDatabase">
-            <summary>Attempts to connect to the database</summary>
-            <returns>True if the connection was successful</returns>
-        </member>
         <member name="T:CwuAdvising.Pages.ManageCoursesModel">
             <summary>
             Model for managing coures in database
@@ -464,6 +457,12 @@
         </member>
         <member name="T:CwuAdvising.Program">
             <summary>Entry point of the application</summary>
+        </member>
+        <member name="P:CwuAdvising.Program.ConfigPath">
+            <summary>Location of the database configuration file</summary>
+        </member>
+        <member name="P:CwuAdvising.Program.Database">
+            <summary>Interface for accessing the database</summary>
         </member>
         <member name="M:CwuAdvising.Program.Main(System.String[])">
             <summary>Main method</summary>
