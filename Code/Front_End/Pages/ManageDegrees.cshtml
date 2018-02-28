@@ -6,8 +6,9 @@
 
 <script src="~/js/CourseSearch.js"></script>
 <script>
+    @{ ManageDegreesModel.LoadDatabaseDegrees(); }
     var CourseListFromServer = '@Html.Raw(ManageCoursesModel.CourseListAsJson())';
-    var DegreeModel = '@Html.Raw(ManageDegreesModel.LoadDatabaseDegrees())';
+    var DegreeModel = '@Html.Raw(ManageDegreesModel.ReadModel())';
 </script>
 
 <script src="~/js/ManageDegrees.js"></script>
