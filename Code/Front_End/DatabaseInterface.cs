@@ -104,15 +104,18 @@ namespace CwuAdvising
 
             byte[] ba_data = new byte[BUFFER_SIZE];
             while (!networkStream.DataAvailable) ;
+
             // read from stream in chunks of 2048 bytes
             for (int i = 0; networkStream.DataAvailable; i++)
             {
                 if(networkStream.CanRead)
                 {
-                    networkStream.Read(ba_data, i * BUFFER_SIZE, BUFFER_SIZE);
-                    memoryStream.Write(ba_data, i * BUFFER_SIZE, BUFFER_SIZE);
+                    int n = networkStream.Read(ba_data, 0, BUFFER_SIZE);
+                    memoryStream.Write(ba_data, 0, n);
                 }
             } // end for
+
+            memoryStream.Position = 0;
 
             DatabaseCommand cmd = (DatabaseCommand)binaryFormatter.Deserialize(memoryStream);
 
