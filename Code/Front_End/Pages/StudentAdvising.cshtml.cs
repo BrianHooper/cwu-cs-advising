@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using CwuAdvising.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Newtonsoft.Json;
@@ -16,12 +17,12 @@ namespace CwuAdvising.Pages
         /// <returns>JSON serialized list of degrees as a string</returns>
         public string GetDegrees()
         {
-            List<string> Degrees = new List<string>
+            ManageDegreesModel.LoadDegreeModelList();
+            List<string> Degrees = new List<string>();
+            foreach(DegreeModel model in ManageDegreesModel.ModelList)
             {
-                "BS - Computer Science",
-                "BS - Information Technology",
-                "BS - Mathematics"
-            };
+                Degrees.Add(model.year + " - " + model.name);
+            }
 
             return JsonConvert.SerializeObject(Degrees);
         }
