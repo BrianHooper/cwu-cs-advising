@@ -33,7 +33,31 @@ namespace PlanGenerationAlgorithm
             maxCredits = 18;
             Algorithm algorithm = new Algorithm();
              takeSummerCourse = algorithm.takeSummerCourses;
-             algorithm.GenerateSchedule(requirements, currentSchedule);
+            bestSchedule = currentSchedule;
+            bestSchedule.NextQuarter = currentSchedule.NextQuarter;
+            bestSchedule.previousQuarter = currentSchedule.previousQuarter;
+            bestSchedule.ui_numberCredits = currentSchedule.ui_numberCredits;
+            bestSchedule.quarterName = currentSchedule.quarterName;
+            bestSchedule.courses = currentSchedule.courses;
+            bestSchedule.NumberOfQuarters = 50;
+            uint bestQuarter=50;
+            for (int i = 0; i < 10; i++)
+            {
+                currentSchedule.Shuffle(requirements);
+                algorithm.GenerateSchedule(requirements, currentSchedule);
+                if (currentSchedule.NumberOfQuarters <= bestQuarter )
+                {
+                    bestSchedule = currentSchedule;
+                    bestSchedule.NextQuarter = currentSchedule.NextQuarter;
+                    bestSchedule.previousQuarter = currentSchedule.previousQuarter;
+                    bestSchedule.ui_numberCredits = currentSchedule.ui_numberCredits;
+                    bestSchedule.quarterName = currentSchedule.quarterName;
+                    bestSchedule.courses = currentSchedule.courses;
+                    bestQuarter = currentSchedule.NumberOfQuarters;
+                    //reset the current schedule
+                    //currentSchedule.NumberOfQuarters = 0;
+                }
+            }
             //"\n" + Generated.GetFirstSchedule());
             return bestSchedule;
         }
@@ -46,6 +70,7 @@ namespace PlanGenerationAlgorithm
         private void GenerateSchedule(List<Course> requirements, Schedule currentSchedule)
         {
             int k = 0;
+            Schedule asd = new Schedule(currentSchedule);
             //bestSchedule = currentSchedule;
             copy = new List<Course>(requirements);
            // currentSchedule = new Schedule(new Quarter(2018, Season.Fall));
@@ -81,7 +106,7 @@ namespace PlanGenerationAlgorithm
                     bestSchedule.courses = currentSchedule.courses;
                     bestSchedule.NumberOfQuarters = currentSchedule.NumberOfQuarters;
                     //reset the current schedule
-                    currentSchedule.NumberOfQuarters = 0;
+                   // currentSchedule.NumberOfQuarters = 0;
                     return;
                 }
             }
@@ -96,18 +121,18 @@ namespace PlanGenerationAlgorithm
                         return;
                 }
             }
-            if(currentSchedule.quarterName.QuarterSeason==Season.Winter&&currentSchedule.quarterName.Year == 2019)
-            {
-                ICollection<Course> Need110 = new List<Course>();
-                bool[] CS111Offered = { true, true, false, false }; //CS111 etc
-                Course CS111 = new Course("bd", "CS111", 4, true, CS111Offered, Need110);
-                if (j == 0)
-                {
-                    currentSchedule.courses.Add(CS111);
-                    copy.Remove(CS111);
-                    j++;
-                }
-            }
+            //if(currentSchedule.quarterName.QuarterSeason==Season.Winter&&currentSchedule.quarterName.Year == 2019)
+           // {
+                //ICollection<Course> Need110 = new List<Course>();
+                //bool[] CS111Offered = { true, true, false, false }; //CS111 etc
+                //Course CS111 = new Course("bd", "CS111", 4, true, CS111Offered, Need110);
+                //if (j == 0)
+                //{
+                    //currentSchedule.courses.Add(CS111);
+                    //copy.Remove(CS111);
+                   // j++;
+               // }
+            //}
             // Get a list of each course the student can take right now
             List<Course> possibleCourses = ListofCourse(currentSchedule, copy);
             //if possible course for this quarter is more than 0
@@ -128,9 +153,7 @@ namespace PlanGenerationAlgorithm
                             GenerateSchedule(copy, currentSchedule);
                             //Thread.Sleep(1000);
                         }
-
                     }
-
                 }
             }
             else 
@@ -144,6 +167,7 @@ namespace PlanGenerationAlgorithm
                     copy.Remove(c);
                 }
                 //If it failed, try adding this course next quarter
+
                 GenerateSchedule(copy, currentSchedule.NextSchedule());
                 //Thread.Sleep(1000);
             }
@@ -159,21 +183,11 @@ namespace PlanGenerationAlgorithm
                     copy.Remove(c);
                     currentSchedule.NextSchedule().ui_numberCredits += c.Credits;
                 }
-                Random rng = new Random();
-                int n = copy.Count;
-                //while (n > 1)
-                //{
-                    //n--;
-                    //int asd = rng.Next(n + 1);
-                    //Course value = copy[asd];
-                    //copy[asd] = copy[n];
-                    //copy[n] = value;
-                //}
                 GenerateSchedule(copy, currentSchedule.NextSchedule());
             }
         
 
-            bestSchedule.NumberOfQuarters = currentSchedule.NumberOfQuarters;
+            //bestSchedule.NumberOfQuarters = currentSchedule.NumberOfQuarters;
             //bestSchedule.courses = currentSchedule.courses;
 
             return;

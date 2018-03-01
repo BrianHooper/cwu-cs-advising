@@ -11,7 +11,7 @@ namespace PlanGenerationAlgorithm
         public Student student;
         public Quarter quarterName;
         public bool locked = false;
-        public uint NumberOfQuarters = 0; //total number of quarters
+        public uint NumberOfQuarters=0; //total number of quarters
         public List<Course> courses; //list of all courses taken
         public Schedule NextQuarter, previousQuarter;
         public uint ui_numberCredits = 0;
@@ -99,7 +99,6 @@ namespace PlanGenerationAlgorithm
                 {
                     algorithm.takeSummerCourses = true;
                 }
-                this.NumberOfQuarters++;
                 NextQuarter.previousQuarter = this;
             }
             if (NextQuarter.locked)
@@ -118,24 +117,25 @@ namespace PlanGenerationAlgorithm
             Algorithm algorithm = new Algorithm();
             switch (quarterName.QuarterSeason)
             {
-                case Season.Fall: return new Quarter(quarterName.Year + 1, Season.Winter);
-                case Season.Winter: return new Quarter(quarterName.Year, Season.Spring);
+                case Season.Fall:NumberOfQuarters++; return new Quarter(quarterName.Year + 1, Season.Winter);
+                case Season.Winter: NumberOfQuarters++; return new Quarter(quarterName.Year, Season.Spring);
                 case Season.Spring:
                     {
                         //algorithm.takeSummerCourses = true;
                         if (algorithm.takeSummerCourses==true)
                         {
-                            //NumberOfQuarters++;
+                            NumberOfQuarters++;
                             return new Quarter(quarterName.Year, Season.Summer);
                         }
                         else
                         {
-                            //NumberOfQuarters++;
+                            NumberOfQuarters++;
                             return new Quarter(quarterName.Year, Season.Fall);
                         }
                     }
                 case Season.Summer:
                     {
+                        NumberOfQuarters++;
                         return new Quarter(quarterName.Year, Season.Fall);
                     }
                 default: return quarterName;
@@ -158,7 +158,7 @@ namespace PlanGenerationAlgorithm
         /// </summary>
         /// <typeparam name="Course">data type course</typeparam>
         /// <param name="list">list of courses</param>
-        public static void Shuffle<Course>(List<Course> list)
+        public void Shuffle<Course>(List<Course> list)
         {
             Random rng = new Random();
             int n = list.Count;

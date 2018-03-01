@@ -15,12 +15,12 @@ namespace PlanGenerationAlgorithm
         public void Run()
         {
             Console.WriteLine("6 Courses, Max 3 per quarter, no prereqs, each course offered every quarter:");
-            DemoWithNoConstraints();
+            //DemoWithNoConstraints();
 
             Console.WriteLine("\n------------------\n");
 
             Console.WriteLine("3 Courses, Max 3 per quarter, all prereqs, first course not offered in fall:");
-            DemoWithAllPrereqs();
+            //DemoWithAllPrereqs();
             DemoFullSchedule();
             Console.ReadKey();
             Console.WriteLine("End of demo.");
