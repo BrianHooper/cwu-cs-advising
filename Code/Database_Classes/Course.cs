@@ -11,26 +11,30 @@ namespace Database_Object_Classes
     {
         // Class fields:
         /// <summary>Number of quarters per year constant.</summary>
-        private const uint    ui_NUMBERQUARTERS = 4;
+        private const uint ui_NUMBERQUARTERS = 4;
 
         /// <summary>The number of credits this course is worth.</summary>
-        private uint          ui_numberCredits;
+        private uint ui_numberCredits;
 
         /// <summary>Name of this course.</summary>
-        private string        s_name;
-        private string        s_department;
+        private string s_name;
+        private string s_department;
 
-        /// <summary>Prerequisites for this course.</summary>
-        private List<Course>  l_preRequisites;
+        /// <summary>Prerequisites for this course (complete).</summary>
+        private List<Course> l_preRequisites;
+
+        /// <summary>Prerequisites for this course (only ids)</summary>
+        private List<string> ls_preRequisistes;
 
         /// <summary>The quarters this course is offered, [0] = Winter, [3] = Fall.</summary>
-        private bool[]        ba_quartersOffered;
+        private bool[] ba_quartersOffered;
 
         /// <summary>Stores whether or not this quarter requires a student to be in the CS major to take it.</summary>
-        private bool          b_requiresMajor;
+        private bool b_requiresMajor;
+        private bool b_isShallow;
 
-        private int           i_weight;
-        private int           i_value;
+        private int i_weight;
+        private int i_value;
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -38,13 +42,13 @@ namespace Database_Object_Classes
         /// <summary>Default Constructor.</summary>
         public Course() : base("")
         {
-            s_name             = "";
-            ui_numberCredits   = 0;
-            b_requiresMajor    = false;
+            s_name = "";
+            ui_numberCredits = 0;
+            b_requiresMajor = false;
 
             ba_quartersOffered = new bool[ui_NUMBERQUARTERS];
 
-            l_preRequisites    = new List<Course>();
+            l_preRequisites = new List<Course>();
         } // end default Constructor
 
         /// <summary>Constructor which creates a Course object with a name and ID, and sets all other fields to default.</summary>
@@ -56,13 +60,14 @@ namespace Database_Object_Classes
         ///          The course identifier is the unique identifier for this course, e.g. CS311 which must not contain spaces.</remarks>
         public Course(string s_name, string s_ID, uint ui_numberCredits, bool b_requiresMajor) : base(s_ID)
         {
-            this.s_name           = string.Copy(s_name);
+            this.s_name = string.Copy(s_name);
             this.ui_numberCredits = ui_numberCredits;
-            this.b_requiresMajor  = b_requiresMajor;
+            this.b_requiresMajor = b_requiresMajor;
 
-            ba_quartersOffered    = new bool[ui_NUMBERQUARTERS];
+            ba_quartersOffered = new bool[ui_NUMBERQUARTERS];
 
-            l_preRequisites       = new List<Course>();
+            l_preRequisites = new List<Course>();
+            ls_preRequisistes = new List<string>();
         } // end Constructor
 
         /// <summary>Constructor which creates a Course object with a name, ID, and the given prerequisites.</summary>
@@ -74,7 +79,7 @@ namespace Database_Object_Classes
         /// <remarks>The course name is the actual name of the course, e.g. Computer Architecture 1.
         ///          The course identifier is the unique identifier for this course, e.g. CS311 which must not contain spaces.
         ///          The course pre-requisites can be in any collection that implements the <see cref="System.Collections.Generic.ICollection{T}"/> interface.</remarks>
-        public Course(string s_name, string s_ID, uint ui_numberCredits, bool b_requiresMajor, ICollection<Course> col_courses) 
+        public Course(string s_name, string s_ID, uint ui_numberCredits, bool b_requiresMajor, ICollection<Course> col_courses)
             : this(s_name, s_ID, ui_numberCredits, b_requiresMajor) => AddPreRequisite(col_courses);
 
         /// <summary>Constructor which creates a Course object with a name, ID, and the given quarters it's offered.</summary>
@@ -88,10 +93,10 @@ namespace Database_Object_Classes
         ///          The course identifier is the unique identifier for this course, e.g. CS311 which must not contain spaces.
         ///          The quarters array considers [0] to be winter, and [3] to be fall. 
         /// </remarks>
-        public Course(string s_name, string s_ID, uint ui_numberCredits, bool b_requiresMajor, bool[] ba_quarters) 
+        public Course(string s_name, string s_ID, uint ui_numberCredits, bool b_requiresMajor, bool[] ba_quarters)
             : this(s_name, s_ID, ui_numberCredits, b_requiresMajor) => SetQuarterOffered(ba_quarters);
 
-        /// <summary>Constructor which creates a Course object with a name, an ID, the given quarters it's offered, and the given prerequisites.</summary>
+        /// <summary>Constructor which creates a complete Course object with a name, an ID, the given quarters it's offered, and the given prerequisites.</summary>
         /// <param name="s_name">The course name.</param>
         /// <param name="s_ID">The course identifier.</param>
         /// <param name="ui_numberCredits">The number of credits this course is worth.</param>
@@ -104,16 +109,41 @@ namespace Database_Object_Classes
         ///          The quarters array considers [0] to be winter, and [3] to be fall.
         ///          The course prerequisites can be in any collection that implements the <see cref="System.Collections.Generic.ICollection{T}"/> interface.
         /// </remarks>
-        public Course(string s_name, string s_ID, uint ui_numberCredits, bool b_requiresMajor, bool[] ba_quarters, ICollection<Course> col_courses) 
+        public Course(string s_name, string s_ID, uint ui_numberCredits, bool b_requiresMajor, bool[] ba_quarters, ICollection<Course> col_courses)
             : this(s_name, s_ID, ui_numberCredits, b_requiresMajor, ba_quarters) => AddPreRequisite(col_courses);
+
+        /// <summary>Constructor which creates a shallow Course object with a name, an ID, the given quarters it's offered, and the given prerequisites.</summary>
+        /// <param name="s_name">The course name.</param>
+        /// <param name="s_ID">The course identifier.</param>
+        /// <param name="ui_numberCredits">The number of credits this course is worth.</param>
+        /// <param name="b_requiresMajor">The status of this course requiring a student to be in the CS major.</param>
+        /// <param name="ba_quarters">The quarters when the class is offered.</param>
+        /// <param name="col_courses">A collection of prerequisites for this course to be added to the prerequisites list.</param>
+        /// <exception cref="System.ArgumentException">This exception is thrown if the ba_quarters array is not size 4.</exception>
+        /// <remarks>The course name is the actual name of the course, e.g. Computer Architecture 1.
+        ///          The course identifier is the unique identifier for this course, e.g. CS311 which must not contain spaces.
+        ///          The quarters array considers [0] to be winter, and [3] to be fall.
+        ///          The course prerequisites can be in any collection that implements the <see cref="System.Collections.Generic.ICollection{T}"/> interface.
+        /// </remarks>
+        public Course(string s_name, string s_ID, uint ui_numberCredits, bool b_requiresMajor, bool[] ba_quarters, ICollection<string> col_courses)
+            : this(s_name, s_ID, ui_numberCredits, b_requiresMajor, ba_quarters)
+        {
+            if (col_courses != null && col_courses.Count > 0)
+            {
+                ls_preRequisistes = new List<string>(col_courses);
+            } // end if
+            
+            b_isShallow = true;
+        } // end constructor
+
 
         /// <summary>Copy Constructor which creates a copy of the other course.</summary>
         /// <param name="c_other">Course to be copied.</param>
         public Course(Course c_other) : base(c_other)
         {
-            s_name           = string.Copy(c_other.s_name);
+            s_name = string.Copy(c_other.s_name);
             ui_numberCredits = c_other.ui_numberCredits;
-            b_requiresMajor  = c_other.b_requiresMajor;
+            b_requiresMajor = c_other.b_requiresMajor;
 
             ba_quartersOffered = new bool[ui_NUMBERQUARTERS];
 
@@ -147,7 +177,25 @@ namespace Database_Object_Classes
 
         /// <summary>Getter for PreRequisites list of this course.</summary>
         /// <remarks>The returned collection will be a read-only collection, and may not be modified directly.</remarks>
-        public ReadOnlyCollection<Course> PreRequisites => (l_preRequisites.AsReadOnly());
+        /// 
+        public ReadOnlyCollection<Course> PreRequisites
+        {
+            get
+            {
+                if (!b_isShallow)
+                {
+                    return l_preRequisites.AsReadOnly();
+                } // end if
+                else
+                {
+                    throw new InvalidOperationException("The course object is shallow and does not contain a list of courses.");
+                } // end else
+            } // end get
+        } // end PreRequisites
+
+        /// <summary>Getter for shallow PreRequisites list of this course.</summary>
+        /// <remarks>The returned collection will be a read-only collection, and may not be modified directly.</remarks>
+        public ReadOnlyCollection<string> ShallowPreRequisites => ls_preRequisistes.AsReadOnly();
 
         /// <summary>Getter for quarters offered array of this course.</summary>
         public bool[] QuartersOffered => ba_quartersOffered;
@@ -159,10 +207,11 @@ namespace Database_Object_Classes
             set => b_requiresMajor = value;
         } // end RequiresMajor
 
-        /// <summary>Getter for the number of credits of this course.</summary>
+        /// <summary>Getter/Setter for the number of credits of this course.</summary>
         public uint Credits
         {
             get => ui_numberCredits;
+            set => ui_numberCredits = value;
         }
 
         /// <summary>Getter for the weight of this course.</summary>
@@ -176,6 +225,9 @@ namespace Database_Object_Classes
         {
             get => i_value;
         }
+
+        /// <summary>Getter for whether this is a shallow course object.</summary>
+        public bool IsShallow => b_isShallow;
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -234,9 +286,12 @@ namespace Database_Object_Classes
         /// <param name="c_course">A course prerequisites for this course to be added to the prerequisites list.</param>
         public void AddPreRequisite(Course c_course)
         {
+            b_isShallow = false;
+
             if (!l_preRequisites.Contains(c_course))
             {
                 l_preRequisites.Add(c_course);
+                ls_preRequisistes.Add(c_course.ID);
             } // end if
         } // end method addPreRequisite
 
@@ -244,11 +299,14 @@ namespace Database_Object_Classes
         /// <param name="col_courses">A collection of prerequisites for this course to be added to the prerequisites list.</param>
         public void AddPreRequisite(ICollection<Course> col_courses)
         {
+            b_isShallow = false;
+
             foreach (Course c_course in col_courses)
             {
                 if (!l_preRequisites.Contains(c_course))
                 {
                     l_preRequisites.Add(c_course);
+                    ls_preRequisistes.Add(c_course.ID);
                 } // end if
             } // end foreach
         } // end method addPreRequisite
@@ -262,6 +320,7 @@ namespace Database_Object_Classes
             {
                 if (course.ID == s_courseID)
                 {
+                    ls_preRequisistes.Remove(course.ID);
                     return l_preRequisites.Remove(course);
                 } // end if
             } // end foreach
@@ -270,7 +329,11 @@ namespace Database_Object_Classes
         } // end method removePreRequisite
 
         /// <summary>Removes all prerequisites of this Course object.</summary>
-        public void ClearPreRequisites() => l_preRequisites.Clear();
+        public void ClearPreRequisites()
+        {
+            l_preRequisites.Clear();
+            ls_preRequisistes.Clear();
+        } // end method ClearPreRequisites
 
         /// <summary>Turns the data in this object into a string.</summary>
         /// <returns>A string representation of this object.</returns>

@@ -19,13 +19,17 @@ namespace Database_Handler
         /// <summary>Delete command.</summary>
         Delete,
         /// <summary>Display student list command.</summary>
-        DisplayStudents,
+        DisplayUsers,
+        /// <summary>Display student list command.</summary>
+        DisplayCatalogs,
         /// <summary>Display course list command.</summary>
         DisplayCourses,
         /// <summary>Get password salt command.</summary>
         GetSalt,
         /// <summary>Result from DBH.</summary>
         Return,
+        /// <summary>Returned when an error occurred during execution of a command.</summary>
+        Error,
         /// <summary>Terminates the connection to DBH, and kills the running DBH thread.</summary>
         Disconnect
     };
@@ -56,8 +60,11 @@ namespace Database_Handler
         /// <summary>The operand to execute the command on.</summary>
         private object o_operand;
 
-        /// <summary>A list of students for display students command.</summary>
-        private List<Student> l_students;
+        /// <summary>A list of catalogs for display catalogs command.</summary>
+        private List<CatalogRequirements> l_catalogs;
+
+        /// <summary>A list of credentials for display users command.</summary>
+        private List<Credentials> l_credentials;
 
         /// <summary>A list of courses for display courses command.</summary>
         private List<Course> l_courses;
@@ -70,6 +77,9 @@ namespace Database_Handler
 
         /// <summary>If i_returnCode is not 0, there will be an error message contained in this variable.</summary>
         private string s_errorMsg;
+
+        /// <summary></summary>
+        private bool b_isShallow;
 
         /// <summary>Constructor for DB4O commands.</summary>
         /// <param name="ct">Type of command.</param>
@@ -117,7 +127,7 @@ namespace Database_Handler
         /// <summary>Constructor for creating a display students command.</summary>
         /// <param name="ct">Command type for this command.</param>
         /// <remarks>The argument must be DisplayStudents/DisplayCourses or Disconnect.</remarks>
-        public DatabaseCommand(CommandType ct)
+        public DatabaseCommand(CommandType ct, bool b_shallow = false)
         {
             ct_commandType = ct;
         } // end Constructor
@@ -128,12 +138,22 @@ namespace Database_Handler
         /// <param name="students">A list of students for the display students command.</param>
         /// <param name="courses">A list of courses for the display courses command.</param>
         /// <remarks>This command type should not be sent to DBH, it is only intended for DBH to return information to the client.</remarks>
-        public DatabaseCommand(int code = 0, string msg = "No Errors", List<Student> students = null, List<Course> courses = null)
+        public DatabaseCommand(int code = 0, string msg = "No Errors", List<CatalogRequirements> catalogs = null, List<Course> courses = null, List<Credentials> credentials = null)
         {
-            ct_commandType = CommandType.Return;
+            switch(code)
+            {
+                case 0:
+                    ct_commandType = CommandType.Return;
+                    break;
+                default:
+                    ct_commandType = CommandType.Error;
+                    break;
+            } // end switch 
+
             i_returnCode = code;
             s_errorMsg = msg;
-            l_students = students;
+            l_catalogs = catalogs;
+            l_credentials = credentials;
             l_courses = courses;
         } // end Constructor
 
@@ -150,49 +170,17 @@ namespace Database_Handler
         /// <summary>Getter for the type of operand.</summary>
         public OperandType OperandType => ot_type;
 
-        /// <summary>Getter for the list of students for a display command.</summary>
-        public List<Student> StudentList => l_students;
+        /// <summary>Getter for the list of catalogs for a display command.</summary>
+        public List<CatalogRequirements> CatalogList => l_catalogs;
+
+        /// <summary>Getter for the list of users for a display command</summary>
+        public List<Credentials> UserList => l_credentials;
+
         /// <summary>Getter for the list of courses for a display command.</summary>
         public List<Course> CourseList => l_courses;
 
         /// <summary>Getter for the operand.</summary>
         public object Operand => o_operand;
 
-        public override string ToString()
-        {
-            string str = "Command type: ";
-
-            switch(CommandType)
-            {
-                case CommandType.Retrieve:
-                    str += "Retrieve\n";
-                    break;
-                case CommandType.Return:
-                    str += "Return\n";
-                    str += "Return Code: ";
-                    str += ReturnCode;
-                    str += "\nError Message: ";
-                    str += ErrorMessage;
-                    str += "\n";
-                    return str;
-            }
-
-            str += "Operand type: ";
-
-            switch(OperandType)
-            {
-                case OperandType.Student:
-                    str += "Student";
-                    str += "Operand: \n";
-                    str += ((Student)Operand).ToString();
-                    break;
-                case OperandType.Credentials:
-                    str += "Credentials";
-                    str += ((Credentials)Operand).ToString();
-                    break;
-            }
-
-            return str;
-        }
     } // end Class DatabaseCommand
 } // end namespace Database_Handler

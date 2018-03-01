@@ -17,52 +17,92 @@ namespace Database_Handler
     /// <summary>Database Handler is the middleman between the website and the databases. It retrieves, updates, creates, and deletes database entries.</summary>
     public sealed class DatabaseHandler : IDisposable
     {
-        // Static class fields:
+        #region Static fields
+
+        #region General
         /// <summary>The number of iterations for hashing the password.</summary>
         public static int i_HASH_ITERATIONS = 10000;
 
         /// <summary>The path to the log file which will contain the log entries created by DBH.</summary>
         public static string s_logFilePath = "log.txt";
+        #endregion
 
+        #region Mutex Locks
         /// <summary>Mutex locks for databases.</summary>
         private static Mutex MySqlLock = new Mutex();
         private static Mutex StudentLock = new Mutex();
         private static Mutex CatalogLock = new Mutex();
         private static Mutex CourseLock = new Mutex();
         private static Mutex LogLock = new Mutex();
+        #endregion
 
+        #endregion
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
-        // Class fields:
-        /// <summary>Names of all database related components.</summary>
-        /// <remarks>These can be set using the constructor, or the defaults can be used.</remarks>
+        #region Class fields
+
+        #region Readonly/Const
+
+        #region MySQL Database Info
         private readonly string s_MYSQL_DB_NAME = "test_db";
         private readonly string s_MYSQL_DB_SERVER = "localhost";
         private readonly string s_MYSQL_DB_PORT = "3306";
         private readonly string s_MYSQL_DB_USER_ID = "testuser";
+        #endregion
+
+        #region MySQL Tables
         private readonly string s_CREDENTIALS_TABLE = "user_credentials";
+        private readonly string s_STUDENTS_TABLE = "students";
+        private readonly string s_CATALOGS_TABLE = "catalogs";
+        private readonly string s_DEGREES_TABLE = "degrees";
+        private readonly string s_COURSES_TABLE = "courses";
         private readonly string s_PLAN_TABLE = "student_plans";
+        #endregion
+
+        #region DB4O Database strings
         private readonly string s_STUDENT_DB = "Students.db4o";
         private readonly string s_COURSE_DB = "Courses.db4o";
         private readonly string s_CATALOG_DB = "Catalogs.db4o";
+        #endregion
+
+        #region MySQL table keys
         private readonly string s_CREDENTIALS_KEY = "username";
+        private readonly string s_STUDENTS_KEY = "SID";
+        private readonly string s_CATALOGS_KEY = "catalog_year";
+        private readonly string s_DEGREES_KEY = "degree_id";
+        private readonly string s_COURSES_KEY = "course_id";
         private readonly string s_PLAN_KEY = "SID";
+        #endregion
+
+        #region TCP info
         private readonly string s_IP_ADDRESS = "127.0.0.1";
-
+        
         private readonly int i_TCP_PORT = 44765;
+        #endregion
 
-        /// <summary>The length, in bytes, of the password salt.</summary>
+        #region General
         private const int i_SALT_LENGTH = 32;
         private const int BUFFER_SIZE = 2048;
+        #endregion
 
+        #endregion
+
+        #region Privates
+
+        #region MySQL Connection/Info
         /// <summary>The length of the longest plan in the s_PLAN_TABLE mysql table, stored in the master record.</summary>
         private uint ui_COL_COUNT;
 
         /// <summary>The master connection to the MySql database, which should never be closed, except during cleanup.</summary>
         private MySqlConnection DB_CONNECTION;
+        #endregion
 
+        #region General
         /// <summary>A RNG for building password salts.</summary>
         private RNGCryptoServiceProvider RNG;
+        #endregion
 
+        #region TCP Connection/Info
         /// <summary>The main Tcp Listener used to talk with clients.</summary>
         private TcpListener tcpListener;
 
@@ -74,11 +114,14 @@ namespace Database_Handler
 
         /// <summary>List of all clients currently connected to DBH.</summary>
         private List<TcpClient> clients;
+        #endregion
 
+        #endregion
 
+        #endregion
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
-        // Constructors:
+        #region Constructor
         /// <summary>Loads the DBH configurations from the given .ini file.</summary>
         /// <param name="s_fileName">Path of the .ini file containing the configurations DBH should use.</param>
         public DatabaseHandler(string s_fileName)
@@ -114,10 +157,10 @@ namespace Database_Handler
             SetUp(false);
         } // end Constructor
 
-
+        #endregion
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
-        // Main:
+        #region Main
         /// <summary>Program entry point. Initializes program and handles fatal errors.</summary>
         /// <param name="args">Unused.</param>
         public static void Main(string[] args)
@@ -182,10 +225,10 @@ namespace Database_Handler
             } // end finally                    
         } // end Main
 
-
+        #endregion
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
-        // Run:
+        #region Run Methods
         /// <summary>The main program loop. Receives, and executes commands.</summary>
         /// <param name="stream">The network stream which is used to communicate with the client.</param>
         /// <returns>Error code or 0 if application exited as expected.</returns>
@@ -327,10 +370,10 @@ namespace Database_Handler
             return output;
         } // end method RunHost
 
-
+        #endregion
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
-        // Command methods:
+        #region Command methods
         /// <summary>Unwraps the command type, and executes the specified command.</summary>
         /// <param name="cmd">The command to be executed.</param>
         /// <param name="stream">The stream to send data back to the client.</param>
@@ -357,8 +400,11 @@ namespace Database_Handler
                 case CommandType.Login:
                     output = ExecuteLoginCommand(cmd);
                     break;
-                case CommandType.DisplayStudents:
-                    output = ExecuteDisplayStudentsCommand();
+                case CommandType.DisplayCatalogs:
+                    output = ExecuteDisplayCatalogsCommand();
+                    break;
+                case CommandType.DisplayUsers:
+                    output = ExecuteDisplayUsersCommand();
                     break;
                 case CommandType.GetSalt:
                     output = ExecuteGetSaltCommand(cmd);
@@ -377,6 +423,7 @@ namespace Database_Handler
             return SendResult(output, stream);
         } // end method ExecuteCommand
 
+        #region Execute Commands
         /// <summary>Executes a Retrieve command.</summary>
         /// <param name="cmd">Command containing object to be retrieved.</param>
         /// <returns>A return command containing information about execution success, and, if successful, the requested data.</returns>
@@ -557,34 +604,42 @@ namespace Database_Handler
             return output;
         } // end method ExecutePasswordChangeCommand
 
-        /// <summary>Executes a display students command.</summary>
-        /// <returns>A return command containing a list of all students in the database.</returns>
-        private DatabaseCommand ExecuteDisplayStudentsCommand()
+        /// <summary>Executes a display catalogs command.</summary>
+        /// <returns>A return command containing a list of all catalogs in the database.</returns>
+        private DatabaseCommand ExecuteDisplayCatalogsCommand()
         {
-            List<Student> students = new List<Student>();
+            List<CatalogRequirements> catalogs = new List<CatalogRequirements>();
 
             try
             {
-                using (IObjectContainer db = Db4oFactory.OpenFile(s_STUDENT_DB))
-                {
-                    IList<Student> list = db.Query(delegate (Student proto) { return proto.ID != ""; });
-
-                    foreach (object item in list)
-                    {
-                        Student student = (Student)item;
-                        students.Add(student);
-                    } // end foreach
-
-                    db.Close();
-                } // end using
+                /// TODO implement display catalogs
             } // end try
             catch (Exception e)
             {
-                WriteToLog(" -- DBH display students command failed. Msg: " + e.Message);
-                return new DatabaseCommand(1, "Retrieving list of all students failed. Msg: " + e.Message);
+                WriteToLog(" -- DBH display catalogs command failed. Msg: " + e.Message);
+                return new DatabaseCommand(1, "Retrieving list of all catalogs failed. Msg: " + e.Message);
             } // end catch
 
-            return new DatabaseCommand(0, "No Errors", students);
+            return new DatabaseCommand(0, "No Errors", catalogs);
+        } // end method ExecuteDisplayCommand
+
+        /// <summary>Executes a display users command.</summary>
+        /// <returns>A return command containing a list of all users in the database.</returns>
+        private DatabaseCommand ExecuteDisplayUsersCommand()
+        {
+            List<Credentials> users = new List<Credentials>();
+
+            try
+            {
+                /// TODO implement display users
+            } // end try
+            catch (Exception e)
+            {
+                WriteToLog(" -- DBH display catalogs command failed. Msg: " + e.Message);
+                return new DatabaseCommand(1, "Retrieving list of all catalogs failed. Msg: " + e.Message);
+            } // end catch
+
+            return new DatabaseCommand(0, "No Errors", null, null, users);
         } // end method ExecuteDisplayCommand
 
         /// <summary>Executes a display courses command.</summary>
@@ -595,18 +650,7 @@ namespace Database_Handler
 
             try
             {
-                using (IObjectContainer db = Db4oFactory.OpenFile(s_COURSE_DB))
-                {
-                    IList<Course> list = db.Query(delegate (Course proto) { return proto.ID != ""; });
-
-                    foreach (object item in list)
-                    {
-                        Course course = (Course)item;
-                        courses.Add(course);
-                    } // end foreach
-
-                    db.Close();
-                } // end using
+                /// TODO implement display courses
             } // end try
             catch (Exception e)
             {
@@ -635,6 +679,8 @@ namespace Database_Handler
             } // end catch
             return new DatabaseCommand(CommandType.Return, cred);
         } // end method ExecuteGetSaltCommand
+
+        #endregion
 
         /// <summary>The listener which waits for a command, blocking the run method.</summary>
         /// <param name="stream">Network stream to the connected client.</param>
@@ -702,10 +748,10 @@ namespace Database_Handler
             return cmd.ReturnCode;
         } // end method SendResult
 
-
+        #endregion
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
-        // Management:
+        #region Management
         /// <summary>Logs the DBH into the MySQL database.</summary>
         /// <returns>True if successful, false otherwise.</returns>
         private bool Login()
@@ -879,9 +925,10 @@ namespace Database_Handler
             LogLock.ReleaseMutex();
         } // end method WriteToLog
 
-
+        #endregion
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
+        #region Website Control
         // Website Login Handler:
         /// <summary>Checks the password entered by a user against the database record.</summary>
         /// <param name="s_ID">The username of the person attempting to log in.</param>
@@ -945,10 +992,10 @@ namespace Database_Handler
             return output;
         } // end method LoginAttempt
 
-
+        #endregion
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
-        // General Database retrieve:
+        #region General Database
         /// <summary>Retrieves an object from the specified database.</summary>
         /// <param name="s_ID">The key associated with this object.</param>
         /// <param name="c_type">The type of object to retrieve.</param>
@@ -979,10 +1026,10 @@ namespace Database_Handler
             } // end catch
         } // end method Retrieve
 
-
+        #endregion
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
-        // DB4O methods:
+        #region DB4O methods
         // DB4O retrieve:
         /// <summary>Retrieves the requested object from the appropriate database.</summary>
         /// <param name="s_ID">The key of the specified object.</param>
@@ -1301,10 +1348,10 @@ namespace Database_Handler
             return 0;
         } // end method DeleteRecord
 
-
+        #endregion
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
-        // MySQL methods:
+        #region MySQL methods
         // MySQL retrieve methods:
         /// <summary>Retrieves the requested student plan information from the database.</summary>
         /// <param name="s_ID">The key associated with the requested plan.</param>
@@ -1319,17 +1366,17 @@ namespace Database_Handler
 
             uint ui_WP = 0;
 
-            MySqlDataReader reader;
+            MySqlDataReader reader = null;
 
             MySqlCommand cmd = GetCommand(s_ID, 'S', s_PLAN_TABLE, s_PLAN_KEY, "*");
 
             MySqlLock.WaitOne();
-
-            reader = cmd.ExecuteReader();
-            reader.Read();
-
+            
             try
             {
+                reader = cmd.ExecuteReader();
+                reader.Read();
+
                 if (reader.HasRows)
                 {
                     // Variables:
@@ -1362,13 +1409,23 @@ namespace Database_Handler
                     throw new KeyNotFoundException(s_ID);
                 } // end else
             } // end try
-            catch (Exception e)
+            catch (KeyNotFoundException e)
             {
                 throw e;
             } // end catch
+            catch (Exception e)
+            {
+                WriteToLog(" -- DBH retrieve student plan encountered an unknown error. Msg: " + e.Message);
+                WriteToLog(" -- DBH ignoring error, and throwing key not found. Msg: " + e.Message);
+                throw new KeyNotFoundException(s_ID);
+            } // end catch
             finally
             {
-                reader.Close();
+                if(reader != null)
+                {
+                    reader.Close();
+                } // end if
+                
                 MySqlLock.ReleaseMutex();
             } // end finally            
 
@@ -1384,17 +1441,17 @@ namespace Database_Handler
             // Variables:
             Credentials credentials;
 
-            MySqlDataReader reader;
+            MySqlDataReader reader = null;
 
             MySqlCommand cmd = GetCommand(s_ID, 'S', s_CREDENTIALS_TABLE, s_CREDENTIALS_KEY, "*");
 
             MySqlLock.WaitOne();
 
-            reader = cmd.ExecuteReader();
-            reader.Read();
-
             try
             {
+                reader = cmd.ExecuteReader();
+                reader.Read();
+
                 if (reader.HasRows)
                 {
                     // Variables:
@@ -1411,23 +1468,298 @@ namespace Database_Handler
                 } // end if
                 else
                 {
-                    reader.Close();
+                    WriteToLog(" -- DBH the requested user could not be located in the database.");
                     throw new KeyNotFoundException(s_ID);
                 } // end else
             } // end try
-            catch (Exception e)
+            catch (KeyNotFoundException e)
             {
                 throw e;
             } // end catch
+            catch (Exception e)
+            {
+                WriteToLog(" -- DBH retrieve credentials encountered an unknown error. Msg: " + e.Message);
+                WriteToLog(" -- DBH ignoring error, and throwing key not found. Msg: " + e.Message);
+                throw new KeyNotFoundException(s_ID);
+            } // end catch
             finally
             {
-                reader.Close();
+                if (reader != null)
+                {
+                    reader.Close();
+                } // end if
+
                 MySqlLock.ReleaseMutex();
             } // end finally
 
             return credentials;
         } // end method RetrieveUserCredentials
 
+        /// <summary>Retrieves the requested catalog from the database.</summary>
+        /// <param name="s_ID">The ID associated with this catalog.</param>
+        /// <returns>A CatalogRequirements object containing the requested info.</returns>
+        /// <exception cref="KeyNotFoundException">Thrown if the key passed in arg 1 does not exist in the database.</exception>
+        private CatalogRequirements RetrieveCatalog(string s_ID)
+        {
+            CatalogRequirements catalog;
+
+            MySqlDataReader reader = null;
+
+            MySqlCommand cmd = GetCommand(s_ID, 'S', s_CATALOGS_TABLE, s_CATALOGS_KEY, "*");
+
+            MySqlLock.WaitOne();
+
+            try
+            {
+                reader = cmd.ExecuteReader();
+                reader.Read();
+
+                if (reader.HasRows)
+                {
+
+                } // end if
+                else
+                {
+                    throw new KeyNotFoundException(s_ID);
+                } // end else
+            } // end try
+            catch (KeyNotFoundException e)
+            {
+                throw e;
+            } // end catch
+            catch (Exception e)
+            {
+                WriteToLog(" -- DBH retrieve catalog encountered an unknown error. Msg: " + e.Message);
+                WriteToLog(" -- DBH ignoring error, and throwing key not found. Msg: " + e.Message);
+                throw new KeyNotFoundException(s_ID);
+            } // end catch
+            finally
+            {
+                if (reader != null)
+                {
+                    reader.Close();
+                } // end if
+
+                MySqlLock.ReleaseMutex();
+            } // end finally
+            
+        } // end method RetrieveCatalog
+
+        /// <summary>Retrieves the list of degrees associated with a given catalog.</summary>
+        /// <param name="s_ID">The ID of the catalog to which the degrees belong.</param>
+        /// <returns>A list of DegreeRequirement structures associated with the given degree.</returns>
+        /// <exception cref="KeyNotFoundException">Thrown if the key passed in arg 1 does not exist in the database.</exception>
+        private List<DegreeRequirements> RetrieveDegrees(string s_ID)
+        {
+            List<DegreeRequirements> degrees;
+
+            MySqlDataReader reader = null;
+
+            MySqlCommand cmd = GetCommand(s_ID, 'S', s_CATALOGS_TABLE, s_CATALOGS_KEY, "*");
+
+            MySqlLock.WaitOne();
+
+            try
+            {
+                reader = cmd.ExecuteReader();
+                reader.Read();
+
+                if (reader.HasRows)
+                {
+
+                } // end if
+                else
+                {
+                    throw new KeyNotFoundException(s_ID);
+                } // end else
+            } // end try
+            catch (KeyNotFoundException e)
+            {
+                throw e;
+            } // end catch
+            catch (Exception e)
+            {
+                WriteToLog(" -- DBH retrieve degrees encountered an unknown error. Msg: " + e.Message);
+                WriteToLog(" -- DBH ignoring error, and throwing key not found. Msg: " + e.Message);
+                throw new KeyNotFoundException(s_ID);
+            } // end catch
+            finally
+            {
+                if (reader != null)
+                {
+                    reader.Close();
+                } // end if
+
+                MySqlLock.ReleaseMutex();
+            } // end finally
+
+
+        } // end method RetrieveDegrees
+
+        /// <summary>Retrieves the requested student from the database.</summary>
+        /// <param name="s_ID">The SID of the student to retrieve.</param>
+        /// <returns>A student object containing the requested info.</returns>
+        /// <exception cref="KeyNotFoundException">Thrown if the key passed in arg 1 does not exist in the database.</exception>
+        private Student RetrieveStudent(string s_ID)
+        {
+            Student student;
+
+            MySqlDataReader reader = null;
+
+            MySqlCommand cmd = GetCommand(s_ID, 'S', s_CATALOGS_TABLE, s_CATALOGS_KEY, "*");
+
+            MySqlLock.WaitOne();
+
+            try
+            {
+                reader = cmd.ExecuteReader();
+                reader.Read();
+
+                if (reader.HasRows)
+                {
+                    uint ui_WP = reader.GetUInt32(1),
+                         ui_start_year = reader.GetUInt32(5),
+                         ui_expected_year = reader.GetUInt32(7);
+
+                    string s_fName = reader.GetString(2),
+                           s_lName = reader.GetString(3),
+                           s_start_season = reader.GetString(4),
+                           s_expected_season = reader.GetString(6);
+
+                    Quarter q_start = new Quarter(ui_start_year, (Season)Enum.Parse(typeof(Season), s_start_season)),
+                            q_expected_grad = new Quarter(ui_expected_year, (Season)Enum.Parse(typeof(Season), s_expected_season));
+
+                    student = new Student(new Name(s_fName, s_lName), s_ID, q_start)
+                    {
+                        ExpectedGraduation = q_expected_grad
+                    }; // end student Initializer
+
+                } // end if
+                else
+                {
+                    throw new KeyNotFoundException(s_ID);
+                } // end else
+            } // end try
+            catch (KeyNotFoundException e)
+            {
+                throw e;
+            } // end catch
+            catch (Exception e)
+            {
+                WriteToLog(" -- DBH retrieve student encountered an unknown error. Msg: " + e.Message);
+                WriteToLog(" -- DBH ignoring error, and throwing key not found. Msg: " + e.Message);
+                throw new KeyNotFoundException(s_ID);
+            } // end catch
+            finally
+            {
+                if (reader != null)
+                {
+                    reader.Close();
+                } // end if
+
+                MySqlLock.ReleaseMutex();
+            } // end finally
+
+            return student;
+        } // end method RetrieveStudent
+
+        /// <summary>Retrieves the requested course from the database.</summary>
+        /// <param name="s_ID">The id of the course to retrieve.</param>
+        /// <param name="b_shallow">Whether or not to create a shallow course object.</param>
+        /// <returns>A course object containing the requested info.</returns>
+        /// <exception cref="KeyNotFoundException">Thrown if the key passed in arg 1 does not exist in the database.</exception>
+        /// <remarks>
+        /// A shallow course object does not contain a list of course prerequisites, but rather a list of strings
+        /// with the IDs of all prerequisites.                     
+        /// </remarks>
+        private Course RetrieveCourse(string s_ID, bool b_shallow)
+        {
+            Course course;
+
+            MySqlDataReader reader = null;
+
+            MySqlCommand cmd = GetCommand(s_ID, 'S', s_CATALOGS_TABLE, s_CATALOGS_KEY, "*");
+
+            MySqlLock.WaitOne();
+
+            try
+            {
+                reader = cmd.ExecuteReader();
+                reader.Read();
+
+                if (reader.HasRows)
+                {
+                    uint ui_WP = reader.GetUInt32(1),
+                         ui_credits = reader.GetUInt32(7),
+                         ui_preRequsCount = reader.GetUInt32(9);
+
+                    string s_courseName = reader.GetString(2),
+                           s_department = reader.GetString(8);
+
+                    bool[] ba_offered = new bool[4] {reader.GetBoolean(3), reader.GetBoolean(4), reader.GetBoolean(5), reader.GetBoolean(6) };
+
+                    List<string> ls_preRequs = new List<string>();
+
+                    for(int i = 0; i < ui_preRequsCount; i++)
+                    {
+                        if (reader.FieldCount > (i + 10))
+                        {
+                            ls_preRequs.Add(reader.GetString(i + 10));
+                        } // end if
+                        else
+                        {
+                            WriteToLog(" -- DBH the record for course " + s_ID + " is corrupted! Prerequ counter does not match the number of prerequs in database.");
+                            // TODO update prerequ counter
+                            break;
+                        } // end else
+                    } // end for
+
+                    reader.Close();
+                    MySqlLock.ReleaseMutex();
+
+                    if (!b_shallow)
+                    {
+                        List<Course> lc_prerequs = new List<Course>();
+
+                        foreach (string s in ls_preRequs)
+                        {
+                            lc_prerequs.Add(RetrieveCourse(s, false));
+                        } // end foreach
+
+                        course = new Course(s_courseName, s_ID, ui_credits, false, ba_offered, lc_prerequs);
+                    } // end if
+                    else
+                    {
+                        course = new Course(s_courseName, s_ID, ui_credits, false, ba_offered, ls_preRequs);
+                    }
+                } // end if
+                else
+                {
+                    throw new KeyNotFoundException(s_ID);
+                } // end else
+            } // end try
+            catch (KeyNotFoundException e)
+            {
+                MySqlLock.ReleaseMutex();
+                throw e;
+            } // end catch
+            catch (Exception e)
+            {
+                MySqlLock.ReleaseMutex();
+                WriteToLog(" -- DBH retrieve course encountered an unknown error. Msg: " + e.Message);
+                WriteToLog(" -- DBH ignoring error, and throwing key not found. Msg: " + e.Message);
+                throw new KeyNotFoundException(s_ID);
+            } // end catch
+            finally
+            {
+                if (!reader.IsClosed)
+                {
+                    reader.Close();
+                } // end if
+            } // end finally
+
+            return course;
+        } // end method RetrieveCourse
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -2053,6 +2385,9 @@ namespace Database_Handler
 
             return output;
         } // end method AddColumns
+
+        #endregion
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
