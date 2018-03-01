@@ -154,6 +154,24 @@ namespace PlanGenerationAlgorithm
         }
 
         /// <summary>
+        /// shuffle the list of courses order
+        /// </summary>
+        /// <typeparam name="Course">data type course</typeparam>
+        /// <param name="list">list of courses</param>
+        public static void Shuffle<Course>(List<Course> list)
+        {
+            Random rng = new Random();
+            int n = list.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = rng.Next(n + 1);
+                Course value = list[k];
+                list[k] = list[n];
+                list[n] = value;
+            }
+        }
+        /// <summary>
         /// toString method override to print all the schedules
         /// </summary>
         /// <returns>printed schedule</returns>
