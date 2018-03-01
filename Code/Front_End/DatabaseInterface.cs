@@ -82,7 +82,11 @@ namespace CwuAdvising
             try
             {
                 binaryFormatter.Serialize(memoryStream, cmd);
-                networkStream.Write(memoryStream.ToArray(), 0, memoryStream.ToArray().Length);
+                byte[] data = memoryStream.ToArray();
+
+                while (!networkStream.CanWrite) ;
+
+                networkStream.Write(data, 0, data.Length);
             } // end try
             catch(Exception e)
             {

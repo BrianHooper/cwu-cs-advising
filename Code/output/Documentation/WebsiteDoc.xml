@@ -401,6 +401,28 @@
         <member name="T:CwuAdvising.Pages.ManageDegreesModel">
             <summary>Model for degree management</summary>
         </member>
+        <member name="F:CwuAdvising.Pages.ManageDegreesModel.CatalogList">
+            <summary>Master list of Catalogs, identified by catalog year</summary>
+        </member>
+        <member name="F:CwuAdvising.Pages.ManageDegreesModel.ModelList">
+            <summary>Master list of Degree Models</summary>
+        </member>
+        <member name="M:CwuAdvising.Pages.ManageDegreesModel.GetCatalogFromDatabase">
+            <summary>Retrieves the Catalog list from the database</summary>
+            <returns>True if the database query was successful</returns>
+        </member>
+        <member name="M:CwuAdvising.Pages.ManageDegreesModel.TESTBuildDegreeList">
+            <summary>TEST build degree list</summary>
+        </member>
+        <member name="M:CwuAdvising.Pages.ManageDegreesModel.RequirementsToDegreeModel(System.String,Database_Object_Classes.DegreeRequirements)">
+            <summary>Converts a Database DegreeRequirement to a front-end DegreeModel</summary>
+            <param name="year">Catalog Year</param>
+            <param name="degree">DegreeRequirements database object</param>
+            <returns>DegreeModel representing the degree</returns>
+        </member>
+        <member name="M:CwuAdvising.Pages.ManageDegreesModel.LoadDegreeModelList">
+            <summary>Loads the master catalog list into a list of DegreeModels</summary>
+        </member>
         <member name="P:CwuAdvising.Pages.ManageDegreesModel.DegreeList">
             <summary>List containing the degrees loaded from the database</summary>
         </member>
@@ -480,6 +502,9 @@
         </member>
         <member name="F:CwuAdvising.Program.Database">
             <summary>Interface for accessing the database</summary>
+        </member>
+        <member name="P:CwuAdvising.Program.Get">
+            <summary>Database getter</summary>
         </member>
         <member name="M:CwuAdvising.Program.Main(System.String[])">
             <summary>Main method</summary>

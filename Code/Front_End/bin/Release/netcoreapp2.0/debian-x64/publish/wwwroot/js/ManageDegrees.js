@@ -58,6 +58,7 @@ $(document).on("click", "#LoadDegreeButton", function () {
     $("#CourseContainer").html("");
     $("#CurrentDegreeName").text(DegreeList[DegreeID].year + " - " + DegreeList[DegreeID].name);
     CurrentDegree = DegreeList[DegreeID];
+    console.log(CurrentDegree);
     LoadDegreeRequirements();
 });
 

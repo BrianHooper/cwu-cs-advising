@@ -673,7 +673,7 @@ namespace Database_Handler
 
             DatabaseCommand cmd = (DatabaseCommand)formatter.Deserialize(ms);
             WriteToLog(" -- DBH Command was deserialized.");
-            WriteToLog(" -- DBH Command Contents: " + cmd.ToString());
+            WriteToLog(" -- DBH Command is: " + cmd.CommandType.ToString());
             WriteToLog(" -- DBH Returning command now.");
             return cmd;
         } // end method WaitForCommand
