@@ -31,13 +31,15 @@ namespace CwuAdvising.Pages
             /// <param name="quarter">Student's Starting Quarter</param>
             /// <param name="year">Student's Starting Year</param>
             /// <param name="degree">Student's Degree</param>
-            public StudentModel(string name, string id, string quarter, string year, string degree)
+            /// <param name="catalogyear">Student's catalog year</param>
+            public StudentModel(string name, string id, string quarter, string year, string degree, string catalogyear)
             {
                 this.Name = name;
                 this.ID = id;
                 this.Quarter = quarter;
                 this.Year = year;
                 this.Degree = degree;
+                this.CatalogYear = catalogyear;
             }
 
             /// <summary>Name of current student loaded in advising page</summary>
@@ -54,12 +56,20 @@ namespace CwuAdvising.Pages
 
             /// <summary>Degree of current student loaded in advising page</summary>
             public string Degree { get; set; } = "NoDegree";
+
+            /// <summary>Catalog year for the students degree</summary>
+            public string CatalogYear { get; set; } = "NoCatalogYear";
         }
 
         /// <summary>Gets the base case for the student's degree</summary>
         /// <returns>Schedule as a JSON string</returns>
         public static string LoadBaseCase()
         {
+            if(!Program.Database.connected)
+            {
+                return System.IO.File.ReadAllText("wwwroot/ExamplePlan.json");
+            }
+
             return System.IO.File.ReadAllText("wwwroot/ExamplePlan.json");
         }
         
@@ -68,11 +78,17 @@ namespace CwuAdvising.Pages
         /// <returns>true if the student was found in the database</returns>
         public static bool LoadStudent(string ID)
         {
+            /*
+            if(!Program.Database.connected)
+            {
+                return false;
+            }
+            */
             // Find student from database that matches ID
             // Return true or false depending on whether or not the student exists
 
             // For testing 
-            CurrentStudent = new StudentModel("Example", ID, "Fall", "2018", "BS - Computer Science");
+            CurrentStudent = new StudentModel("Example", ID, "Fall", "2018", "BS - Computer Science", "2018");
             return true;
         }
 

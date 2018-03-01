@@ -25,6 +25,7 @@ namespace CwuAdvising.Pages
         /// <returns>True if the database query was successful</returns>
         public static bool GetCatalogFromDatabase()
         {
+            CatalogList = new List<CatalogRequirements>();
             //Program.Database.RetrieveRecord(???, Database_Handler.OperandType.CatalogRequirements);
             TESTBuildDegreeList();
             return true;
@@ -154,6 +155,7 @@ namespace CwuAdvising.Pages
         public static void LoadDegreeModelList()
         {
             GetCatalogFromDatabase();
+            ModelList = new List<DegreeModel>();
             foreach (CatalogRequirements catalog in CatalogList)
             {
                 foreach (DegreeRequirements requirement in catalog.DegreeRequirements)

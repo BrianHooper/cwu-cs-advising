@@ -46,9 +46,9 @@
     left: 50%;
     transform: translate(-50%);
     background-color: white;
-    -webkit-box-shadow: 0 10px 30px rgba(255,255,255,1);
-    -moz-box-shadow: 0 10px 30px rgba(255,255,255,1);
-    box-shadow: 0 10px 30px rgba(255,255,255,1);
+    -webkit-box-shadow: 0 0 10px 30px rgba(255,255,255,1);
+    -moz-box-shadow: 0 0 10px 30px rgba(255,255,255,1);
+    box-shadow: 0 0 10px 30px rgba(255,255,255,1);
 }
 
 .HorizontalBar {

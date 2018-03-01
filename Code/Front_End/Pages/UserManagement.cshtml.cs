@@ -82,6 +82,15 @@ namespace CwuAdvising.Pages
                 {
                     var ModifiedUsers = JsonConvert.DeserializeObject<List<UserModel>>(requestBody);
                     var DatabaseUpdate = UserModelListToCredentials(ModifiedUsers);
+
+                    if(Program.Database.connected)
+                    {
+                        foreach (Credentials user in DatabaseUpdate)
+                        {
+                            Program.Database.UpdateRecord(user);
+                        }
+                    }
+
                     return new JsonResult("Users saved succesfully.");
                 }
                 else

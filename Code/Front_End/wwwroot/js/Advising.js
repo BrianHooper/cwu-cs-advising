@@ -410,7 +410,7 @@ function ModifyRequirements() {
             }
             listElement += "]";
             
-            var ListElement = $("<li></li>")
+            var ListElement = $("<li></li>");
             ListElement.append($("<div class='ReqListElement ReqTitle'>" + unmetRequirements[i].Title + "</div>"));
             ListElement.append($("<div class='ReqListElement ReqCredits'>" + unmetRequirements[i].Credits + " Cr</div>"));
             var QuartersString = "";

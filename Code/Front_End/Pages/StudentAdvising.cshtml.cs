@@ -13,18 +13,39 @@ namespace CwuAdvising.Pages
     /// <summary>Model for student advising page</summary>
     public class StudentAdvisingModel : PageModel
     {
+        /// <summary>Pair class for JSON degree model</summary>
+        public class DegreePair
+        {
+            /// <summary>Constructor for pair class</summary>
+            /// <param name="name">Name of the degree</param>
+            /// <param name="year">Academic year</param>
+            public DegreePair(string name, uint year)
+            {
+                this.Name = name;
+                this.Year = year;
+            }
+
+            /// <summary>Name of the degree</summary>
+            public string Name { get; set; }
+
+            /// <summary>Academic year</summary>
+            public uint Year { get; set; }
+        }
+
         /// <summary>Gets a list of Degrees from the database</summary>
         /// <returns>JSON serialized list of degrees as a string</returns>
         public string GetDegrees()
         {
+
+            List<DegreePair> DegreeList = new List<DegreePair>();
             ManageDegreesModel.LoadDegreeModelList();
-            List<string> Degrees = new List<string>();
-            foreach(DegreeModel model in ManageDegreesModel.ModelList)
+            foreach (DegreeModel model in ManageDegreesModel.ModelList)
             {
-                Degrees.Add(model.year + " - " + model.name);
+                DegreePair Pair = new DegreePair(model.name, model.year);
+                DegreeList.Add(Pair);
             }
 
-            return JsonConvert.SerializeObject(Degrees);
+            return JsonConvert.SerializeObject(DegreeList);
         }
 
 
@@ -44,12 +65,28 @@ namespace CwuAdvising.Pages
                 if (requestBody.Length > 0)
                 {
                     var StudentId = JsonConvert.DeserializeObject<string>(requestBody);
-                    AdvisingModel.LoadStudent(StudentId);
-                    return new JsonResult("Users saved succesfully.");
+
+                    /*
+                    if(!Program.Database.connected)
+                    {
+                        return new JsonResult(false);
+                    }
+                    */
+
+                    //Program.Database.RetrieveRecord()
+                    if(AdvisingModel.LoadStudent(StudentId))
+                    {
+                        return new JsonResult(true);
+                    } 
+                    else
+                    {
+                        return new JsonResult(false);
+                    }
+                    
                 }
                 else
                 {
-                    return new JsonResult("Error passing data to server.");
+                    return new JsonResult(false);
                 }
             }
         }
