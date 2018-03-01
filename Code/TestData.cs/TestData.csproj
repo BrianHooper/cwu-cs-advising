@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Cecil.FlowAnalysis">
+      <HintPath>..\output\netcoreapp2.0\Dependencies\Cecil.FlowAnalysis.dll</HintPath>
+    </Reference>
+    <Reference Include="Database_Classes">
+      <HintPath>..\output\netcoreapp2.0\Database_Classes.dll</HintPath>
+    </Reference>
+    <Reference Include="Db4objects.Db4o">
+      <HintPath>..\output\netcoreapp2.0\Dependencies\Db4objects.Db4o.dll</HintPath>
+    </Reference>
+    <Reference Include="Db4objects.Db4o.CS">
+      <HintPath>..\output\netcoreapp2.0\Dependencies\Db4objects.Db4o.CS.dll</HintPath>
+    </Reference>
+    <Reference Include="Db4objects.Db4o.Instrumentation">
+      <HintPath>..\output\netcoreapp2.0\Dependencies\Db4objects.Db4o.Instrumentation.dll</HintPath>
+    </Reference>
+    <Reference Include="Db4objects.Db4o.Linq">
+      <HintPath>..\output\netcoreapp2.0\Dependencies\Db4objects.Db4o.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="Db4objects.Db4o.NativeQueries">
+      <HintPath>..\output\netcoreapp2.0\Dependencies\Db4objects.Db4o.NativeQueries.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil">
+      <HintPath>..\output\netcoreapp2.0\Dependencies\Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Reflection">
+      <HintPath>..\output\netcoreapp2.0\Dependencies\Mono.Reflection.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

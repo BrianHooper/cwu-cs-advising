@@ -116,12 +116,11 @@ namespace Database_Handler
         // Main:
         /// <summary>Program entry point. Initializes program and handles fatal errors.</summary>
         /// <param name="args">Unused.</param>
-        public static void Main(string[] args)
+        public static void Main2(string[] args)
         {
             WriteToLog(" -- DBH was started.");
 
-            //DatabaseHandler DBH = new DatabaseHandler("/var/aspnetcore/publish/Configuration.ini");
-            DatabaseHandler.TestData();
+            DatabaseHandler DBH = new DatabaseHandler("/var/aspnetcore/publish/Configuration.ini");
             int i_errorCode = -1;
 
             try
@@ -2012,48 +2011,5 @@ namespace Database_Handler
 
             return output;
         } // end method AddColumns
-
-        /// <summary>Dummy records for testing.</summary>
-        private static void TestData()
-        {
-            using (IObjectContainer db = Db4oFactory.OpenFile("Students.db4o"))
-            {
-                db.Store(new Student(new Name("Al", "Gore"), "12345678", new Quarter(2014, Season.Fall), 0, 4.0, new AcademicStanding(false, false, true)));
-                db.Store(new Student(new Name("Brian", "Adams"), "22345678", new Quarter(2010, Season.Spring), 65, 3.1, new AcademicStanding(false, false, true)));
-                db.Store(new Student(new Name("Cal", "Brown"), "32345678", new Quarter(2011, Season.Fall), 90, 2.9, new AcademicStanding(false, true, true)));
-                db.Store(new Student(new Name("Dan", "Power"), "42345678", new Quarter(2012, Season.Winter), 12, 3.4, new AcademicStanding(false, false, true)));
-
-                db.Commit();
-
-                db.Close();
-            } // end using
-
-            using (IObjectContainer db = Db4oFactory.OpenFile("Catalogs.db4o"))
-            {
-                db.Store(new CatalogRequirements("Y2014", 3, 2.0, new CatalogCreditRequirements(), new List<DegreeRequirements>()));
-                db.Store(new CatalogRequirements("Y2010", 3, 2.0, new CatalogCreditRequirements(), new List<DegreeRequirements>()));
-                db.Store(new CatalogRequirements("Y2011", 3, 2.0, new CatalogCreditRequirements(), new List<DegreeRequirements>()));
-                db.Store(new CatalogRequirements("Y2012", 3, 2.0, new CatalogCreditRequirements(), new List<DegreeRequirements>()));
-
-                db.Commit();
-
-                db.Close();
-            } // end using
-
-            using (IObjectContainer db = Db4oFactory.OpenFile("Courses.db4o"))
-            {
-                db.Store(new Course("Computer Architecture 1", "CS311", 4, false));
-                db.Store(new Course("Computer Architecture 2", "CS312", 4, true));
-                db.Store(new Course("Intro to Software Engineering", "CS380", 4, true));
-                db.Store(new Course("Software Engineering Project 1", "CS480", 4, true));
-                db.Store(new Course("Software Engineering Project 2", "CS481", 4, true));
-                db.Store(new Course("Intro to Programming 1", "CS111", 4, false));
-                db.Store(new Course("Intro to Programming 2", "CS112", 4, false));
-
-                db.Commit();
-
-                db.Close();
-            } // end using
-        } // end method TestData
     } // end Class DatabaseHandler
 } // end Namespace Database_Handler
