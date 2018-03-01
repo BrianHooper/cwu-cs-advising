@@ -123,43 +123,43 @@ namespace CwuAdvising.Pages
             return model;
         }
 
+
+        /// <summary>Converts a DegreeModel object to a DegreeRequirements Object</summary>
+        /// <param name="Degree">DegreeModel to be parsed</param>
+        /// <returns>DegreeRequirements object corresponding to the given DegreeModel</returns>
+        public static DegreeRequirements DegreeModelToRequirements(DegreeModel Degree)
+        {
+            List<Course> DegreeCourseList = new List<Course>();
+
+            ManageCoursesModel.GetCoursesFromDatabase();
+
+            foreach(string CourseID in Degree.requirements)
+            {
+                try
+                {
+                    Course MatchingCourse = ManageCoursesModel.MasterCourseList.Find(delegate (Course C) { return C.ID == CourseID; });
+                    DegreeCourseList.Add(MatchingCourse);
+                }
+                catch (ArgumentException)
+                {
+
+                }
+            }
+
+            List<Course> EmptyList = new List<Course>();
+            return new DegreeRequirements(DegreeCourseList, EmptyList, EmptyList, EmptyList, 0, 0.0, Degree.name);
+        }
+
         /// <summary>Loads the master catalog list into a list of DegreeModels</summary>
         public static void LoadDegreeModelList()
         {
+            GetCatalogFromDatabase();
             foreach (CatalogRequirements catalog in CatalogList)
             {
                 foreach (DegreeRequirements requirement in catalog.DegreeRequirements)
                 {
                     ModelList.Add(RequirementsToDegreeModel(catalog.ID, requirement));
                 }
-            }
-        }
-        
-        /// <summary>List containing the degrees loaded from the database</summary>
-        public static List<DegreeModel> DegreeList { get; set; } = null;
-
-        /// <summary>Loads degrees from the database</summary>
-        /// <returns>Returns a list of DegreeModels serialized as a JSON string</returns>
-        public static bool LoadDatabaseDegrees()
-        {
-            DegreeList = new List<DegreeModel>();
-
-            if (Program.Database.connected)
-            {
-                // Load degrees from database
-                return true;
-            }
-            else
-            {
-                DegreeModel DM = new DegreeModel("BS - Computer Science", 2018);
-                DM.requirements.Add("CS301");
-                DM.requirements.Add("CS302");
-                DM.requirements.Add("CS361");
-                DM.requirements.Add("CS470");
-                DegreeList.Add(DM);
-                DegreeList.Add(new DegreeModel("BS - Information Technology", 2018));
-                DegreeList.Add(new DegreeModel("BS - Mathematics", 2018));
-                return false;
             }
         }
 
@@ -180,9 +180,45 @@ namespace CwuAdvising.Pages
         /// <summary>Updates database with the modified degree</summary>
         /// <param name="model">Model of the degree to be updated</param>
         /// <returns>true if the update was successful</returns>
-        public static bool WriteDatabaseDegree(DegreeModel model)
+        public static void WriteDatabaseDegree(DegreeModel model)
         {
-            return false;
+            // Convert the DegreeModel to DegreeRequirements
+            string CatalogYear = model.year.ToString();
+            DegreeRequirements Degree = DegreeModelToRequirements(model);
+            CatalogRequirements Catalog;
+
+            // Create a new list of DegreeRequirements and add the modified degree
+            List<DegreeRequirements> NewDegreeRequirements = new List<DegreeRequirements>
+            {
+                Degree
+            };
+            
+            try
+            {
+                // Find a catalog matching the catalog year of the modified degree
+                Catalog = CatalogList.Find(delegate (CatalogRequirements CR) { return CR.ID == CatalogYear; });
+                
+                // Add any degrees in the catalog other than the modifed degree
+                foreach(DegreeRequirements OldDegree in Catalog.DegreeRequirements)
+                {
+                    if(OldDegree.Name != Degree.Name)
+                    {
+                        NewDegreeRequirements.Add(OldDegree);
+                    }
+                }
+
+            }
+            catch(ArgumentNullException)
+            {
+                
+            }
+
+            // Create a new CatalogRequirement with updated DegreeRequirements
+            CatalogCreditRequirements EmptyCredits = new CatalogCreditRequirements();
+            Catalog = new CatalogRequirements(CatalogYear, 0, 0.0, EmptyCredits, NewDegreeRequirements);
+
+            // Update the database
+            Program.Database.UpdateRecord(Catalog, Database_Handler.OperandType.CatalogRequirements);
         }
 
         /// <summary>Retrieves a modified degree as JSON data from POST</summary>
@@ -198,6 +234,12 @@ namespace CwuAdvising.Pages
                 if (requestBody.Length > 0)
                 {
                     var ModifiedDegree = JsonConvert.DeserializeObject<DegreeModel>(requestBody);
+
+                    if(Program.Database.connected)
+                    {
+                        WriteDatabaseDegree(ModifiedDegree);
+                    }
+                    
                     return new JsonResult("Courses saved succesfully.");
                 }
                 else
