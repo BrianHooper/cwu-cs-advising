@@ -15,10 +15,4 @@
   <ItemGroup>
     <PackageReference Include="System.Runtime.Serialization.Formatters" Version="4.3.0" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="CwuAdvising">
-      <HintPath>..\output\netcoreapp2.0\CwuAdvising.dll</HintPath>
-    </Reference>
-  </ItemGroup>
 </Project>

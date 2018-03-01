@@ -13164,7 +13164,8 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Brian\\.nuget\\packages\\": {},
+    "C:\\Users\\nicol\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackagesFallback\\": {},
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
@@ -13173,18 +13174,20 @@
       "hideWarningsAndErrors": true
     },
     "restore": {
-      "projectUniqueName": "C:\\Users\\Brian\\Documents\\cwu-cs-advising\\Code\\Front_End\\CwuAdvising.csproj",
+      "projectUniqueName": "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\cwu-cs-advising\\Code\\Front_End\\CwuAdvising.csproj",
       "projectName": "CwuAdvising",
-      "projectPath": "C:\\Users\\Brian\\Documents\\cwu-cs-advising\\Code\\Front_End\\CwuAdvising.csproj",
-      "packagesPath": "C:\\Users\\Brian\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Brian\\Documents\\cwu-cs-advising\\Code\\Front_End\\obj\\",
+      "projectPath": "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\cwu-cs-advising\\Code\\Front_End\\CwuAdvising.csproj",
+      "packagesPath": "C:\\Users\\nicol\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\cwu-cs-advising\\Code\\Front_End\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackagesFallback\\",
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
       ],
       "configFilePaths": [
-        "C:\\Users\\Brian\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "C:\\Users\\nicol\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.Fallback.config"
       ],
       "originalTargetFrameworks": [
         "netcoreapp2.0"
@@ -13196,8 +13199,8 @@
       "frameworks": {
         "netcoreapp2.0": {
           "projectReferences": {
-            "C:\\Users\\Brian\\Documents\\cwu-cs-advising\\Code\\Back_End\\PlanGenerationAlgorithm\\PlanGenerationAlgorithm.csproj": {
-              "projectPath": "C:\\Users\\Brian\\Documents\\cwu-cs-advising\\Code\\Back_End\\PlanGenerationAlgorithm\\PlanGenerationAlgorithm.csproj"
+            "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\cwu-cs-advising\\Code\\Back_End\\PlanGenerationAlgorithm\\PlanGenerationAlgorithm.csproj": {
+              "projectPath": "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\cwu-cs-advising\\Code\\Back_End\\PlanGenerationAlgorithm\\PlanGenerationAlgorithm.csproj"
             }
           }
         }

@@ -33,7 +33,6 @@
     </Reference>
     <Reference Include="Db4objects.Db4o">
       <HintPath>..\output\netcoreapp2.0\Dependencies\Db4objects.Db4o.dll</HintPath>
-      <Private>false</Private>
     </Reference>
     <Reference Include="Db4objects.Db4o.CS">
       <HintPath>..\output\netcoreapp2.0\Dependencies\Db4objects.Db4o.CS.dll</HintPath>
