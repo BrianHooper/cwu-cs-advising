@@ -29,31 +29,38 @@ namespace CwuAdvising
         /// <param name="s_fileName">Ini file with configurations.</param>
         public DatabaseInterface(string s_fileName)
         {
-            try
+            if (!connected)
             {
-                var parser = new FileIniDataParser();
-                IniData data = parser.ReadFile(s_fileName);
-                string ip = data["Misc"]["IP"];
-                string TCPPort = data["Misc"]["TCPIP_port"];
-                tcpPort = int.Parse(TCPPort);
+                try
+                {
+                    string ip = "127.0.0.1";
+                    tcpPort = 44765;
 
-                IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse(ip), tcpPort);
-                tcpClient = new TcpClient(endPoint);
-                networkStream = tcpClient.GetStream();
-                connected = true;
+
+                    IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse(ip), tcpPort);
+                    tcpClient = new TcpClient();
+                    tcpClient.Connect(endPoint);
+                    networkStream = tcpClient.GetStream();
+                    connected = true;
+                }
+                catch (IniParser.Exceptions.ParsingException e)
+                {
+                    Console.Write("Error reading configuration file. Msg: {0}", e.Message);
+                }
+                catch (ArgumentNullException e)
+                {
+                    Console.Write(e);
+                }
+                catch (ArgumentOutOfRangeException e)
+                {
+                    Console.Write(e);
+                }
+                catch
+                {
+
+                }
             }
-            catch (IniParser.Exceptions.ParsingException e)
-            {
-                Console.Write("Error reading configuration file. Msg: {0}", e.Message);
-            }
-            catch (ArgumentNullException e)
-            {
-                Console.Write(e);
-            }
-            catch (ArgumentOutOfRangeException e)
-            {
-                Console.Write(e);
-            }
+            
         }
 
         /// <summary>Default destructor, terminates database connection.</summary>
@@ -96,12 +103,15 @@ namespace CwuAdvising
             memoryStream = new MemoryStream();
 
             byte[] ba_data = new byte[BUFFER_SIZE];
-
+            while (!networkStream.DataAvailable) ;
             // read from stream in chunks of 2048 bytes
             for (int i = 0; networkStream.DataAvailable; i++)
             {
-                networkStream.Read(ba_data, i * BUFFER_SIZE, BUFFER_SIZE);
-                memoryStream.Write(ba_data, i * BUFFER_SIZE, BUFFER_SIZE);
+                if(networkStream.CanRead)
+                {
+                    networkStream.Read(ba_data, i * BUFFER_SIZE, BUFFER_SIZE);
+                    memoryStream.Write(ba_data, i * BUFFER_SIZE, BUFFER_SIZE);
+                }
             } // end for
 
             DatabaseCommand cmd = (DatabaseCommand)binaryFormatter.Deserialize(memoryStream);

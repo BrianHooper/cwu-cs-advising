@@ -17,13 +17,14 @@ namespace CwuAdvising
         private static string ConfigPath { get; set; } = "/var/aspnetcore/publish/Configuration.ini";
 
         /// <summary>Interface for accessing the database</summary>
-        public static DatabaseInterface Database { get; set; } = null;
+        public static DatabaseInterface Database = new DatabaseInterface(ConfigPath);
+
+        public DatabaseInterface get => Database;
 
         /// <summary>Main method</summary>
         /// <param name="args">Arugments</param>
         public static void Main(string[] args)
         {
-            Database = new DatabaseInterface(ConfigPath);
             BuildWebHost(args).Run();            
         }
 

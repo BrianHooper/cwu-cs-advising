@@ -1,0 +1,29 @@
+﻿@page
+@model CwuAdvising.Pages.UserManagementModel
+@{
+    ViewData["Title"] = "User Management";
+}
+
+<div class="Title">User Management</div>
+
+<script>
+    var UserList = JSON.parse('@Html.Raw(Model.UserListAsJson())');
+</script>
+<script src="~/js/UserManagement.js"></script>
+
+<div class="Flex CenterFlex">
+    <div class="CenterFlex" style="width: 100%; text-align: center;">
+        <div class="Border ListHeader" style="width: 30px;">&#10060;</div>
+        <div class="Border ListHeader" style="width: 200px;">Username</div>
+        <div class="Border ListHeader" style="width: 60px;">Admin</div>
+        <div class="Border ListHeader" style="width: 60px;">Active</div>
+        <div class="Border ListHeader" style="width: 60px;">Reset</div>
+    </div>
+    <div class="" id="UserContainer">
+
+    </div>
+    <div style="width: 100%; text-align: center;">
+        <button type="button" class="RegularButton" id="AddNewUserButton">Add New User</button>
+        <button type="button" class="RegularButton" id="SaveUsers">Save Changes</button>
+    </div>
+</div>

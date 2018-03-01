@@ -1,0 +1,112 @@
+﻿@page
+@model CwuAdvising.Pages.StudentAdvisingModel
+@{
+    ViewData["Title"] = "Student Advising";
+}
+
+
+
+<script>
+    // Get degrees from the server
+    var Degrees = JSON.parse('@Html.Raw(Model.GetDegrees())');
+
+    $(document).ready(function () {
+        for (var i = 0; i < Degrees.length; i++) {
+            $("#CreateStudentDegree").append($("<option value='" + Degrees[i] + "'>" + Degrees[i] + "</option>"));
+        }
+    });
+
+    $(document).on("click", "#LoadStudent", function () {
+        var StudentId = $("#LoadStudentId").val();
+
+        $.ajax({
+            type: "POST",
+            url: "/StudentAdvising?handler=LoadStudent",
+            data: JSON.stringify(StudentId),
+
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                var url = '@Url.Action("/Advising")';
+                window.location.href = "Advising";
+            }
+        });
+    });
+
+    $(document).on("click", "#CreateStudent", function () {
+        var Student = { Name: "", Id: "", Quarter: "", Year: "", Degree: "" };
+        Student.Name = $("#CreateStudentName").val();
+        Student.Id = $("#CreateStudentId").val();
+        Student.Quarter = $("#CreateStudentQuarter").val();
+        Student.Year = $("#CreateStudentYear").val();
+        Student.Degree = $("#CreateStudentDegree").val();
+
+        $.ajax({
+            type: "POST",
+            url: "/StudentAdvising?handler=CreateStudent",
+            data: JSON.stringify(Student),
+
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                var url = '@Url.Action("/Advising")';
+                window.location.href = "Advising";
+            }
+        });
+    });
+
+</script>
+
+<div class="PageRow Flex CenterFlex">
+    <div class="Block Border Padded">
+        <div class="Title">Load Existing Student Plan</div>
+        <div class="Flex CenterFlex">
+            <div class="Flex">
+                <div class="LabelLeft">Student ID:</div>
+                <div class="LabelRight"><input type="text" id="LoadStudentId" /></div>
+            </div>
+        </div>
+        <div><input type="submit" value="Load Student" class="BigButton" id="LoadStudent" /></div>
+    </div>
+</div>
+
+<div class="PageRow Flex CenterFlex">
+    <div class="Block Border Padded">
+        <div class="Title">Create New Student Plan</div>
+        <div class="Flex CenterFlex">
+            <div class="Flex ">
+                <div class="LabelLeft">Student Name:</div>
+                <div class="LabelRight"><input type="text" id="CreateStudentName" /></div>
+            </div>
+            <div class="Flex">
+                <div class="LabelLeft">Student ID:</div>
+                <div class="LabelRight"><input type="text" id="CreateStudentId" /></div>
+            </div>
+        </div>
+
+        <div class="Flex CenterFlex">
+            <div class="Flex">
+                <div class="LabelLeft Border">Starting Quarter:</div>
+                <div class="LabelRight Flex">
+                    <select style="width: 50%; margin-right: 5px;" id="CreateStudentQuarter">
+                        <option>Fall</option>
+                        <option>Winter</option>
+                        <option>Spring</option>
+                        <option>Summer</option>
+                    </select>
+                    <input type="number" value="2018" style="width: 48%;" min="2014" max="2022" id="CreateStudentYear" />
+                </div>
+            </div>
+
+            <div class="Flex">
+                <div class="LabelLeft">Degree:</div>
+                <div class="LabelRight">
+                    <select id="CreateStudentDegree"></select>
+                </div>
+            </div>
+        </div>
+
+        <div><input type="submit" value="Create Student" class="BigButton" id="CreateStudent" /></div>
+    </div>
+</div>
+

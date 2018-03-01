@@ -9,36 +9,46 @@
     <link rel="stylesheet" href="~/css/Generics.css" />
     <script src="~/js/site.js"></script>
     <script src="~/js/jquery.js"></script>
+	
+	<script src="~/lib/jquery/dist/jquery.js"></script>
+	<script src="~/js/site.js"></script>
 </head>
 <body>
-<div id="TopSpacer">
-    
-        <div id="CwuHome">
+    <div id="InnerTopLogo"><img src="~/images/computer_science_logo.png" /></div>
+
+    <div id="TopSpacer">
+
             <a href="http://www.cwu.edu" style="color: #000000;">CENTRAL WASHINGTON UNIVERSITY</a>
-</div>
-    
-</div>
-<div id="TopLogo">
-    <div id="InnerTopLogo">
-        <a href="Index" style="color: white;">CWU Student Advising</a>
+
     </div>
-</div>
-<div class="HorizontalBar">&nbsp;</div>
+    <div id="TopLogo">&nbsp;</div>
+
+
+
+    <div class="HorizontalBar">&nbsp;</div>
     <div id="PageContainer">
-        
+
 
         <div class="PageRow Flex">
             <div class="WideFlex" id="Logout">Logged in as: <span id="CurrentUser">Admin</span> <a href="">[ Logout ]</a></div>
             <div class="WideFlex" id="Navigation">
                 <span id="NavLinks">
                     <a href="Index">Home</a> |
-                    <a href="Advising">Advising</a> |
+                    <a href="StudentAdvising">Advising</a> |
                     <a href="ManageCourses">Course Management</a> |
-                    <a href="ManageDegrees">Degree Management</a>
+                    <a href="ManageDegrees">Degree Management</a> |
+                    <a href="UserManagement">User Management</a>
                 </span>
             </div>
         </div>
         @RenderBody()
     </div>
+    <div class="Flex CenterFlex">
+        <div style="width: 80%; text-align: right; color: #ffffff;">
+            Central Washington University | Department of Computer Science<br />
+            2017 - 2018 | Brian Hooper, Nick Rohde, Rico Adrian
+        </div>
+    </div>
+    @RenderSection("Scripts", required: false)
 </body>
 </html>

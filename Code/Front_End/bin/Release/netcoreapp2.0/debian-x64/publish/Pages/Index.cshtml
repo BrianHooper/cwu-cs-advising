@@ -4,40 +4,48 @@
     ViewData["Title"] = "Advising";
 }
 
-<form method="post">
-    <div class="PageRow Flex CenterFlex">
-        <div class="Block Border Padded">
-            <div class="Title">Load Graduation Plan</div>
-            <div class="Flex CenterFlex">
-                <div class="Flex ">
-                    <div class="LabelLeft">Student Name:</div>
-                    <div class="LabelRight"><input type="text" asp-for="Index.Name"/></div>
-                </div>
-                <div class="Flex">
-                    <div class="LabelLeft">Student ID:</div>
-                    <div class="LabelRight"><input type="text" asp-for="Index.ID"/></div>
-                </div>
-            </div>
 
-            <div class="Flex CenterFlex">
-                <div class="Flex">
-                    <div class="LabelLeft Border">Starting Quarter:</div>
-                    <div class="LabelRight Flex">
-                        <select asp-for="Index.Quarter"  style="width: 50%; margin-right: 5px;" asp-items="DemoController.GetQuarters()"></select>
-                        <input asp-for="Index.Year" type="number" value="2017" style="width: 48%;" min="2014" max="2022" />
-                    </div>
-                </div>
 
-                <div class="Flex">
-                    <div class="LabelLeft">Degree:</div>
-                    <div class="LabelRight">
-                        <select asp-for="Index.Degree" asp-items="DemoController.GetDegrees()"></select>
-                    </div>
-                </div>
-            </div>
+<script>
+    var ShowLoginBox = true;
 
-            <div><input type="submit" value="Load Graduation Plan" class="BigButton" /></div>
-        </div>
+    $(document).ready(function () {
+        $("#Userbox").hide();
+        $("#LoginBox").hide();
+
+        
+        if (ShowLoginBox) {
+            $("#LoginBox").show();
+        } else {
+            $("#Userbox").show();
+        }
+    });
+
+</script>
+
+<div class="Flex CenterFlex">
+    <div style="font-size: 3em;">Computer Science Advising Tool</div>
+</div>
+<div id="CredentialsContainer" class="Flex CenterFlex">
+
+
+    <div id="Userbox" class="Border" style="padding: 20px;">
+        You are currently logged in as:<br />
+        Admin<br />
+        <a href="#">[ Logout ]</a>
     </div>
-</form>
 
+
+    <div id="LoginBox" class="Border">
+        <div class="Title">User Login: </div>
+        <div class="Flex">
+            <div class="LabelLeft">Username</div>
+            <div class="LabelRight"><input type="text" /></div>
+        </div>
+        <div class="Flex">
+            <div class="LabelLeft">Password</div>
+            <div class="LabelRight"><input type="password" /></div>
+        </div>
+        <button type="button" id="LoginButton" class="BigButton">Login</button>
+    </div>
+</div>

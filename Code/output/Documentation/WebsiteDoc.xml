@@ -124,6 +124,11 @@
             <summary>Explicit cast operator for CourseModel to Course conversion.</summary>
             <returns>A Course object equivalent to the given CourseModel.</returns>
         </member>
+        <member name="M:CwuAdvising.Models.CourseModel.Convert(Database_Object_Classes.Course)">
+            <summary>Explicit cast operator for Course to CourseModel conversion.</summary>
+            <returns>A CourseModel equivalent to the given Course.</returns>
+            <param name="course">The course to be converted into a CourseModel.</param>
+        </member>
         <member name="T:CwuAdvising.Models.DegreeModel">
             <summary>Model for degree management page</summary>
         </member>
@@ -473,7 +478,7 @@
         <member name="P:CwuAdvising.Program.ConfigPath">
             <summary>Location of the database configuration file</summary>
         </member>
-        <member name="P:CwuAdvising.Program.Database">
+        <member name="F:CwuAdvising.Program.Database">
             <summary>Interface for accessing the database</summary>
         </member>
         <member name="M:CwuAdvising.Program.Main(System.String[])">

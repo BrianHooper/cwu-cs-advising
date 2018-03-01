@@ -26,6 +26,7 @@
           "Microsoft.AspNetCore.All": "2.0.5",
           "Microsoft.NETCore.App": "2.0.0",
           "Microsoft.VisualStudio.Web.CodeGeneration.Design": "2.0.2",
+          "PlanGenerationAlgorithm": "1.0.0",
           "ini-parser": "2.5.2",
           "Database_Classes": "1.0.0.0",
           "Database_Handler": "1.0.0.0"
@@ -3425,6 +3426,14 @@
           "lib/netstandard1.3/Microsoft.WindowsAzure.Storage.dll": {}
         }
       },
+      "PlanGenerationAlgorithm/1.0.0": {
+        "dependencies": {
+          "Microsoft.NETCore.App": "2.0.0"
+        },
+        "compile": {
+          "PlanGenerationAlgorithm.dll": {}
+        }
+      },
       "Database_Classes/1.0.0.0": {
         "compile": {
           "Database_Classes.dll": {}
@@ -3442,6 +3451,7 @@
           "Microsoft.AspNetCore.All": "2.0.5",
           "Microsoft.NETCore.App": "2.0.0",
           "Microsoft.VisualStudio.Web.CodeGeneration.Design": "2.0.2",
+          "PlanGenerationAlgorithm": "1.0.0",
           "ini-parser": "2.5.2",
           "Database_Classes": "1.0.0.0",
           "Database_Handler": "1.0.0.0"
@@ -6974,6 +6984,14 @@
           "lib/netstandard1.3/Microsoft.WindowsAzure.Storage.dll": {}
         }
       },
+      "PlanGenerationAlgorithm/1.0.0": {
+        "dependencies": {
+          "Microsoft.NETCore.App": "2.0.0"
+        },
+        "runtime": {
+          "PlanGenerationAlgorithm.dll": {}
+        }
+      },
       "Database_Classes/1.0.0.0": {
         "runtime": {
           "Database_Classes.dll": {}
@@ -9378,6 +9396,11 @@
       "sha512": "sha512-W6ZZ0/o7+3Qb77mRAQyLjPudHG3OMeeQ4p9yY13PUdJArmRCx2cLMm5F4tpIjJXxzHC0ew0oK7DMDGILMdfCnw==",
       "path": "windowsazure.storage/8.1.4",
       "hashPath": "windowsazure.storage.8.1.4.nupkg.sha512"
+    },
+    "PlanGenerationAlgorithm/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
     },
     "Database_Classes/1.0.0.0": {
       "type": "reference",

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using CwuAdvising.Models;
+
 
 namespace Database_Object_Classes
 {
@@ -125,42 +125,7 @@ namespace Database_Object_Classes
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
-        /// <summary>Explicit cast operator for Course to CourseModel conversion.</summary>
-        /// <returns>A CourseModel equivalent to the given Course.</returns>
-        /// <param name="course">The course to be converted into a CourseModel.</param>
-        public static explicit operator CourseModel(Course course)
-        {
-            CourseModel model = new CourseModel();
 
-            model.Credits = course.Credits.ToString();
-
-            model.Department = course.Department;
-
-            string offered = string.Empty;
-
-            if (course.IsOffered(Season.Winter))
-            {
-                offered = "1";
-            } // end if
-            if (course.IsOffered(Season.Spring))
-            {
-                offered += "2";
-            } // end if
-            if (course.IsOffered(Season.Summer))
-            {
-                offered += "3";
-            } // end if
-            if (course.IsOffered(Season.Fall))
-            {
-                offered += "4";
-            } // end if
-
-            model.Offered = offered;
-            model.Name = course.Name;
-            model.ID = course.ID;
-
-            return model;
-        }// end explicit cast operator
 
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */

@@ -14,6 +14,7 @@ namespace CwuAdvising
     /// <summary>Startup configuration file</summary>
     public class Startup
     {
+
         /// <summary></summary>
         /// <param name="configuration"></param>
         public Startup(IConfiguration configuration)

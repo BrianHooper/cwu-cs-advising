@@ -1,47 +1,54 @@
 ﻿@font-face {
-    font-family: 'roboto-light';
-    src: url('../fonts/roboto/roboto-light.ttf') format('truetype');
-    
+    font-family: 'Roboto';
+    src: url('Roboto-Light.eot');
+    src: url('Roboto-Light.eot?#iefix') format('embedded-opentype'), url('Roboto-Light.woff2') format('woff2'), url('Roboto-Light.woff') format('woff'), url('Roboto-Light.ttf') format('truetype'), url('Roboto-Light.svg#Roboto-Light') format('svg');
+    font-weight: 300;
+    font-style: normal;
 }
 
 @font-face {
-    font-family: 'roboto';
-    src: url('../fonts/roboto/Roboto-Regular.ttf') format('truetype');
+    font-family: 'Roboto';
+    src: url('Roboto-Regular.eot');
+    src: url('Roboto-Regular.eot?#iefix') format('embedded-opentype'), url('Roboto-Regular.svg#Roboto-Regular') format('svg');
+    font-weight: normal;
+    font-style: normal;
 }
+
 
 #PageContainer {
     margin: auto;
     width: 85%;
+    min-width: 850px;
     padding: 10px;
     background-color: white;
 }
 
 
 #TopLogo {
-    text-align: center;
+    height: 100px;
     background: repeating-linear-gradient(135deg,#ffffff,#ffffff 1px,#DCDCE0 1px,#DCDCE0 6px);
-    font-family: roboto;
 }
 
 #TopSpacer {
-    height: 20px;
+    padding-left: 15px;
+    height: 30px;
+    line-height: 30px;
     background-color: #ffffff;
+    color: #000000;
+    font-size: .75em;
+    font-family: Roboto;
+    vertical-align: middle;
 }
 
 #InnerTopLogo {
-    display: inline-block;
-    font-size: 4em;
-    background-color: black;
-    color: white;
-    box-shadow: 0px 0px 5px 25px rgba(0,0,0,1);
-}
-
-#CwuHome {
-    margin: auto;
-    width: 95%;
-    color: #000000;
-    font-size: .75em;
-    font-family: roboto-light;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%);
+    background-color: white;
+    -webkit-box-shadow: 0px 0px 10px 30px rgba(255,255,255,1);
+    -moz-box-shadow: 0px 0px 10px 30px rgba(255,255,255,1);
+    box-shadow: 0px 0px 10px 30px rgba(255,255,255,1);
 }
 
 .HorizontalBar {
@@ -170,7 +177,7 @@
 }
 
 .Element {
-    margin: 0px;
+    margin: 0;
     border: 1px solid black;
     line-height: 30px;
     vertical-align: middle;
@@ -181,10 +188,14 @@
     width: 30px;
 }
 
+.CourseNumberElement {
+    width: 80px;
+}
+
 .Row {
     flex-wrap: nowrap;
-    margin-bottom: 0px;
-    padding: 0px;
+    margin-bottom: 0;
+    padding:0;
     background-color: #ffffff;
 }
 
@@ -195,6 +206,12 @@
 .ToggleElement {
     text-align: center;
     width: 30px;
+    cursor: pointer;
+}
+
+.WideToggleElement {
+    text-align: center;
+    width: 60px;
     cursor: pointer;
 }
 
@@ -219,11 +236,12 @@
 
 .PrereqPopup {
     position: fixed;
-    top: 0px;
-    left: 0px;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.5);
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.5);
     -webkit-filter: blur(5px);
     -moz-filter: blur(5px);
     -ms-filter: blur(5px);
@@ -234,9 +252,8 @@
 .PrereqPopubBox {
     position: fixed;
     width: 40%;
-    height: 30%;
     left: 30%;
-    top: 35%;
+    top: 20%;
     background-color: #ffffff;
     
 }
@@ -256,4 +273,86 @@
 
 #SearchBox {
     width: 500px;
+}
+
+.RegularButton {
+    line-height: 30px;
+    text-align: center;
+    vertical-align: middle;
+    width: 150px; 
+    margin-top: 5px;
+}
+
+.DeletePrereq {
+    cursor: pointer;
+    padding: 2px;
+    border: thin solid black;
+    margin: 5px;
+    float: left;
+}
+
+.AddPrereq {
+    cursor: pointer;
+    padding: 2px;
+    border: thin solid black;
+    margin: 5px;
+    float: left;
+}
+
+.ClosePrereqs {
+    cursor: pointer;
+}
+
+.ListHeader {
+    text-align: center;
+    line-height: 30px;
+    font-weight: bold;
+}
+
+.AddCourseRequirement {
+    border: thin solid black;
+    padding: 5px;
+    margin: 5px;
+    cursor: pointer;
+}
+
+.DeleteCourseRequirement {
+    border: thin solid black;
+    padding: 5px;
+    margin: 5px;
+    cursor: pointer;
+}
+
+#RemainingRequirementsList {
+    list-style-type: none;
+}
+
+.ReqListElement {
+    padding: 4px;
+    margin-top: -1px;
+    margin-right: -1px;
+    float: left;
+    border: thin solid black;
+}
+
+.ReqTitle {
+    width: 130px;
+}
+
+.ReqCredits {
+    width: 50px;
+}
+
+.ReqQuarters {
+    width: 200px;
+}
+
+#LoadingBox {
+    position: fixed;
+    width: 40%;
+    height: 40%;
+    left: 30%;
+    top: 20%;
+    background-color: white;
+    border: 2px solid black;
 }

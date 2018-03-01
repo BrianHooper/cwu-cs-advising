@@ -1,4 +1,6 @@
-﻿div {
+﻿/*csslint box-sizing: false*/
+
+div {
     padding: 5px;
 }
 
@@ -8,6 +10,7 @@ html, body {
     margin: 0px;
     background-color: #262626;
 }
+
 
 a:link, a:visited {
     color: #0055bb;
@@ -27,6 +30,7 @@ input {
     box-sizing: border-box;
 }
 
+
 select {
     width: 100%;
     height: 100%;
@@ -37,7 +41,7 @@ input[type="submit"] {
     box-sizing: border-box;
 }
 
-input[type="text"], input[type="number"] {
+input[type="text"], input[type="number"], input[type="password"] {
     line-height: 30px;
     width: 100%;
     box-sizing: border-box;

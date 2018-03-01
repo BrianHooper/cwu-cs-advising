@@ -76,7 +76,7 @@ namespace CwuAdvising.Pages
 
             foreach(Course course in CourseList)
             {
-                CourseModel model = (CourseModel)course;
+                CourseModel model = CourseModel.Convert(course);
                 foreach(Course prereq in course.PreRequisites)
                 {
                     model.PreReqs.Add(prereq.ID);
@@ -101,7 +101,7 @@ namespace CwuAdvising.Pages
             {
                 if (model.Delete)
                 {
-                    Course c = (Course)model;
+                    Course c = (Course) model;
 
                     foreach (string prereq in model.PreReqs)
                     {

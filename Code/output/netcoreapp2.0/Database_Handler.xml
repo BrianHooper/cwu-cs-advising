@@ -170,31 +170,9 @@
         <member name="F:Database_Handler.DatabaseHandler.clients">
             <summary>List of all clients currently connected to DBH.</summary>
         </member>
-        <member name="M:Database_Handler.DatabaseHandler.#ctor">
-            <summary>Default Constructor</summary>
-            <remarks>This constructor does nothing, it will use all default values for variables.</remarks>
-        </member>
         <member name="M:Database_Handler.DatabaseHandler.#ctor(System.String)">
             <summary>Loads the DBH configurations from the given .ini file.</summary>
             <param name="s_fileName">Path of the .ini file containing the configurations DBH should use.</param>
-        </member>
-        <member name="M:Database_Handler.DatabaseHandler.#ctor(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Int32)">
-            <summary>Constructor which sets the database information for this DBH object to the given values.</summary>
-            <param name="s_MYSQL_DB_NAME">Name of the MySQL database, e.g. test_db.</param>
-            <param name="s_MYSQL_DB_SERVER">Name of the server hosting the MySQL db, e.g. localhost.</param>
-            <param name="s_MYSQL_DB_PORT">Port of the MySQL database in arg 1, e.g. 3306.</param>
-            <param name="s_MYSQL_DB_USER_ID">User ID that this DBH object should use to log in to the MySQL db, e.g. test_user.</param>
-            <param name="s_CREDENTIALS_TABLE">Name of the user credentials table, e.g. user_credentials.</param>
-            <param name="s_CREDENTIALS_KEY">Key used by the user credentials table, e.g. username.</param>
-            <param name="s_PLAN_TABLE">Name of the student plan table, e.g. student_plans.</param>
-            <param name="s_PLAN_KEY">Key used by the student plan table, e.g. SID.</param>
-            <param name="s_STUDENT_DB">Path of the student database, e.g. students.db4o.</param>
-            <param name="s_COURSE_DB">Path of the course database, e.g. courses.db4o</param>
-            <param name="s_CATALOG_DB">Path of the catalog database, e.g. catalogs.db4o</param>
-            <param name="s_logFilePath">Path of the DBH log file to use, e.g. log.txt</param>
-            <param name="s_IP_ADDRESS">The IP address from where to accept TCP client requests.</param>
-            <param name="i_TCP_PORT">The TCP port on which to accept client requests.</param>
-            <remarks>Changes made by the constructor are not persistent, upon restarting, the default values will be used again.</remarks>
         </member>
         <member name="M:Database_Handler.DatabaseHandler.Main(System.String[])">
             <summary>Program entry point. Initializes program and handles fatal errors.</summary>
@@ -501,46 +479,10 @@
         <member name="M:Database_Handler.DatabaseHandler.KeepAlive">
             <summary>Keeps the DB_CONNECTION alive by accessing the DB every 2 minutes</summary>
         </member>
-        <member name="M:Database_Handler.DatabaseHandler.MakeStudentPlanTable(System.String)">
-            <summary>Creates the Student plan table in the MySQL database.</summary>
-            <param name="s_pw">The password to establish the connection with the MySQL db.</param>
-            <remarks>
-                    Calling this method will drop the table with the name stored in s_PLAN_TABLE
-                    This method will create a table with these three columns: 
-                        SID       - (key - unique, not null) type: VARCHAR(45) default: none
-                        WP        - (not null, unsigned)     type: INT(10)     default: 1
-                        start_qtr - ()                       type: VARCHAR(45) default: "" (empty string)
-                    
-                    Then, a master record will be created, this record must not be deleted, 
-                    doing so will break the table.
-                    The master record will be:
-                        SID: -1, WP: 0, start_qtr: "MASTER RECORD"
-            </remarks>
-        </member>
-        <member name="M:Database_Handler.DatabaseHandler.MakeCredentialsTable(System.String)">
-            <summary>Creates the User Credentials table in the MySQL database.</summary>
-            <param name="s_pw">The password to establish the connection with the MySQL db.</param>
-            <remarks>
-                    Calling this method will drop the table with the name stored in s_CREDENTIALS_TABLE
-                    This method will create a table with these three columns: 
-                        username      - (key - unique, not null) type: VARCHAR(45) default: none
-                        WP            - (not null, unsigned)     type: INT(10)     default: 1
-                        password      - (not null)               type: CHAR(64)    default: none
-                        admin         - (not null)               type: TINYINT(4)  default: false
-                        password_salt - (not null, unique)       type: BINARY(32)  default: none
-                        active        - (not null)               type: TINYINT(4)  default: none
-            </remarks>
-        </member>
         <member name="M:Database_Handler.DatabaseHandler.AddColumns(System.Int32)">
             <summary>Adds k columns to the student_plans table and updates the master record accordingly.</summary>
             <param name="k">Number of columns to add.</param>
             <returns>True if successful, otherwise false.</returns>
-        </member>
-        <member name="M:Database_Handler.DatabaseHandler.TestRun">
-            <summary>Test method.</summary>
-        </member>
-        <member name="M:Database_Handler.DatabaseHandler.TestData">
-            <summary>Dummy records for testing.</summary>
         </member>
         <member name="T:Database_Handler.RetrieveError">
             <summary>Exception class for an error that occurs while retrieving an object from a database.</summary>
