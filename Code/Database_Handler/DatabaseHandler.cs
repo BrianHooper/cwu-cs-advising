@@ -15,7 +15,7 @@ using IniParser.Model;
 namespace Database_Handler
 {
     /// <summary>Database Handler is the middleman between the website and the databases. It retrieves, updates, creates, and deletes database entries.</summary>
-    public sealed class DatabaseHandler
+    public sealed class DatabaseHandler : IDisposable
     {
         // Static class fields:
         /// <summary>The number of iterations for hashing the password.</summary>
@@ -83,8 +83,10 @@ namespace Database_Handler
         /// <param name="s_fileName">Path of the .ini file containing the configurations DBH should use.</param>
         public DatabaseHandler(string s_fileName)
         {
+            WriteToLog(" -- DBH Starting Constructor");
             var parser = new FileIniDataParser();
             IniData data = parser.ReadFile(s_fileName);
+            WriteToLog(" -- DBH Parser successfully opened and parsed ini file.");
 
             s_MYSQL_DB_NAME = data["MySql Connection"]["DB"];
             s_MYSQL_DB_SERVER = data["MySql Connection"]["host"];
@@ -106,6 +108,8 @@ namespace Database_Handler
             string TCPPort = data["Misc"]["TCPIP_port"];
             i_TCP_PORT = int.Parse(TCPPort);
 
+            WriteToLog(" -- DBH Imported settings.");
+
             ConnectToDB(ref pw);
             SetUp(false);
         } // end Constructor
@@ -116,7 +120,7 @@ namespace Database_Handler
         // Main:
         /// <summary>Program entry point. Initializes program and handles fatal errors.</summary>
         /// <param name="args">Unused.</param>
-        public static void Main2(string[] args)
+        public static void Main(string[] args)
         {
             WriteToLog(" -- DBH was started.");
 
@@ -125,7 +129,7 @@ namespace Database_Handler
 
             try
             {
-                i_errorCode = 0;//DBH.RunHost();
+                i_errorCode = DBH.RunHost();
 
                 switch (i_errorCode)
                 {
@@ -187,12 +191,14 @@ namespace Database_Handler
         /// <returns>Error code or 0 if application exited as expected.</returns>
         private int Run(NetworkStream stream)
         {
+            WriteToLog(" -- DBH Now in run.");
             try
             {
                 for (; ; )
                 {
+                    WriteToLog(" -- DBH Ready to execute commands, calling waitforcommand.");
                     DatabaseCommand command = WaitForCommand(stream);
-
+                    WriteToLog(" -- DBH Command received, executing it now.");
                     int i = ExecuteCommand(command, stream);
 
                     switch (i)
@@ -224,14 +230,17 @@ namespace Database_Handler
         /// <param name="client">The client this thread is responsible for.</param>
         private void RunClient(Object client)
         {
+            WriteToLog(" -- DBH New client thread started.");
             TcpClient tcpClient = (TcpClient)client;
+            WriteToLog(" -- DBH Setting up a network stream for new client.");
             NetworkStream clientStream = tcpClient.GetStream();
-
+            WriteToLog(" -- DBH Network stream setup.");
 
             int exitCode = 1;
 
             try
             {
+                WriteToLog(" -- DBH Calling run for new client.");
                 exitCode = Run(clientStream);
             } // end try
             catch (Exception e)
@@ -259,13 +268,22 @@ namespace Database_Handler
         private int RunHost()
         {
             var output = 0;
-
+            WriteToLog(" -- DBH Now in RunHost.");
             Thread stayAlive = new Thread(KeepAlive);
             stayAlive.Start();
+            WriteToLog(" -- DBH Started stay alive thread.");
 
             for (; ; )
             {
+                WriteToLog(" -- DBH Waiting for client to connect ...");
                 TcpClient newClient = tcpListener.AcceptTcpClient();
+                if(newClient == null)
+                {
+                    WriteToLog(" -- DBH The client object was null.");
+                    continue;
+                } // end if
+
+                WriteToLog(" -- DBH Client was accepted, preparing to start up thread.");
                 Thread newClientThread = new Thread(RunClient);
 
                 // if the session expires, attempt to reopen it
@@ -296,13 +314,14 @@ namespace Database_Handler
                     } // end catch
                 } // end if
 
+                WriteToLog(" -- DBH Database connection still good, starting thread now.");
                 clients.Add(newClient);
                 clientThreads.Add(newClientThread);
                 newClientThread.Start(newClient);
-
+                WriteToLog(" -- DBH Thread started, doing housekeeping.");
                 // clean up list in case any connections are gone
-                clients.RemoveAll(null);
-                clientThreads.RemoveAll(delegate (Thread t) { return t.ThreadState == ThreadState.Stopped || !t.IsAlive; });
+                //clients.RemoveAll(null);
+                //clientThreads.RemoveAll(delegate (Thread t) { return t.ThreadState == ThreadState.Stopped || !t.IsAlive; });
             } // end for
 
             return output;
@@ -319,6 +338,7 @@ namespace Database_Handler
         private int ExecuteCommand(DatabaseCommand cmd, NetworkStream stream)
         {
             DatabaseCommand output;
+            WriteToLog(" -- DBH Now in execute command.");
 
             switch (cmd.CommandType)
             {
@@ -621,26 +641,40 @@ namespace Database_Handler
         /// <returns>The command that is to be executed.</returns>
         private DatabaseCommand WaitForCommand(NetworkStream stream)
         {
+            WriteToLog(" -- DBH Now in wait for command.");
             byte[] ba_data = new byte[BUFFER_SIZE];
 
             MemoryStream ms = new MemoryStream();
 
+            WriteToLog(" -- DBH Waiting for incoming data ...");
             while (!stream.DataAvailable ) ;
+            WriteToLog(" -- DBH Data detected in stream.");
 
             // read from stream in chunks of 2048 bytes
             for (int i = 0; stream.DataAvailable; i++)
             {
-                if(stream.CanRead)
+                int bytes = 0;
+                WriteToLog(" -- DBH Reading stream contents.");
+                if (stream.CanRead)
                 {
-                    stream.Read(ba_data, i * BUFFER_SIZE, BUFFER_SIZE);
-                }
-                ms.Write(ba_data, i * BUFFER_SIZE, BUFFER_SIZE);
+                    WriteToLog(" -- DBH Stream is in readable state.");
+                    bytes = stream.Read(ba_data, 0, BUFFER_SIZE);
+                } // end if
+                WriteToLog(" -- DBH Writing stream contents, received " + bytes + "  bytes.");
+                ms.Write(ba_data, 0, bytes);
             } // end for
+            WriteToLog(" -- DBH Received " + ms.Length.ToString() + " bytes.");
 
+
+            WriteToLog(" -- DBH Deserializing command now.");
             BinaryFormatter formatter = new BinaryFormatter();
 
-            DatabaseCommand cmd = (DatabaseCommand)formatter.Deserialize(ms);
+            ms.Position = 0;
 
+            DatabaseCommand cmd = (DatabaseCommand)formatter.Deserialize(ms);
+            WriteToLog(" -- DBH Command was deserialized.");
+            WriteToLog(" -- DBH Command Contents: " + cmd.ToString());
+            WriteToLog(" -- DBH Returning command now.");
             return cmd;
         } // end method WaitForCommand
 
@@ -742,31 +776,36 @@ namespace Database_Handler
                 } // end if
             } // end if
 
+            WriteToLog(" -- DBH Setup started.");
+
             // RNG for salt creation
             RNG = new RNGCryptoServiceProvider();
 
             // TCP setup
-
             if (s_IP_ADDRESS == "Any")
             {
                 address = IPAddress.Any;
+                WriteToLog(" -- DBH Is accepting data from any client.");
             } // end if
             else
             {
                 address = IPAddress.Parse(s_IP_ADDRESS);
+                WriteToLog(" -- DBH Is only acception connections from IP " + s_IP_ADDRESS);
             } // end else
 
+            WriteToLog(" -- DBH Creating a tcp listener on: " + address.ToString() + ":" + i_TCP_PORT.ToString());
             tcpListener = new TcpListener(address, i_TCP_PORT);
-
+            WriteToLog(" -- DBH Created a tcp listener on: " + address.ToString() + ":" + i_TCP_PORT.ToString());
 
             // retrieve master record from MySql db
             MySqlCommand cmd = GetCommand("-1", 'S', s_PLAN_TABLE, s_PLAN_KEY, "*");
-
+            WriteToLog(" -- DBH Attempting to retrieve master record.");
             MySqlLock.WaitOne();
             MySqlDataReader reader = cmd.ExecuteReader();
 
             if (reader.HasRows)
             {
+                WriteToLog(" -- DBH Master record found.");
                 reader.Read();
                 ui_COL_COUNT = reader.GetUInt32(1);
                 reader.Close();
@@ -774,18 +813,20 @@ namespace Database_Handler
             } // end if
             else
             {
+                WriteToLog(" -- DBH Master record not found.");
                 reader.Close();
                 MySqlLock.ReleaseMutex();
                 WriteToLog(" -- DBH Setup failed because the master record was not found in " + s_MYSQL_DB_NAME + "." + s_PLAN_TABLE);
                 throw new Exception("Database set up failed because the master record was not found in: " + s_MYSQL_DB_NAME + "." + s_PLAN_TABLE);
             } // end else
 
+            WriteToLog(" -- DBH Setting up thread and client lists.");
             clientThreads = new List<Thread>();
             clients = new List<TcpClient>();
-
+            WriteToLog(" -- DBH Preparing tcp listener.");
             // start listening for connection attempts
             tcpListener.Start();
-
+            WriteToLog(" -- DBH Tcp listener is now running.");
             return 0;
         } // end method SetUp
 
@@ -1905,7 +1946,7 @@ namespace Database_Handler
             string s_connStr = "server=" + s_MYSQL_DB_SERVER + ";port=" + s_MYSQL_DB_PORT + ";database=" +
                                s_MYSQL_DB_NAME + ";user id=" + s_MYSQL_DB_USER_ID + ";password=" + s_pw +
                                ";persistsecurityinfo=True;";
-
+            WriteToLog(" -- DBH Connecting to MySQL now.");
             //"server=<TBD>;port=<TBD>;database=<DB>;user id=<TBD>;password=<TBD>;persistsecurityinfo=True;"
             MySqlConnection connection = new MySqlConnection(s_connStr);
 
@@ -1913,6 +1954,7 @@ namespace Database_Handler
             try
             {
                 connection.Open();
+                WriteToLog(" -- DBH Successfully opened connection with MySQL.");
             } // end try
             catch (Exception e)
             {
@@ -2011,5 +2053,48 @@ namespace Database_Handler
 
             return output;
         } // end method AddColumns
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        void Dispose(bool disposing)
+        {
+            WriteToLog(" -- DBH is beginning cleanup.");
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    CleanUp();
+                } // end if
+
+                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+                // TODO: set large fields to null.
+
+
+                tcpListener = null;
+                DB_CONNECTION = null;
+
+                disposedValue = true;
+
+                WriteToLog(" -- DBH is finished cleaning up.");
+            } // end if
+        } // end Dispose
+
+        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        // ~DatabaseHandler() {
+        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+        //   Dispose(false);
+        // }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // TODO: uncomment the following line if the finalizer is overridden above.
+            // GC.SuppressFinalize(this);
+        } // end Dispose
+        #endregion
+
     } // end Class DatabaseHandler
 } // end Namespace Database_Handler

@@ -10,7 +10,8 @@
         "dependencies": {
           "MySql.Data": "6.10.5",
           "ini-parser": "2.5.2",
-          "Database_Classes": "1.0.0.0"
+          "Database_Classes": "1.0.0.0",
+          "Db4objects.Db4o": "8.0.276.16149"
         },
         "runtime": {
           "Database_Handler.dll": {}
@@ -201,6 +202,11 @@
         "runtime": {
           "Database_Classes.dll": {}
         }
+      },
+      "Db4objects.Db4o/8.0.276.16149": {
+        "runtime": {
+          "Db4objects.Db4o.dll": {}
+        }
       }
     }
   },
@@ -365,6 +371,11 @@
       "hashPath": "system.threading.tasks.4.0.11.nupkg.sha512"
     },
     "Database_Classes/1.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Db4objects.Db4o/8.0.276.16149": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""

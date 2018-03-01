@@ -157,5 +157,42 @@ namespace Database_Handler
 
         /// <summary>Getter for the operand.</summary>
         public object Operand => o_operand;
+
+        public override string ToString()
+        {
+            string str = "Command type: ";
+
+            switch(CommandType)
+            {
+                case CommandType.Retrieve:
+                    str += "Retrieve\n";
+                    break;
+                case CommandType.Return:
+                    str += "Return\n";
+                    str += "Return Code: ";
+                    str += ReturnCode;
+                    str += "\nError Message: ";
+                    str += ErrorMessage;
+                    str += "\n";
+                    return str;
+            }
+
+            str += "Operand type: ";
+
+            switch(OperandType)
+            {
+                case OperandType.Student:
+                    str += "Student";
+                    str += "Operand: \n";
+                    str += ((Student)Operand).ToString();
+                    break;
+                case OperandType.Credentials:
+                    str += "Credentials";
+                    str += ((Credentials)Operand).ToString();
+                    break;
+            }
+
+            return str;
+        }
     } // end Class DatabaseCommand
 } // end namespace Database_Handler
