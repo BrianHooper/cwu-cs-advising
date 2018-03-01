@@ -19,7 +19,8 @@ namespace CwuAdvising
         /// <summary>Interface for accessing the database</summary>
         public static DatabaseInterface Database = new DatabaseInterface(ConfigPath);
 
-        public DatabaseInterface get => Database;
+        /// <summary>Database getter</summary>
+        public DatabaseInterface Get => Database;
 
         /// <summary>Main method</summary>
         /// <param name="args">Arugments</param>
