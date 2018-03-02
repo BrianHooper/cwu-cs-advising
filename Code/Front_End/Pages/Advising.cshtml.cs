@@ -17,7 +17,7 @@ namespace CwuAdvising.Pages
     public class AdvisingModel : PageModel
     {
         /// <summary>Example JSON for testing</summary>
-        public static string ExampleSchedule = System.IO.File.ReadAllText("wwwroot/EmptyPlan.json");
+        public static string ExampleSchedule = System.IO.File.ReadAllText("wwwroot/SimplePlan.json");
 
         /// <summary>Current student loaded to advising page</summary>
         public static StudentModel CurrentStudent { get; set; }
@@ -145,13 +145,13 @@ namespace CwuAdvising.Pages
                 if (requestBody.Length > 0)
                 {
                     var scheduleModel = JsonConvert.DeserializeObject<ScheduleModel>(requestBody);
-                    CallSchedulingAlgorithm(scheduleModel);
 
-                    // Simulate the algorithm taking a while
-                    System.Threading.Thread.Sleep(10000);
-
-
-                    return new JsonResult(LoadBaseCase());
+                    // Pass the schedule to the algorithm
+                    //ScheduleModel GeneratedSchedule = CallSchedulingAlgorithm(scheduleModel);
+                    //string JsonSchedule = JsonConvert.SerializeObject(GeneratedSchedule);
+                    
+                    string JsonSchedule = JsonConvert.SerializeObject(scheduleModel);
+                    return new JsonResult(JsonSchedule);
                 }
                 else
                 {
@@ -318,15 +318,63 @@ namespace CwuAdvising.Pages
         /// and passes them to the scheduling algorithm
         /// </summary>
         /// <param name="model">ScheduleModel from the client</param>
-        /// <returns>Schedule from the scheduling algorithm</returns>
-        public static Schedule CallSchedulingAlgorithm(ScheduleModel model)
+        /// <returns>ScheduleModel from the scheduling algorithm</returns>
+        public static ScheduleModel CallSchedulingAlgorithm(ScheduleModel model)
         {
             Schedule ConvertedScheduleModel = ScheduleModelToSchedule(model);
-            //List<Course> RemainingRequirements = ScheduleModelToRemainingRequirements(model);
-            //Algorithm.Generate(RemainingRequirements, ConvertedScheduleModel, model.Constraints.MinCredits, model.Constraints.MaxCredits, model.Constraints.TakingSummer);
+            List<Course> RemainingRequirements = ScheduleModelToRemainingRequirements(model);
 
+            Schedule GeneratedSchedule = Algorithm.Generate(RemainingRequirements, ConvertedScheduleModel, 
+                model.Constraints.MinCredits, model.Constraints.MaxCredits, model.Constraints.TakingSummer);
+
+            ScheduleModel GeneratedModel = ScheduleToScheduleModel(GeneratedSchedule, model);
             
-            return null;
+            return GeneratedModel;
+        }
+
+
+        /// <summary>Converts a schedule object, used by the algorithm, to a ScheduleModel object. </summary>
+        /// <param name="schedule"></param>
+        /// <param name="oldModel"></param>
+        /// <returns></returns>
+        public static ScheduleModel ScheduleToScheduleModel(Schedule schedule, ScheduleModel oldModel)
+        {
+            if(schedule.previousQuarter != null)
+            {
+                do
+                {
+                    schedule = schedule.previousQuarter;
+                } while (schedule.previousQuarter != null);
+            }
+
+
+            ScheduleModel model = new ScheduleModel
+            {
+                Constraints = oldModel.Constraints,
+                UnmetRequirements = new List<Requirement>()
+            };
+
+            List<ModelQuarter> QuarterList = new List<ModelQuarter>();
+            while (schedule != null)
+            {
+                ModelQuarter quarter = new ModelQuarter
+                {
+                    Title = schedule.quarterName.ToString(),
+                    Locked = schedule.locked,
+                    Courses = new List<Requirement>()
+                };
+
+                foreach (Course course in schedule.courses)
+                {
+                    quarter.Courses.Add(Requirement.CourseToRequirement(course));
+                }
+                QuarterList.Add(quarter);
+                schedule = schedule.NextQuarter;
+            }
+
+            model.Quarters = QuarterList;
+
+            return model;
         }
     }
 }

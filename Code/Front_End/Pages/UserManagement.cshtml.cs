@@ -8,6 +8,7 @@ using CwuAdvising.Models;
 using Database_Object_Classes;
 using Newtonsoft.Json;
 using System.IO;
+using System.ComponentModel.DataAnnotations;
 
 namespace CwuAdvising.Pages
 {
@@ -20,10 +21,12 @@ namespace CwuAdvising.Pages
         /// <summary>Read all credentials from the database to the MasterUserList</summary>
         public void ReadDatabase()
         {
-            List<Credentials> UserList = new List<Credentials>();
-            UserList.Add(new Credentials("root", 0, true, true, new byte[] { 0x20, 0x20 }, ""));
-            UserList.Add(new Credentials("user1", 0, false, true, new byte[] { 0x20, 0x20 }, ""));
-            UserList.Add(new Credentials("user2", 0, true, false, new byte[] { 0x20, 0x20 }, ""));
+            List<Credentials> UserList = new List<Credentials>
+            {
+                new Credentials("root", 0, true, true, new byte[] { 0x20, 0x20 }, ""),
+                new Credentials("user1", 0, false, true, new byte[] { 0x20, 0x20 }, ""),
+                new Credentials("user2", 0, true, false, new byte[] { 0x20, 0x20 }, "")
+            };
             MasterUserList = UserList;
         }
 
@@ -97,6 +100,63 @@ namespace CwuAdvising.Pages
                 {
                     return new JsonResult("Error passing data to server.");
                 }
+            }
+        }
+
+        /// <summary></summary>
+        public class CreateUserModel
+        {
+            /// <summary>Username</summary>
+            [Required]
+            public string Username { get; set; }
+
+            /// <summary>Password 1</summary>
+            [Required]
+            public string PasswordOne { get; set; }
+
+            /// <summary>Password 2</summary>
+            [Required]
+            public string PasswordTwo { get; set; }
+        }
+
+        /// <summary>Error message for Create User form</summary>
+        public static string CreateUserErrorMessage { get; set; } = "";
+
+        /// <summary>Binds the LoginModel to a Login object for POST</summary>
+        [BindProperty]
+        public CreateUserModel CreateUser { get; set; }
+
+        /// <summary>Recieve login information</summary>
+        /// <returns>Redirects to StudentAdvising if logging in is successful</returns>
+        public IActionResult OnPost()
+        {
+            if (!ModelState.IsValid)
+            {
+                return Page(); // Form validation failed
+            }
+
+            /*
+            if (!Program.Database.connected)
+            {
+                CreateUserErrorMessage = "Error, database connection failed.";
+                return Page();
+            }
+            */
+            string username = CreateUser.Username;
+
+            string password1 = CreateUser.PasswordOne;
+            string password2 = CreateUser.PasswordTwo;
+
+            if(password1 != password2)
+            {
+                CreateUserErrorMessage = "Error, passwords do not match.";
+                return Page();
+            }
+            else
+            {
+                // If username is already taken
+                CreateUserErrorMessage = "Error, invalid username or password.";
+                return Page();
             }
         }
     }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Database_Object_Classes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -41,6 +42,30 @@ namespace CwuAdvising.Models
             /// Representing "Winter Spring Summer Fall"
             /// </summary>
             public string Offered { get; set; }
+
+            /// <summary>Converts a Course object to a Requirement object</summary>
+            /// <param name="course">The Course to be converted</param>
+            /// <returns>The Requirement corresponding to the given Course</returns>
+            public static Requirement CourseToRequirement(Course course)
+            {
+                Requirement requirement = new Requirement
+                {
+                    Title = course.ID,
+                    Credits = course.Credits.ToString(),
+                    Offered = ""
+                };
+
+                if (course.IsOffered(Season.Winter))
+                    requirement.Offered += "1";
+                if (course.IsOffered(Season.Spring))
+                    requirement.Offered += "2";
+                if (course.IsOffered(Season.Summer))
+                    requirement.Offered += "3";
+                if (course.IsOffered(Season.Fall))
+                    requirement.Offered += "4";
+
+                return requirement;
+            }
         }
 
         /// <summary>
