@@ -591,8 +591,11 @@ $(document).on("click", "#LoadBaseCaseButton", function () {
 
 // Generate button click
 $(document).on("click", "#SaveButton", function () {
+    SaveSchedule();
+});
+
+function SaveSchedule() {
     var ScheduleJson = StringifySchedule();
-    console.log(ScheduleJson);
     // Pass schedule to the server
     $.ajax({
         type: "POST",
@@ -608,7 +611,7 @@ $(document).on("click", "#SaveButton", function () {
             console.log(three);
         }
     });
-});
+}
 
 // Generate button click
 $(document).on("click", "#SaveBaseCaseButton", function () {
@@ -650,4 +653,9 @@ $(document).on("click", "#PrintButton", function () {
             console.log(three);
         }
     });
+});
+
+$(document).on("click", "#PrintButton", function () {
+    SaveSchedule();
+    window.open("Print");
 });
