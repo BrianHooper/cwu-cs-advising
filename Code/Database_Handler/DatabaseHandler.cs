@@ -19,104 +19,112 @@ namespace Database_Handler
     {
         #region Static fields
 
-        #region General
-        /// <summary>The number of iterations for hashing the password.</summary>
-        public static int i_HASH_ITERATIONS = 10000;
+            #region General
 
-        /// <summary>The path to the log file which will contain the log entries created by DBH.</summary>
-        public static string s_logFilePath = "log.txt";
-        #endregion
+            /// <summary>The number of iterations for hashing the password.</summary>
+            public static int i_HASH_ITERATIONS = 10000;
 
-        #region Mutex Locks
-        /// <summary>Mutex locks for databases.</summary>
-        private static Mutex MySqlLock = new Mutex();
-        private static Mutex StudentLock = new Mutex();
-        private static Mutex CatalogLock = new Mutex();
-        private static Mutex CourseLock = new Mutex();
-        private static Mutex LogLock = new Mutex();
-        #endregion
+            /// <summary>The path to the log file which will contain the log entries created by DBH.</summary>
+            public static string s_logFilePath = "log.txt";
+
+            #endregion
+
+            #region Mutex Locks
+
+            /// <summary>Mutex locks for databases.</summary>
+            private static Mutex MySqlLock = new Mutex();
+            private static Mutex StudentLock = new Mutex();
+            private static Mutex CatalogLock = new Mutex();
+            private static Mutex CourseLock = new Mutex();
+            private static Mutex LogLock = new Mutex();
+
+            #endregion
 
         #endregion
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
         #region Class fields
 
-        #region Readonly/Const
+            #region Readonly/Const
 
-        #region MySQL Database Info
-        private readonly string s_MYSQL_DB_NAME = "test_db";
-        private readonly string s_MYSQL_DB_SERVER = "localhost";
-        private readonly string s_MYSQL_DB_PORT = "3306";
-        private readonly string s_MYSQL_DB_USER_ID = "testuser";
+            #region MySQL
+
+            #region MySQL Database Info
+            private readonly string s_MYSQL_DB_NAME = "test_db";
+            private readonly string s_MYSQL_DB_SERVER = "localhost";
+            private readonly string s_MYSQL_DB_PORT = "3306";
+            private readonly string s_MYSQL_DB_USER_ID = "testuser";
+            #endregion
+
+            #region MySQL Tables
+            private readonly string s_CREDENTIALS_TABLE = "user_credentials";
+            private readonly string s_STUDENTS_TABLE = "students";
+            private readonly string s_CATALOGS_TABLE = "catalogs";
+            private readonly string s_DEGREES_TABLE = "degrees";
+            private readonly string s_COURSES_TABLE = "courses";
+            private readonly string s_PLAN_TABLE = "student_plans";
+            #endregion
+
+            #region DB4O Database strings
+            private readonly string s_STUDENT_DB = "Students.db4o";
+            private readonly string s_COURSE_DB = "Courses.db4o";
+            private readonly string s_CATALOG_DB = "Catalogs.db4o";
+            #endregion
+
+            #region MySQL table keys
+            private readonly string s_CREDENTIALS_KEY = "username";
+            private readonly string s_STUDENTS_KEY = "SID";
+            private readonly string s_CATALOGS_KEY = "catalog_year";
+            private readonly string s_DEGREES_KEY = "degree_id";
+            private readonly string s_COURSES_KEY = "course_id";
+            private readonly string s_PLAN_KEY = "SID";
         #endregion
 
-        #region MySQL Tables
-        private readonly string s_CREDENTIALS_TABLE = "user_credentials";
-        private readonly string s_STUDENTS_TABLE = "students";
-        private readonly string s_CATALOGS_TABLE = "catalogs";
-        private readonly string s_DEGREES_TABLE = "degrees";
-        private readonly string s_COURSES_TABLE = "courses";
-        private readonly string s_PLAN_TABLE = "student_plans";
-        #endregion
+            #endregion
 
-        #region DB4O Database strings
-        private readonly string s_STUDENT_DB = "Students.db4o";
-        private readonly string s_COURSE_DB = "Courses.db4o";
-        private readonly string s_CATALOG_DB = "Catalogs.db4o";
-        #endregion
-
-        #region MySQL table keys
-        private readonly string s_CREDENTIALS_KEY = "username";
-        private readonly string s_STUDENTS_KEY = "SID";
-        private readonly string s_CATALOGS_KEY = "catalog_year";
-        private readonly string s_DEGREES_KEY = "degree_id";
-        private readonly string s_COURSES_KEY = "course_id";
-        private readonly string s_PLAN_KEY = "SID";
-        #endregion
-
-        #region TCP info
-        private readonly string s_IP_ADDRESS = "127.0.0.1";
+            #region TCP info
+            private readonly string s_IP_ADDRESS = "127.0.0.1";
         
-        private readonly int i_TCP_PORT = 44765;
-        #endregion
+            private readonly int i_TCP_PORT = 44765;
+            #endregion
 
-        #region General
-        private const int i_SALT_LENGTH = 32;
-        private const int BUFFER_SIZE = 2048;
-        #endregion
+            #region General
+            private const int i_SALT_LENGTH = 32;
+            private const int BUFFER_SIZE = 2048;
+            #endregion
 
-        #endregion
+            #endregion
 
-        #region Privates
+            #region Privates
 
-        #region MySQL Connection/Info
-        /// <summary>The length of the longest plan in the s_PLAN_TABLE mysql table, stored in the master record.</summary>
-        private uint ui_COL_COUNT;
+            #region MySQL Connection/Info
+            /// <summary>The length of the longest plan in the s_PLAN_TABLE mysql table, stored in the master record.</summary>
+            private uint ui_COL_COUNT;
 
-        /// <summary>The master connection to the MySql database, which should never be closed, except during cleanup.</summary>
-        private MySqlConnection DB_CONNECTION;
-        #endregion
+            /// <summary>The master connection to the MySql database, which should never be closed, except during cleanup.</summary>
+            private MySqlConnection DB_CONNECTION;
+            #endregion
 
-        #region General
-        /// <summary>A RNG for building password salts.</summary>
-        private RNGCryptoServiceProvider RNG;
-        #endregion
+            #region General
+            /// <summary>A RNG for building password salts.</summary>
+            private RNGCryptoServiceProvider RNG;
+            #endregion
 
-        #region TCP Connection/Info
-        /// <summary>The main Tcp Listener used to talk with clients.</summary>
-        private TcpListener tcpListener;
+            #region TCP Connection/Info
+            /// <summary>The main Tcp Listener used to talk with clients.</summary>
+            private TcpListener tcpListener;
 
-        /// <summary>Localhost IP address for the Tcp Socket</summary>
-        private IPAddress address;
+            /// <summary>Localhost IP address for the Tcp Socket</summary>
+            private IPAddress address;
 
-        /// <summary>List of all client threads currently running.</summary>
-        private List<Thread> clientThreads;
+            /// <summary>List of all client threads currently running.</summary>
+            private List<Thread> clientThreads;
 
-        /// <summary>List of all clients currently connected to DBH.</summary>
-        private List<TcpClient> clients;
-        #endregion
+            /// <summary>List of all clients currently connected to DBH.</summary>
+            private List<TcpClient> clients;
+            #endregion
 
-        #endregion
+            #endregion
 
         #endregion
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -751,7 +759,7 @@ namespace Database_Handler
         #endregion
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
-        #region Management
+        #region DBH Management
         /// <summary>Logs the DBH into the MySQL database.</summary>
         /// <returns>True if successful, false otherwise.</returns>
         private bool Login()
@@ -896,17 +904,6 @@ namespace Database_Handler
                 t.Abort();
             } // end foreach
         } // end method CleanUp
-
-        /// <summary>Creates a random 256 bit salt for login credentials.</summary>
-        /// <returns>A byte array filled with a random sequence of bytes.</returns>
-        private byte[] GetPasswordSalt()
-        {
-            byte[] ba_salt = new byte[i_SALT_LENGTH];
-
-            RNG.GetNonZeroBytes(ba_salt);
-
-            return ba_salt;
-        } // end method GetPasswordSalt
 
         /// <summary>Writes the given message into the DBH log with a current time stamp.</summary>
         /// <param name="s_msg">The message to log.</param>
@@ -1352,7 +1349,9 @@ namespace Database_Handler
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
         #region MySQL methods
-        // MySQL retrieve methods:
+        
+        #region MySQL Retrieve
+        
         /// <summary>Retrieves the requested student plan information from the database.</summary>
         /// <param name="s_ID">The key associated with the requested plan.</param>
         /// <returns>A PlanInfo structure containing the requested info.</returns>
@@ -1516,7 +1515,41 @@ namespace Database_Handler
 
                 if (reader.HasRows)
                 {
+                    uint ui_WP = reader.GetUInt32(1),
+                         ui_numDegrees = reader.GetUInt32(2);
 
+                    List<string> l_degrees = new List<string>();
+
+                    for(int i = 0; i < ui_numDegrees; i++)
+                    {
+                        if(reader.FieldCount > (ui_numDegrees + 2))
+                        {
+                            l_degrees.Add(reader.GetString(i + 2));
+                        } // end if
+                    } // end for
+
+                    reader.Close();
+                    MySqlLock.ReleaseMutex();
+
+                    List<DegreeRequirements> requs = new List<DegreeRequirements>();
+
+                    foreach (string s in l_degrees)
+                    {
+                        try
+                        {
+                            requs.Add(RetrieveDegree(s));
+                        } // end try
+                        catch (KeyNotFoundException)
+                        {
+                            WriteToLog(" -- DBH The catalog " + s_ID + " contains a reference to the degree " + s + " but this degree does not exist in the database.");
+                        } // end catch
+                        catch (Exception e)
+                        {
+                            WriteToLog(" -- DBH Retrieve catalog encountered an error. Msg: " + e.Message );
+                        } // end catch
+                    } // end foreach
+
+                    catalog = new CatalogRequirements(s_ID, requs);
                 } // end if
                 else
                 {
@@ -1525,12 +1558,14 @@ namespace Database_Handler
             } // end try
             catch (KeyNotFoundException e)
             {
+                MySqlLock.ReleaseMutex();
                 throw e;
             } // end catch
             catch (Exception e)
             {
                 WriteToLog(" -- DBH retrieve catalog encountered an unknown error. Msg: " + e.Message);
                 WriteToLog(" -- DBH ignoring error, and throwing key not found. Msg: " + e.Message);
+                MySqlLock.ReleaseMutex();
                 throw new KeyNotFoundException(s_ID);
             } // end catch
             finally
@@ -1539,19 +1574,18 @@ namespace Database_Handler
                 {
                     reader.Close();
                 } // end if
-
-                MySqlLock.ReleaseMutex();
             } // end finally
-            
+
+            return catalog;
         } // end method RetrieveCatalog
 
         /// <summary>Retrieves the list of degrees associated with a given catalog.</summary>
         /// <param name="s_ID">The ID of the catalog to which the degrees belong.</param>
         /// <returns>A list of DegreeRequirement structures associated with the given degree.</returns>
         /// <exception cref="KeyNotFoundException">Thrown if the key passed in arg 1 does not exist in the database.</exception>
-        private List<DegreeRequirements> RetrieveDegrees(string s_ID)
+        private DegreeRequirements RetrieveDegree(string s_ID)
         {
-            List<DegreeRequirements> degrees;
+            DegreeRequirements degree;
 
             MySqlDataReader reader = null;
 
@@ -1566,6 +1600,40 @@ namespace Database_Handler
 
                 if (reader.HasRows)
                 {
+                    uint ui_WP = reader.GetUInt32(1),
+                         ui_numCourses = reader.GetUInt32(2);
+
+                    List<string> l_courses = new List<string>();
+
+                    for(int i = 0; i < ui_numCourses; i++)
+                    {
+                        if(reader.FieldCount > (ui_numCourses + 2))
+                        {
+                            l_courses.Add(reader.GetString(i + 2));
+                        } // end if
+                    } // end for
+
+                    reader.Close();
+                    MySqlLock.ReleaseMutex();
+
+                    List<Course> requs = new List<Course>();
+
+                    foreach (string s in l_courses)
+                    {
+                        try
+                        {
+                            requs.Add(RetrieveCourse(s, false));
+                        } // end try
+                        catch (KeyNotFoundException)
+                        {
+                            WriteToLog(" -- DBH The degree " + s_ID + " contains a reference to the course " + s + " but this course does not exist in the database.");
+                        } // end catch
+                        catch (Exception e)
+                        {
+                            WriteToLog(" -- DBH Retrieve degree encountered an error. Msg: " + e.Message);
+                        } // end catch
+                    } // end foreach
+
 
                 } // end if
                 else
@@ -1575,12 +1643,14 @@ namespace Database_Handler
             } // end try
             catch (KeyNotFoundException e)
             {
+                MySqlLock.ReleaseMutex();
                 throw e;
             } // end catch
             catch (Exception e)
             {
-                WriteToLog(" -- DBH retrieve degrees encountered an unknown error. Msg: " + e.Message);
+                WriteToLog(" -- DBH retrieve degree encountered an unknown error. Msg: " + e.Message);
                 WriteToLog(" -- DBH ignoring error, and throwing key not found. Msg: " + e.Message);
+                MySqlLock.ReleaseMutex();
                 throw new KeyNotFoundException(s_ID);
             } // end catch
             finally
@@ -1589,8 +1659,6 @@ namespace Database_Handler
                 {
                     reader.Close();
                 } // end if
-
-                MySqlLock.ReleaseMutex();
             } // end finally
 
 
@@ -1672,7 +1740,7 @@ namespace Database_Handler
         /// A shallow course object does not contain a list of course prerequisites, but rather a list of strings
         /// with the IDs of all prerequisites.                     
         /// </remarks>
-        private Course RetrieveCourse(string s_ID, bool b_shallow)
+        private Course RetrieveCourse(string s_ID, bool b_shallow, uint depth)
         {
             Course course;
 
@@ -1715,7 +1783,7 @@ namespace Database_Handler
                     } // end for
 
                     reader.Close();
-                    MySqlLock.ReleaseMutex();
+                    MySqlLock.ReleaseMutex();                    
 
                     if (!b_shallow)
                     {
@@ -1723,7 +1791,7 @@ namespace Database_Handler
 
                         foreach (string s in ls_preRequs)
                         {
-                            lc_prerequs.Add(RetrieveCourse(s, false));
+                            lc_prerequs.Add(RetrieveCourse(s, false, depth));
                         } // end foreach
 
                         course = new Course(s_courseName, s_ID, ui_credits, false, ba_offered, lc_prerequs);
@@ -1761,9 +1829,10 @@ namespace Database_Handler
             return course;
         } // end method RetrieveCourse
 
+        #endregion
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
-        // MySQL update methods:
+        #region MySQL Update
         /// <summary>Updates a student plan in the MySQL database.</summary>
         /// <param name="plan">The plan to update.</param>
         /// <returns>True if successful, otherwise false.</returns>
@@ -1911,6 +1980,19 @@ namespace Database_Handler
             return output;
         } // end method Update
 
+        /// <summary>Updates a course in the MySQL database.</summary>
+        /// <param name="course">The course to update.</param>
+        /// <returns>0 or an error code.</returns>
+        private int Update(Course course)
+        {
+
+        } // end method Update
+
+        #endregion
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
+
+        #region MySQL User Management
+
         /// <summary>Creates a new user with the specified properties.</summary>
         /// <param name="credentials">Should contain the username, and isAdmin fields. Others will be ignored.</param>
         /// <returns>True if creation was successful, false otherwise.</returns>
@@ -2010,7 +2092,22 @@ namespace Database_Handler
             return 0;
         } // end method ChangeUserStatus
 
-        // MySQL delete methods:
+        /// <summary>Creates a random 256 bit salt for login credentials.</summary>
+        /// <returns>A byte array filled with a random sequence of bytes.</returns>
+        private byte[] GetPasswordSalt()
+        {
+            byte[] ba_salt = new byte[i_SALT_LENGTH];
+
+            RNG.GetNonZeroBytes(ba_salt);
+
+            return ba_salt;
+        } // end method GetPasswordSalt
+
+        #endregion
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
+
+        #region MySQL Delete
+
         /// <summary>Deletes a record from the credentials database.</summary>
         /// <param name="cred">The user to delete.</param>
         /// <returns>0 or error code.</returns>
@@ -2037,7 +2134,7 @@ namespace Database_Handler
             } // end finally
 
             return output;
-        } // end method DeleteRecord
+        } // end method DeleteRecord(Credentials)
 
         /// <summary>Deletes a record from the graduation plan database.</summary>
         /// <param name="plan">The plan to delete.</param>
@@ -2065,12 +2162,94 @@ namespace Database_Handler
             } // end finally
 
             return output;
-        } // end method DeleteRecord
+        } // end method DeleteRecord(PlanInfo)
 
+        /// <summary>Deletes a record from the student database.</summary>
+        /// <param name="student">The student to delete.</param>
+        /// <returns>0 or error code.</returns>
+        private int DeleteRecord(Student student)
+        {
+            MySqlCommand cmd = GetCommand(student.ID, 'D', s_STUDENTS_TABLE, s_STUDENTS_KEY);
 
+            var output = 1;
+
+            try
+            {
+                MySqlLock.WaitOne();
+                cmd.ExecuteNonQuery();
+                output = 0;
+            } // end try
+            catch (Exception e)
+            {
+                WriteToLog(" -- DBH could not delete the student " + student.ID + ". Msg: " + e.Message);
+            } // end catch
+            finally
+            {
+                MySqlLock.ReleaseMutex();
+            } // end finally
+
+            return output;
+        } // end method DeleteRecord(Student)
+
+        /// <summary>Deletes a record from the course database.</summary>
+        /// <param name="course">The plan to course.</param>
+        /// <returns>0 or error code.</returns>
+        private int DeleteRecord(Course course)
+        {
+            MySqlCommand cmd = GetCommand(course.ID, 'D', s_COURSES_TABLE, s_COURSES_KEY);
+
+            var output = 1;
+
+            try
+            {
+                MySqlLock.WaitOne();
+                cmd.ExecuteNonQuery();
+                output = 0;
+            } // end try
+            catch (Exception e)
+            {
+                WriteToLog(" -- DBH could not delete the course " + course.ID + ". Msg: " + e.Message);
+            } // end catch
+            finally
+            {
+                MySqlLock.ReleaseMutex();
+            } // end finally
+
+            return output;
+        } // end method DeleteRecord(Course)
+
+        /// <summary>Deletes a record from the catalog database.</summary>
+        /// <param name="catalog">The catalog to delete.</param>
+        /// <returns>0 or error code.</returns>
+        private int DeleteRecord(CatalogRequirements catalog)
+        {
+            MySqlCommand cmd = GetCommand(catalog.ID, 'D', s_CATALOGS_TABLE, s_CATALOGS_KEY);
+
+            var output = 1;
+
+            try
+            {
+                MySqlLock.WaitOne();
+                cmd.ExecuteNonQuery();
+                output = 0;
+            } // end try
+            catch (Exception e)
+            {
+                WriteToLog(" -- DBH could not delete the catalog " + catalog.ID + ". Msg: " + e.Message);
+            } // end catch
+            finally
+            {
+                MySqlLock.ReleaseMutex();
+            } // end finally
+
+            return output;
+        } // end method DeleteRecord(Catalog)
+
+        #endregion
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
-        // MySQL query generator methods:
+        #region MySQL query generator methods:
+
         /// <summary>Creates an insert query based on the input.</summary>
         /// <param name="s_table">Table to insert to.</param>
         /// <param name="s_values">Values for the new row.</param>
@@ -2265,10 +2444,11 @@ namespace Database_Handler
             return cmd;
         } // end method GetCommand
 
-
+        #endregion
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
-        // MySQL Database control methods:
+        #region MySQL Database control
+
         /// <summary>Connects to the MySQL database and initializes the class field DB_CONNECTION.</summary>
         /// <param name="s_pw">The password for the MySQL database.</param>
         /// <returns>True if login was successful, otherwise false.</returns>
@@ -2385,6 +2565,9 @@ namespace Database_Handler
 
             return output;
         } // end method AddColumns
+
+        #endregion
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
         #endregion
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
