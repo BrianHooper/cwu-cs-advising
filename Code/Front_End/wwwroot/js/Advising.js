@@ -375,7 +375,14 @@ function AddCredits() {
             });
         });
         if (credits > 0) {
-            $(this).append('<div class="TotalCredits CenterFlex">Total Credits: ' + credits + '</div>');
+            var CreditsDiv = $("<div></div>");
+            CreditsDiv.text(credits);
+            CreditsDiv.attr("class", "TotalCredits CenterFlex");
+            console.log(credits + " -- " + parseInt($("#MaxCredits").val()));
+            if (credits > parseInt($("#MaxCredits").val())) {
+                CreditsDiv.attr("style", "font-weight: bold; background-color: #ff7070;");
+            } 
+            $(this).append(CreditsDiv);
         }
     });
 }
@@ -591,10 +598,10 @@ $(document).on("click", "#LoadBaseCaseButton", function () {
 
 // Generate button click
 $(document).on("click", "#SaveButton", function () {
-    SaveSchedule();
+    SaveSchedule(true);
 });
 
-function SaveSchedule() {
+function SaveSchedule(feedback) {
     var ScheduleJson = StringifySchedule();
     // Pass schedule to the server
     $.ajax({
@@ -605,10 +612,16 @@ function SaveSchedule() {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (response) {
-            return false;
+            if (feedback) {
+                if (response) {
+                    alert("Schedule saved!");
+                } else {
+                    alert("Saving schedule failed, check database connection.");
+                }
+            }
         },
         error: function (one, two, three) {
-            console.log(three);
+            return false;
         }
     });
 }
@@ -656,6 +669,11 @@ $(document).on("click", "#PrintButton", function () {
 });
 
 $(document).on("click", "#PrintButton", function () {
-    SaveSchedule();
+    SaveSchedule(false);
     window.open("Print");
+});
+
+$(document).on("change", "#MaxCredits", function () {
+    RemoveCredits();
+    AddCredits();
 });

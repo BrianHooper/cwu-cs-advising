@@ -129,6 +129,52 @@ namespace CwuAdvising.Pages
             return DatabaseStudent;
         }
 
+        /// <summary>Loads a student plan from the database</summary>
+        /// <returns>Student Schedule as a parsed JSON string</returns>
+        public static string GetStudentPlan()
+        {
+            
+            if(CurrentStudent == null)
+            {
+                return "";
+            }
+            /*
+            if(!Program.Database.connected)
+            {
+                return "";
+            }
+            */
+
+            // Get PlanInfo from the database
+            string[] PlanInfoCourses = { System.IO.File.ReadAllText("wwwroot/SimplePlan.json") };
+            PlanInfo databaseSchedule = new PlanInfo(CurrentStudent.ID, 0, CurrentStudent.Quarter + " " + CurrentStudent.Year, PlanInfoCourses);
+            
+
+
+            return databaseSchedule.Classes[0];
+        }
+
+        /// <summary>Saves the student plan to the database</summary>
+        /// <param name="JsonPlan">Students schedule as a JSON string</param>
+        /// <returns>True if the database update was successful</returns>
+        public static bool SaveStudentPlan(string JsonPlan)
+        {
+            
+            /*
+            if(!Program.Database.connected)
+            {
+                return false;
+            }
+
+            string[] databasePlanSchedule = { JsonPlan };
+            PlanInfo studentplan = new PlanInfo(CurrentStudent.ID, 0, CurrentStudent.Quarter + " " + CurrentStudent.Year, databasePlanSchedule);
+            Program.Database.UpdateRecord(studentplan);
+            */
+
+            System.IO.File.WriteAllText("wwwroot/SimplePlan.json", JsonPlan);
+            return true;
+        }
+
         /// <summary>
         /// AJAX handler for loading student schedule
         /// Passes Student ID to Advising model
@@ -147,7 +193,7 @@ namespace CwuAdvising.Pages
                     var scheduleModel = JsonConvert.DeserializeObject<ScheduleModel>(requestBody);
 
                     // Pass the schedule to the algorithm
-                    //ScheduleModel GeneratedSchedule = CallSchedulingAlgorithm(scheduleModel);
+                    ScheduleModel GeneratedSchedule = CallSchedulingAlgorithm(scheduleModel);
                     //string JsonSchedule = JsonConvert.SerializeObject(GeneratedSchedule);
                     
                     string JsonSchedule = JsonConvert.SerializeObject(scheduleModel);
@@ -174,15 +220,23 @@ namespace CwuAdvising.Pages
                 string requestBody = reader.ReadToEnd();
                 if (requestBody.Length > 0)
                 {
-                    var scheduleModel = JsonConvert.DeserializeObject<ScheduleModel>(requestBody);
-                    
-                    return new JsonResult("Model sent succesfully.");
+                    //var scheduleModel = JsonConvert.DeserializeObject<ScheduleModel>(requestBody);
+                    return new JsonResult(SaveStudentPlan(requestBody));
                 }
                 else
                 {
-                    return new JsonResult("Error passing data to server.");
+                    return new JsonResult(false);
                 }
             }
+        }
+
+        /// <summary>Saves the base case to the database</summary>
+        /// <param name="basecase">JSON string representing the base case</param>
+        /// <returns>True if the database update was successful</returns>
+        public static bool SaveBaseCase(String basecase)
+        {
+            System.IO.File.WriteAllText("wwwroot/ExamplePlan.json", basecase);
+            return true;
         }
 
         /// <summary>
@@ -199,13 +253,11 @@ namespace CwuAdvising.Pages
                 string requestBody = reader.ReadToEnd();
                 if (requestBody.Length > 0)
                 {
-                    var scheduleModel = JsonConvert.DeserializeObject<ScheduleModel>(requestBody);
-
-                    return new JsonResult("Model sent succesfully.");
+                    return new JsonResult(SaveBaseCase(requestBody));
                 }
                 else
                 {
-                    return new JsonResult("Error passing data to server.");
+                    return new JsonResult(false);
                 }
             }
         }
@@ -324,10 +376,12 @@ namespace CwuAdvising.Pages
             Schedule ConvertedScheduleModel = ScheduleModelToSchedule(model);
             List<Course> RemainingRequirements = ScheduleModelToRemainingRequirements(model);
 
+            /*
             Schedule GeneratedSchedule = Algorithm.Generate(RemainingRequirements, ConvertedScheduleModel, 
                 model.Constraints.MinCredits, model.Constraints.MaxCredits, model.Constraints.TakingSummer);
-
-            ScheduleModel GeneratedModel = ScheduleToScheduleModel(GeneratedSchedule, model);
+                */
+            
+            ScheduleModel GeneratedModel = ScheduleToScheduleModel(ConvertedScheduleModel, model);
             
             return GeneratedModel;
         }
