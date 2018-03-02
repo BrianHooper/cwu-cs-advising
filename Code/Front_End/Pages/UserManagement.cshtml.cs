@@ -8,6 +8,7 @@ using CwuAdvising.Models;
 using Database_Object_Classes;
 using Newtonsoft.Json;
 using System.IO;
+using System.ComponentModel.DataAnnotations;
 
 namespace CwuAdvising.Pages
 {
@@ -97,6 +98,62 @@ namespace CwuAdvising.Pages
                 {
                     return new JsonResult("Error passing data to server.");
                 }
+            }
+        }
+
+        /// <summary></summary>
+        public class CreateUserModel
+        {
+            /// <summary>Username</summary>
+            [Required]
+            public string Username { get; set; }
+
+            /// <summary>Password 1</summary>
+            [Required]
+            public string PasswordOne { get; set; }
+
+            /// <summary>Password 2</summary>
+            [Required]
+            public string PasswordTwo { get; set; }
+        }
+
+        public static string CreateUserErrorMessage { get; set; } = "";
+
+        /// <summary>Binds the LoginModel to a Login object for POST</summary>
+        [BindProperty]
+        public CreateUserModel CreateUser { get; set; }
+
+        /// <summary>Recieve login information</summary>
+        /// <returns>Redirects to StudentAdvising if logging in is successful</returns>
+        public IActionResult OnPost()
+        {
+            if (!ModelState.IsValid)
+            {
+                return Page(); // Form validation failed
+            }
+
+            /*
+            if (!Program.Database.connected)
+            {
+                CreateUserErrorMessage = "Error, database connection failed.";
+                return Page();
+            }
+            */
+            string username = CreateUser.Username;
+
+            string password1 = CreateUser.PasswordOne;
+            string password2 = CreateUser.PasswordTwo;
+
+            if(password1 != password2)
+            {
+                CreateUserErrorMessage = "Error, passwords do not match.";
+                return Page();
+            }
+            else
+            {
+                // If username is already taken
+                CreateUserErrorMessage = "Error, invalid username or password.";
+                return Page();
             }
         }
     }
