@@ -5,6 +5,16 @@ using System.Security;
 
 namespace Database_Handler
 {
+    /// <summary>
+    /// Exception that is thrown when the recursion depth exceeds a specified limit.
+    /// </summary>
+    public class RecursionDepthException : Exception
+    {
+        /// <summary>Constructs a new exception object.</summary>
+        /// <param name="msg">The message.</param>
+        public RecursionDepthException(string msg) : base(msg) { }
+    } // end Class RecursionDepthException
+
     /// <summary>Exception class for an error that occurs while retrieving an object from a database.</summary>
     public class RetrieveError : Exception
     {

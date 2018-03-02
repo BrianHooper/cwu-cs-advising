@@ -89,8 +89,10 @@ namespace Database_Handler
             #endregion
 
             #region General
-            private const int i_SALT_LENGTH = 32;
-            private const int BUFFER_SIZE = 2048;
+            private const int  i_SALT_LENGTH          = 32;
+            private const int  BUFFER_SIZE            = 2048;
+
+            private const uint ui_MAX_RECURSION_DEPTH = 30;
             #endregion
 
             #endregion
@@ -446,7 +448,7 @@ namespace Database_Handler
             {
                 case OperandType.CatalogRequirements:
                     dbo = (CatalogRequirements)cmd.Operand;
-                    result = new DatabaseCommand(CommandType.Return, (CatalogRequirements)Retrieve(dbo.ID, 'Y'), OperandType.CatalogRequirements);
+                    result = new DatabaseCommand(CommandType.Return, (CatalogRequirements)Retrieve(dbo.ID, 'Y', cmd.IsShallow), OperandType.CatalogRequirements);
                     break;
                 case OperandType.Student:
                     dbo = (Student)cmd.Operand;
@@ -454,7 +456,7 @@ namespace Database_Handler
                     break;
                 case OperandType.Course:
                     dbo = (Course)cmd.Operand;
-                    result = new DatabaseCommand(CommandType.Return, (Course)Retrieve(dbo.ID, 'C'), OperandType.Course);
+                    result = new DatabaseCommand(CommandType.Return, (Course)Retrieve(dbo.ID, 'C', cmd.IsShallow), OperandType.Course);
                     break;
                 case OperandType.Credentials:
                     cred = (Credentials)cmd.Operand;
@@ -998,16 +1000,18 @@ namespace Database_Handler
         /// <param name="c_type">The type of object to retrieve.</param>
         /// <returns>The requested object.</returns>
         /// <exception cref="RetrieveError">Thrown if an invalid type is passed in arg 2.</exception>
-        private object Retrieve(string s_ID, char c_type)
+        private object Retrieve(string s_ID, char c_type, bool b_shallow = false)
         {
             try
             {
                 switch (c_type)
                 {
                     case 'S':
+                        return RetrieveStudent(s_ID);
                     case 'Y':
+                        return RetrieveCatalog(s_ID, b_shallow);
                     case 'C':
-                        return RetrieveHelper(s_ID, c_type);
+                        return RetrieveCourse(s_ID, b_shallow, 0);
                     case 'U':
                         return RetrieveUserCredentials(s_ID);
                     case 'P':
@@ -1368,11 +1372,11 @@ namespace Database_Handler
             MySqlDataReader reader = null;
 
             MySqlCommand cmd = GetCommand(s_ID, 'S', s_PLAN_TABLE, s_PLAN_KEY, "*");
-
-            MySqlLock.WaitOne();
             
             try
             {
+                MySqlLock.WaitOne();
+
                 reader = cmd.ExecuteReader();
                 reader.Read();
 
@@ -1444,10 +1448,10 @@ namespace Database_Handler
 
             MySqlCommand cmd = GetCommand(s_ID, 'S', s_CREDENTIALS_TABLE, s_CREDENTIALS_KEY, "*");
 
-            MySqlLock.WaitOne();
-
             try
             {
+                MySqlLock.WaitOne();
+
                 reader = cmd.ExecuteReader();
                 reader.Read();
 
@@ -1496,9 +1500,10 @@ namespace Database_Handler
 
         /// <summary>Retrieves the requested catalog from the database.</summary>
         /// <param name="s_ID">The ID associated with this catalog.</param>
+        /// <param name="b_shallow">Whether or not to retrieve shallow copies of courses inside the DegreeRequirements.</param>
         /// <returns>A CatalogRequirements object containing the requested info.</returns>
         /// <exception cref="KeyNotFoundException">Thrown if the key passed in arg 1 does not exist in the database.</exception>
-        private CatalogRequirements RetrieveCatalog(string s_ID)
+        private CatalogRequirements RetrieveCatalog(string s_ID, bool b_shallow)
         {
             CatalogRequirements catalog;
 
@@ -1506,10 +1511,10 @@ namespace Database_Handler
 
             MySqlCommand cmd = GetCommand(s_ID, 'S', s_CATALOGS_TABLE, s_CATALOGS_KEY, "*");
 
-            MySqlLock.WaitOne();
-
             try
             {
+                MySqlLock.WaitOne();
+
                 reader = cmd.ExecuteReader();
                 reader.Read();
 
@@ -1537,7 +1542,7 @@ namespace Database_Handler
                     {
                         try
                         {
-                            requs.Add(RetrieveDegree(s));
+                            requs.Add(RetrieveDegree(s, b_shallow, 0));
                         } // end try
                         catch (KeyNotFoundException)
                         {
@@ -1581,27 +1586,37 @@ namespace Database_Handler
 
         /// <summary>Retrieves the list of degrees associated with a given catalog.</summary>
         /// <param name="s_ID">The ID of the catalog to which the degrees belong.</param>
+        /// <param name="b_shallow">Whether or not to retrieve a shallow version of the requested DegreeRequirements object.</param>
+        /// <param name="ui_depth">The current depth of recursion, to prevent excessive/infinite recursion loops.</param>
         /// <returns>A list of DegreeRequirement structures associated with the given degree.</returns>
         /// <exception cref="KeyNotFoundException">Thrown if the key passed in arg 1 does not exist in the database.</exception>
-        private DegreeRequirements RetrieveDegree(string s_ID)
+        private DegreeRequirements RetrieveDegree(string s_ID, bool b_shallow, uint ui_depth)
         {
+            if (ui_depth == ui_MAX_RECURSION_DEPTH)
+            {
+                throw new RecursionDepthException("Retrieving the degree " + s_ID + " caused a recursion depth of " + ui_depth + " stopping to prevent infinite recursion.");
+            } // end if
+
             DegreeRequirements degree;
 
             MySqlDataReader reader = null;
 
-            MySqlCommand cmd = GetCommand(s_ID, 'S', s_CATALOGS_TABLE, s_CATALOGS_KEY, "*");
-
-            MySqlLock.WaitOne();
+            MySqlCommand cmd = GetCommand(s_ID, 'S', s_DEGREES_TABLE, s_DEGREES_KEY, "*");
 
             try
             {
+                MySqlLock.WaitOne();
+
                 reader = cmd.ExecuteReader();
                 reader.Read();
 
                 if (reader.HasRows)
                 {
                     uint ui_WP = reader.GetUInt32(1),
-                         ui_numCourses = reader.GetUInt32(2);
+                         ui_numCourses = reader.GetUInt32(4);
+
+                    string s_name = reader.GetString(2),
+                           s_deparment = reader.GetString(3);
 
                     List<string> l_courses = new List<string>();
 
@@ -1616,25 +1631,32 @@ namespace Database_Handler
                     reader.Close();
                     MySqlLock.ReleaseMutex();
 
-                    List<Course> requs = new List<Course>();
-
-                    foreach (string s in l_courses)
+                    if (!b_shallow)
                     {
-                        try
-                        {
-                            requs.Add(RetrieveCourse(s, false));
-                        } // end try
-                        catch (KeyNotFoundException)
-                        {
-                            WriteToLog(" -- DBH The degree " + s_ID + " contains a reference to the course " + s + " but this course does not exist in the database.");
-                        } // end catch
-                        catch (Exception e)
-                        {
-                            WriteToLog(" -- DBH Retrieve degree encountered an error. Msg: " + e.Message);
-                        } // end catch
-                    } // end foreach
+                        List<Course> requs = new List<Course>();
 
+                        foreach (string s in l_courses)
+                        {
+                            try
+                            {
+                                requs.Add(RetrieveCourse(s, b_shallow, ui_depth + 1));
+                            } // end try
+                            catch (KeyNotFoundException)
+                            {
+                                WriteToLog(" -- DBH The degree " + s_ID + " contains a reference to the course " + s + " but this course does not exist in the database.");
+                            } // end catch
+                            catch (Exception e)
+                            {
+                                WriteToLog(" -- DBH Retrieve degree encountered an error. Msg: " + e.Message);
+                            } // end catch
+                        } // end foreach
 
+                        degree = new DegreeRequirements(s_ID, s_name, s_deparment, requs);
+                    } // end if
+                    else
+                    {
+                        degree = new DegreeRequirements(s_ID, s_name, s_deparment, l_courses);
+                    } // end else
                 } // end if
                 else
                 {
@@ -1644,6 +1666,17 @@ namespace Database_Handler
             catch (KeyNotFoundException e)
             {
                 MySqlLock.ReleaseMutex();
+                throw e;
+            } // end catch
+            catch (AbandonedMutexException e)
+            {
+                WriteToLog(" -- DBH A thread abandoned an open mutex lock, attempting to release it now.");
+                WriteToLog(" -- DBH Message from exception: " + e.Message);
+                e.Mutex.ReleaseMutex();
+                throw new Exception("Abandoned mutex lock! Msg: " + e.Message);
+            } // end catch
+            catch (RecursionDepthException e)
+            {
                 throw e;
             } // end catch
             catch (Exception e)
@@ -1661,7 +1694,7 @@ namespace Database_Handler
                 } // end if
             } // end finally
 
-
+            return degree;
         } // end method RetrieveDegrees
 
         /// <summary>Retrieves the requested student from the database.</summary>
@@ -1674,12 +1707,12 @@ namespace Database_Handler
 
             MySqlDataReader reader = null;
 
-            MySqlCommand cmd = GetCommand(s_ID, 'S', s_CATALOGS_TABLE, s_CATALOGS_KEY, "*");
-
-            MySqlLock.WaitOne();
-
+            MySqlCommand cmd = GetCommand(s_ID, 'S', s_STUDENTS_TABLE, s_STUDENTS_KEY, "*");
+            
             try
             {
+                MySqlLock.WaitOne();
+
                 reader = cmd.ExecuteReader();
                 reader.Read();
 
@@ -1697,11 +1730,17 @@ namespace Database_Handler
                     Quarter q_start = new Quarter(ui_start_year, (Season)Enum.Parse(typeof(Season), s_start_season)),
                             q_expected_grad = new Quarter(ui_expected_year, (Season)Enum.Parse(typeof(Season), s_expected_season));
 
-                    student = new Student(new Name(s_fName, s_lName), s_ID, q_start)
+                    if (ui_expected_year > 0)
                     {
-                        ExpectedGraduation = q_expected_grad
-                    }; // end student Initializer
-
+                        student = new Student(new Name(s_fName, s_lName), s_ID, q_start)
+                        {
+                            ExpectedGraduation = q_expected_grad
+                        }; // end student Initializer
+                    } // end if
+                    else
+                    {
+                        student = new Student(new Name(s_fName, s_lName), s_ID, q_start);
+                    } // end else
                 } // end if
                 else
                 {
@@ -1734,24 +1773,30 @@ namespace Database_Handler
         /// <summary>Retrieves the requested course from the database.</summary>
         /// <param name="s_ID">The id of the course to retrieve.</param>
         /// <param name="b_shallow">Whether or not to create a shallow course object.</param>
+        /// <param name="ui_depth">The current depth of recursion, to prevent excessive/infinite recursion loops.</param>
         /// <returns>A course object containing the requested info.</returns>
         /// <exception cref="KeyNotFoundException">Thrown if the key passed in arg 1 does not exist in the database.</exception>
+        /// <exception cref="RecursionDepthException">Thrown the depth of recursion exceeds the limit as defined in <see cref="ui_MAX_RECURSION_DEPTH"/></exception>
         /// <remarks>
-        /// A shallow course object does not contain a list of course prerequisites, but rather a list of strings
-        /// with the IDs of all prerequisites.                     
+        ///     A shallow course object does not contain a list of course prerequisites, but rather a list of strings
+        ///     with the IDs of all course prerequisites.                     
         /// </remarks>
-        private Course RetrieveCourse(string s_ID, bool b_shallow, uint depth)
+        private Course RetrieveCourse(string s_ID, bool b_shallow, uint ui_depth)
         {
+            if (ui_depth == ui_MAX_RECURSION_DEPTH)
+            {
+                throw new RecursionDepthException("Retrieving the course " + s_ID + " caused a recursion depth of " + ui_depth + " stopping to prevent infinite recursion.");
+            } // end if
+
             Course course;
 
             MySqlDataReader reader = null;
 
-            MySqlCommand cmd = GetCommand(s_ID, 'S', s_CATALOGS_TABLE, s_CATALOGS_KEY, "*");
-
-            MySqlLock.WaitOne();
+            MySqlCommand cmd = GetCommand(s_ID, 'S', s_COURSES_TABLE, s_COURSES_KEY, "*");
 
             try
             {
+                MySqlLock.WaitOne();
                 reader = cmd.ExecuteReader();
                 reader.Read();
 
@@ -1777,7 +1822,6 @@ namespace Database_Handler
                         else
                         {
                             WriteToLog(" -- DBH the record for course " + s_ID + " is corrupted! Prerequ counter does not match the number of prerequs in database.");
-                            // TODO update prerequ counter
                             break;
                         } // end else
                     } // end for
@@ -1791,7 +1835,7 @@ namespace Database_Handler
 
                         foreach (string s in ls_preRequs)
                         {
-                            lc_prerequs.Add(RetrieveCourse(s, false, depth));
+                            lc_prerequs.Add(RetrieveCourse(s, false, ui_depth+1));
                         } // end foreach
 
                         course = new Course(s_courseName, s_ID, ui_credits, false, ba_offered, lc_prerequs);
@@ -1799,7 +1843,7 @@ namespace Database_Handler
                     else
                     {
                         course = new Course(s_courseName, s_ID, ui_credits, false, ba_offered, ls_preRequs);
-                    }
+                    } // end else
                 } // end if
                 else
                 {
@@ -1809,6 +1853,17 @@ namespace Database_Handler
             catch (KeyNotFoundException e)
             {
                 MySqlLock.ReleaseMutex();
+                throw e;
+            } // end catch
+            catch (AbandonedMutexException e)
+            {
+                WriteToLog(" -- DBH A thread abandoned an open mutex lock, attempting to release it now.");
+                WriteToLog(" -- DBH Message from exception: " + e.Message);
+                e.Mutex.ReleaseMutex();
+                throw new Exception("Abandoned mutex lock! Msg: " + e.Message);
+            } // end catch
+            catch (RecursionDepthException e)
+            {
                 throw e;
             } // end catch
             catch (Exception e)
@@ -1919,7 +1974,7 @@ namespace Database_Handler
             } // end finally
 
             return 0;
-        } // end method Update
+        } // end method Update(PlanInfo)
 
         /// <summary>Updates a credentials record in the MySQL database.</summary>
         /// <param name="credentials">The credentials to update.</param>
@@ -1978,7 +2033,7 @@ namespace Database_Handler
             } // end finally
 
             return output;
-        } // end method Update
+        } // end method Update(Credentials)
 
         /// <summary>Updates a course in the MySQL database.</summary>
         /// <param name="course">The course to update.</param>
@@ -1986,7 +2041,104 @@ namespace Database_Handler
         private int Update(Course course)
         {
 
-        } // end method Update
+        } // end method Update(Course)
+
+        private int Update(CatalogRequirements catalog)
+        {
+
+        } // end method Update(CatalogRequirements)
+
+        private int Update(DegreeRequirements degree)
+        {
+
+        } // end method Update(DegreeRequirements)
+
+        /// <summary>Updates a student in the students MySQL database.</summary>
+        /// <param name="student">The student to update or create.</param>
+        /// <returns>0 or error code.</returns>
+        private int Update(Student student)
+        {
+            MySqlDataReader reader = null;
+
+            try
+            {
+                MySqlCommand cmd = GetCommand(student.ID, 'S', s_STUDENTS_TABLE, s_STUDENTS_KEY, "*");
+
+                MySqlLock.WaitOne();
+
+                reader = cmd.ExecuteReader();
+
+
+                reader.Read();
+
+                if (reader.HasRows)
+                {
+                    uint ui_WP = reader.GetUInt32(1);
+
+                    reader.Close();
+
+                    if (ui_WP != student.WP)
+                    {
+                        WriteToLog(" -- DBH update failed for student " + student.ID + " because of write protection.");
+                        return 1;
+                    } // end if
+
+                    ui_WP++;
+
+                    // update write protection
+                    MySqlCommand temp = GetCommand(student.ID, 'U', s_STUDENTS_TABLE, s_STUDENTS_KEY, "WP", ui_WP.ToString());
+                    temp.ExecuteNonQuery();
+
+                    // store new data
+                    temp = GetCommand(student.ID, 'U', s_STUDENTS_TABLE, s_STUDENTS_KEY, "first_name", student.Name.FirstName);
+                    temp.ExecuteNonQuery();
+
+                    temp = GetCommand(student.ID, 'U', s_STUDENTS_TABLE, s_STUDENTS_KEY, "last_name", student.Name.LastName);
+                    temp.ExecuteNonQuery();
+
+                    temp = GetCommand(student.ID, 'U', s_STUDENTS_TABLE, s_STUDENTS_KEY, "starting_season", student.StartingQuarter.QuarterSeason.ToString());
+                    temp.ExecuteNonQuery();
+
+                    temp = GetCommand(student.ID, 'U', s_STUDENTS_TABLE, s_STUDENTS_KEY, "starting_year", student.StartingQuarter.Year.ToString());
+                    temp.ExecuteNonQuery();
+
+                    if (student.HasExpectedGraduation)
+                    { 
+                        temp = GetCommand(student.ID, 'U', s_STUDENTS_TABLE, s_STUDENTS_KEY, "expected_grad_season", student.ExpectedGraduation.QuarterSeason.ToString());
+                        temp.ExecuteNonQuery();
+
+                        temp = GetCommand(student.ID, 'U', s_STUDENTS_TABLE, s_STUDENTS_KEY, "expected_grad_year", student.ExpectedGraduation.Year.ToString());
+                        temp.ExecuteNonQuery();
+                    } // end if
+
+                    WriteToLog(" -- DBH successfully updated the student " + student.ID + ".");
+                } // end if
+                else
+                {
+                    reader.Close();
+
+                    MySqlCommand command = GetCommand(student.ID, 'I', s_STUDENTS_TABLE, s_STUDENTS_KEY, "", GetInsertValues(student));
+                    command.ExecuteNonQuery();
+
+                    WriteToLog(" -- DBH successfully created the student " + student.ID + ".");
+                } // end else
+            } // end try
+            catch (Exception e)
+            {
+                WriteToLog(" -- DBH update failed for the student: " + student.ID + " Msg: " + e.Message);
+            } // end catch
+            finally
+            {
+                if(!reader.IsClosed)
+                {
+                    reader.Close();
+                } // end if
+
+                MySqlLock.ReleaseMutex();
+            } // end finally
+
+            return 0;
+        } // end method Update(Student)
 
         #endregion
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -2248,7 +2400,7 @@ namespace Database_Handler
         #endregion
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
-        #region MySQL query generator methods:
+        #region MySQL Query Generators
 
         /// <summary>Creates an insert query based on the input.</summary>
         /// <param name="s_table">Table to insert to.</param>
@@ -2299,6 +2451,27 @@ namespace Database_Handler
             return s_values;
         } // end method GetInsertValues
 
+        /// <summary>Creates the values string for a Student object.</summary>
+        /// <param name="student">The object to extract values from.</param>
+        /// <returns>A string which can be used for an insert query as VALUES.</returns>
+        private string GetInsertValues(Student student)
+        {
+            //'SID', WP, 'fName', 'lName', 'starting_season', starting_year, 'grad_season', grad_year;
+            string s_values = "\"" + student.ID + "\", 1, \"" + student.Name.FirstName + "\", \"" + student.Name.LastName + "\",";
+
+            s_values += "\"" + student.StartingQuarter.QuarterSeason.ToString() + "\", " + student.StartingQuarter.Year.ToString() + ",";
+            if (student.HasExpectedGraduation)
+            {
+                s_values += "\"" + student.ExpectedGraduation.QuarterSeason.ToString() + "\", " + student.ExpectedGraduation.Year.ToString() + ";";
+            } // end if
+            else
+            {
+                s_values += "\"\", 0;";
+            } // end else
+
+            return s_values;
+        } // end method GetInsertValues
+
         /// <summary>Creates an select query based on the input.</summary>
         /// <param name="s_table">The table to access.</param>
         /// <param name="s_column">The column to retrieve.</param>
@@ -2340,7 +2513,7 @@ namespace Database_Handler
             query += " SET ";
             query += s_columnToUpdate;
             query += " = ";
-            if (s_columnToUpdate != "WP" && s_columnToUpdate != "admin" && s_columnToUpdate != "password")
+            if (s_columnToUpdate != "WP" && s_columnToUpdate != "admin" && s_columnToUpdate != "password" && s_columnToUpdate != "starting_year" && s_columnToUpdate != "expected_grad_year")
             {
                 query += "\"";
                 query += s_newValue;

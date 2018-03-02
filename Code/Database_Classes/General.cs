@@ -228,11 +228,19 @@ namespace Database_Object_Classes
 
         private List<Course> l_acceptableElectives;
 
+        private List<string> ls_generalRequirements;
+
         /// <summary>Minimum number of electives credits for this degree.</summary>
         private uint   ui_minElectiveCredits;
 
         /// <summary>Name of this degree.</summary>
         private string s_name;
+
+        private string s_department;
+
+        private string s_ID;
+
+        private bool IsShallow;
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -249,6 +257,10 @@ namespace Database_Object_Classes
             this.l_acceptableElectives      = new List<Course>(l_acceptableElectives);
             this.ui_minElectiveCredits      = ui_minElectiveCredits;
             this.s_name                     = string.Copy(s_name);
+            ls_generalRequirements          = new List<string>();
+            IsShallow                       = false;
+            s_ID                            = string.Empty;
+            s_department                    = string.Empty;
         } // end Constructor
 
         /// <summary>Copy Constructor.</summary>
@@ -259,7 +271,45 @@ namespace Database_Object_Classes
             l_acceptableElectives       = new List<Course>(other.l_acceptableElectives);
             ui_minElectiveCredits       = other.ui_minElectiveCredits;
             s_name                      = string.Copy(other.s_name);
+            ls_generalRequirements      = new List<string>(other.ls_generalRequirements);
+            IsShallow                   = other.IsShallow;
+            s_ID                            = string.Empty;
+            s_department                    = string.Empty;
         } // end Copy Constructor
+
+        /// <summary>Shallow Constructor</summary>
+        /// <param name="s_ID">Unique identifier of this degree.</param>
+        /// <param name="s_name">Name of degree.</param>
+        /// <param name="s_department">Department of this degree.</param>
+        /// <param name="ls_generalRequirements">Shallow list of requirements.</param>
+        public DegreeRequirements(string s_ID, string s_name, string s_department, List<string> ls_generalRequirements)
+        {
+            this.l_generalRequirements  = new List<Course>();
+            this.l_acceptableElectives  = new List<Course>();
+            this.ui_minElectiveCredits  = 0;
+            this.s_name                 = string.Copy(s_name);
+            this.ls_generalRequirements = new List<string>(ls_generalRequirements);
+            IsShallow                   = true;
+            this.s_ID                   = string.Copy(s_ID);
+            this.s_department           = string.Copy(s_department);
+        } // end Constructor
+
+        /// <summary>Regular Constructor</summary>
+        /// <param name="s_ID">Unique identifier of this degree.</param>
+        /// <param name="s_name">Name of degree.</param>
+        /// <param name="s_department">Department of this degree.</param>
+        /// <param name="l_generalRequirements">List of requirements for this degree.</param>
+        public DegreeRequirements(string s_ID, string s_name, string s_department, List<Course> l_generalRequirements)
+        {
+            this.l_generalRequirements  = new List<Course>(l_generalRequirements);
+            this.l_acceptableElectives  = new List<Course>();
+            this.ui_minElectiveCredits  = 0;
+            this.s_name                 = string.Copy(s_name);
+            this.ls_generalRequirements = new List<string>();
+            IsShallow                   = false;
+            this.s_ID                   = string.Copy(s_ID);
+            this.s_department           = string.Copy(s_department);
+        } // end Constructor
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 

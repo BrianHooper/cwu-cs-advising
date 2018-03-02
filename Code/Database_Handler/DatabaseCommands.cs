@@ -85,12 +85,14 @@ namespace Database_Handler
         /// <param name="ct">Type of command.</param>
         /// <param name="dbo">The operand for this command.</param>
         /// <param name="ot">The type of this operand.</param>
-        public DatabaseCommand(CommandType ct, Database_Object dbo, OperandType ot)
+        /// <param name="b_shallow">Whether or not to retrieve shallow copy of a Course or CatalogRequirements object, ignored for Student objects.</param>
+        public DatabaseCommand(CommandType ct, Database_Object dbo, OperandType ot, bool b_shallow = false)
         {
             ct_commandType = ct;
             ot_type = ot;
+            b_isShallow = b_shallow;
 
-            switch(ot)
+            switch (ot)
             {
                 case OperandType.Student:
                     o_operand = new Student((Student)dbo);
@@ -126,7 +128,11 @@ namespace Database_Handler
 
         /// <summary>Constructor for creating a display students command.</summary>
         /// <param name="ct">Command type for this command.</param>
-        /// <remarks>The argument must be DisplayStudents/DisplayCourses or Disconnect.</remarks>
+        /// <param name="b_shallow">Whether or not a display command should retrieve shallow copies of the inner course objects.</param>
+        /// <remarks>
+        /// The argument must be DisplayCatalogs/DisplayCourses or Disconnect.
+        /// True should be passed if the inner course objects are not being used to avoid large amounts of recursion.
+        /// </remarks>
         public DatabaseCommand(CommandType ct, bool b_shallow = false)
         {
             ct_commandType = ct;
@@ -181,6 +187,20 @@ namespace Database_Handler
 
         /// <summary>Getter for the operand.</summary>
         public object Operand => o_operand;
+
+        /// <summary>Getter/Setter for whether this command contains shallow or complete objects.</summary>
+        /// <remarks>This property is used only for retrieve operations, all others ignore it.</remarks>
+        public bool IsShallow
+        {
+            get
+            {
+                return b_isShallow;
+            }
+            set
+            {
+                b_isShallow = value;
+            }
+        }
 
     } // end Class DatabaseCommand
 } // end namespace Database_Handler

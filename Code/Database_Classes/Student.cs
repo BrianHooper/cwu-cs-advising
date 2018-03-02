@@ -21,6 +21,8 @@ namespace Database_Object_Classes
         /// <summary>The quarter this student is expected to graduate.</summary>
         private Quarter          q_expectedGraduation;
 
+        private bool             b_hasExpectedGrad;
+
         /// <summary>The academic standing of this student.</summary>
         private AcademicStanding as_standing;
 
@@ -80,8 +82,15 @@ namespace Database_Object_Classes
         public Quarter ExpectedGraduation
         {
             get => q_expectedGraduation;
-            set => q_expectedGraduation = new Quarter(value);
+            set
+            {
+                q_expectedGraduation = new Quarter(value);
+                b_hasExpectedGrad = true;
+            } // end set
         } // end ExpectedGraduation
+
+        /// <summary>Gettter for whether or not this student has an expected graduation set.</summary>
+        public bool HasExpectedGraduation => b_hasExpectedGrad;
 
         /// <summary>Getter/Setter for the number of credits this student has completed.</summary>
         public uint CreditsCompleted
