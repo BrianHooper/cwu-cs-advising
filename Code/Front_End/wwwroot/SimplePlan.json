@@ -1,0 +1,1 @@
+﻿{"Quarters":[{"Title":"Fall 2018","Locked":false,"Courses":[{"Title":"MATH330","Credits":"5","Offered":"14"}]}],"UnmetRequirements":[{"Title":"CS301","Credits":"4","Offered":"124"},{"Title":"CS302","Credits":"4","Offered":"124"},{"Title":"CS470","Credits":"4","Offered":"124"}],"Constraints":{"MinCredits":"0","MaxCredits":"18","TakingSummer":false}}

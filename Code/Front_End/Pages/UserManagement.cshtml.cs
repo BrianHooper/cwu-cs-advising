@@ -21,10 +21,12 @@ namespace CwuAdvising.Pages
         /// <summary>Read all credentials from the database to the MasterUserList</summary>
         public void ReadDatabase()
         {
-            List<Credentials> UserList = new List<Credentials>();
-            UserList.Add(new Credentials("root", 0, true, true, new byte[] { 0x20, 0x20 }, ""));
-            UserList.Add(new Credentials("user1", 0, false, true, new byte[] { 0x20, 0x20 }, ""));
-            UserList.Add(new Credentials("user2", 0, true, false, new byte[] { 0x20, 0x20 }, ""));
+            List<Credentials> UserList = new List<Credentials>
+            {
+                new Credentials("root", 0, true, true, new byte[] { 0x20, 0x20 }, ""),
+                new Credentials("user1", 0, false, true, new byte[] { 0x20, 0x20 }, ""),
+                new Credentials("user2", 0, true, false, new byte[] { 0x20, 0x20 }, "")
+            };
             MasterUserList = UserList;
         }
 
@@ -117,6 +119,7 @@ namespace CwuAdvising.Pages
             public string PasswordTwo { get; set; }
         }
 
+        /// <summary>Error message for Create User form</summary>
         public static string CreateUserErrorMessage { get; set; } = "";
 
         /// <summary>Binds the LoginModel to a Login object for POST</summary>
