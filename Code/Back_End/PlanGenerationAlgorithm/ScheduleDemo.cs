@@ -109,7 +109,6 @@ namespace PlanGenerationAlgorithm
         {
             //Variables
             double d_minCumulativeGPA = 3.0;
-            CatalogCreditRequirements ccr_creditRequirements = new CatalogCreditRequirements();
             uint ui_minQuartersAtCWU = new uint(); //min quarter
             Name n_name = new Name("", "")
             {
@@ -121,8 +120,6 @@ namespace PlanGenerationAlgorithm
             Season s = Season.Fall; //starting quarter
             Quarter q_startingQuarter = new Quarter(quarter, s); //starting quarter
             List<DegreeRequirements> l_degreeRequirements = new List<DegreeRequirements>();
-            CatalogRequirements catalog = new CatalogRequirements(s_ID, ui_minQuartersAtCWU,
-                d_minCumulativeGPA, ccr_creditRequirements, l_degreeRequirements);
             //quarter(s) when the classes are offered (boolean)
             //{winter,spring,summer,fall}
             bool[] CS111Offered = { true, true, false, false }; //CS111 etc

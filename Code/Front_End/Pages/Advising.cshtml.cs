@@ -299,7 +299,7 @@ namespace CwuAdvising.Pages
 
             foreach(Requirement req in model.UnmetRequirements)
             {
-                Course course = ManageCoursesModel.MasterCourseList.Find(delegate (Course masterCourse) { return masterCourse.ID == req.Title; });
+                Course course = Program.DbObjects.MasterCourseList.Find(delegate (Course masterCourse) { return masterCourse.ID == req.Title; });
                 if(course != null)
                 {
                     RemainingRequirements.Add(course);
@@ -317,7 +317,7 @@ namespace CwuAdvising.Pages
         /// <returns>Schedule object matching the model</returns>
         public static Schedule ScheduleModelToSchedule(ScheduleModel model)
         {
-            ManageCoursesModel.GetCoursesFromDatabase();
+            Program.DbObjects.GetCoursesFromDatabase();
             Schedule schedule = null;
             foreach(ModelQuarter modelQuarter in model.Quarters)
             {
@@ -328,7 +328,7 @@ namespace CwuAdvising.Pages
 
                 foreach (Requirement req in modelQuarter.Courses)
                 {
-                    Course course = ManageCoursesModel.MasterCourseList.Find(delegate (Course masterCourse) { return masterCourse.ID == req.Title; });
+                    Course course = Program.DbObjects.MasterCourseList.Find(delegate (Course masterCourse) { return masterCourse.ID == req.Title; });
                     if(course != null)
                     {
                         schedule.AddCourse(course);

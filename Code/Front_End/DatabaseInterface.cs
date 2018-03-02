@@ -45,19 +45,22 @@ namespace CwuAdvising
                 }
                 catch (IniParser.Exceptions.ParsingException e)
                 {
+                    Program.DbError = "ParsingException";
                     Console.Write("Error reading configuration file. Msg: {0}", e.Message);
                 }
                 catch (ArgumentNullException e)
                 {
+                    Program.DbError = "ArgumentNullException";
                     Console.Write(e);
                 }
                 catch (ArgumentOutOfRangeException e)
                 {
+                    Program.DbError = "ArgumentOutOfRangeException";
                     Console.Write(e);
                 }
-                catch
+                catch(Exception e)
                 {
-
+                    Program.DbError = e.Message;
                 }
             }
             

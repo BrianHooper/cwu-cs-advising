@@ -35,7 +35,6 @@ namespace CwuAdvising.Pages
         public static void TESTBuildDegreeList()
         {
             List<Course> empty = new List<Course>();
-            CatalogCreditRequirements emptyCR = new CatalogCreditRequirements(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
             //2017 
             {
@@ -52,7 +51,7 @@ namespace CwuAdvising.Pages
                 Course CS302 = new Course("Data Structures II", "CS302", 4, false, new bool[] { true, false, false, true }, CS302Prereqs);
                 CSRequirements.Add(CS301);
                 CSRequirements.Add(CS302);
-                DegreeRequirements computerscience = new DegreeRequirements(CSRequirements, empty, empty, empty, 0, 0.0, "BS - Computer Science");
+                DegreeRequirements computerscience = new DegreeRequirements("BS - Computer Science", CSRequirements, empty, 0);
                 DegreeRequirements2017.Add(computerscience);
 
                 // Definition for BS - Mathematics
@@ -65,10 +64,10 @@ namespace CwuAdvising.Pages
                 Course MATH330 = new Course("Discrete Math", "MATH330", 5, false, new bool[] { false, true, false, true }, MATH260Prereqs);
                 MATHRequirements.Add(MATH260);
                 MATHRequirements.Add(MATH330);
-                DegreeRequirements mathematics = new DegreeRequirements(MATHRequirements, empty, empty, empty, 0, 0.0, "BS - Mathematics");
+                DegreeRequirements mathematics = new DegreeRequirements("BS - Mathematics", MATHRequirements, empty, 0);
                 DegreeRequirements2017.Add(mathematics);
                 
-                CatalogRequirements Catalog2017 = new CatalogRequirements("2017", 0, 0.0, emptyCR, DegreeRequirements2017);
+                CatalogRequirements Catalog2017 = new CatalogRequirements("2017", DegreeRequirements2017);
                 CatalogList.Add(Catalog2017);
             }
 
@@ -87,7 +86,7 @@ namespace CwuAdvising.Pages
                 Course CS312 = new Course("Computer Architecture II", "CS312", 4, false, new bool[] { true, false, false, true }, CS312Prereqs);
                 CSRequirements.Add(CS311);
                 CSRequirements.Add(CS312);
-                DegreeRequirements computerscience = new DegreeRequirements(CSRequirements, empty, empty, empty, 0, 0.0, "BS - Computer Science");
+                DegreeRequirements computerscience = new DegreeRequirements("BS - Computer Science", CSRequirements, empty, 0);
                 DegreeRequirements2018.Add(computerscience);
 
                 // Definition for BS - Mathematics
@@ -100,10 +99,10 @@ namespace CwuAdvising.Pages
                 Course MATH330 = new Course("Discrete Math", "MATH330", 5, false, new bool[] { false, true, false, true }, MATH260Prereqs);
                 MATHRequirements.Add(MATH260);
                 MATHRequirements.Add(MATH330);
-                DegreeRequirements mathematics = new DegreeRequirements(MATHRequirements, empty, empty, empty, 0, 0.0, "BS - Mathematics");
+                DegreeRequirements mathematics = new DegreeRequirements("BS - Mathematics", MATHRequirements, empty, 0);
                 DegreeRequirements2018.Add(mathematics);
 
-                CatalogRequirements Catalog2018 = new CatalogRequirements("2018", 0, 0.0, emptyCR, DegreeRequirements2018);
+                CatalogRequirements Catalog2018 = new CatalogRequirements("2018", DegreeRequirements2018);
                 CatalogList.Add(Catalog2018);
             }
         }
@@ -116,7 +115,7 @@ namespace CwuAdvising.Pages
         {
             DegreeModel model = new DegreeModel(degree.Name, UInt32.Parse(year));
 
-            foreach(Course course in degree.GeneralRequirements)
+            foreach(Course course in degree.Requirements)
             {
                 model.requirements.Add(course.ID);
             }
@@ -132,13 +131,13 @@ namespace CwuAdvising.Pages
         {
             List<Course> DegreeCourseList = new List<Course>();
 
-            ManageCoursesModel.GetCoursesFromDatabase();
+            Program.DbObjects.GetCoursesFromDatabase();
 
             foreach(string CourseID in Degree.requirements)
             {
                 try
                 {
-                    Course MatchingCourse = ManageCoursesModel.MasterCourseList.Find(delegate (Course C) { return C.ID == CourseID; });
+                    Course MatchingCourse = Program.DbObjects.MasterCourseList.Find(delegate (Course C) { return C.ID == CourseID; });
                     DegreeCourseList.Add(MatchingCourse);
                 }
                 catch (ArgumentException)
@@ -148,7 +147,7 @@ namespace CwuAdvising.Pages
             }
 
             List<Course> EmptyList = new List<Course>();
-            return new DegreeRequirements(DegreeCourseList, EmptyList, EmptyList, EmptyList, 0, 0.0, Degree.name);
+            return new DegreeRequirements(Degree.name, Degree.name, "department", DegreeCourseList);
         }
 
         /// <summary>Loads the master catalog list into a list of DegreeModels</summary>
@@ -216,8 +215,7 @@ namespace CwuAdvising.Pages
             }
 
             // Create a new CatalogRequirement with updated DegreeRequirements
-            CatalogCreditRequirements EmptyCredits = new CatalogCreditRequirements();
-            Catalog = new CatalogRequirements(CatalogYear, 0, 0.0, EmptyCredits, NewDegreeRequirements);
+            Catalog = new CatalogRequirements(CatalogYear, NewDegreeRequirements);
 
             // Update the database
             Program.Database.UpdateRecord(Catalog, Database_Handler.OperandType.CatalogRequirements);
