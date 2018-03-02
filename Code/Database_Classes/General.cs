@@ -218,168 +218,6 @@ namespace Database_Object_Classes
         } // end method ToString
     } // end structure Name
 
-    /// <summary>Structure storing the credit requirements for a catalog.</summary>
-    [Serializable]
-    public struct CatalogCreditRequirements
-    {
-        // Structure fields:
-        /// <summary>Minimum Credits for a Bachelor's Degree.</summary>
-        private uint ui_minCredits;
-        /// <summary>Maximum acceptable credits transfered from another institution.</summary>
-        private uint ui_maxCreditsTransfer;
-        /// <summary>Maximum acceptable lower division (100-200 Level) credits transfered from another institution.</summary>
-        private uint ui_maxCreditsTransferLower;
-        /// <summary>Minimum Credits from upper division (300+ Level).</summary>
-        private uint ui_minCreditsUpper;
-        /// <summary>Minimum credits taken at CWU.</summary>
-        private uint ui_minCreditsResidency;
-        /// <summary>Maximum credits from course challenges.</summary>
-        private uint ui_maxCreditsChallenge;
-        /// <summary>Minimum credits taken in the major/minor field by transfer students.</summary>
-        private uint ui_minCreditsEarnedForMajor;
-        /// <summary>Naximum coop credits allowed at the 290 level.</summary>
-        private uint ui_maxCreditsCoOp290;
-        /// <summary>Naximum coop credits allowed.</summary>
-        private uint ui_maxCreditsCoOp;
-        /// <summary>Naximum coop credits allowed for transfer students.</summary>
-        private uint ui_maxCreditsCoOpTransfer;
-        /// <summary>Naximum coop credits allowed for graduate programs.</summary>
-        private uint ui_maxCreditsCoOpGrad;
-
-        /* * * * * * * * * * * * * * * * * * * * * * * * * */
-
-        // Constructors:
-        /// <summary>Constructor for this structure.</summary>
-        /// <param name="ui_minCredits">Minimum Credits for a Bachelor's Degree.</param>
-        /// <param name="ui_maxCreditsTransfer">Maximum acceptable credits transfered from another institution.</param>
-        /// <param name="ui_maxCreditsTransferLower">Maximum acceptable lower division (100-200 Level) credits transfered from another institution.</param>
-        /// <param name="ui_minCreditsUpper">Minimum Credits from upper division (300+ Level).</param>
-        /// <param name="ui_minCreditsResidency">Minimum credits taken at CWU.</param>
-        /// <param name="ui_maxCreditsChallenge">Maximum credits from course challenges.</param>
-        /// <param name="ui_minCreditsEarnedForMajor">Minimum credits taken in the major/minor field by transfer students.</param>
-        /// <param name="ui_maxCreditsCoOp290">Naximum coop credits allowed at the 290 level.</param>
-        /// <param name="ui_maxCreditsCoOp">Naximum coop credits allowed.</param>
-        /// <param name="ui_maxCreditsCoOpTransfer">Naximum coop credits allowed for transfer students.</param>
-        /// <param name="ui_maxCreditsCoOpGrad">Naximum coop credits allowed for graduate programs.</param>
-        public CatalogCreditRequirements(uint ui_minCredits, uint ui_maxCreditsTransfer, uint ui_maxCreditsTransferLower, uint ui_minCreditsUpper, 
-            uint ui_minCreditsResidency, uint ui_maxCreditsChallenge, uint ui_minCreditsEarnedForMajor, uint ui_maxCreditsCoOp290, uint ui_maxCreditsCoOp,
-            uint ui_maxCreditsCoOpTransfer, uint ui_maxCreditsCoOpGrad)
-        {
-            this.ui_minCredits               = ui_minCredits;
-            this.ui_maxCreditsTransfer       = ui_maxCreditsTransfer;
-            this.ui_maxCreditsTransferLower  = ui_maxCreditsTransferLower;
-            this.ui_minCreditsUpper          = ui_minCreditsUpper;
-            this.ui_minCreditsResidency      = ui_minCreditsResidency;
-            this.ui_maxCreditsChallenge      = ui_maxCreditsChallenge;
-            this.ui_minCreditsEarnedForMajor = ui_minCreditsEarnedForMajor;
-            this.ui_maxCreditsCoOp290        = ui_maxCreditsCoOp290;
-            this.ui_maxCreditsCoOp           = ui_maxCreditsCoOp;
-            this.ui_maxCreditsCoOpTransfer   = ui_maxCreditsCoOpTransfer;
-            this.ui_maxCreditsCoOpGrad       = ui_maxCreditsCoOpGrad;
-        } // end Constructor
-
-        /// <summary>Copy Constructor.</summary>
-        /// <param name="other">Object to be copied.</param>
-        public CatalogCreditRequirements(CatalogCreditRequirements other)
-        {
-            ui_minCredits               = other.ui_minCredits;
-            ui_maxCreditsTransfer       = other.ui_maxCreditsTransfer;
-            ui_maxCreditsTransferLower  = other.ui_maxCreditsTransferLower;
-            ui_minCreditsUpper          = other.ui_minCreditsUpper;
-            ui_minCreditsResidency      = other.ui_minCreditsResidency;
-            ui_maxCreditsChallenge      = other.ui_maxCreditsChallenge;
-            ui_minCreditsEarnedForMajor = other.ui_minCreditsEarnedForMajor;
-            ui_maxCreditsCoOp290        = other.ui_maxCreditsCoOp290;
-            ui_maxCreditsCoOp           = other.ui_maxCreditsCoOp;
-            ui_maxCreditsCoOpTransfer   = other.ui_maxCreditsCoOpTransfer;
-            ui_maxCreditsCoOpGrad       = other.ui_maxCreditsCoOpGrad;
-        } // end Copy Constructor
-
-        /* * * * * * * * * * * * * * * * * * * * * * * * * */
-
-        // General Getters/Setters:
-        /// <summary>Minimum credits to graduate with Bachelor's degree.</summary>
-        public uint MinimumCredits
-        {
-            get => ui_minCredits;
-            set => ui_minCredits = value;
-        } // end MinimumCredits
-        
-        /// <summary>Maximum transferable credits.</summary>
-        public uint MaximumTransferCredits
-        {
-            get => ui_maxCreditsTransfer;
-            set => ui_maxCreditsTransfer = value;
-        } // end MaximumTransferCredits
-       
-        /// <summary>Maximum transferable LD credits.</summary>
-        public uint MaximumTransferCreditsLD
-        {
-            get => ui_maxCreditsTransferLower;
-            set => ui_maxCreditsTransferLower = value;
-        } // end MaximumTransferCreditsLD
-        
-        /// <summary>Minimum UD credits to graduate.</summary>
-        public uint MinimumCreditsUD
-        {
-            get => ui_minCreditsUpper;
-            set => ui_minCreditsUpper = value;
-        } // end MinimumCreditsUD
-        
-        /// <summary>Minimum credits taken at CWU.</summary>
-        public uint MinimumCreditsForResidency
-        {
-            get => ui_minCreditsResidency;
-            set => ui_minCreditsResidency = value;
-        } // end MinimumCreditsForResidency
-        
-        /// <summary>Maximum credits from course challenges.</summary>
-        public uint MaximumChallengeCredits
-        {
-            get => ui_maxCreditsChallenge;
-            set => ui_maxCreditsChallenge = value;
-        } // end MaximumChallengeCredits
-        
-        /// <summary>Minimum credits earned in major field by non-transfer students.</summary>
-        public uint MinimumCWUCreditsMajor
-        {
-            get => ui_minCreditsEarnedForMajor;
-            set => ui_minCreditsEarnedForMajor = value;
-        } // end MinimumCWUCreditsMajor
-       
-        /// <summary>Naximum coop credits allowed at the 290 level.</summary>
-        public uint MaximumCoOpCredits290Level
-        {
-            get => ui_maxCreditsCoOp290;
-            set => ui_maxCreditsCoOp290 = value;
-        } // end MaximumCoOpCredits290Level
-        
-        /// <summary>Naximum coop credits allowed.</summary>
-        public uint MaximumCoOpCredits
-        {
-            get => ui_maxCreditsCoOp;
-            set => ui_maxCreditsCoOp = value;
-        } // end MaximumCoOpCredits
-        
-        /// <summary>Naximum coop credits allowed for transfer students.</summary>
-        public uint MaximumCoOpCreditsTransfer
-        {
-            get => ui_maxCreditsCoOpTransfer;
-            set => ui_maxCreditsCoOpTransfer = value;
-        } // end MaximumCoOpCreditsTransfer
-       
-        /// <summary>Naximum coop credits allowed for graduate programs.</summary>
-        public uint MaximumCoOpCreditsGraduateProgram
-        {
-            get => ui_maxCreditsCoOpGrad;
-            set => ui_maxCreditsCoOpGrad = value;
-        } // end MaximumCoOpCreditsGraduateProgram
-
-        /// <summary>Returns a default object of this structure.</summary>
-        /// <returns>A default object of this structure.</returns>
-        public static CatalogCreditRequirements DefaultCatalogCreditRequirements => new CatalogCreditRequirements(0,0,0,0,0,0,0,0,0,0,0);
-    } // end structure CatalogCreditRequirements
-
     /// <summary>Structure storing degree-specific requirements.</summary>
     [Serializable]
     public struct DegreeRequirements : IComparable
@@ -387,18 +225,11 @@ namespace Database_Object_Classes
         // Structure fields:
         /// <summary>General University Requirements for this degree.</summary>
         private List<Course> l_generalRequirements;
-        /// <summary>Pre-admission requirements to enter the major.</summary>
-        private List<Course> l_preAdmissionRequirements;
-        /// <summary>Core-course requirements to graduate.</summary>
-        private List<Course> l_coreRequirements;
-        /// <summary>List of acceptable electives for the degree.</summary>
+
         private List<Course> l_acceptableElectives;
 
         /// <summary>Minimum number of electives credits for this degree.</summary>
         private uint   ui_minElectiveCredits;
-
-        /// <summary>Minimum GPA required for this degree as major.</summary>
-        private double d_minMajorGPA;
 
         /// <summary>Name of this degree.</summary>
         private string s_name;
@@ -407,23 +238,16 @@ namespace Database_Object_Classes
 
         // Constructors:
         /// <summary>Constructor for this structure.</summary>
+        /// <param name="s_name">Name of this degree.</param>
         /// <param name="l_generalRequirements">General University Requirements for this degree.</param>
-        /// <param name="l_preAdmissionRequirements">Pre-admission requirements to enter the major.</param>
-        /// <param name="l_coreRequirements">Core-course requirements to graduate.</param>
         /// <param name="l_acceptableElectives">List of acceptable electives for the degree.</param>
         /// <param name="ui_minElectiveCredits">Minimum number of electives credits for this degree.</param>
-        /// <param name="d_minMajorGPA">Minimum GPA required for this degree as major.</param>
-        /// <param name="s_name">Name of this degree.</param>
-        public DegreeRequirements(List<Course> l_generalRequirements, List<Course> l_preAdmissionRequirements,
-                                  List<Course> l_coreRequirements, List<Course> l_acceptableElectives,
-                                  uint ui_minElectiveCredits, double d_minMajorGPA, string s_name)
+        public DegreeRequirements(string s_name, List<Course> l_generalRequirements, List<Course> l_acceptableElectives,
+                                  uint ui_minElectiveCredits)
         {
             this.l_generalRequirements      = new List<Course>(l_generalRequirements);
-            this.l_preAdmissionRequirements = new List<Course>(l_preAdmissionRequirements);
-            this.l_coreRequirements         = new List<Course>(l_coreRequirements);
             this.l_acceptableElectives      = new List<Course>(l_acceptableElectives);
             this.ui_minElectiveCredits      = ui_minElectiveCredits;
-            this.d_minMajorGPA              = d_minMajorGPA;
             this.s_name                     = string.Copy(s_name);
         } // end Constructor
 
@@ -432,11 +256,8 @@ namespace Database_Object_Classes
         public DegreeRequirements(DegreeRequirements other)
         {
             l_generalRequirements       = new List<Course>(other.l_generalRequirements);
-            l_preAdmissionRequirements  = new List<Course>(other.l_preAdmissionRequirements);
-            l_coreRequirements          = new List<Course>(other.l_coreRequirements);
             l_acceptableElectives       = new List<Course>(other.l_acceptableElectives);
             ui_minElectiveCredits       = other.ui_minElectiveCredits;
-            d_minMajorGPA               = other.d_minMajorGPA;
             s_name                      = string.Copy(other.s_name);
         } // end Copy Constructor
 
@@ -450,13 +271,6 @@ namespace Database_Object_Classes
             set => s_name = string.Copy(value);
         } // end Name
 
-        /// <summary>Getter/Setter for this Degree's minimum required GPA.</summary>
-        public double MinimumGPA
-        {
-            get => d_minMajorGPA;
-            set => d_minMajorGPA = value;
-        } // end MinimumGPA
-
         /// <summary>Getter/Setter for this Degree's minimum required elective credits.</summary>
         public uint MinimumElectiveCredits
         {
@@ -465,25 +279,11 @@ namespace Database_Object_Classes
         } // end MinimumElectiveCredits
 
         /// <summary>Getter/Setter for this Degree's general course requirements.</summary>
-        public ReadOnlyCollection<Course> GeneralRequirements
+        public ReadOnlyCollection<Course> Requirements
         {
             get => l_generalRequirements.AsReadOnly();
             set => l_generalRequirements = new List<Course>(value);
         } // end GeneralRequirements
-
-        /// <summary>Getter/Setter for this Degree's pre-admission course requirements.</summary>
-        public ReadOnlyCollection<Course> PreAdmissionRequirements
-        {
-            get => l_preAdmissionRequirements.AsReadOnly();
-            set => l_preAdmissionRequirements = new List<Course>(value);
-        } // end PreAdmissionRequirements
-
-        /// <summary>Getter/Setter for this Degree's core course requirements</summary>
-        public ReadOnlyCollection<Course> CoreRequirements
-        {
-            get => l_coreRequirements.AsReadOnly();
-            set => l_coreRequirements = new List<Course>(value);
-        } // end CoreRequirements
 
         /// <summary>Getter/Setter for this Degree's acceptable elective courses.</summary>
         public ReadOnlyCollection<Course> AcceptableElectives
@@ -494,7 +294,7 @@ namespace Database_Object_Classes
 
         /// <summary>Returns a default object of this structure.</summary>
         /// <returns>A default object of this structure.</returns>
-        public static DegreeRequirements DefaultDegreeRequirements => new DegreeRequirements(new List<Course>(), new List<Course>(), new List<Course>(), new List<Course>(), 0, 0, "");
+        public static DegreeRequirements DefaultDegreeRequirements => new DegreeRequirements("", new List<Course>(), new List<Course>(), 0);
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
