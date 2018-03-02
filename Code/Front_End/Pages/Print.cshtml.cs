@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace CwuAdvising.Pages
 {
+    /// <summary>Model for printing page</summary>
     public class PrintModel : PageModel
     {
         
