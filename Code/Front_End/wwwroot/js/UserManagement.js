@@ -17,8 +17,7 @@ $(document).on("click", "#SaveUsers", function () {
         if (HasAttrValue(UserRow, "modified", "true")) {
             User.Username = UserRow.children().eq(1).text();
             User.Admin = HasAttrValue(UserRow.children().eq(2), "toggled", "true");
-            User.ResetPassword = HasAttrValue(UserRow.children().eq(3), "toggled", "true");
-            User.isActive = HasAttrValue(UserRow.children().eq(4), "toggled", "true");
+            User.isActive = HasAttrValue(UserRow.children().eq(3), "toggled", "true");
             ModifiedUsers.push(User);
         }
     }
@@ -72,7 +71,6 @@ function CreateUserRow(User) {
     } else {
         AdminColumn.attr("toggled", "false");
     }
-    
     Row.append(AdminColumn);
 
     var ActiveColumn = $("<div></div>");
@@ -83,15 +81,6 @@ function CreateUserRow(User) {
         ActiveColumn.attr("toggled", "false");
     }
     Row.append(ActiveColumn);
-
-    var ResetColumn = $("<div></div>");
-    ResetColumn.attr("class", "Element WideToggleElement");
-    if (User.ResetPassword === true) {
-        Toggle(ResetColumn);
-    } else {
-        ResetColumn.attr("toggled", "false");
-    }
-    Row.append(ResetColumn);
 
     return Row;
 }
