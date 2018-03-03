@@ -65,15 +65,6 @@ namespace CwuAdvising.Pages
                 if (requestBody.Length > 0)
                 {
                     var StudentId = JsonConvert.DeserializeObject<string>(requestBody);
-
-                    /*
-                    if(!Program.Database.connected)
-                    {
-                        return new JsonResult(false);
-                    }
-                    */
-
-                    //Program.Database.RetrieveRecord()
                     if(AdvisingModel.LoadStudent(StudentId))
                     {
                         return new JsonResult(true);

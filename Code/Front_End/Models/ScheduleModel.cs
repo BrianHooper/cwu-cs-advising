@@ -83,6 +83,12 @@ namespace CwuAdvising.Models
             public bool TakingSummer { get; set; }
         }
 
+        /// <summary>Name of the degree</summary>
+        public string Name { get; set; }
+
+        /// <summary>Catalog year for the degree</summary>
+        public string AcademicYear { get; set; }
+
         /// <summary>List of Quarters</summary>
         public List<ModelQuarter> Quarters { get; set; }
 
@@ -90,6 +96,6 @@ namespace CwuAdvising.Models
         public List<Requirement> UnmetRequirements { get; set; }
 
         /// <summary>Student Constraints</summary>
-        public ConstraintModel Constraints;
+        public ConstraintModel Constraints { get; set; }
     }
 }

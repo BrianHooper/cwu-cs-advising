@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace CwuAdvising
 {
+    /// <summary>Class for storing frequently accessed database objects in memory</summary>
     public class DatabaseObjects
     {
         /// <summary>

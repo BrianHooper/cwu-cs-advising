@@ -17,55 +17,6 @@ namespace CwuAdvising.Pages
     public class ManageCoursesModel : PageModel
     {
         /// <summary>
-        /// Master list of courses contained in database
-        /// </summary>
-        //public static List<Course> MasterCourseList = new List<Course>();
-        /*
-        /// <summary>
-        /// Retrieves master list of courses from database
-        /// </summary>
-        public static void GetCoursesFromDatabase()
-        {
-            if (Program.Database.connected)
-            {
-                MasterCourseList = Program.Database.GetAllCourses();
-            }
-            else
-            {
-                List<Course> MasterList = new List<Course>();
-
-                // Temporary values for testing
-                Course MATH330 = new Course("Discrete Math", "MATH330", 5, false, new bool[] { false, true, false, true })
-                {
-                    Department = "Mathematics"
-                };
-                MasterList.Add(MATH330);
-
-                Course CS301 = new Course("Data Structures I", "CS301", 4, false, new bool[] { true, true, false, true })
-                {
-                    Department = "Computer Science"
-                };
-                MasterList.Add(CS301);
-
-                Course CS302 = new Course("Data Structures II", "CS302", 4, false, new bool[] { true, true, false, true })
-                {
-                    Department = "Computer Science"
-                };
-                CS302.AddPreRequisite(CS301);
-                MasterList.Add(CS302);
-
-                Course CS470 = new Course("Operating Systems", "CS470", 4, false, new bool[] { true, true, false, true })
-                {
-                    Department = "Computer Science"
-                };
-                CS470.AddPreRequisite(new Course("Prog. Language Design", "CS362", 4, false));
-                MasterList.Add(CS470);
-
-                MasterCourseList = MasterList;
-            }
-        }
-        */
-        /// <summary>
         /// Converts Course list to CourseModel list
         /// </summary>
         /// <param name="CourseList">List of Course objects</param>
@@ -204,7 +155,6 @@ namespace CwuAdvising.Pages
                     return false;
                 }
             }
-            
             return true;
         }
     }

@@ -18,9 +18,12 @@ namespace CwuAdvising.Pages
     {
         /// <summary>Example JSON for testing</summary>
         public static string ExampleSchedule = System.IO.File.ReadAllText("wwwroot/SimplePlan.json");
-
+        
         /// <summary>Current student loaded to advising page</summary>
         public static StudentModel CurrentStudent { get; set; }
+
+        /// <summary>Current students schedule as JSON string</summary>
+        public static string CurrentSchedule { get; set; }
 
         /// <summary>Model for passing Student information from the view</summary>
         public class StudentModel
@@ -69,34 +72,104 @@ namespace CwuAdvising.Pages
             {
                 return System.IO.File.ReadAllText("wwwroot/ExamplePlan.json");
             }
-
-            return System.IO.File.ReadAllText("wwwroot/ExamplePlan.json");
+            else
+            {
+                PlanInfo template = new PlanInfo("-1", 0, Quarter.DefaultQuarter.ToString(), new string[1]);
+                PlanInfo dbschedule = Program.Database.RetrieveRecord(template);
+                return JsonConvert.SerializeObject(dbschedule.Classes[0]);
+            }
         }
         
+        /// <summary>Loads the schedule plan for the student</summary>
+        /// <param name="ID">The students unique ID</param>
+        /// <returns>Schedule as a JSON string</returns>
+        public static string LoadStudentSchedule(string ID)
+        {
+            if(!Program.Database.connected)
+            {
+                return "";
+            }
+            else
+            {
+                PlanInfo template = new PlanInfo(ID, 0, Quarter.DefaultQuarter.ToString(), new string[1]);
+                PlanInfo dbschedule = Program.Database.RetrieveRecord(template);
+                return dbschedule.Classes[0];
+            }
+        }
+
         /// <summary>Attempts to load a student plan from the database</summary>
         /// <param name="ID">ID of student</param>
         /// <returns>true if the student was found in the database</returns>
         public static bool LoadStudent(string ID)
         {
-            /*
+            CurrentStudent = new StudentModel("Example", ID, "Fall", "2018", "BS - Computer Science", "2018");
             if(!Program.Database.connected)
             {
-                return false;
+                return true;
             }
-            */
-            // Find student from database that matches ID
-            // Return true or false depending on whether or not the student exists
+            else
+            {
+                Student template = new Student(Name.DefaultName, ID, Quarter.DefaultQuarter);
+                Student dbstudent = (Student)Program.Database.RetrieveRecord(template, Database_Handler.OperandType.Student);
+
+                PlanInfo plantemplate = new PlanInfo(ID, 0, Quarter.DefaultQuarter.ToString(), new string[1]);
+                PlanInfo dbschedule = Program.Database.RetrieveRecord(plantemplate);
+                CurrentSchedule = dbschedule.Classes[0];
+
+                ScheduleModel currentScheduleModel = JsonConvert.DeserializeObject<ScheduleModel>(CurrentSchedule);
+
+                CurrentStudent = new StudentModel(
+                    dbstudent.Name.ToString(), 
+                    dbstudent.ID, 
+                    dbstudent.StartingQuarter.QuarterSeason.ToString(), 
+                    dbstudent.StartingQuarter.Year.ToString(),
+                    currentScheduleModel.Name, 
+                    currentScheduleModel.AcademicYear);
+            }
 
             // For testing 
-            CurrentStudent = new StudentModel("Example", ID, "Fall", "2018", "BS - Computer Science", "2018");
             return true;
         }
 
         /// <summary>Create a new student</summary>
-        /// <param name="Student">StudentModel containing student information</param>
-        public static void CreateStudent(StudentModel Student)
+        /// <param name="model">StudentModel containing student information</param>
+        public static void CreateStudent(StudentModel model)
         {
-            CurrentStudent = Student;
+            if(Program.Database.connected)
+            {
+                Student CreatedStudent = new Student(new Name(model.Name, ""), model.ID, StringToQuarter(model.Quarter));
+                Program.Database.UpdateRecord(CreatedStudent, Database_Handler.OperandType.Student);
+
+                ScheduleModel CreatedScheduleModel = new ScheduleModel
+                {
+                    Name = model.Degree,
+                    AcademicYear = model.CatalogYear,
+                    Quarters = new List<ModelQuarter>()
+                };
+                ModelQuarter StartingQuarter = new ModelQuarter
+                {
+                    Courses = new List<Requirement>(),
+                    Locked = false,
+                    Title = model.Quarter
+                };
+                CreatedScheduleModel.Quarters.Add(StartingQuarter);
+
+                CatalogRequirements template = new CatalogRequirements(model.CatalogYear, new List<DegreeRequirements>());
+                CatalogRequirements Catalog = (CatalogRequirements) Program.Database.RetrieveRecord(template, Database_Handler.OperandType.CatalogRequirements);
+
+                DegreeRequirements Degree = Catalog.DegreeRequirements.ToList().Find(delegate(DegreeRequirements degree) { return degree.Name == model.Degree; }) ;
+
+                CreatedScheduleModel.UnmetRequirements = new List<Requirement>();
+                foreach(Course course in Degree.Requirements)
+                {
+                    CreatedScheduleModel.UnmetRequirements.Add(Requirement.CourseToRequirement(course));
+                }
+
+                PlanInfo CreatedPlanInfo = new PlanInfo(model.ID, 0, model.Quarter, new string[1] { JsonConvert.SerializeObject(CreatedScheduleModel) });
+
+                Program.Database.UpdateRecord(CreatedPlanInfo);
+            }
+            CurrentStudent = model;
         }
 
         /// <summary>
