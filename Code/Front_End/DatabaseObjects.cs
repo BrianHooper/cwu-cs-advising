@@ -23,7 +23,7 @@ namespace CwuAdvising
             List<Course> CourseList = new List<Course>();
             if (Program.Database.connected)
             {
-                CourseList = Program.Database.GetAllCourses();
+                CourseList = Program.Database.GetAllCourses(false);
             }
             else
             {

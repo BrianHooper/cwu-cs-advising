@@ -292,6 +292,9 @@ namespace Database_Object_Classes
             if (!l_preRequisites.Contains(c_course))
             {
                 l_preRequisites.Add(c_course);
+            } // end if
+            if (!ls_preRequisistes.Contains(c_course.ID))
+            {
                 ls_preRequisistes.Add(c_course.ID);
             } // end if
         } // end method addPreRequisite
@@ -307,6 +310,9 @@ namespace Database_Object_Classes
                 if (!l_preRequisites.Contains(c_course))
                 {
                     l_preRequisites.Add(c_course);
+                } // end if
+                if (!ls_preRequisistes.Contains(c_course.ID))
+                {
                     ls_preRequisistes.Add(c_course.ID);
                 } // end if
             } // end foreach
