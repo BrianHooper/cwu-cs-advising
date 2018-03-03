@@ -280,9 +280,20 @@
         <member name="M:Database_Handler.DatabaseHandler.CleanUp">
             <summary>Cleans up after DBH is closed.</summary>
         </member>
+        <member name="M:Database_Handler.DatabaseHandler.GetColumnCounts(System.String,System.Int32)">
+            <summary>Sets the ui_COL_COUNT array to contain the number of columns in all variable length tables.</summary>
+            <param name="s_table">Optional. The table to check, leaving this empty will check all tables.</param>
+            <param name="i_index">Optional. The index of the table in arg 1. </param>
+        </member>
         <member name="M:Database_Handler.DatabaseHandler.WriteToLog(System.String)">
             <summary>Writes the given message into the DBH log with a current time stamp.</summary>
             <param name="s_msg">The message to log.</param>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.DeadLockDetector">
+            <summary>
+                This method attempts to lock the database lock, if it does not succeed 
+                at least once per two-minute period, it will kill the application.
+            </summary>
         </member>
         <member name="M:Database_Handler.DatabaseHandler.LoginAttempt(System.String,System.String,System.Boolean@)">
             <summary>Checks the password entered by a user against the database record.</summary>

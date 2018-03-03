@@ -554,6 +554,9 @@
         <member name="P:Database_Object_Classes.Credentials.PWSalt">
             <summary>Getter for the password salt of this user.</summary>
         </member>
+        <member name="P:Database_Object_Classes.Credentials.Password_Hash">
+            <summary>Getter/Setter for the byte array containing the user's password hash.</summary>
+        </member>
         <member name="P:Database_Object_Classes.Credentials.IsAdmin">
             <summary>Getter/Setter for whether this user is an Admin.</summary>
         </member>

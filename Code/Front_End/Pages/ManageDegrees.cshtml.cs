@@ -25,9 +25,11 @@ namespace CwuAdvising.Pages
         /// <returns>True if the database query was successful</returns>
         public static bool GetCatalogFromDatabase()
         {
-            CatalogList = new List<CatalogRequirements>();
-            //Program.Database.RetrieveRecord(???, Database_Handler.OperandType.CatalogRequirements);
-            TESTBuildDegreeList();
+            if (Program.Database.connected)
+            {
+                CatalogList = Program.Database.GetAllCatalogs(true);
+            }
+            //TESTBuildDegreeList();
             return true;
         }
 
@@ -129,25 +131,7 @@ namespace CwuAdvising.Pages
         /// <returns>DegreeRequirements object corresponding to the given DegreeModel</returns>
         public static DegreeRequirements DegreeModelToRequirements(DegreeModel Degree)
         {
-            List<Course> DegreeCourseList = new List<Course>();
-
-            Program.DbObjects.GetCoursesFromDatabase(true);
-
-            foreach(string CourseID in Degree.requirements)
-            {
-                try
-                {
-                    Course MatchingCourse = Program.DbObjects.MasterCourseList.Find(delegate (Course C) { return C.ID == CourseID; });
-                    DegreeCourseList.Add(MatchingCourse);
-                }
-                catch (ArgumentException)
-                {
-
-                }
-            }
-
-            List<Course> EmptyList = new List<Course>();
-            return new DegreeRequirements(Degree.name, Degree.name, "department", DegreeCourseList);
+            return new DegreeRequirements(Degree.name, Degree.name, Degree.name, Degree.requirements);
         }
 
         /// <summary>Loads the master catalog list into a list of DegreeModels</summary>
@@ -181,11 +165,11 @@ namespace CwuAdvising.Pages
         /// <summary>Updates database with the modified degree</summary>
         /// <param name="model">Model of the degree to be updated</param>
         /// <returns>true if the update was successful</returns>
-        public static void WriteDatabaseDegree(DegreeModel model)
+        public static bool WriteDatabaseDegree(DegreeModel model)
         {
             // Convert the DegreeModel to DegreeRequirements
             string CatalogYear = model.year.ToString();
-            DegreeRequirements Degree = DegreeModelToRequirements(model);
+            DegreeRequirements Degree = new DegreeRequirements(CatalogYear + model.name, model.name, model.name, model.requirements);
             CatalogRequirements Catalog;
 
             // Create a new list of DegreeRequirements and add the modified degree
@@ -198,16 +182,17 @@ namespace CwuAdvising.Pages
             {
                 // Find a catalog matching the catalog year of the modified degree
                 Catalog = CatalogList.Find(delegate (CatalogRequirements CR) { return CR.ID == CatalogYear; });
-                
-                // Add any degrees in the catalog other than the modifed degree
-                foreach(DegreeRequirements OldDegree in Catalog.DegreeRequirements)
+                if(Catalog != null)
                 {
-                    if(OldDegree.Name != Degree.Name)
+                    // Add any degrees in the catalog other than the modifed degree
+                    foreach (DegreeRequirements OldDegree in Catalog.DegreeRequirements)
                     {
-                        NewDegreeRequirements.Add(OldDegree);
+                        if (OldDegree.Name != Degree.Name)
+                        {
+                            NewDegreeRequirements.Add(OldDegree);
+                        }
                     }
                 }
-
             }
             catch(ArgumentNullException)
             {
@@ -218,34 +203,40 @@ namespace CwuAdvising.Pages
             Catalog = new CatalogRequirements(CatalogYear, NewDegreeRequirements);
 
             // Update the database
-            Program.Database.UpdateRecord(Catalog, Database_Handler.OperandType.CatalogRequirements);
+            return Program.Database.UpdateRecord(Catalog, Database_Handler.OperandType.CatalogRequirements);
         }
 
         /// <summary>Retrieves a modified degree as JSON data from POST</summary>
         /// <returns>JsonResult containing success/error status</returns>
         public ActionResult OnPostSendDegree()
         {
-            MemoryStream stream = new MemoryStream();
-            Request.Body.CopyTo(stream);
-            stream.Position = 0;
-            using (StreamReader reader = new StreamReader(stream))
+            try
             {
-                string requestBody = reader.ReadToEnd();
-                if (requestBody.Length > 0)
+                MemoryStream stream = new MemoryStream();
+                Request.Body.CopyTo(stream);
+                stream.Position = 0;
+                using (StreamReader reader = new StreamReader(stream))
                 {
-                    var ModifiedDegree = JsonConvert.DeserializeObject<DegreeModel>(requestBody);
-
-                    if(Program.Database.connected)
+                    string requestBody = reader.ReadToEnd();
+                    if (requestBody.Length > 0)
                     {
-                        WriteDatabaseDegree(ModifiedDegree);
+                        var ModifiedDegree = JsonConvert.DeserializeObject<DegreeModel>(requestBody);
+                        
+
+                        bool DatabaseUpdated = WriteDatabaseDegree(ModifiedDegree);
+
+                        
+                        return new JsonResult(DatabaseUpdated);
                     }
-                    
-                    return new JsonResult("Courses saved succesfully.");
+                    else
+                    {
+                        return new JsonResult("Error passing data to server.");
+                    }
                 }
-                else
-                {
-                    return new JsonResult("Error passing data to server.");
-                }
+            }
+            catch(Exception e)
+            {
+                return new JsonResult(e.Message);
             }
         }
     }
