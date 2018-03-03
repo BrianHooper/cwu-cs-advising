@@ -12,6 +12,8 @@ namespace Database_Object_Classes
         /// <summary>List containing the individual requirements for all degrees.</summary>
         private List<DegreeRequirements>  l_degreeRequirements;
 
+        private List<string>              ls_degrees;
+
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
         // Constructors:
@@ -30,6 +32,14 @@ namespace Database_Object_Classes
             l_degreeRequirements = new List<DegreeRequirements>(other.l_degreeRequirements);
         } // end Copy Constructor
 
+        /// <summary>Constructor for database use.</summary>
+        /// <param name="s_ID"></param>
+        /// <param name="degrees"></param>
+        public CatalogRequirements(string s_ID, List<string> degrees) : base(s_ID) 
+        {
+            ls_degrees = new List<string>(degrees);
+        } // end Constructor
+
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
         // General Getters/Setters:        
@@ -39,5 +49,10 @@ namespace Database_Object_Classes
             get => l_degreeRequirements.AsReadOnly();
             set => l_degreeRequirements = new List<DegreeRequirements>(value);
         } // end DegreeRequirements
+
+        public List<string> DegreeList
+        {
+            get => ls_degrees;
+        }
     } // end Class CatalogRequirements
 } // end Namespace Database_Object_Classes
