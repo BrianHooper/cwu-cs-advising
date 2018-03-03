@@ -16,6 +16,8 @@ namespace CwuAdvising.Pages
     /// </summary>
     public class ManageCoursesModel : PageModel
     {
+        public static string ErrorMessage { get; set; } = "";
+
         /// <summary>
         /// Converts Course list to CourseModel list
         /// </summary>
@@ -28,11 +30,18 @@ namespace CwuAdvising.Pages
             foreach(Course course in CourseList)
             {
                 CourseModel model = CourseModel.Convert(course);
-                foreach(Course prereq in course.PreRequisites)
+                if(!course.IsShallow) {
+                    foreach (Course prereq in course.PreRequisites)
+                    {
+                        model.PreReqs.Add(prereq.ID);
+                    }
+                } else
                 {
-                    model.PreReqs.Add(prereq.ID);
+                    foreach (string prereq in course.ShallowPreRequisites)
+                    {
+                        model.PreReqs.Add(prereq);
+                    }
                 }
-
                 ModelList.Add(model);
             }
 
@@ -53,12 +62,6 @@ namespace CwuAdvising.Pages
                 if (model.Delete)
                 {
                     Course c = (Course) model;
-
-                    foreach (string prereq in model.PreReqs)
-                    {
-                        c.AddPreRequisite(Program.DbObjects.MasterCourseList.Find(delegate (Course masterCourse) { return masterCourse.ID == prereq; }));
-                    }
-
                     CourseList.Add(c);
                 }
             }
@@ -77,16 +80,59 @@ namespace CwuAdvising.Pages
 
             foreach (CourseModel model in ModelList)
             {
-                if(!model.Delete)
+                if(!model.Delete && model != null)
                 {
-                    Course c = (Course)model;
+                    bool[] offered = new bool[4];
+
+                    for (int i = 0; i < model.Offered.Length; i++)
+                    {
+                        switch (model.Offered[i])
+                        {
+                            case '1':
+                                offered[0] = true;
+                                break;
+                            case '2':
+                                offered[1] = true;
+                                break;
+                            case '3':
+                                offered[2] = true;
+                                break;
+                            case '4':
+                                offered[3] = true;
+                                break;
+                        } // end switch
+                    } // end for
+
+                    if (model.Credits == null)
+                    {
+                        model.Credits = "0";
+                    }
+
+                    Course course = new Course("", model.ID, uint.Parse(model.Credits), false, offered);
+                    
+                    if(model.Name != null)
+                    {
+                        course.Name = model.Name;
+                    } else
+                    {
+                        course.Name = "";
+                    }
+
+                    if (model.Department != null)
+                    {
+                        course.Department = model.Department;
+                    }
+                    else
+                    {
+                        course.Department = "";
+                    }
 
                     foreach (string prereq in model.PreReqs)
                     {
-                        c.AddPreRequisite(Program.DbObjects.MasterCourseList.Find(delegate (Course masterCourse) { return masterCourse.ID == prereq; }));
+                        course.AddPreRequisite(new Course("", "prereq", 0, false));
                     }
 
-                    CourseList.Add(c);
+                    CourseList.Add(course);
                 }
             }
 
@@ -100,7 +146,7 @@ namespace CwuAdvising.Pages
         /// <returns>CourseModel list as serialized JSON string</returns>
         public static string CourseListAsJson()
         {
-            Program.DbObjects.GetCoursesFromDatabase();
+            Program.DbObjects.GetCoursesFromDatabase(true);
             List<CourseModel> ModelList = CourseListToCourseModelList(Program.DbObjects.MasterCourseList);
             return JsonConvert.SerializeObject(ModelList);
         }
@@ -109,48 +155,73 @@ namespace CwuAdvising.Pages
         /// <returns>JsonResult containing success/error status</returns>
         public ActionResult OnPostSendCourses()
         {
-            MemoryStream stream = new MemoryStream();
-            Request.Body.CopyTo(stream);
-            stream.Position = 0;
-            using (StreamReader reader = new StreamReader(stream))
+            try
             {
-                string requestBody = reader.ReadToEnd();
-                if (requestBody.Length > 0)
+                MemoryStream stream = new MemoryStream();
+                Request.Body.CopyTo(stream);
+                stream.Position = 0;
+                using (StreamReader reader = new StreamReader(stream))
                 {
-                    var ModifiedCourses = JsonConvert.DeserializeObject<List<CourseModel>>(requestBody);
-                    
-                    List<Course> CoursesToUpdate = GetCoursesToUpdate(ModifiedCourses);
-                    /*
-                    List<Course> CoursesToDelete = GetCoursesToDelete(ModifiedCourses);
-                    if(!UpdateDatabaseCourses(CoursesToDelete))
+                    string requestBody = reader.ReadToEnd();
+                    if (requestBody.Length > 0)
                     {
-                        return new JsonResult("Course update failed.");
+                        var ModifiedCourses = JsonConvert.DeserializeObject<List<CourseModel>>(requestBody);
+                        
+                        List<Course> CoursesToUpdate = GetCoursesToUpdate(ModifiedCourses);
+                        List<Course> CoursesToDelete = GetCoursesToDelete(ModifiedCourses);
+                        
+                        if (!DeleteDatabaseCourses(CoursesToDelete))
+                        {
+                            return new JsonResult("Course update failed.");
+                        }
+
+                        if (!UpdateDatabaseCourses(CoursesToUpdate))
+                        {
+                            return new JsonResult("Course update failed.");
+                        }
+                        
+                        return new JsonResult("Courses saved!");
                     }
-                    */
-                    if(!UpdateDatabaseCourses(CoursesToUpdate))
+                    else
                     {
-                        return new JsonResult("Course update failed.");
+                        return new JsonResult("Error passing data to server.");
                     }
-                    
-                    return new JsonResult("Courses saved!");
                 }
-                else
-                {
-                    return new JsonResult("Error passing data to server.");
-                }
+            } catch(Exception e)
+            {
+                return new JsonResult(e.Message);
             }
+            
         }
 
         private bool UpdateDatabaseCourses(List<Course> CourseList)
         {
+            
             if(!Program.Database.connected)
             {
                 return false;
             }
-
+            
             foreach(Course c in CourseList)
             {
                 if(!Program.Database.UpdateRecord(c, Database_Handler.OperandType.Course))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private bool DeleteDatabaseCourses(List<Course> CourseList)
+        {
+            if (!Program.Database.connected)
+            {
+                return false;
+            }
+
+            foreach (Course c in CourseList)
+            {
+                if (!Program.Database.DeleteRecord(c, Database_Handler.OperandType.Course))
                 {
                     return false;
                 }

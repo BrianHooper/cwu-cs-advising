@@ -327,7 +327,7 @@ namespace CwuAdvising
             } // end if
             else
             {
-                Console.WriteLine(retCmd.ErrorMessage);
+                Pages.ManageCoursesModel.ErrorMessage = retCmd.ErrorMessage;
                 return false;
             } // end else
         } // end method UpdateRecord
@@ -420,7 +420,7 @@ namespace CwuAdvising
             } // end if
             else
             {
-                Console.WriteLine(retCmd.ErrorMessage);
+                Pages.ManageCoursesModel.ErrorMessage = retCmd.ErrorMessage;
                 return false;
             } // end else
         } // end method DeleteRecord

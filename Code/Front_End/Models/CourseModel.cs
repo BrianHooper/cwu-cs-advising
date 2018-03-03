@@ -53,19 +53,29 @@ namespace CwuAdvising.Models
                 } // end switch
             } // end for
 
-            string ID = string.Empty;
-
-            switch(model.Department)
+            if (model.Credits == null)
             {
-                case "Computer Science":
-                    ID = "CS";
-                    break;
-                case "Mathematics":
-                    ID = "Math";
-                    break;
-            } // end switch
-            
-            return new Course(model.Name, model.ID, uint.Parse(model.Credits), model.RequiresMajor, offered, preRequs);
+                model.Credits = "0";
+            }
+            Course course = new Course("", model.ID, uint.Parse(model.Credits), model.RequiresMajor, offered, preRequs);
+            if (model.Name != null)
+            {
+                course.Name = model.Name;
+            }
+            else
+            {
+                course.Name = "";
+            }
+
+            if (model.Department != null)
+            {
+                course.Department = model.Department;
+            }
+            else
+            {
+                course.Department = "";
+            }
+            return course;
         } // end explicit cast operator
 
         /// <summary>Explicit cast operator for Course to CourseModel conversion.</summary>

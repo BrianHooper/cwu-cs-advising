@@ -390,7 +390,7 @@ namespace CwuAdvising.Pages
         /// <returns>Schedule object matching the model</returns>
         public static Schedule ScheduleModelToSchedule(ScheduleModel model)
         {
-            Program.DbObjects.GetCoursesFromDatabase();
+            Program.DbObjects.GetCoursesFromDatabase(false);
             Schedule schedule = null;
             foreach(ModelQuarter modelQuarter in model.Quarters)
             {

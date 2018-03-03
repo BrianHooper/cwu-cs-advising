@@ -131,7 +131,7 @@ namespace CwuAdvising.Pages
         {
             List<Course> DegreeCourseList = new List<Course>();
 
-            Program.DbObjects.GetCoursesFromDatabase();
+            Program.DbObjects.GetCoursesFromDatabase(true);
 
             foreach(string CourseID in Degree.requirements)
             {

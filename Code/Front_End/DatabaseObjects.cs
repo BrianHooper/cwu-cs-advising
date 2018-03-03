@@ -18,12 +18,12 @@ namespace CwuAdvising
         /// <summary>
         /// Retrieves master list of courses from database
         /// </summary>
-        public List<Course> GetCoursesFromDatabase()
+        public List<Course> GetCoursesFromDatabase(bool shallow)
         {
             List<Course> CourseList = new List<Course>();
             if (Program.Database.connected)
             {
-                CourseList = Program.Database.GetAllCourses(false);
+                CourseList = Program.Database.GetAllCourses(shallow);
             }
             else
             {

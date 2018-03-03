@@ -9,6 +9,8 @@ var DeletedCourses = [];
 var UniqueCourseId = 0;
 
 $(document).ready(function () {
+    Departments.push("Computer Science");
+    Departments.push("Mathematics");
     ResetCourseContainer();
     LoadDepartments(CourseList);
 });
@@ -65,9 +67,11 @@ function ResetCourseContainer() {
 function LoadDepartments(Courses) {
 
     for (var i = 0; i < Courses.length; i++) {
-        if (!StringArrayContains(Departments, Courses[i].Department)) {
-            Departments.push(Courses[i].Department);
-            $("#DepartmentSearch").append("<option value='" + Courses[i].Department + "'>" + Courses[i].Department + "</option>");
+        if (Courses[i].Department !== null) {
+            if (!StringArrayContains(Departments, Courses[i].Department)) {
+                Departments.push(Courses[i].Department);
+                $("#DepartmentSearch").append("<option value='" + Courses[i].Department + "'>" + Courses[i].Department + "</option>");
+            }
         }
     }
 }
