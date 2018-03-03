@@ -11,7 +11,7 @@ namespace PlanGenerationAlgorithm
         public Student student;
         public Quarter quarterName;
         public bool locked = false;
-        public uint NumberOfQuarters=0; //total number of quarters
+        public uint NumberOfQuarters = 0; //total number of quarters
         public List<Course> courses; //list of all courses taken
         public Schedule NextQuarter, previousQuarter;
         public uint ui_numberCredits = 0;
@@ -28,7 +28,7 @@ namespace PlanGenerationAlgorithm
 
         /// <summary>Copy Constructor which creates a copy of the other course.</summary>
         /// <param name="allCourses">schedule to be copied.</param>
-        public Schedule(Schedule allCourses) 
+        public Schedule(Schedule allCourses)
         {
             this.NextQuarter = allCourses.NextQuarter;
             this.previousQuarter = allCourses.previousQuarter;
@@ -95,7 +95,7 @@ namespace PlanGenerationAlgorithm
             if (NextQuarter == null)
             {
                 NextQuarter = new Schedule(GetNextQuarter());
-                if (NextQuarter.quarterName.QuarterSeason.Equals(Season.Summer)&&!NextQuarter.locked)
+                if (NextQuarter.quarterName.QuarterSeason.Equals(Season.Summer) && !NextQuarter.locked)
                 {
                     algorithm.takeSummerCourses = true;
                 }
@@ -117,12 +117,12 @@ namespace PlanGenerationAlgorithm
             Algorithm algorithm = new Algorithm();
             switch (quarterName.QuarterSeason)
             {
-                case Season.Fall:NumberOfQuarters++; return new Quarter(quarterName.Year + 1, Season.Winter);
+                case Season.Fall: NumberOfQuarters++; return new Quarter(quarterName.Year + 1, Season.Winter);
                 case Season.Winter: NumberOfQuarters++; return new Quarter(quarterName.Year, Season.Spring);
                 case Season.Spring:
                     {
                         //algorithm.takeSummerCourses = true;
-                        if (algorithm.takeSummerCourses==true)
+                        if (algorithm.takeSummerCourses == true)
                         {
                             NumberOfQuarters++;
                             return new Quarter(quarterName.Year, Season.Summer);
