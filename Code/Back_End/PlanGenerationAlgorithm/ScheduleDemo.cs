@@ -15,12 +15,12 @@ namespace PlanGenerationAlgorithm
         public void Run()
         {
             Console.WriteLine("6 Courses, Max 3 per quarter, no prereqs, each course offered every quarter:");
-            //DemoWithNoConstraints();
+            DemoWithNoConstraints();
 
             Console.WriteLine("\n------------------\n");
 
             Console.WriteLine("3 Courses, Max 3 per quarter, all prereqs, first course not offered in fall:");
-            //DemoWithAllPrereqs();
+            DemoWithAllPrereqs();
             DemoFullSchedule();
             Console.ReadKey();
             Console.WriteLine("End of demo.");
@@ -60,8 +60,8 @@ namespace PlanGenerationAlgorithm
             Schedule StudentSchedule = new Schedule(new Quarter(2018, Season.Fall));
 
             // Run the algorithm
-            Schedule GeneratedSchedule = Algorithm.Generate(Requirements, StudentSchedule,10,18,true);
-            
+            Schedule GeneratedSchedule = Algorithm.Generate(Requirements, StudentSchedule, 10, 18, true);
+
             // Output the results to the console
             Console.WriteLine("\n" + GeneratedSchedule.GetFirstSchedule());
         }
@@ -87,7 +87,7 @@ namespace PlanGenerationAlgorithm
             Requirements.Add(new Course("Software Engineering", "CS480", 4, true, new bool[] { true, true, false, true }, PreReqs));
             Requirements.Add(new Course("Introduction to UNIX", "CS370", 4, true, new bool[] { true, true, false, true }, PreReqs));
             Requirements.Add(new Course("Programming Languages", "CS361", 4, true, new bool[] { true, true, false, true }, PreReqs));
-           
+
             // Write the requirements list to the console
             Console.WriteLine("Course Requirements:");
             foreach (Course c in Requirements)
@@ -99,7 +99,7 @@ namespace PlanGenerationAlgorithm
             Schedule StudentSchedule = new Schedule(new Quarter(2018, Season.Fall));
 
             // Run the algorithm
-            Schedule GeneratedSchedule = Algorithm.Generate(Requirements, StudentSchedule,10,18,true);
+            Schedule GeneratedSchedule = Algorithm.Generate(Requirements, StudentSchedule, 10, 18, true);
 
             // Output the results to the console
             Console.WriteLine("\n" + GeneratedSchedule.GetFirstSchedule());
@@ -134,7 +134,7 @@ namespace PlanGenerationAlgorithm
             Course CS110 = new Course("bs", "CS110", 4, true, CS110Offered, NoPrereq);
             Course gened1 = new Course("gened1", "Eng101", 5, true, CS110Offered, NoPrereq);
             Course gened2 = new Course("gened2", "US Cultures", 5, true, CS110Offered, NoPrereq);
-            Course gened3 = new Course("gened3", "Philosophies", 5, true, CS110Offered, NoPrereq);
+            Course gened3 = new Course("gened3", "Philosophies", 4, true, CS110Offered, NoPrereq);
             Course gened4 = new Course("gened4", "Aesthetic", 5, true, CS110Offered, NoPrereq);
             ICollection<Course> NeedEng102 = new List<Course>();
             NeedEng102.Add(gened1);
@@ -186,7 +186,7 @@ namespace PlanGenerationAlgorithm
 
             //create object schedule and call generate schedule for starting quarter
             //Schedule schedule = new Schedule(q_startingQuarter);
-           // Schedule completed = Algorithm.Generate(coursesList, schedule);
+            // Schedule completed = Algorithm.Generate(coursesList, schedule);
             //while requirements are not completed
 
             Console.WriteLine("Course Requirements:");
@@ -202,17 +202,17 @@ namespace PlanGenerationAlgorithm
 
             // Create an empty Schedule starting Fall 2018
             Schedule StudentSchedule = new Schedule(new Quarter(2018, Season.Fall));
-            StudentSchedule.courses.Add(gened6);
-            StudentSchedule.courses.Add(CS110);
-            StudentSchedule.courses.Add(gened4);
-            StudentSchedule.courses.Add(CS112);
+            StudentSchedule.AddCourse(gened6);
+            StudentSchedule.AddCourse(CS110);
+            StudentSchedule.AddCourse(gened4);
+            StudentSchedule.AddCourse(CS112);
             // Run the algorithm
-            Schedule GeneratedSchedule = Algorithm.Generate(coursesList, StudentSchedule,10,18,true);
+            Schedule GeneratedSchedule = Algorithm.Generate(coursesList, StudentSchedule, 10, 18, true);
 
             // Output the results to the console
             Console.WriteLine("\n" + GeneratedSchedule.GetFirstSchedule());
             Console.WriteLine("\n" + "asdsadsad");
-            
+
         }
     }
 }
