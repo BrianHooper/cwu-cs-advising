@@ -421,7 +421,7 @@ namespace Database_Handler
                     output = ExecuteLoginCommand(cmd);
                     break;
                 case CommandType.DisplayCatalogs:
-                    output = ExecuteDisplayCatalogsCommand();
+                    output = ExecuteDisplayCatalogsCommand(cmd.IsShallow);
                     break;
                 case CommandType.DisplayUsers:
                     output = ExecuteDisplayUsersCommand();
@@ -431,6 +431,16 @@ namespace Database_Handler
                     break;
                 case CommandType.DisplayCourses:
                     output = ExecuteDisplayCoursesCommand();
+                    if(!cmd.IsShallow)
+                    {
+                        foreach(Course c in output.CourseList)
+                        {
+                            foreach(string s in c.ShallowPreRequisites)
+                            {
+                                c.AddPreRequisite(RetrieveCourse(s, false, 0));
+                            } // end foreach
+                        } // end foreach
+                    } // end if
                     break;
                 case CommandType.Disconnect:
                     output = new DatabaseCommand(99, "Exit command received.");
@@ -499,15 +509,15 @@ namespace Database_Handler
             {
                 case OperandType.CatalogRequirements:
                     dbo = (CatalogRequirements)cmd.Operand;
-                    i_code = Update('Y', dbo, out s_msg);
+                    i_code = Update((CatalogRequirements)dbo);
                     break;
                 case OperandType.Student:
                     dbo = (Student)cmd.Operand;
-                    i_code = Update('S', dbo, out s_msg);
+                    i_code = Update((Student)dbo);
                     break;
                 case OperandType.Course:
                     dbo = (Course)cmd.Operand;
-                    i_code = Update('C', dbo, out s_msg);
+                    i_code = Update((Course)dbo);
                     break;
                 case OperandType.Credentials:
                     cred = (Credentials)cmd.Operand;
@@ -546,15 +556,15 @@ namespace Database_Handler
             {
                 case OperandType.CatalogRequirements:
                     dbo = (CatalogRequirements)cmd.Operand;
-                    i_code = DeleteRecord('Y', dbo.ID);
+                    i_code = DeleteRecord((CatalogRequirements)dbo);
                     break;
                 case OperandType.Student:
                     dbo = (Student)cmd.Operand;
-                    i_code = DeleteRecord('S', dbo.ID);
+                    i_code = DeleteRecord((Student)dbo);
                     break;
                 case OperandType.Course:
                     dbo = (Course)cmd.Operand;
-                    i_code = DeleteRecord('C', dbo.ID);
+                    i_code = DeleteRecord((Course)dbo);
                     break;
                 case OperandType.Credentials:
                     cred = (Credentials)cmd.Operand;
@@ -626,13 +636,35 @@ namespace Database_Handler
 
         /// <summary>Executes a display catalogs command.</summary>
         /// <returns>A return command containing a list of all catalogs in the database.</returns>
-        private DatabaseCommand ExecuteDisplayCatalogsCommand()
+        private DatabaseCommand ExecuteDisplayCatalogsCommand(bool b_shallow)
         {
             List<CatalogRequirements> catalogs = new List<CatalogRequirements>();
+            MySqlDataReader reader;
 
             try
             {
-                /// TODO implement display catalogs
+                MySqlLock.WaitOne();
+                string query = "SELECT * FROM " + s_MYSQL_DB_NAME + "." + s_CATALOGS_TABLE + ";";
+
+                MySqlCommand cmd = new MySqlCommand(query, DB_CONNECTION);
+                reader = cmd.ExecuteReader();
+
+                List<string> l_IDs = new List<string>();
+
+                while (reader.Read())
+                {
+                    string s_catalog = reader.GetString(0);
+
+                    l_IDs.Add(s_catalog);                    
+                } // end while
+
+                reader.Close();
+                MySqlLock.ReleaseMutex();
+
+                foreach(string s in l_IDs)
+                {
+                    catalogs.Add(RetrieveCatalog(s, b_shallow));
+                } // end foreach
             } // end try
             catch (Exception e)
             {
@@ -648,16 +680,43 @@ namespace Database_Handler
         private DatabaseCommand ExecuteDisplayUsersCommand()
         {
             List<Credentials> users = new List<Credentials>();
+            MySqlDataReader reader = null;
 
             try
             {
-                /// TODO implement display users
+                MySqlLock.WaitOne();
+                string query = "SELECT * FROM " + s_MYSQL_DB_NAME + "." + s_CREDENTIALS_TABLE + ";";
+
+                MySqlCommand cmd = new MySqlCommand(query, DB_CONNECTION);
+                reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    uint ui_WP = reader.GetUInt32(1);
+
+                    string s_username = reader.GetString(0),
+                           s_courseName = reader.GetString(2);
+
+                    bool b_admin = reader.GetBoolean(3),
+                         b_active = reader.GetBoolean(5);
+
+                    byte[] salt = new byte[i_SALT_LENGTH];
+                    reader.GetBytes(4, 0, salt, 0, i_SALT_LENGTH);
+
+                    users.Add(new Credentials(s_username, ui_WP, b_admin, b_active, salt, ""));
+                } // end while
+
+                reader.Close();
             } // end try
             catch (Exception e)
             {
                 WriteToLog(" -- DBH display catalogs command failed. Msg: " + e.Message);
                 return new DatabaseCommand(1, "Retrieving list of all catalogs failed. Msg: " + e.Message);
             } // end catch
+            finally
+            {
+                MySqlLock.ReleaseMutex();
+            } // end finally
 
             return new DatabaseCommand(0, "No Errors", null, null, users);
         } // end method ExecuteDisplayCommand
@@ -667,16 +726,68 @@ namespace Database_Handler
         private DatabaseCommand ExecuteDisplayCoursesCommand()
         {
             List<Course> courses = new List<Course>();
+            MySqlDataReader reader = null;
 
             try
             {
-                /// TODO implement display courses
+                // SELECT s_COURSES_KEY WHERE *
+                MySqlLock.WaitOne();
+                string query = "SELECT * FROM " + s_MYSQL_DB_NAME + "." + s_COURSES_TABLE +  ";";
+
+                MySqlCommand cmd = new MySqlCommand(query, DB_CONNECTION);
+                reader = cmd.ExecuteReader();
+                
+
+                while(reader.Read())
+                {
+                    uint ui_WP = reader.GetUInt32(1),
+                         ui_credits = reader.GetUInt32(7),
+                         ui_preRequsCount = reader.GetUInt32(9);
+
+                    string s_courseID   = reader.GetString(0),
+                           s_courseName = reader.GetString(2),
+                           s_department = reader.GetString(8);
+
+                    WriteToLog(" -- DBH Retrieve all courses found " + s_courseID + " in the database.");
+
+                    bool[] ba_offered = new bool[4] { reader.GetBoolean(3), reader.GetBoolean(4), reader.GetBoolean(5), reader.GetBoolean(6) };
+
+                    List<string> ls_preRequs = new List<string>();
+
+                    for (int i = 0; i < ui_preRequsCount; i++)
+                    {
+                        if (reader.FieldCount > (i + 10))
+                        {
+                            ls_preRequs.Add(reader.GetString(i + 10));
+                        } // end if
+                        else
+                        {
+                            WriteToLog(" -- DBH the record for course " + s_courseID + " is corrupted! Prerequ counter does not match the number of prerequs in database.");
+                            break;
+                        } // end else
+                    } // end for
+                                        
+                    courses.Add(new Course(s_courseName, s_courseID, ui_credits, false, ba_offered, ls_preRequs));
+                } // end while
+
+                reader.Close();                
             } // end try
             catch (Exception e)
             {
                 WriteToLog(" -- DBH display courses command failed. Msg: " + e.Message);
                 return new DatabaseCommand(1, "Retrieving list of all courses failed. Msg: " + e.Message);
             } // end catch
+            finally
+            {
+                if(!reader.IsClosed)
+                {
+                    reader.Close();
+                } // end if
+
+                MySqlLock.ReleaseMutex();
+            } // end finally 
+
+            WriteToLog(" -- DBH Display Courses found " + courses.Count + " courses in the database.");
 
             return new DatabaseCommand(0, "No Errors", null, courses);
         } // end method ExecuteDisplayCommand
@@ -712,8 +823,20 @@ namespace Database_Handler
 
             MemoryStream ms = new MemoryStream();
 
+            DateTime arrival = DateTime.Now;
+
             WriteToLog(" -- DBH Waiting for incoming data ...");
-            while (!stream.DataAvailable ) ;
+
+            while (!stream.DataAvailable)
+            {
+                DateTime current = DateTime.Now;
+                
+                if(current.Hour - arrival.Hour >= 3)
+                { // Kill thread after 8 hours in wait loop
+                    return new DatabaseCommand(CommandType.Disconnect);
+                } // end if
+            } // end while
+
             WriteToLog(" -- DBH Data detected in stream.");
 
             // read from stream in chunks of 2048 bytes
@@ -1061,7 +1184,10 @@ namespace Database_Handler
         #endregion
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
-        #region DB4O methods
+        #region [DEPRECATED] DB4O 
+        /* * * * * * * * * * * * * * * * * * * * * * * * * */
+        /*
+        
         // DB4O retrieve:
         /// <summary>Retrieves the requested object from the appropriate database.</summary>
         /// <param name="s_ID">The key of the specified object.</param>
@@ -1112,7 +1238,7 @@ namespace Database_Handler
         } // end method RetrieveHelper
 
 
-        /* * * * * * * * * * * * * * * * * * * * * * * * * */
+        
 
         // DB4O update methods:
         /// <summary>Updates the specified object by either adding it to the DB, or updating an existing object.</summary>
@@ -1321,7 +1447,7 @@ namespace Database_Handler
         } // end method CreateRecord
 
 
-        /* * * * * * * * * * * * * * * * * * * * * * * * * */
+        
 
         // DB4O delete:
         /// <summary>Deletes the object with specified ID from the appropriate DB4O database.</summary>
@@ -1380,13 +1506,16 @@ namespace Database_Handler
             return 0;
         } // end method DeleteRecord
 
+        
+        
+        */
         #endregion
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
         #region MySQL methods
-        
+
         #region MySQL Retrieve
-        
+
         /// <summary>Retrieves the requested student plan information from the database.</summary>
         /// <param name="s_ID">The key associated with the requested plan.</param>
         /// <returns>A PlanInfo structure containing the requested info.</returns>
@@ -2141,12 +2270,12 @@ namespace Database_Handler
                     MySqlCommand command = GetCommand(course.ID, 'I', s_COURSES_TABLE, s_COURSES_KEY, "", GetInsertValues(course));
                     command.ExecuteNonQuery();
 
-                    WriteToLog(" -- DBH successfully created the plan for " + course.ID + ".");
+                    WriteToLog(" -- DBH successfully created the course " + course.ID + ".");
                 } // end else
             } // end try
             catch (Exception e)
             {
-                WriteToLog(" -- DBH update failed for the student plan with ID: " + course.ID + " Msg: " + e.Message);
+                WriteToLog(" -- DBH update failed for the course " + course.ID + " Msg: " + e.Message);
                 return 1;
             } // end catch
             finally
@@ -2157,6 +2286,9 @@ namespace Database_Handler
             return 0;
         } // end method Update(Course)
 
+        /// <summary>Updates a Catalog in the MySQL database.</summary>
+        /// <param name="catalog">The catalog object to update.</param>
+        /// <returns>0 or an error code.</returns>
         private int Update(CatalogRequirements catalog)
         {
             try
