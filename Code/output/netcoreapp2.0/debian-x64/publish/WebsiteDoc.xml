@@ -31,9 +31,19 @@
             <param name="cred">User credentials of the user attempting to login.</param>
             <remarks>The credentials object must contain the hashed password of the user.</remarks>
         </member>
-        <member name="M:CwuAdvising.DatabaseInterface.GetAllCourses">
-            <summary>Gets all courses stored in the database.</summary>
+        <member name="M:CwuAdvising.DatabaseInterface.GetAllCourses(System.Boolean)">
+            <summary>Gets all courses stored in the database. Note: Passing false makes this method extremely slow, only use this if absolutely necessary.</summary>
+            <param name="shallow">Whether or not a shallow list should be retrieved.</param>
             <returns>List of all courses stored in the database or null if not found.</returns>
+        </member>
+        <member name="M:CwuAdvising.DatabaseInterface.GetAllCatalogs(System.Boolean)">
+            <summary>Gets all catalogs stored in the database.</summary>
+            <param name="shallow">Whether or not a shallow list should be retrieved.</param>
+            <returns>List of all catalogs stored in the database or null if not found.</returns>
+        </member>
+        <member name="M:CwuAdvising.DatabaseInterface.GetAllUsers">
+            <summary>Retrieves all users stored in the database.</summary>
+            <returns>A list of all users.</returns>
         </member>
         <member name="M:CwuAdvising.DatabaseInterface.RetrieveRecord(Database_Object_Classes.Database_Object,Database_Handler.OperandType)">
             <summary>Retrieves a record from the database.</summary>
@@ -92,6 +102,9 @@
             <summary>Deletes a record from the database.</summary>
             <returns><c>true</c>, if record was deleted, <c>false</c> otherwise.</returns>
             <param name="info">The object to delete.</param>
+        </member>
+        <member name="T:CwuAdvising.DatabaseObjects">
+            <summary>Class for storing frequently accessed database objects in memory</summary>
         </member>
         <member name="F:CwuAdvising.DatabaseObjects.MasterCourseList">
             <summary>
@@ -211,13 +224,19 @@
         <member name="P:CwuAdvising.Models.ScheduleModel.ConstraintModel.TakingSummer">
             <summary>If the student can take summer courses</summary>
         </member>
+        <member name="P:CwuAdvising.Models.ScheduleModel.Name">
+            <summary>Name of the degree</summary>
+        </member>
+        <member name="P:CwuAdvising.Models.ScheduleModel.AcademicYear">
+            <summary>Catalog year for the degree</summary>
+        </member>
         <member name="P:CwuAdvising.Models.ScheduleModel.Quarters">
             <summary>List of Quarters</summary>
         </member>
         <member name="P:CwuAdvising.Models.ScheduleModel.UnmetRequirements">
             <summary>List of remaining requirements as Course objects</summary>
         </member>
-        <member name="F:CwuAdvising.Models.ScheduleModel.Constraints">
+        <member name="P:CwuAdvising.Models.ScheduleModel.Constraints">
             <summary>Student Constraints</summary>
         </member>
         <member name="T:CwuAdvising.Models.UserModel">
@@ -257,6 +276,9 @@
         <member name="P:CwuAdvising.Pages.AdvisingModel.CurrentStudent">
             <summary>Current student loaded to advising page</summary>
         </member>
+        <member name="P:CwuAdvising.Pages.AdvisingModel.CurrentSchedule">
+            <summary>Current students schedule as JSON string</summary>
+        </member>
         <member name="T:CwuAdvising.Pages.AdvisingModel.StudentModel">
             <summary>Model for passing Student information from the view</summary>
         </member>
@@ -291,6 +313,11 @@
             <summary>Gets the base case for the student's degree</summary>
             <returns>Schedule as a JSON string</returns>
         </member>
+        <member name="M:CwuAdvising.Pages.AdvisingModel.LoadStudentSchedule(System.String)">
+            <summary>Loads the schedule plan for the student</summary>
+            <param name="ID">The students unique ID</param>
+            <returns>Schedule as a JSON string</returns>
+        </member>
         <member name="M:CwuAdvising.Pages.AdvisingModel.LoadStudent(System.String)">
             <summary>Attempts to load a student plan from the database</summary>
             <param name="ID">ID of student</param>
@@ -298,7 +325,7 @@
         </member>
         <member name="M:CwuAdvising.Pages.AdvisingModel.CreateStudent(CwuAdvising.Pages.AdvisingModel.StudentModel)">
             <summary>Create a new student</summary>
-            <param name="Student">StudentModel containing student information</param>
+            <param name="model">StudentModel containing student information</param>
         </member>
         <member name="M:CwuAdvising.Pages.AdvisingModel.GetStudent">
             <summary>

@@ -1550,11 +1550,11 @@
       "hideWarningsAndErrors": true
     },
     "restore": {
-      "projectUniqueName": "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\project\\cwu-cs-advising\\Code\\Database_Classes\\Database_Classes.csproj",
+      "projectUniqueName": "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\cwu-cs-advising\\Code\\Database_Classes\\Database_Classes.csproj",
       "projectName": "Database_Classes",
-      "projectPath": "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\project\\cwu-cs-advising\\Code\\Database_Classes\\Database_Classes.csproj",
+      "projectPath": "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\cwu-cs-advising\\Code\\Database_Classes\\Database_Classes.csproj",
       "packagesPath": "C:\\Users\\nicol\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\project\\cwu-cs-advising\\Code\\Database_Classes\\obj\\",
+      "outputPath": "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\cwu-cs-advising\\Code\\Database_Classes\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackagesFallback\\",

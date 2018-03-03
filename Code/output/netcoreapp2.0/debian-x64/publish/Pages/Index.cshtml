@@ -2,87 +2,124 @@
 @model IndexModel
 @{
     ViewData["Title"] = "Advising";
+    Layout = null;
 }
 
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Advising</title>
 
+    <link rel="stylesheet" href="~/css/Layout.css" />
+    <link rel="stylesheet" href="~/css/Generics.css" />
+    <script src="~/js/site.js"></script>
+    <script src="~/js/jquery.js"></script>
 
-<script>
-    var ShowLoginBox = true;
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/js/site.js"></script>
+</head>
+<body>
+    <div id="InnerTopLogo"><img src="~/images/computer_science_logo.png" /></div>
 
-    $(document).ready(function () {
-        $("#Userbox").hide();
-        $("#LoginBox").hide();
+    <div id="TopSpacer">
 
+        <a href="http://www.cwu.edu" style="color: #000000;">CENTRAL WASHINGTON UNIVERSITY</a>
 
-        if (ShowLoginBox) {
-            $("#LoginBox").show();
-        } else {
-            $("#Userbox").show();
-        }
-    });
-
-</script>
-
-<div class="Flex CenterFlex">
-    <div style="font-size: 3em;">Computer Science Advising Tool</div>
-</div>
-
-<div class="Title">
-    @{
-        if(Program.Database.connected)
-        {
-            IndexModel.DatabaseConnectionMessage = "Database connection established";
-        }
-        else
-        {
-            IndexModel.DatabaseConnectionMessage = "Error establishing database connection.";
-        }
-    }
-    @IndexModel.DatabaseConnectionMessage <br />
-    @Program.DbError
-</div>
-
-<div class="Flex CenterFlex">
-    <div style="width: 50%">
-        Welcome to the Central Washington University Computer Science Advising tool! For instructions on how to use the advising tool, see the <a href="#">User Manual</a>, otherwise, please log in with your advising account.
     </div>
-</div>
-
-<div class="Title" style="color: red;">
-    @IndexModel.LoginErrorMessage
-    @{ IndexModel.LoginErrorMessage = ""; }
-</div>
-<div id="CredentialsContainer" class="Flex CenterFlex">
+    <div id="TopLogo">&nbsp;</div>
 
 
-    <div id="Userbox" class="Border" style="padding: 20px;">
-        You are currently logged in as:<br />
-        Admin<br />
-        <a href="#">[ Logout ]</a>
-    </div>
-    
-    <form method="post">
-        <div id="LoginBox" class="Border">
-            <div class="Title">User Login: </div>
-            <div class="Flex">
-                <div class="LabelLeft"><label asp-for="Login.Username">Username</label></div>
-                <div class="LabelRight"><input asp-for="Login.Username" /></div>
-            </div>
-            <div><span asp-validation-for="Login.Username" style="color: red;"></span></div>
-            <div class="Flex">
-                <div class="LabelLeft"><label asp-for="Login.Password">Password</label></div>
-                <div class="LabelRight"><input type="password" asp-for="Login.Password"></div>
-            </div>
-            <div><span asp-validation-for="Login.Password" style="color: red;"></span></div>
-            <button type="submit" class="BigButton">Login</button>
+
+    <div class="HorizontalBar">&nbsp;</div>
+    <div id="PageContainer">
+
+
+        <div class="PageRow Flex">
+
         </div>
-    </form>
-</div>
+        <script>
+            var ShowLoginBox = true;
+
+            $(document).ready(function () {
+                $("#Userbox").hide();
+                $("#LoginBox").hide();
 
 
+                if (ShowLoginBox) {
+                    $("#LoginBox").show();
+                } else {
+                    $("#Userbox").show();
+                }
+            });
+
+        </script>
+
+        <div class="Flex CenterFlex">
+            <div style="font-size: 3em;">Computer Science Advising Tool</div>
+        </div>
+
+        <div class="Title">
+            @{
+            if (Program.Database.connected)
+            {
+                IndexModel.DatabaseConnectionMessage = "Database connection established";
+            }
+            else
+            {
+                IndexModel.DatabaseConnectionMessage = "Error establishing database connection.";
+            }
+            }
+            @IndexModel.DatabaseConnectionMessage <br />
+            @Program.DbError
+        </div>
+
+        <div class="Flex CenterFlex">
+            <div style="width: 50%">
+                Welcome to the Central Washington University Computer Science Advising tool! For instructions on how to use the advising tool, see the <a href="#">User Manual</a>, otherwise, please log in with your advising account.
+            </div>
+        </div>
+
+        <div class="Title" style="color: red;">
+            @IndexModel.LoginErrorMessage
+            @{ IndexModel.LoginErrorMessage = ""; }
+        </div>
+        <div id="CredentialsContainer" class="Flex CenterFlex">
 
 
+            <div id="Userbox" class="Border" style="padding: 20px;">
+                You are currently logged in as:<br />
+                Admin<br />
+                <a href="#">[ Logout ]</a>
+            </div>
 
+            <form method="post">
+                <div id="LoginBox" class="Border">
+                    <div class="Title">User Login: </div>
+                    <div class="Flex">
+                        <div class="LabelLeft"><label asp-for="Login.Username">Username</label></div>
+                        <div class="LabelRight"><input asp-for="Login.Username" /></div>
+                    </div>
+                    <div><span asp-validation-for="Login.Username" style="color: red;"></span></div>
+                    <div class="Flex">
+                        <div class="LabelLeft"><label asp-for="Login.Password">Password</label></div>
+                        <div class="LabelRight"><input type="password" asp-for="Login.Password"></div>
+                    </div>
+                    <div><span asp-validation-for="Login.Password" style="color: red;"></span></div>
+                    <button type="submit" class="BigButton">Login</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="Flex CenterFlex">
+        <div style="width: 80%; text-align: right; color: #ffffff;">
+            Central Washington University | Department of Computer Science<br />
+            2017 - 2018 | Brian Hooper, Nick Rohde, Rico Adrian
+        </div>
+    </div>
+</body>
+</html>
 
 
 

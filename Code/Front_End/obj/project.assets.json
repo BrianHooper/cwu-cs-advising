@@ -13174,11 +13174,11 @@
       "hideWarningsAndErrors": true
     },
     "restore": {
-      "projectUniqueName": "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\project\\cwu-cs-advising\\Code\\Front_End\\CwuAdvising.csproj",
+      "projectUniqueName": "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\cwu-cs-advising\\Code\\Front_End\\CwuAdvising.csproj",
       "projectName": "CwuAdvising",
-      "projectPath": "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\project\\cwu-cs-advising\\Code\\Front_End\\CwuAdvising.csproj",
+      "projectPath": "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\cwu-cs-advising\\Code\\Front_End\\CwuAdvising.csproj",
       "packagesPath": "C:\\Users\\nicol\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\project\\cwu-cs-advising\\Code\\Front_End\\obj\\",
+      "outputPath": "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\cwu-cs-advising\\Code\\Front_End\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackagesFallback\\",
@@ -13199,8 +13199,8 @@
       "frameworks": {
         "netcoreapp2.0": {
           "projectReferences": {
-            "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\project\\cwu-cs-advising\\Code\\Back_End\\PlanGenerationAlgorithm\\PlanGenerationAlgorithm.csproj": {
-              "projectPath": "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\project\\cwu-cs-advising\\Code\\Back_End\\PlanGenerationAlgorithm\\PlanGenerationAlgorithm.csproj"
+            "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\cwu-cs-advising\\Code\\Back_End\\PlanGenerationAlgorithm\\PlanGenerationAlgorithm.csproj": {
+              "projectPath": "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\cwu-cs-advising\\Code\\Back_End\\PlanGenerationAlgorithm\\PlanGenerationAlgorithm.csproj"
             }
           }
         }

@@ -239,7 +239,7 @@
             <param name="cmd">Command containing credentials of user trying to change password.</param>
             <returns>A return command containing information about execution success.</returns>
         </member>
-        <member name="M:Database_Handler.DatabaseHandler.ExecuteDisplayCatalogsCommand">
+        <member name="M:Database_Handler.DatabaseHandler.ExecuteDisplayCatalogsCommand(System.Boolean)">
             <summary>Executes a display catalogs command.</summary>
             <returns>A return command containing a list of all catalogs in the database.</returns>
         </member>
@@ -298,55 +298,6 @@
             <param name="c_type">The type of object to retrieve.</param>
             <returns>The requested object.</returns>
             <exception cref="T:Database_Handler.RetrieveError">Thrown if an invalid type is passed in arg 2.</exception>
-        </member>
-        <member name="M:Database_Handler.DatabaseHandler.RetrieveHelper(System.String,System.Char)">
-            <summary>Retrieves the requested object from the appropriate database.</summary>
-            <param name="s_ID">The key of the specified object.</param>
-            <param name="c_type">The type of object to retrieve.</param>
-            <returns>The requested object, or null if the object was not found.</returns>
-        </member>
-        <member name="M:Database_Handler.DatabaseHandler.Update(System.Char,Database_Object_Classes.Database_Object,System.String@)">
-            <summary>Updates the specified object by either adding it to the DB, or updating an existing object.</summary>
-            <param name="c_type">The type of object passed in arg 2.</param>
-            <param name="dbo">The object to update.</param>
-            <param name="s_msg">Error message, empty if no error is encountered.</param>
-            <returns>An error code, or 0 if update was successful.</returns>
-            <remarks>
-                        Return codes:
-                        0  - success
-                        1  - arg 2 was null 
-                        2  - Write protection error
-                        -1 - Unknown exception occurred
-            </remarks>
-        </member>
-        <member name="M:Database_Handler.DatabaseHandler.UpdateHelper(System.Char,Database_Object_Classes.Database_Object)">
-            <summary>Helper method for <see cref="M:Database_Handler.DatabaseHandler.Update(System.Char,Database_Object_Classes.Database_Object,System.String@)"/>.</summary>
-            <param name="c_type">Type of object to update.</param>
-            <param name="dbo">Object to update.</param>
-            <exception cref="T:System.ArgumentNullException">Thrown when the object in arg 2 is null.</exception>
-            <exception cref="T:System.InvalidOperationException">Thrown if the update fails due to write protection.</exception>
-        </member>
-        <member name="M:Database_Handler.DatabaseHandler.UpdateRecord(System.Char,Database_Object_Classes.Database_Object)">
-            <summary>Updates an existing record.</summary>
-            <param name="c_type">The type of object to update.</param>
-            <param name="dbo">The new state of the object.</param>
-            <exception cref="T:System.ArgumentException">Thrown if an invalid input is passed.</exception>
-            <remarks>
-                     The existing object will be destroyed, the new object should be a copy of the old
-                     object with the desired changes.
-            </remarks>
-        </member>
-        <member name="M:Database_Handler.DatabaseHandler.CreateRecord(System.Char,Database_Object_Classes.Database_Object)">
-            <summary>Creates a new record for the specified object.</summary>
-            <param name="c_type">The type of object being passed.</param>
-            <param name="dbo">The object to store.</param>
-            <exception cref="T:System.ArgumentException">Thrown if an invalid input is passed.</exception>
-        </member>
-        <member name="M:Database_Handler.DatabaseHandler.DeleteRecord(System.Char,System.String)">
-            <summary>Deletes the object with specified ID from the appropriate DB4O database.</summary>
-            <param name="c_type">The type of object to delete.</param>
-            <param name="s_ID">The ID of the object to delete.</param>
-            <returns>True if deletion was successful, otherwise false.</returns>
         </member>
         <member name="M:Database_Handler.DatabaseHandler.RetrieveStudentPlan(System.String)">
             <summary>Retrieves the requested student plan information from the database.</summary>
@@ -415,6 +366,11 @@
         <member name="M:Database_Handler.DatabaseHandler.Update(Database_Object_Classes.Course)">
             <summary>Updates a course in the MySQL database.</summary>
             <param name="course">The course to update.</param>
+            <returns>0 or an error code.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.Update(Database_Object_Classes.CatalogRequirements)">
+            <summary>Updates a Catalog in the MySQL database.</summary>
+            <param name="catalog">The catalog object to update.</param>
             <returns>0 or an error code.</returns>
         </member>
         <member name="M:Database_Handler.DatabaseHandler.Update(Database_Object_Classes.CatalogRequirements,Database_Object_Classes.DegreeRequirements)">
