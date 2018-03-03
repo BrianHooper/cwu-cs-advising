@@ -153,16 +153,20 @@ namespace CwuAdvising
         } // end method 
 
 
-        /// <summary>Gets all courses stored in the database.</summary>
+        /// <summary>Gets all courses stored in the database. Note: Passing false makes this method extremely slow, only use this if absolutely necessary.</summary>
+        /// <param name="shallow">Whether or not a shallow list should be retrieved.</param>
         /// <returns>List of all courses stored in the database or null if not found.</returns>
-        public List<Course> GetAllCourses()
+        public List<Course> GetAllCourses(bool shallow)
         {
+<<<<<<< HEAD
+            DatabaseCommand databaseCommand = new DatabaseCommand(CommandType.DisplayCourses, shallow);
+=======
             DatabaseCommand databaseCommand = new DatabaseCommand(CommandType.DisplayCourses, false);
 
+>>>>>>> dd39a7525b3e589342d80250150d76d57c99ffc0
 
             SendCommand(databaseCommand);
             DatabaseCommand dbCommand = ReceiveCommand();
-
 
             if(dbCommand.ReturnCode == 0 && dbCommand.CommandType == CommandType.Return)
             {
@@ -170,10 +174,54 @@ namespace CwuAdvising
             } // end if
             else
             {
-                Console.WriteLine(dbCommand.ErrorMessage);
-                return null;
+                Program.DbError = dbCommand.ErrorMessage;
+                return new List<Course>();
             } // end else
         } // end method GetAllCourses
+
+        /// <summary>Gets all catalogs stored in the database.</summary>
+        /// <param name="shallow">Whether or not a shallow list should be retrieved.</param>
+        /// <returns>List of all catalogs stored in the database or null if not found.</returns>
+        public List<CatalogRequirements> GetAllCatalogs(bool shallow)
+        {
+            DatabaseCommand databaseCommand = new DatabaseCommand(CommandType.DisplayCatalogs, shallow);
+
+            SendCommand(databaseCommand);
+            DatabaseCommand dbCommand = ReceiveCommand();
+
+            if (dbCommand.ReturnCode == 0 && dbCommand.CommandType == CommandType.Return)
+            {
+                return dbCommand.CatalogList;
+            } // end if
+            else
+            {
+                Program.DbError = dbCommand.ErrorMessage;
+                return new List<CatalogRequirements>();
+            } // end else
+        } // end method GetAllCatalogs
+
+
+        /// <summary>Retrieves all users stored in the database.</summary>
+        /// <returns>A list of all users.</returns>
+        public List<Credentials> GetAllUsers()
+        {
+            DatabaseCommand databaseCommand = new DatabaseCommand(CommandType.DisplayUsers);
+
+            SendCommand(databaseCommand);
+            DatabaseCommand dbCommand = ReceiveCommand();
+
+            if (dbCommand.ReturnCode == 0 && dbCommand.CommandType == CommandType.Return)
+            {
+                return dbCommand.UserList;
+            } // end if
+            else
+            {
+                Program.DbError = dbCommand.ErrorMessage;
+                return new List<Credentials>();
+            } // end else
+        } // end method GetAllUsers
+
+
 
         /// <summary>Retrieves a record from the database.</summary>
         /// <returns>The requested record or null if not found.</returns>
