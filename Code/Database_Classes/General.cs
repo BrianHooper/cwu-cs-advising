@@ -257,6 +257,7 @@ namespace Database_Object_Classes
             this.l_acceptableElectives      = new List<Course>(l_acceptableElectives);
             this.ui_minElectiveCredits      = ui_minElectiveCredits;
             this.s_name                     = string.Copy(s_name);
+            this.s_name                     = this.s_name.Replace(' ', '_');
             ls_generalRequirements          = new List<string>();
             IsShallow                       = false;
             s_ID                            = string.Empty;
@@ -273,8 +274,8 @@ namespace Database_Object_Classes
             s_name                      = string.Copy(other.s_name);
             ls_generalRequirements      = new List<string>(other.ls_generalRequirements);
             IsShallow                   = other.IsShallow;
-            s_ID                            = string.Empty;
-            s_department                    = string.Empty;
+            s_ID                        = other.s_ID;
+            s_department                = other.s_department;
         } // end Copy Constructor
 
         /// <summary>Shallow Constructor</summary>
@@ -306,6 +307,12 @@ namespace Database_Object_Classes
             this.ui_minElectiveCredits  = 0;
             this.s_name                 = string.Copy(s_name);
             this.ls_generalRequirements = new List<string>();
+
+            foreach(Course c in l_generalRequirements)
+            {
+                ls_generalRequirements.Add(c.ID);
+            } // end foreach
+
             IsShallow                   = false;
             this.s_ID                   = string.Copy(s_ID);
             this.s_department           = string.Copy(s_department);
@@ -317,9 +324,28 @@ namespace Database_Object_Classes
         /// <summary>Getter/Setter for this Degree's name.</summary>
         public string Name
         {
-            get => s_name;
-            set => s_name = string.Copy(value);
+            get
+            {
+                string temp = string.Copy(s_name);
+                return temp.Replace('_',' ');
+            } // end get
+            set
+            {
+                s_name = string.Copy(value);
+                s_name.Replace(' ', '_');
+            } // end set
         } // end Name
+
+        /// <summary>Getter/Setter for this Degree's department. </summary>
+        public string Department
+        {
+            get => s_department;
+            set => s_department = string.Copy(value);
+        }
+
+        /// <summary>Getter for the ID of this course, which is the name with all spaces replaced with underscores.</summary>
+        /// <remarks>This should only be used for database operations.</remarks>
+        public string ID => s_name;
 
         /// <summary>Getter/Setter for this Degree's minimum required elective credits.</summary>
         public uint MinimumElectiveCredits
@@ -332,8 +358,23 @@ namespace Database_Object_Classes
         public ReadOnlyCollection<Course> Requirements
         {
             get => l_generalRequirements.AsReadOnly();
-            set => l_generalRequirements = new List<Course>(value);
+            set
+            {
+                l_generalRequirements = new List<Course>(value);
+                ls_generalRequirements.Clear();
+                foreach(Course c in value)
+                {
+                    ls_generalRequirements.Add(c.ID);
+                } // end foreach
+            } // end set
         } // end GeneralRequirements
+
+        /// <summary>Getter/Setter for this Degree's general course requirements (shallow version).</summary>
+        public List<String> ShallowRequirements
+        {
+            get => ls_generalRequirements;
+            set => ls_generalRequirements = new List<string>(value);
+        } // end ShallowRequirements
 
         /// <summary>Getter/Setter for this Degree's acceptable elective courses.</summary>
         public ReadOnlyCollection<Course> AcceptableElectives

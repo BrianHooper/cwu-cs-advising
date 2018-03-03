@@ -45,88 +45,89 @@ namespace Database_Handler
 
         #region Class fields
 
-            #region Readonly/Const
+        #region Readonly/Const
 
-            #region MySQL
+        #region MySQL
 
-            #region MySQL Database Info
-            private readonly string s_MYSQL_DB_NAME = "test_db";
-            private readonly string s_MYSQL_DB_SERVER = "localhost";
-            private readonly string s_MYSQL_DB_PORT = "3306";
-            private readonly string s_MYSQL_DB_USER_ID = "testuser";
-            #endregion
-
-            #region MySQL Tables
-            private readonly string s_CREDENTIALS_TABLE = "user_credentials";
-            private readonly string s_STUDENTS_TABLE = "students";
-            private readonly string s_CATALOGS_TABLE = "catalogs";
-            private readonly string s_DEGREES_TABLE = "degrees";
-            private readonly string s_COURSES_TABLE = "courses";
-            private readonly string s_PLAN_TABLE = "student_plans";
-            #endregion
-
-            #region DB4O Database strings
-            private readonly string s_STUDENT_DB = "Students.db4o";
-            private readonly string s_COURSE_DB = "Courses.db4o";
-            private readonly string s_CATALOG_DB = "Catalogs.db4o";
-            #endregion
-
-            #region MySQL table keys
-            private readonly string s_CREDENTIALS_KEY = "username";
-            private readonly string s_STUDENTS_KEY = "SID";
-            private readonly string s_CATALOGS_KEY = "catalog_year";
-            private readonly string s_DEGREES_KEY = "degree_id";
-            private readonly string s_COURSES_KEY = "course_id";
-            private readonly string s_PLAN_KEY = "SID";
+        #region MySQL Database Info
+        private readonly string s_MYSQL_DB_NAME = "test_db";
+        private readonly string s_MYSQL_DB_SERVER = "localhost";
+        private readonly string s_MYSQL_DB_PORT = "3306";
+        private readonly string s_MYSQL_DB_USER_ID = "testuser";
         #endregion
 
-            #endregion
+        #region MySQL Tables
+        private readonly string s_CREDENTIALS_TABLE = "user_credentials";
+        private readonly string s_STUDENTS_TABLE = "students";
+        private readonly string s_CATALOGS_TABLE = "catalogs";
+        private readonly string s_DEGREES_TABLE = "degrees";
+        private readonly string s_COURSES_TABLE = "courses";
+        private readonly string s_PLAN_TABLE = "student_plans";
+        #endregion
 
-            #region TCP info
-            private readonly string s_IP_ADDRESS = "127.0.0.1";
+        #region DB4O Database strings
+        private readonly string s_STUDENT_DB = "Students.db4o";
+        private readonly string s_COURSE_DB = "Courses.db4o";
+        private readonly string s_CATALOG_DB = "Catalogs.db4o";
+        #endregion
+
+        #region MySQL table keys
+        private readonly string s_CREDENTIALS_KEY = "username";
+        private readonly string s_STUDENTS_KEY = "SID";
+        private readonly string s_CATALOGS_KEY = "catalog_year";
+        private readonly string s_DEGREES_KEY = "degree_id";
+        private readonly string s_COURSES_KEY = "course_id";
+        private readonly string s_PLAN_KEY = "SID";
+        #endregion
+
+        #endregion
+
+        #region TCP info
+        private readonly string s_IP_ADDRESS = "127.0.0.1";
         
-            private readonly int i_TCP_PORT = 44765;
-            #endregion
+        private readonly int i_TCP_PORT = 44765;
+        #endregion
 
-            #region General
-            private const int  i_SALT_LENGTH          = 32;
-            private const int  BUFFER_SIZE            = 2048;
+        #region General
+        private const int  i_SALT_LENGTH          = 32;
+        private const int  BUFFER_SIZE            = 2048;
 
-            private const uint ui_MAX_RECURSION_DEPTH = 30;
-            #endregion
+        private const uint ui_MAX_RECURSION_DEPTH = 30;
+        #endregion
 
-            #endregion
+        #endregion
 
-            #region Privates
+        #region Privates
 
-            #region MySQL Connection/Info
-            /// <summary>The length of the longest plan in the s_PLAN_TABLE mysql table, stored in the master record.</summary>
-            private uint ui_COL_COUNT;
+        #region MySQL Connection/Info
+        /// <summary>The number of columns in each variable length table { s_PLAN_TABLE, s_COURSES_TABLE, s_CATALOGS_TABLE, s_DEGREES_TABLE}.</summary>
+        private uint[] ui_COL_COUNT;
 
-            /// <summary>The master connection to the MySql database, which should never be closed, except during cleanup.</summary>
-            private MySqlConnection DB_CONNECTION;
-            #endregion
 
-            #region General
-            /// <summary>A RNG for building password salts.</summary>
-            private RNGCryptoServiceProvider RNG;
-            #endregion
+        /// <summary>The master connection to the MySql database, which should never be closed, except during cleanup.</summary>
+        private MySqlConnection DB_CONNECTION;
+        #endregion
 
-            #region TCP Connection/Info
-            /// <summary>The main Tcp Listener used to talk with clients.</summary>
-            private TcpListener tcpListener;
+        #region General
+        /// <summary>A RNG for building password salts.</summary>
+        private RNGCryptoServiceProvider RNG;
+        #endregion
 
-            /// <summary>Localhost IP address for the Tcp Socket</summary>
-            private IPAddress address;
+        #region TCP Connection/Info
+        /// <summary>The main Tcp Listener used to talk with clients.</summary>
+        private TcpListener tcpListener;
 
-            /// <summary>List of all client threads currently running.</summary>
-            private List<Thread> clientThreads;
+        /// <summary>Localhost IP address for the Tcp Socket</summary>
+        private IPAddress address;
 
-            /// <summary>List of all clients currently connected to DBH.</summary>
-            private List<TcpClient> clients;
-            #endregion
+        /// <summary>List of all client threads currently running.</summary>
+        private List<Thread> clientThreads;
 
-            #endregion
+        /// <summary>List of all clients currently connected to DBH.</summary>
+        private List<TcpClient> clients;
+        #endregion
+
+        #endregion
 
         #endregion
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -853,28 +854,9 @@ namespace Database_Handler
             tcpListener = new TcpListener(address, i_TCP_PORT);
             WriteToLog(" -- DBH Created a tcp listener on: " + address.ToString() + ":" + i_TCP_PORT.ToString());
 
-            // retrieve master record from MySql db
-            MySqlCommand cmd = GetCommand("-1", 'S', s_PLAN_TABLE, s_PLAN_KEY, "*");
-            WriteToLog(" -- DBH Attempting to retrieve master record.");
-            MySqlLock.WaitOne();
-            MySqlDataReader reader = cmd.ExecuteReader();
+            ui_COL_COUNT = new uint[4];
 
-            if (reader.HasRows)
-            {
-                WriteToLog(" -- DBH Master record found.");
-                reader.Read();
-                ui_COL_COUNT = reader.GetUInt32(1);
-                reader.Close();
-                MySqlLock.ReleaseMutex();
-            } // end if
-            else
-            {
-                WriteToLog(" -- DBH Master record not found.");
-                reader.Close();
-                MySqlLock.ReleaseMutex();
-                WriteToLog(" -- DBH Setup failed because the master record was not found in " + s_MYSQL_DB_NAME + "." + s_PLAN_TABLE);
-                throw new Exception("Database set up failed because the master record was not found in: " + s_MYSQL_DB_NAME + "." + s_PLAN_TABLE);
-            } // end else
+            GetColumnCounts();
 
             WriteToLog(" -- DBH Setting up thread and client lists.");
             clientThreads = new List<Thread>();
@@ -906,6 +888,46 @@ namespace Database_Handler
                 t.Abort();
             } // end foreach
         } // end method CleanUp
+
+        private void GetColumnCounts(string s_table = "", int i_index = 0)
+        {
+            string[] table_names = { s_PLAN_TABLE, s_COURSES_TABLE, s_CATALOGS_TABLE, s_DEGREES_TABLE};
+            uint[]   offset      = {      3,             10,               3,                5       };
+
+            if (s_table.Equals(""))
+            {
+                for (int i = 0; i < 0; i++)
+                {
+                    string query = "SELECT count(*) FROM information_schema.columns WHERE table_schema = " + s_MYSQL_DB_NAME;
+                    query += " AND table_name = " + table_names[i];
+
+                    MySqlCommand cmd = new MySqlCommand(query, DB_CONNECTION);
+                    MySqlDataReader reader = cmd.ExecuteReader();
+
+                    reader.Read();
+
+                    ui_COL_COUNT[i] = reader.GetUInt32(0);
+                    ui_COL_COUNT[i] -= offset[i];
+
+                    reader.Close();
+                } // end for
+            } // end if
+            else
+            {
+                string query = "SELECT count(*) FROM information_schema.columns WHERE table_schema = " + s_MYSQL_DB_NAME;
+                query += " AND table_name = " + s_table;
+
+                MySqlCommand cmd = new MySqlCommand(query, DB_CONNECTION);
+                MySqlDataReader reader = cmd.ExecuteReader();
+
+                reader.Read();
+
+                ui_COL_COUNT[i_index] = reader.GetUInt32(0);
+                ui_COL_COUNT[i_index] -= offset[i_index];
+
+                reader.Close();
+            } // end else
+        } // end method GetColumnCounts
 
         /// <summary>Writes the given message into the DBH log with a current time stamp.</summary>
         /// <param name="s_msg">The message to log.</param>
@@ -1926,10 +1948,10 @@ namespace Database_Handler
                     temp.ExecuteNonQuery();
 
                     // ensure the plan will fit into the table
-                    if (ui_COL_COUNT < plan.Classes.Length)
+                    if (ui_COL_COUNT[0] < plan.Classes.Length)
                     {
-                        int k = plan.Classes.Length - (int)ui_COL_COUNT; // number of columns that must be added
-                        AddColumns(k);
+                        int k = plan.Classes.Length - (int)ui_COL_COUNT[0]; // number of columns that must be added
+                        AddColumns(k, s_PLAN_TABLE, "qtr_");
                     } // end if
 
                     // store new data
@@ -1952,10 +1974,10 @@ namespace Database_Handler
                     reader.Close();
 
                     // ensure the plan will fit into the table
-                    if (ui_COL_COUNT < plan.Classes.Length)
+                    if (ui_COL_COUNT[0] < plan.Classes.Length)
                     {
-                        int k = plan.Classes.Length - (int)ui_COL_COUNT; // number of columns that must be added
-                        AddColumns(k);
+                        int k = plan.Classes.Length - (int)ui_COL_COUNT[0]; // number of columns that must be added
+                        AddColumns(k, s_PLAN_TABLE, "qtr_");
                     } // end if
 
                     MySqlCommand command = GetCommand(plan.StudentID, 'I', s_PLAN_TABLE, s_PLAN_KEY, "", GetInsertValues(plan));
@@ -1967,6 +1989,7 @@ namespace Database_Handler
             catch (Exception e)
             {
                 WriteToLog(" -- DBH update failed for the student plan with ID: " + plan.StudentID + " Msg: " + e.Message);
+                return 2;
             } // end catch
             finally
             {
@@ -2025,7 +2048,7 @@ namespace Database_Handler
             catch (Exception e)
             {
                 WriteToLog(" -- DBH update failed for the user credentials with username: " + credentials.UserName + " Msg: " + e.Message);
-                output = 1;
+                output = 2;
             } // end catch
             finally
             {
@@ -2040,17 +2063,296 @@ namespace Database_Handler
         /// <returns>0 or an error code.</returns>
         private int Update(Course course)
         {
+            try
+            {
+                MySqlCommand cmd = GetCommand(course.ID, 'S', s_COURSES_TABLE, s_COURSES_KEY, "*");
 
+                MySqlLock.WaitOne();
+
+                MySqlDataReader reader = cmd.ExecuteReader();
+
+
+                reader.Read();
+
+                if (reader.HasRows)
+                {
+                    uint ui_WP = reader.GetUInt32(1);
+
+                    reader.Close();
+
+                    if (ui_WP != course.WP)
+                    {
+                        WriteToLog(" -- DBH update failed for course  " + course.ID + " because of write protection.");
+                        return 1;
+                    } // end if
+
+                    ui_WP++;                   
+
+                    // ensure the plan will fit into the table
+                    if (ui_COL_COUNT[1] < course.ShallowPreRequisites.Count)
+                    {
+                        int k = course.ShallowPreRequisites.Count - (int)ui_COL_COUNT[1]; // number of columns that must be added
+                        AddColumns(k, s_COURSES_TABLE, "pre_requ_");
+                    } // end if
+
+                    // UPDATE `test_db`.`courses` SET `course_id`='CS123', `WP`='2', `course_name`='Introas To CS', `offered_winter`='1', 
+                    //'offered_spring`='1', `offered_summer`='1', `offered_fall`='1', `num_credits`='2', `department`='as', `num_pre_requs`='4' WHERE `course_id`='CS110';
+
+                    string query = "UPDATE " + s_MYSQL_DB_NAME + "." + s_COURSES_TABLE + " SET WP = " + ui_WP.ToString() + ", course_name = " + course.Name + ", ";
+                    query += "offered_winter = " + course.QuartersOffered[0].ToString() + ", offered_spring = " + course.QuartersOffered[1].ToString() + ", offered_summer = ";
+                    query += course.QuartersOffered[2].ToString() + ", offered_fall = " + course.QuartersOffered[3].ToString() + ", num_credits = " + course.Credits.ToString();
+                    query += ", department = " + course.Department + ", num_pre_requs = " + course.ShallowPreRequisites.Count;
+
+
+                    int i = 0;
+
+                    foreach (string s in course.ShallowPreRequisites)
+                    {
+                        query += ", pre_requ_" + i.ToString() + " = " + s;
+                        i++;
+                    } // end foreach
+
+                    query += " WHERE " + s_COURSES_KEY + " = " + course.ID;
+
+                    MySqlCommand temp = new MySqlCommand(query, DB_CONNECTION);
+
+                    WriteToLog(" -- DBH successfully updated the course " + course.ID + ".");
+                } // end if
+                else
+                {
+                    reader.Close();
+
+                    // ensure the plan will fit into the table
+                    if (ui_COL_COUNT[1] < course.ShallowPreRequisites.Count)
+                    {
+                        int k = course.ShallowPreRequisites.Count - (int)ui_COL_COUNT[1]; // number of columns that must be added
+                        AddColumns(k, s_COURSES_TABLE, "pre_requ_");
+                    } // end if
+
+                    MySqlCommand command = GetCommand(course.ID, 'I', s_COURSES_TABLE, s_COURSES_KEY, "", GetInsertValues(course));
+                    command.ExecuteNonQuery();
+
+                    WriteToLog(" -- DBH successfully created the plan for " + course.ID + ".");
+                } // end else
+            } // end try
+            catch (Exception e)
+            {
+                WriteToLog(" -- DBH update failed for the student plan with ID: " + course.ID + " Msg: " + e.Message);
+                return 1;
+            } // end catch
+            finally
+            {
+                MySqlLock.ReleaseMutex();
+            } // end finally
+
+            return 0;
         } // end method Update(Course)
 
         private int Update(CatalogRequirements catalog)
         {
+            try
+            {
+                MySqlCommand cmd = GetCommand(catalog.ID, 'S', s_CATALOGS_TABLE, s_CATALOGS_KEY, "*");
 
+                MySqlLock.WaitOne();
+
+                MySqlDataReader reader = cmd.ExecuteReader();
+
+
+                reader.Read();
+
+                if (reader.HasRows)
+                {
+                    uint ui_WP = reader.GetUInt32(1);
+
+                    reader.Close();
+
+                    if (ui_WP != catalog.WP)
+                    {
+                        WriteToLog(" -- DBH update failed for catalog  " + catalog.ID + " because of write protection.");
+                        return 1;
+                    } // end if
+
+                    ui_WP++;
+
+                    // ensure the plan will fit into the table
+                    if (ui_COL_COUNT[2] < catalog.DegreeRequirements.Count)
+                    {
+                        int k = catalog.DegreeRequirements.Count - (int)ui_COL_COUNT[2]; // number of columns that must be added
+                        AddColumns(k, s_CATALOGS_TABLE, "degree_");
+                    } // end if
+
+                    // UPDATE `test_db`.`courses` SET `course_id`='CS123', `WP`='2', `course_name`='Introas To CS', `offered_winter`='1', 
+                    //'offered_spring`='1', `offered_summer`='1', `offered_fall`='1', `num_credits`='2', `department`='as', `num_pre_requs`='4' WHERE `course_id`='CS110';
+
+                    string query = "UPDATE " + s_MYSQL_DB_NAME + "." + s_CATALOGS_TABLE + " SET WP = " + ui_WP.ToString() + ", number_degrees = " + catalog.DegreeRequirements.Count.ToString();
+                    
+                    int i = 0;
+
+                    foreach (DegreeRequirements d in catalog.DegreeRequirements)
+                    {
+                        query += ", degree_" + i.ToString() + " = " + catalog.ID + "_" + d.ID;
+                        i++;
+                    } // end foreach
+
+                    query += " WHERE "+ s_CATALOGS_KEY + " = " + catalog.ID;
+
+                    MySqlCommand temp = new MySqlCommand(query, DB_CONNECTION);
+
+                    temp.ExecuteNonQuery();
+
+                    bool b_failure = false;
+
+                    foreach (DegreeRequirements d in catalog.DegreeRequirements)
+                    {
+                        int exit_code = Update(catalog, d);
+                        switch (exit_code)
+                        {
+                            case 0:
+                                break;
+                            default:
+                                b_failure = true;
+                                WriteToLog("Updating the degree " + d.ID + " failed. See prior log entry. Error code: " + exit_code);
+                                break;
+                        } // end switch
+                    } // end foreach
+
+                    if (!b_failure)
+                    {
+                        WriteToLog(" -- DBH successfully updated the catalog " + catalog.ID + ".");
+                    } // end if
+                    else
+                    {
+                        WriteToLog(" -- DBH successfully updated the catalog " + catalog.ID + ", but there was an issue updating the degrees.");
+                    } // end else b_failure
+                } // end if
+                else
+                {
+                    reader.Close();
+
+                    // ensure the plan will fit into the table
+                    if (ui_COL_COUNT[2] < catalog.DegreeRequirements.Count)
+                    {
+                        int k = catalog.DegreeRequirements.Count - (int)ui_COL_COUNT[2]; // number of columns that must be added
+                        AddColumns(k, s_CATALOGS_TABLE, "degree_");
+                    } // end if
+
+                    MySqlCommand command = GetCommand(catalog.ID, 'I', s_CATALOGS_TABLE, s_CATALOGS_KEY, "", GetInsertValues(catalog));
+                    command.ExecuteNonQuery();
+
+                    bool b_failure = false;
+
+                    foreach (DegreeRequirements d in catalog.DegreeRequirements)
+                    {
+                        int exit_code = Update(catalog, d);
+                        switch(exit_code)
+                        {
+                            case 0:
+                                break;
+                            default:
+                                b_failure = true;
+                                WriteToLog("Updating the degree " + d.ID + " failed. See prior log entry. Error code: " + exit_code);
+                                break;
+                        } // end switch
+                    } // end foreach
+
+                    if (!b_failure)
+                    {
+                        WriteToLog(" -- DBH successfully created the catalog " + catalog.ID + ".");
+                    } // end if
+                    else
+                    {
+                        WriteToLog(" -- DBH successfully created the catalog " + catalog.ID + ", but there was an issue creating the degrees.");
+                    } // end else b_failure
+                } // end else
+            } // end try
+            catch (Exception e)
+            {
+                WriteToLog(" -- DBH update failed for the student plan with ID: " + catalog.ID + " Msg: " + e.Message);
+                return 2;
+            } // end catch
+            finally
+            {
+                MySqlLock.ReleaseMutex();
+            } // end finally
+
+            return 0;
         } // end method Update(CatalogRequirements)
 
-        private int Update(DegreeRequirements degree)
+        /// <summary>
+        /// Updates the specified degree requirements asscoiated with the catalog. 
+        /// Note: The caller of this method MUST own the lock to the database.
+        /// </summary>
+        /// <param name="catalog">The catalog associated with the DegreeRequirements object in arg2</param>
+        /// <param name="degree">The DegreeRequirements to update.</param>
+        /// <returns>0 or an error code</returns>
+        /// <remarks>This method should only be called from within <see cref="Update(CatalogRequirements)"/></remarks>
+        private int Update(CatalogRequirements catalog, DegreeRequirements degree) 
         {
+            try
+            {
+                MySqlCommand cmd = GetCommand(catalog.ID + "_" + degree.ID, 'S', s_DEGREES_TABLE, s_DEGREES_KEY, "*");
 
+                MySqlDataReader reader = cmd.ExecuteReader();
+
+                reader.Read();
+
+                if (reader.HasRows)
+                {
+                    reader.Close();
+
+                    // ensure the plan will fit into the table
+                    if (ui_COL_COUNT[3] < degree.ShallowRequirements.Count)
+                    {
+                        int k = degree.ShallowRequirements.Count - (int)ui_COL_COUNT[3]; // number of columns that must be added
+                        AddColumns(k, s_DEGREES_TABLE, "course_");
+                    } // end if
+
+                    // UPDATE `test_db`.`courses` SET `course_id`='CS123', `WP`='2', `course_name`='Introas To CS', `offered_winter`='1', 
+                    //'offered_spring`='1', `offered_summer`='1', `offered_fall`='1', `num_credits`='2', `department`='as', `num_pre_requs`='4' WHERE `course_id`='CS110';
+
+                    string query = "UPDATE " + s_MYSQL_DB_NAME + "." + s_DEGREES_TABLE + " SET degree_name = " + degree.Name + ", department = " + degree.Department + ", num_requ = " + degree.ShallowRequirements.Count.ToString();
+
+                    int i = 0;
+
+                    foreach (string s in degree.ShallowRequirements)
+                    {
+                        query += ", course_" + i.ToString() + " = " + s;
+                        i++;
+                    } // end foreach
+
+                    query += " WHERE " + s_DEGREES_KEY + " = " + catalog.ID + "_" + degree.ID;
+
+                    MySqlCommand temp = new MySqlCommand(query, DB_CONNECTION);
+
+                    temp.ExecuteNonQuery();
+
+                    WriteToLog(" -- DBH successfully updated the degree " + catalog.ID + "_" + degree.ID + ".");
+                } // end if
+                else
+                {
+                    reader.Close();
+
+                    // ensure the plan will fit into the table
+                    if (ui_COL_COUNT[3] < degree.Requirements.Count)
+                    {
+                        int k = degree.Requirements.Count - (int)ui_COL_COUNT[3]; // number of columns that must be added
+                        AddColumns(k, s_DEGREES_TABLE, "course_");
+                    } // end if
+
+                    MySqlCommand command = GetCommand(catalog.ID + "_" + degree.ID, 'I', s_DEGREES_TABLE, s_DEGREES_KEY, "", GetInsertValues(catalog, degree));
+                    command.ExecuteNonQuery();
+
+                    WriteToLog(" -- DBH successfully created the plan for " + catalog.ID + ".");
+                } // end else
+            } // end try
+            catch (Exception e)
+            {
+                WriteToLog(" -- DBH update failed for the student plan with ID: " + catalog.ID + " Msg: " + e.Message);
+                return 2;
+            } // end catch
+
+            return 0;
         } // end method Update(DegreeRequirements)
 
         /// <summary>Updates a student in the students MySQL database.</summary>
@@ -2462,12 +2764,77 @@ namespace Database_Handler
             s_values += "\"" + student.StartingQuarter.QuarterSeason.ToString() + "\", " + student.StartingQuarter.Year.ToString() + ",";
             if (student.HasExpectedGraduation)
             {
-                s_values += "\"" + student.ExpectedGraduation.QuarterSeason.ToString() + "\", " + student.ExpectedGraduation.Year.ToString() + ";";
+                s_values += "\"" + student.ExpectedGraduation.QuarterSeason.ToString() + "\", " + student.ExpectedGraduation.Year.ToString();
             } // end if
             else
             {
-                s_values += "\"\", 0;";
+                s_values += "\"\", 0";
             } // end else
+
+            return s_values;
+        } // end method GetInsertValues
+
+
+        private string GetInsertValues(Course course)
+        {
+            // 'CS110', 1, 'Intro To CS', '1', '1', '0', '1', '4', 'CS', '0');
+
+            string s_values = "\"" + course.ID + "\", 1, \"" + course.Name + "\", ";
+
+            foreach(bool b in course.QuartersOffered)
+            {
+                if(b)
+                {
+                    s_values += "1, ";
+                } // end if
+                else
+                {
+                    s_values += "0, ";
+                } // end else
+            } // end foreach
+
+            s_values += course.Credits.ToString() + ", " ;
+
+            s_values += "\"" + course.Department + "\",";
+
+            if(course.ShallowPreRequisites.Count > 0)
+            {
+                s_values += course.ShallowPreRequisites.Count.ToString();
+                foreach (string s in course.ShallowPreRequisites)
+                {
+                    s_values += ", \"" + s + "\"";
+                } // end foreach
+            } // end if
+            else
+            {
+                s_values += "0";
+            } // end if
+
+            return s_values;
+        } // end method GetInsertValues
+
+
+        private string GetInsertValues(CatalogRequirements catalog)
+        {
+            string s_values = "\"" + catalog.ID + "\", 1, " + catalog.DegreeRequirements.Count;
+
+            foreach (DegreeRequirements d in catalog.DegreeRequirements)
+            {
+                s_values += ", " + catalog.ID + "_" + d.ID;
+            } // end foreach
+
+            return s_values;
+        } // end method GetInsertValues
+
+
+        private string GetInsertValues(CatalogRequirements catalog, DegreeRequirements degree)
+        {
+            string s_values = "\"" + catalog.ID + "_" + degree.ID + "\", 1, " + degree.Name + ", " + degree.Department + ", " + degree.ShallowRequirements.Count.ToString();
+
+            foreach(string s in degree.ShallowRequirements)
+            {
+                s_values += ", " + s;
+            } // emd foreach
 
             return s_values;
         } // end method GetInsertValues
@@ -2702,7 +3069,7 @@ namespace Database_Handler
         /// <summary>Adds k columns to the student_plans table and updates the master record accordingly.</summary>
         /// <param name="k">Number of columns to add.</param>
         /// <returns>True if successful, otherwise false.</returns>
-        private bool AddColumns(int k)
+        private bool AddColumns(int k, string s_table, string name)
         {
             // Variables:
             MySqlCommand cmd = new MySqlCommand
@@ -2713,28 +3080,47 @@ namespace Database_Handler
             var output = true;
 
             int i = 0; // for error output in catch
+            int index = 0;
+            // { s_PLAN_TABLE, s_COURSES_TABLE, s_CATALOGS_TABLE, s_DEGREES_TABLE}
+            if (s_table.Equals(s_PLAN_TABLE))
+            {
+                index = 0;
+            } // end if
+            else if(s_table.Equals(s_COURSES_TABLE))
+            {
+                index = 1;
+            } // end elif
+            else if(s_table.Equals(s_CATALOGS_TABLE))
+            {
+                index = 2;
+            } // end elif
+            else if(s_table.Equals(s_DEGREES_TABLE))
+            {
+                index = 3;
+            } // end elif
+            else
+            {
+                throw new ArgumentException("Invalid table name received: " + s_table + "");
+            } // end else
 
 
             try
             {
                 for (i = 0; i < k; i++)
                 {
-                    cmd.CommandText = "ALTER TABLE " + s_MYSQL_DB_NAME + "." + s_PLAN_TABLE + "\nADD COLUMN qtr_" + ui_COL_COUNT + " VARCHAR(45) NULL DEFAULT '\"\"';";
+                    cmd.CommandText = "ALTER TABLE " + s_MYSQL_DB_NAME + "." + s_table + "\nADD COLUMN " + name + ui_COL_COUNT[index].ToString() + " VARCHAR(45) NULL DEFAULT '\"\"';";
                     cmd.ExecuteNonQuery();
-                    ui_COL_COUNT++;
+                    ui_COL_COUNT[index]++;
                 } // end for
-                WriteToLog(" -- DBH add columns successfully added " + k.ToString() + " columns to the student_plans table. The table now has "
-                            + ui_COL_COUNT.ToString() + " plan columns.");
+                WriteToLog(" -- DBH add columns successfully added " + k.ToString() + " columns to the " + s_table + " table. The table now has "
+                            + ui_COL_COUNT[index].ToString() + " columns.");
             } // end try
             catch (Exception e)
             {
-                WriteToLog(" -- DBH add columns failed. The attempt to add " + k.ToString() + "columns to the plan table failed. Msg: " + e.Message);
+                WriteToLog(" -- DBH add columns failed. The attempt to add " + k.ToString() + " columns to the plan table failed. Msg: " + e.Message);
                 WriteToLog(" -- DBH add columns failed. " + (i - 1).ToString() + " columns were successfully added before failing.");
                 output = false;
             } // end catch
-
-            MySqlCommand temp = GetCommand("-1", 'U', "", ""); // get cmd for updating master record
-            temp.ExecuteNonQuery(); // update master record with new column number
 
             return output;
         } // end method AddColumns

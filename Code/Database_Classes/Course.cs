@@ -150,6 +150,7 @@ namespace Database_Object_Classes
             Array.Copy(c_other.ba_quartersOffered, ba_quartersOffered, ui_NUMBERQUARTERS);
 
             l_preRequisites = new List<Course>(c_other.l_preRequisites);
+            ls_preRequisistes = new List<string>(c_other.ls_preRequisistes);
         } // end Copy Constructor
 
 
