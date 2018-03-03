@@ -232,7 +232,7 @@ namespace CwuAdvising.Pages
         /// <returns>True if the database update was successful</returns>
         public static bool SaveStudentPlan(string JsonPlan)
         {
-            
+            CurrentSchedule = JsonPlan;
             /*
             if(!Program.Database.connected)
             {

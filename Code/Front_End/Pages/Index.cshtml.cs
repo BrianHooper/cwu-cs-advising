@@ -39,22 +39,26 @@ namespace CwuAdvising.Pages
         /// <returns>Redirects to StudentAdvising if logging in is successful</returns>
         public IActionResult OnPost()
         {
+            string password = Login.Password;
+            string username = Login.Username;
+
             if (!ModelState.IsValid)
             {
                 return Page(); // Form validation failed
             }
             
+            /*
             if(!Program.Database.connected)
             {
                 LoginErrorMessage = "Error, database connection failed.";
                 return Page();
             }
+            */
 
-            string username = Login.Password;
-            string password = Login.Username;
             // Access database
 
-            bool loggedIn = true;
+            bool loggedIn = username.ToLower() == "admin";
+
             if (loggedIn) // Login successful
             {
                 return RedirectToPage("StudentAdvising");
