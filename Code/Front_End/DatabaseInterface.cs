@@ -157,7 +157,7 @@ namespace CwuAdvising
         /// <returns>List of all courses stored in the database or null if not found.</returns>
         public List<Course> GetAllCourses()
         {
-            DatabaseCommand databaseCommand = new DatabaseCommand(CommandType.DisplayCourses);
+            DatabaseCommand databaseCommand = new DatabaseCommand(CommandType.DisplayCourses, false);
 
 
             SendCommand(databaseCommand);

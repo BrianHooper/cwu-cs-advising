@@ -167,21 +167,21 @@ namespace CwuAdvising.Pages
                 if (requestBody.Length > 0)
                 {
                     var ModifiedCourses = JsonConvert.DeserializeObject<List<CourseModel>>(requestBody);
-
-                    List<Course> CoursesToDelete = GetCoursesToDelete(ModifiedCourses);
+                    
                     List<Course> CoursesToUpdate = GetCoursesToUpdate(ModifiedCourses);
-
+                    /*
+                    List<Course> CoursesToDelete = GetCoursesToDelete(ModifiedCourses);
                     if(!UpdateDatabaseCourses(CoursesToDelete))
                     {
                         return new JsonResult("Course update failed.");
                     }
-
+                    */
                     if(!UpdateDatabaseCourses(CoursesToUpdate))
                     {
                         return new JsonResult("Course update failed.");
                     }
-
-                    return new JsonResult("Courses saved succesfully.");
+                    
+                    return new JsonResult("Courses saved!");
                 }
                 else
                 {

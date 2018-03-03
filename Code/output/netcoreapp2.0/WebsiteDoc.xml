@@ -93,6 +93,16 @@
             <returns><c>true</c>, if record was deleted, <c>false</c> otherwise.</returns>
             <param name="info">The object to delete.</param>
         </member>
+        <member name="F:CwuAdvising.DatabaseObjects.MasterCourseList">
+            <summary>
+            Master list of courses contained in database
+            </summary>
+        </member>
+        <member name="M:CwuAdvising.DatabaseObjects.GetCoursesFromDatabase">
+            <summary>
+            Retrieves master list of courses from database
+            </summary>
+        </member>
         <member name="T:CwuAdvising.Models.CourseModel">
             <summary>Model for Course Management</summary>
         </member>
@@ -182,6 +192,11 @@
             Representing "Winter Spring Summer Fall"
             </summary>
         </member>
+        <member name="M:CwuAdvising.Models.ScheduleModel.Requirement.CourseToRequirement(Database_Object_Classes.Course)">
+            <summary>Converts a Course object to a Requirement object</summary>
+            <param name="course">The Course to be converted</param>
+            <returns>The Requirement corresponding to the given Course</returns>
+        </member>
         <member name="T:CwuAdvising.Models.ScheduleModel.ConstraintModel">
             <summary>
             Contains the constraints for the schedule model
@@ -245,13 +260,14 @@
         <member name="T:CwuAdvising.Pages.AdvisingModel.StudentModel">
             <summary>Model for passing Student information from the view</summary>
         </member>
-        <member name="M:CwuAdvising.Pages.AdvisingModel.StudentModel.#ctor(System.String,System.String,System.String,System.String,System.String)">
+        <member name="M:CwuAdvising.Pages.AdvisingModel.StudentModel.#ctor(System.String,System.String,System.String,System.String,System.String,System.String)">
             <summary>Constructor for StudentModel</summary>
             <param name="name">Name of the student</param>
             <param name="id">ID of the student</param>
             <param name="quarter">Student's Starting Quarter</param>
             <param name="year">Student's Starting Year</param>
             <param name="degree">Student's Degree</param>
+            <param name="catalogyear">Student's catalog year</param>
         </member>
         <member name="P:CwuAdvising.Pages.AdvisingModel.StudentModel.Name">
             <summary>Name of current student loaded in advising page</summary>
@@ -267,6 +283,9 @@
         </member>
         <member name="P:CwuAdvising.Pages.AdvisingModel.StudentModel.Degree">
             <summary>Degree of current student loaded in advising page</summary>
+        </member>
+        <member name="P:CwuAdvising.Pages.AdvisingModel.StudentModel.CatalogYear">
+            <summary>Catalog year for the students degree</summary>
         </member>
         <member name="M:CwuAdvising.Pages.AdvisingModel.LoadBaseCase">
             <summary>Gets the base case for the student's degree</summary>
@@ -288,6 +307,15 @@
             </summary>
             <returns>Student object matching the current student</returns>
         </member>
+        <member name="M:CwuAdvising.Pages.AdvisingModel.GetStudentPlan">
+            <summary>Loads a student plan from the database</summary>
+            <returns>Student Schedule as a parsed JSON string</returns>
+        </member>
+        <member name="M:CwuAdvising.Pages.AdvisingModel.SaveStudentPlan(System.String)">
+            <summary>Saves the student plan to the database</summary>
+            <param name="JsonPlan">Students schedule as a JSON string</param>
+            <returns>True if the database update was successful</returns>
+        </member>
         <member name="M:CwuAdvising.Pages.AdvisingModel.OnPostRecieveScheduleForAlgorithm">
             <summary>
             AJAX handler for loading student schedule
@@ -300,6 +328,11 @@
             AJAX handler for saving student schedule
             </summary>
             <returns>JsonResult containing success/error status</returns>
+        </member>
+        <member name="M:CwuAdvising.Pages.AdvisingModel.SaveBaseCase(System.String)">
+            <summary>Saves the base case to the database</summary>
+            <param name="basecase">JSON string representing the base case</param>
+            <returns>True if the database update was successful</returns>
         </member>
         <member name="M:CwuAdvising.Pages.AdvisingModel.OnPostRecieveScheduleForSavingBaseCase">
             <summary>
@@ -343,7 +376,13 @@
             and passes them to the scheduling algorithm
             </summary>
             <param name="model">ScheduleModel from the client</param>
-            <returns>Schedule from the scheduling algorithm</returns>
+            <returns>ScheduleModel from the scheduling algorithm</returns>
+        </member>
+        <member name="M:CwuAdvising.Pages.AdvisingModel.ScheduleToScheduleModel(PlanGenerationAlgorithm.Schedule,CwuAdvising.Models.ScheduleModel)">
+            <summary>Converts a schedule object, used by the algorithm, to a ScheduleModel object. </summary>
+            <param name="schedule"></param>
+            <param name="oldModel"></param>
+            <returns></returns>
         </member>
         <member name="T:CwuAdvising.Pages.ErrorModel">
             <summary>Model for index page</summary>
@@ -351,19 +390,31 @@
         <member name="T:CwuAdvising.Pages.IndexModel">
             <summary>Model for index page</summary>
         </member>
+        <member name="F:CwuAdvising.Pages.IndexModel.LoginErrorMessage">
+            <summary>Error message to display to the user on failed login</summary>
+        </member>
+        <member name="F:CwuAdvising.Pages.IndexModel.DatabaseConnectionMessage">
+            <summary>Status of database connection to display to the user</summary>
+        </member>
+        <member name="T:CwuAdvising.Pages.IndexModel.LoginModel">
+            <summary></summary>
+        </member>
+        <member name="P:CwuAdvising.Pages.IndexModel.LoginModel.Username">
+            <summary>Username for login</summary>
+        </member>
+        <member name="P:CwuAdvising.Pages.IndexModel.LoginModel.Password">
+            <summary>Password for login</summary>
+        </member>
+        <member name="P:CwuAdvising.Pages.IndexModel.Login">
+            <summary>Binds the LoginModel to a Login object for POST</summary>
+        </member>
+        <member name="M:CwuAdvising.Pages.IndexModel.OnPost">
+            <summary>Recieve login information</summary>
+            <returns>Redirects to StudentAdvising if logging in is successful</returns>
+        </member>
         <member name="T:CwuAdvising.Pages.ManageCoursesModel">
             <summary>
             Model for managing coures in database
-            </summary>
-        </member>
-        <member name="F:CwuAdvising.Pages.ManageCoursesModel.MasterCourseList">
-            <summary>
-            Master list of courses contained in database
-            </summary>
-        </member>
-        <member name="M:CwuAdvising.Pages.ManageCoursesModel.GetCoursesFromDatabase">
-            <summary>
-            Retrieves master list of courses from database
             </summary>
         </member>
         <member name="M:CwuAdvising.Pages.ManageCoursesModel.CourseListToCourseModelList(System.Collections.Generic.List{Database_Object_Classes.Course})">
@@ -401,12 +452,32 @@
         <member name="T:CwuAdvising.Pages.ManageDegreesModel">
             <summary>Model for degree management</summary>
         </member>
-        <member name="P:CwuAdvising.Pages.ManageDegreesModel.DegreeList">
-            <summary>List containing the degrees loaded from the database</summary>
+        <member name="F:CwuAdvising.Pages.ManageDegreesModel.CatalogList">
+            <summary>Master list of Catalogs, identified by catalog year</summary>
         </member>
-        <member name="M:CwuAdvising.Pages.ManageDegreesModel.LoadDatabaseDegrees">
-            <summary>Loads degrees from the database</summary>
-            <returns>Returns a list of DegreeModels serialized as a JSON string</returns>
+        <member name="F:CwuAdvising.Pages.ManageDegreesModel.ModelList">
+            <summary>Master list of Degree Models</summary>
+        </member>
+        <member name="M:CwuAdvising.Pages.ManageDegreesModel.GetCatalogFromDatabase">
+            <summary>Retrieves the Catalog list from the database</summary>
+            <returns>True if the database query was successful</returns>
+        </member>
+        <member name="M:CwuAdvising.Pages.ManageDegreesModel.TESTBuildDegreeList">
+            <summary>TEST build degree list</summary>
+        </member>
+        <member name="M:CwuAdvising.Pages.ManageDegreesModel.RequirementsToDegreeModel(System.String,Database_Object_Classes.DegreeRequirements)">
+            <summary>Converts a Database DegreeRequirement to a front-end DegreeModel</summary>
+            <param name="year">Catalog Year</param>
+            <param name="degree">DegreeRequirements database object</param>
+            <returns>DegreeModel representing the degree</returns>
+        </member>
+        <member name="M:CwuAdvising.Pages.ManageDegreesModel.DegreeModelToRequirements(CwuAdvising.Models.DegreeModel)">
+            <summary>Converts a DegreeModel object to a DegreeRequirements Object</summary>
+            <param name="Degree">DegreeModel to be parsed</param>
+            <returns>DegreeRequirements object corresponding to the given DegreeModel</returns>
+        </member>
+        <member name="M:CwuAdvising.Pages.ManageDegreesModel.LoadDegreeModelList">
+            <summary>Loads the master catalog list into a list of DegreeModels</summary>
         </member>
         <member name="M:CwuAdvising.Pages.ManageDegreesModel.ReadModel">
             <summary>Parses the degree list</summary>
@@ -421,8 +492,25 @@
             <summary>Retrieves a modified degree as JSON data from POST</summary>
             <returns>JsonResult containing success/error status</returns>
         </member>
+        <member name="T:CwuAdvising.Pages.PrintModel">
+            <summary>Model for printing page</summary>
+        </member>
         <member name="T:CwuAdvising.Pages.StudentAdvisingModel">
             <summary>Model for student advising page</summary>
+        </member>
+        <member name="T:CwuAdvising.Pages.StudentAdvisingModel.DegreePair">
+            <summary>Pair class for JSON degree model</summary>
+        </member>
+        <member name="M:CwuAdvising.Pages.StudentAdvisingModel.DegreePair.#ctor(System.String,System.UInt32)">
+            <summary>Constructor for pair class</summary>
+            <param name="name">Name of the degree</param>
+            <param name="year">Academic year</param>
+        </member>
+        <member name="P:CwuAdvising.Pages.StudentAdvisingModel.DegreePair.Name">
+            <summary>Name of the degree</summary>
+        </member>
+        <member name="P:CwuAdvising.Pages.StudentAdvisingModel.DegreePair.Year">
+            <summary>Academic year</summary>
         </member>
         <member name="M:CwuAdvising.Pages.StudentAdvisingModel.GetDegrees">
             <summary>Gets a list of Degrees from the database</summary>
@@ -472,14 +560,45 @@
             <summary>Retrieves a list of modified courses as JSON data from POST</summary>
             <returns>JsonResult containing success/error status</returns>
         </member>
+        <member name="T:CwuAdvising.Pages.UserManagementModel.CreateUserModel">
+            <summary></summary>
+        </member>
+        <member name="P:CwuAdvising.Pages.UserManagementModel.CreateUserModel.Username">
+            <summary>Username</summary>
+        </member>
+        <member name="P:CwuAdvising.Pages.UserManagementModel.CreateUserModel.PasswordOne">
+            <summary>Password 1</summary>
+        </member>
+        <member name="P:CwuAdvising.Pages.UserManagementModel.CreateUserModel.PasswordTwo">
+            <summary>Password 2</summary>
+        </member>
+        <member name="P:CwuAdvising.Pages.UserManagementModel.CreateUserErrorMessage">
+            <summary>Error message for Create User form</summary>
+        </member>
+        <member name="P:CwuAdvising.Pages.UserManagementModel.CreateUser">
+            <summary>Binds the LoginModel to a Login object for POST</summary>
+        </member>
+        <member name="M:CwuAdvising.Pages.UserManagementModel.OnPost">
+            <summary>Recieve login information</summary>
+            <returns>Redirects to StudentAdvising if logging in is successful</returns>
+        </member>
         <member name="T:CwuAdvising.Program">
             <summary>Entry point of the application</summary>
+        </member>
+        <member name="F:CwuAdvising.Program.DbError">
+            <summary>Error message for failed database connection</summary>
         </member>
         <member name="P:CwuAdvising.Program.ConfigPath">
             <summary>Location of the database configuration file</summary>
         </member>
         <member name="F:CwuAdvising.Program.Database">
             <summary>Interface for accessing the database</summary>
+        </member>
+        <member name="F:CwuAdvising.Program.DbObjects">
+            <summary>Holds the database objects used by the front-end</summary>
+        </member>
+        <member name="P:CwuAdvising.Program.Get">
+            <summary>Database getter</summary>
         </member>
         <member name="M:CwuAdvising.Program.Main(System.String[])">
             <summary>Main method</summary>
