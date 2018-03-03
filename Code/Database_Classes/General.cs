@@ -625,6 +625,8 @@ namespace Database_Object_Classes
         /// </remarks>
         private readonly string s_pw;
 
+        private byte[] ba_pw;
+
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
         // Constructors:
@@ -649,6 +651,7 @@ namespace Database_Object_Classes
             this.b_isAdmin  = b_isAdmin;
             this.b_isActive = b_isActive;
             s_pw            = string.Copy(s_password);
+            ba_pw           = new byte[64];
 
             Array.Copy(ba_PWSalt, this.ba_PWSalt, this.ba_PWSalt.Length);
         } // end Constructor
@@ -664,6 +667,7 @@ namespace Database_Object_Classes
             b_isAdmin   = other.IsAdmin;
             b_isActive  = other.IsActive;
             s_pw        = String.Empty;
+            ba_pw       = new byte[64];
         } // end Copy Constructor              
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -684,6 +688,20 @@ namespace Database_Object_Classes
                 ba_PWSalt = value;                
             }
         }
+
+        /// <summary>Getter/Setter for the byte array containing the user's password hash.</summary>
+        public byte[] Password_Hash
+        {
+            get
+            {
+                return ba_pw;
+            } // end get
+            set
+            {
+                ba_pw = new byte[value.Length];
+                Array.Copy(value, ba_pw, ba_pw.Length);
+            } // end set
+        } // end Password_Hash
 
         /// <summary>Getter/Setter for whether this user is an Admin.</summary>
         public bool IsAdmin

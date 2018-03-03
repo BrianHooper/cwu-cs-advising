@@ -76,7 +76,7 @@
     </style>
 
     <script>
-        var Schedule = JSON.parse('@Html.Raw(AdvisingModel.LoadBaseCase())');
+        var Schedule = JSON.parse('@Html.Raw(AdvisingModel.CurrentSchedule)');
         $(document).ready(function () {
             for (var i = 0; i < Schedule.Quarters.length; i++) {
                 AddQuarter(Schedule.Quarters[i]);

@@ -123,6 +123,8 @@ namespace Database_Handler
         /// <summary>List of all client threads currently running.</summary>
         private List<Thread> clientThreads;
 
+        private bool deadlocked = false;
+
         /// <summary>List of all clients currently connected to DBH.</summary>
         private List<TcpClient> clients;
         #endregion
@@ -171,6 +173,8 @@ namespace Database_Handler
             string TCPPort = data["Misc"]["TCPIP_port"];
             i_TCP_PORT = int.Parse(TCPPort);
 
+            deadlocked = false;
+
             WriteToLog(" -- DBH Imported settings.");
 
             ConnectToDB(ref pw);
@@ -210,6 +214,10 @@ namespace Database_Handler
                         WriteToLog(" -- DBH is preparing to exit (error code 3).");
                         WriteToLog(" -- DBH is exiting because setup failed.");
                         break; // end case 3
+                    case 74:
+                        Console.WriteLine("\nDBH detected a potential deadlock and is restarting.");
+                        WriteToLog(" -- DBH potential deadlock occurred.");
+                        break;
                 } // end switch
             } // end try
             catch (Exception e)
@@ -224,7 +232,7 @@ namespace Database_Handler
                 {
                     WriteToLog(" -- DBH is cleaning up...");
 
-                    //DBH.CleanUp();
+                    DBH.Dispose();
 
                     WriteToLog(" -- DBH finished cleaning up and is exiting now.");
                     Console.WriteLine("Clean up finished, exiting.");
@@ -242,7 +250,9 @@ namespace Database_Handler
                     CourseLock.Dispose();
                     LogLock.Dispose();
                 } // end finally
-            } // end finally                    
+            } // end finally 
+
+            Environment.Exit(0);
         } // end Main
 
         #endregion
@@ -278,6 +288,11 @@ namespace Database_Handler
                     } // end switch
                 } // end for
             } // end try
+            catch (ThreadAbortException)
+            {
+                WriteToLog(" -- DBH Thread received kill signal. Exiting ...");
+                return 0;
+            } // end catch
             catch (Exception e)
             {
                 if (!int.TryParse(e.Message, out int error))
@@ -339,8 +354,19 @@ namespace Database_Handler
             for (; ; )
             {
                 WriteToLog(" -- DBH Waiting for client to connect ...");
+
+                while(!tcpListener.Pending())
+                {
+                    if (deadlocked)
+                    {
+                        return 74;
+                    } // end if
+                } // end while
+
                 TcpClient newClient = tcpListener.AcceptTcpClient();
-                if(newClient == null)
+
+
+                if (newClient == null)
                 {
                     WriteToLog(" -- DBH The client object was null.");
                     continue;
@@ -382,9 +408,6 @@ namespace Database_Handler
                 clientThreads.Add(newClientThread);
                 newClientThread.Start(newClient);
                 WriteToLog(" -- DBH Thread started, doing housekeeping.");
-                // clean up list in case any connections are gone
-                //clients.RemoveAll(null);
-                //clientThreads.RemoveAll(delegate (Thread t) { return t.ThreadState == ThreadState.Stopped || !t.IsAlive; });
             } // end for
 
             return output;
@@ -400,55 +423,66 @@ namespace Database_Handler
         /// <returns>An error code, or 0 if execution was successful.</returns>
         private int ExecuteCommand(DatabaseCommand cmd, NetworkStream stream)
         {
-            DatabaseCommand output;
+            DatabaseCommand output = null;
             WriteToLog(" -- DBH Now in execute command.");
 
-            switch (cmd.CommandType)
+            try
             {
-                case CommandType.Retrieve:
-                    output = ExecuteRetrieveCommand(cmd);
-                    break;
-                case CommandType.Update:
-                    output = ExecuteUpdateCommand(cmd);
-                    break;
-                case CommandType.Delete:
-                    output = ExecuteDeleteCommand(cmd);
-                    break;
-                case CommandType.ChangePW:
-                    output = ExecutePasswordChangeCommand(cmd);
-                    break;
-                case CommandType.Login:
-                    output = ExecuteLoginCommand(cmd);
-                    break;
-                case CommandType.DisplayCatalogs:
-                    output = ExecuteDisplayCatalogsCommand(cmd.IsShallow);
-                    break;
-                case CommandType.DisplayUsers:
-                    output = ExecuteDisplayUsersCommand();
-                    break;
-                case CommandType.GetSalt:
-                    output = ExecuteGetSaltCommand(cmd);
-                    break;
-                case CommandType.DisplayCourses:
-                    output = ExecuteDisplayCoursesCommand();
-                    if(!cmd.IsShallow)
-                    {
-                        foreach(Course c in output.CourseList)
+                switch (cmd.CommandType)
+                {
+                    case CommandType.Retrieve:
+                        output = ExecuteRetrieveCommand(cmd);
+                        break;
+                    case CommandType.Update:
+                        output = ExecuteUpdateCommand(cmd);
+                        break;
+                    case CommandType.Delete:
+                        output = ExecuteDeleteCommand(cmd);
+                        break;
+                    case CommandType.ChangePW:
+                        output = ExecutePasswordChangeCommand(cmd);
+                        break;
+                    case CommandType.Login:
+                        output = ExecuteLoginCommand(cmd);
+                        break;
+                    case CommandType.DisplayCatalogs:
+                        output = ExecuteDisplayCatalogsCommand(cmd.IsShallow);
+                        break;
+                    case CommandType.DisplayUsers:
+                        output = ExecuteDisplayUsersCommand();
+                        break;
+                    case CommandType.GetSalt:
+                        output = ExecuteGetSaltCommand(cmd);
+                        break;
+                    case CommandType.DisplayCourses:
+                        output = ExecuteDisplayCoursesCommand();
+                        if (!cmd.IsShallow)
                         {
-                            foreach(string s in c.ShallowPreRequisites)
+                            foreach (Course c in output.CourseList)
                             {
-                                c.AddPreRequisite(RetrieveCourse(s, false, 0));
+                                foreach (string s in c.ShallowPreRequisites)
+                                {
+                                    c.AddPreRequisite(RetrieveCourse(s, false, 0));
+                                } // end foreach
                             } // end foreach
-                        } // end foreach
-                    } // end if
-                    break;
-                case CommandType.Disconnect:
-                    output = new DatabaseCommand(99, "Exit command received.");
-                    break;
-                default:
-                    output = new DatabaseCommand(-1, "Invalid command type");
-                    break;
-            } // end switch
+                        } // end if
+                        break;
+                    case CommandType.Disconnect:
+                        output = new DatabaseCommand(99, "Exit command received.");
+                        break;
+                    default:
+                        output = new DatabaseCommand(-1, "Invalid command type");
+                        break;
+                } // end switch
+            } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
+            catch (Exception e)
+            {
+                WriteToLog(" -- DBH an exception reached Execute Command. Msg: " + e.Message);
+            } // end catch
 
             return SendResult(output, stream);
         } // end method ExecuteCommand
@@ -462,34 +496,45 @@ namespace Database_Handler
             Database_Object dbo;
             Credentials cred;
             PlanInfo plan;
-            DatabaseCommand result;
+            DatabaseCommand result = null;
 
-            switch (cmd.OperandType)
+            try
             {
-                case OperandType.CatalogRequirements:
-                    dbo = (CatalogRequirements)cmd.Operand;
-                    result = new DatabaseCommand(CommandType.Return, (CatalogRequirements)Retrieve(dbo.ID, 'Y', cmd.IsShallow), OperandType.CatalogRequirements);
-                    break;
-                case OperandType.Student:
-                    dbo = (Student)cmd.Operand;
-                    result = new DatabaseCommand(CommandType.Return, (Student)Retrieve(dbo.ID, 'S'), OperandType.Student);
-                    break;
-                case OperandType.Course:
-                    dbo = (Course)cmd.Operand;
-                    result = new DatabaseCommand(CommandType.Return, (Course)Retrieve(dbo.ID, 'C', cmd.IsShallow), OperandType.Course);
-                    break;
-                case OperandType.Credentials:
-                    cred = (Credentials)cmd.Operand;
-                    result = new DatabaseCommand(CommandType.Return, (Credentials)Retrieve(cred.UserName, 'U'));
-                    break;
-                case OperandType.PlanInfo:
-                    plan = (PlanInfo)cmd.Operand;
-                    result = new DatabaseCommand(CommandType.Return, (PlanInfo)Retrieve(plan.StudentID, 'P'));
-                    break;
-                default:
-                    result = new DatabaseCommand(-1, "Invalid operand type");
-                    break;
-            } // end switch
+                switch (cmd.OperandType)
+                {
+                    case OperandType.CatalogRequirements:
+                        dbo = (CatalogRequirements)cmd.Operand;
+                        result = new DatabaseCommand(CommandType.Return, (CatalogRequirements)Retrieve(dbo.ID, 'Y', cmd.IsShallow), OperandType.CatalogRequirements);
+                        break;
+                    case OperandType.Student:
+                        dbo = (Student)cmd.Operand;
+                        result = new DatabaseCommand(CommandType.Return, (Student)Retrieve(dbo.ID, 'S'), OperandType.Student);
+                        break;
+                    case OperandType.Course:
+                        dbo = (Course)cmd.Operand;
+                        result = new DatabaseCommand(CommandType.Return, (Course)Retrieve(dbo.ID, 'C', cmd.IsShallow), OperandType.Course);
+                        break;
+                    case OperandType.Credentials:
+                        cred = (Credentials)cmd.Operand;
+                        result = new DatabaseCommand(CommandType.Return, (Credentials)Retrieve(cred.UserName, 'U'));
+                        break;
+                    case OperandType.PlanInfo:
+                        plan = (PlanInfo)cmd.Operand;
+                        result = new DatabaseCommand(CommandType.Return, (PlanInfo)Retrieve(plan.StudentID, 'P'));
+                        break;
+                    default:
+                        result = new DatabaseCommand(-1, "Invalid operand type");
+                        break;
+                } // end switch
+            } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
+            catch (Exception e)
+            {
+                WriteToLog(" -- DBH an exception made it to Execute Retrieve Command! Msg: " + e.Message);
+            } // end catch
 
             return result;
         } // end method ExecuteRetrieveCommand
@@ -502,35 +547,46 @@ namespace Database_Handler
             Database_Object dbo;
             Credentials cred;
             PlanInfo plan;
-            int i_code;
+            int i_code = -2;
             string s_msg = "Update failed";
 
-            switch (cmd.OperandType)
+            try
             {
-                case OperandType.CatalogRequirements:
-                    dbo = (CatalogRequirements)cmd.Operand;
-                    i_code = Update((CatalogRequirements)dbo);
-                    break;
-                case OperandType.Student:
-                    dbo = (Student)cmd.Operand;
-                    i_code = Update((Student)dbo);
-                    break;
-                case OperandType.Course:
-                    dbo = (Course)cmd.Operand;
-                    i_code = Update((Course)dbo);
-                    break;
-                case OperandType.Credentials:
-                    cred = (Credentials)cmd.Operand;
-                    i_code = Update(cred);
-                    break;
-                case OperandType.PlanInfo:
-                    plan = (PlanInfo)cmd.Operand;
-                    i_code = Update(plan);
-                    break;
-                default:
-                    i_code = -1;
-                    break;
-            } // end switch
+                switch (cmd.OperandType)
+                {
+                    case OperandType.CatalogRequirements:
+                        dbo = (CatalogRequirements)cmd.Operand;
+                        i_code = Update((CatalogRequirements)dbo);
+                        break;
+                    case OperandType.Student:
+                        dbo = (Student)cmd.Operand;
+                        i_code = Update((Student)dbo);
+                        break;
+                    case OperandType.Course:
+                        dbo = (Course)cmd.Operand;
+                        i_code = Update((Course)dbo);
+                        break;
+                    case OperandType.Credentials:
+                        cred = (Credentials)cmd.Operand;
+                        i_code = Update(cred);
+                        break;
+                    case OperandType.PlanInfo:
+                        plan = (PlanInfo)cmd.Operand;
+                        i_code = Update(plan);
+                        break;
+                    default:
+                        i_code = -1;
+                        break;
+                } // end switch
+            }
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
+            catch (Exception e)
+            {
+                WriteToLog(" -- DBH an exception made it to Execute Update Command! Msg: " + e.Message);
+            } // end catch
 
             if (i_code == 0)
             {
@@ -550,34 +606,45 @@ namespace Database_Handler
             Database_Object dbo;
             Credentials cred;
             PlanInfo plan;
-            int i_code;
+            int i_code = -2;
 
-            switch (cmd.OperandType)
+            try
             {
-                case OperandType.CatalogRequirements:
-                    dbo = (CatalogRequirements)cmd.Operand;
-                    i_code = DeleteRecord((CatalogRequirements)dbo);
-                    break;
-                case OperandType.Student:
-                    dbo = (Student)cmd.Operand;
-                    i_code = DeleteRecord((Student)dbo);
-                    break;
-                case OperandType.Course:
-                    dbo = (Course)cmd.Operand;
-                    i_code = DeleteRecord((Course)dbo);
-                    break;
-                case OperandType.Credentials:
-                    cred = (Credentials)cmd.Operand;
-                    i_code = DeleteRecord(cred);
-                    break;
-                case OperandType.PlanInfo:
-                    plan = (PlanInfo)cmd.Operand;
-                    i_code = DeleteRecord(plan);
-                    break;
-                default:
-                    i_code = -1;
-                    break;
-            } // end switch
+                switch (cmd.OperandType)
+                {
+                    case OperandType.CatalogRequirements:
+                        dbo = (CatalogRequirements)cmd.Operand;
+                        i_code = DeleteRecord((CatalogRequirements)dbo);
+                        break;
+                    case OperandType.Student:
+                        dbo = (Student)cmd.Operand;
+                        i_code = DeleteRecord((Student)dbo);
+                        break;
+                    case OperandType.Course:
+                        dbo = (Course)cmd.Operand;
+                        i_code = DeleteRecord((Course)dbo);
+                        break;
+                    case OperandType.Credentials:
+                        cred = (Credentials)cmd.Operand;
+                        i_code = DeleteRecord(cred);
+                        break;
+                    case OperandType.PlanInfo:
+                        plan = (PlanInfo)cmd.Operand;
+                        i_code = DeleteRecord(plan);
+                        break;
+                    default:
+                        i_code = -1;
+                        break;
+                } // end switch
+            } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
+            catch (Exception e)
+            {
+                WriteToLog(" -- DBH an exception made it to Execute Delete Command! Msg: " + e.Message);
+            } // end catch
 
             if (i_code == 0)
             {
@@ -596,9 +663,20 @@ namespace Database_Handler
         {
             DatabaseCommand output;
             Credentials cred = (Credentials)cmd.Operand;
+            bool b_success = false;
 
-            bool b_success = LoginAttempt(cred.UserName, cred.Password, out bool b_isAdmin);
-
+            try
+            {
+                b_success = LoginAttempt(cred.UserName, cred.Password, out bool b_isAdmin);
+            } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
+            catch (Exception e)
+            {
+                WriteToLog(" -- DBH an exception made it to Execute Login Command! Msg: " + e.Message);
+            } // end catch
 
             if (b_success)
             {
@@ -620,7 +698,20 @@ namespace Database_Handler
             DatabaseCommand output;
             Credentials cred = (Credentials)cmd.Operand;
 
-            int i_errorCode = ChangePassword(cred.UserName, cred.Password, cred.IsActive);
+            int i_errorCode = -2;
+
+            try
+            {
+                i_errorCode = ChangePassword(cred.UserName, cred.Password, cred.IsActive);
+            } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
+            catch (Exception e)
+            {
+                WriteToLog(" -- DBH an exception made it to Execute Password Change Command! Msg: " + e.Message);
+            } // end catch
 
             if (i_errorCode == 0)
             {
@@ -666,6 +757,10 @@ namespace Database_Handler
                     catalogs.Add(RetrieveCatalog(s, b_shallow));
                 } // end foreach
             } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
             catch (Exception e)
             {
                 WriteToLog(" -- DBH display catalogs command failed. Msg: " + e.Message);
@@ -708,6 +803,10 @@ namespace Database_Handler
 
                 reader.Close();
             } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
             catch (Exception e)
             {
                 WriteToLog(" -- DBH display catalogs command failed. Msg: " + e.Message);
@@ -772,6 +871,10 @@ namespace Database_Handler
 
                 reader.Close();                
             } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
             catch (Exception e)
             {
                 WriteToLog(" -- DBH display courses command failed. Msg: " + e.Message);
@@ -803,6 +906,10 @@ namespace Database_Handler
             {
                 cred = (Credentials)Retrieve(cred.UserName, 'U');
             } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
             catch (Exception e)
             {
                 WriteToLog(" -- DBH retrieve salt command failed for user " + cred.UserName + ". Msg: " + e.Message);
@@ -830,8 +937,8 @@ namespace Database_Handler
             while (!stream.DataAvailable)
             {
                 DateTime current = DateTime.Now;
-                
-                if(current.Hour - arrival.Hour >= 3)
+
+                if (current.Hour - arrival.Hour >= 3)
                 { // Kill thread after 8 hours in wait loop
                     return new DatabaseCommand(CommandType.Disconnect);
                 } // end if
@@ -882,6 +989,10 @@ namespace Database_Handler
 
                 stream.Write(ms.ToArray(), 0, ms.ToArray().Length);
             } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
             catch (Exception e)
             {
                 WriteToLog(" -- Serialisation of return command failed. Msg: " + e.Message);
@@ -1021,6 +1132,9 @@ namespace Database_Handler
             } // end foreach
         } // end method CleanUp
 
+        /// <summary>Sets the ui_COL_COUNT array to contain the number of columns in all variable length tables.</summary>
+        /// <param name="s_table">Optional. The table to check, leaving this empty will check all tables.</param>
+        /// <param name="i_index">Optional. The index of the table in arg 1. </param>
         private void GetColumnCounts(string s_table = "", int i_index = 0)
         {
             string[] table_names = { s_PLAN_TABLE, s_COURSES_TABLE, s_CATALOGS_TABLE, s_DEGREES_TABLE};
@@ -1077,6 +1191,27 @@ namespace Database_Handler
             log.Close();
             LogLock.ReleaseMutex();
         } // end method WriteToLog
+
+        /// <summary>
+        ///     This method attempts to lock the database lock, if it does not succeed 
+        ///     at least once per two-minute period, it will kill the application.
+        /// </summary>
+        private void DeadLockDetector()
+        {
+            for (;;)
+            {
+                if (!MySqlLock.WaitOne(120000))
+                {
+                    deadlocked = true;
+                    return;
+                } // end if
+                else
+                {
+                    MySqlLock.ReleaseMutex();
+                    Thread.Sleep(5000);
+                } // end else
+            } // end forever loop
+        } // end method DeadLockDetector
 
         #endregion
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -1135,6 +1270,10 @@ namespace Database_Handler
                     WriteToLog("-- DBH the user " + s_ID + " does not exist, login failed.");
                 } // end else
             } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
             finally
             {
                 // end DB connection
@@ -1174,6 +1313,10 @@ namespace Database_Handler
                         throw new RetrieveError("Invalid character received by Retrieve method.", c_type);
                 } // end switch
             } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
             catch (KeyNotFoundException e)
             {
                 WriteToLog(" -- DBH retrieve could not find the key " + s_ID + "of type " + c_type + "Msg: " + e.Message);
@@ -1181,334 +1324,6 @@ namespace Database_Handler
             } // end catch
         } // end method Retrieve
 
-        #endregion
-        /* * * * * * * * * * * * * * * * * * * * * * * * * */
-
-        #region [DEPRECATED] DB4O 
-        /* * * * * * * * * * * * * * * * * * * * * * * * * */
-        /*
-        
-        // DB4O retrieve:
-        /// <summary>Retrieves the requested object from the appropriate database.</summary>
-        /// <param name="s_ID">The key of the specified object.</param>
-        /// <param name="c_type">The type of object to retrieve.</param>
-        /// <returns>The requested object, or null if the object was not found.</returns>
-        private Database_Object RetrieveHelper(string s_ID, char c_type)
-        {
-            try
-            {
-                switch (c_type)
-                {
-                    case 'S':
-                        using (IObjectContainer db = Db4oFactory.OpenFile(s_STUDENT_DB))
-                        {
-                            StudentLock.WaitOne();
-                            Student student = db.Query(delegate (Student proto) { return proto.ID == s_ID; })[0];
-                            db.Close();
-                            StudentLock.ReleaseMutex();
-                            return student;
-                        } // end using
-                    case 'Y':
-                        using (IObjectContainer db = Db4oFactory.OpenFile(s_CATALOG_DB))
-                        {
-                            CatalogLock.WaitOne();
-                            CatalogRequirements catalog = db.Query(delegate (CatalogRequirements proto) { return proto.ID == s_ID; })[0];
-                            db.Close();
-                            CatalogLock.ReleaseMutex();
-                            return catalog;
-                        } // end using
-                    case 'C':
-                        using (IObjectContainer db = Db4oFactory.OpenFile(s_COURSE_DB))
-                        {
-                            CourseLock.WaitOne();
-                            Course course = db.Query(delegate (Course proto) { return proto.ID == s_ID; })[0];
-                            db.Close();
-                            CourseLock.ReleaseMutex();
-                            return course;
-                        } // end using
-                    default:
-                        return null;
-                } // end switch
-            } // end try
-            catch (Exception e)
-            {
-                WriteToLog(" -- DBH retrieve encountered an exception. Type: " + c_type.ToString() + " Message: " + e.Message);
-                return null;
-            } // end catch
-        } // end method RetrieveHelper
-
-
-        
-
-        // DB4O update methods:
-        /// <summary>Updates the specified object by either adding it to the DB, or updating an existing object.</summary>
-        /// <param name="c_type">The type of object passed in arg 2.</param>
-        /// <param name="dbo">The object to update.</param>
-        /// <param name="s_msg">Error message, empty if no error is encountered.</param>
-        /// <returns>An error code, or 0 if update was successful.</returns>
-        /// <remarks>
-        ///             Return codes:
-        ///             0  - success
-        ///             1  - arg 2 was null 
-        ///             2  - Write protection error
-        ///             -1 - Unknown exception occurred
-        /// </remarks>
-        private int Update(char c_type, Database_Object dbo, out string s_msg)
-        {
-            try
-            {
-                UpdateHelper(c_type, dbo);
-            } // end try
-            catch (ArgumentNullException e)
-            {
-                s_msg = e.Message;
-                return 1;
-            } // end catch
-            catch (InvalidOperationException e)
-            {
-                s_msg = e.Message;
-                return 2;
-            } // end catch
-            catch (Exception e)
-            {
-                s_msg = e.Message;
-                return -1;
-            } // end catch
-
-            s_msg = "";
-            return 0;
-        } // end method Update
-
-        /// <summary>Helper method for <see cref="Update(char, Database_Object, out string)"/>.</summary>
-        /// <param name="c_type">Type of object to update.</param>
-        /// <param name="dbo">Object to update.</param>
-        /// <exception cref="ArgumentNullException">Thrown when the object in arg 2 is null.</exception>
-        /// <exception cref="InvalidOperationException">Thrown if the update fails due to write protection.</exception>
-        private void UpdateHelper(char c_type, Database_Object dbo)
-        {
-            if (dbo == null)
-            {
-                throw new ArgumentNullException("Update received an object that was null.");
-            } // end if
-
-            Database_Object temp = RetrieveHelper(dbo.ID, c_type);
-
-            if (temp == null)
-            {
-                try
-                {
-                    CreateRecord(c_type, dbo);
-                } // end try
-                catch (Exception e)
-                {
-                    WriteToLog(" -- DBH an invalid create request was made. Msg: " + e.Message);
-                }
-            } // end if
-            else
-            {
-                if (temp.WP == dbo.WP)
-                {
-                    try
-                    {
-                        UpdateRecord(c_type, dbo);
-                    } // end try
-                    catch (Exception e)
-                    {
-                        WriteToLog(" -- DBH an invalid update request was made. Msg: " + e.Message);
-                    } // end catch
-                } // end if
-                else
-                {
-                    throw new InvalidOperationException("Write protection does not match database record.");
-                } // end else
-            } // end else
-        } // end method UpdateHelper
-
-        /// <summary>Updates an existing record.</summary>
-        /// <param name="c_type">The type of object to update.</param>
-        /// <param name="dbo">The new state of the object.</param>
-        /// <exception cref="ArgumentException">Thrown if an invalid input is passed.</exception>
-        /// <remarks>
-        ///          The existing object will be destroyed, the new object should be a copy of the old
-        ///          object with the desired changes.
-        /// </remarks>
-        private void UpdateRecord(char c_type, Database_Object dbo)
-        {
-            try
-            {
-                switch (c_type)
-                {
-                    case 'S':
-                        using (IObjectContainer db = Db4oFactory.OpenFile(s_STUDENT_DB))
-                        {
-                            StudentLock.WaitOne();
-                            Student student = db.Query(delegate (Student proto) { return proto.ID == dbo.ID; })[0];
-                            db.Delete(student);
-                            Student s = (Student)dbo; // cast to correct type to avoid slicing
-                            s.ObjectAltered();
-                            db.Store(s);
-                            db.Commit();
-                            db.Close();
-                            StudentLock.ReleaseMutex();
-                        } // end using
-                        break;
-                    case 'Y':
-                        using (IObjectContainer db = Db4oFactory.OpenFile(s_CATALOG_DB))
-                        {
-                            CatalogLock.WaitOne();
-                            CatalogRequirements catalog = db.Query(delegate (CatalogRequirements proto) { return proto.ID == dbo.ID; })[0];
-                            db.Delete(catalog);
-                            CatalogRequirements y = (CatalogRequirements)dbo; // cast to correct type to avoid slicing
-                            y.ObjectAltered();
-                            db.Store(y);
-                            db.Commit();
-                            db.Close();
-                            CatalogLock.ReleaseMutex();
-                        } // end using
-                        break;
-                    case 'C':
-                        using (IObjectContainer db = Db4oFactory.OpenFile(s_COURSE_DB))
-                        {
-                            CourseLock.WaitOne();
-                            Course course = db.Query(delegate (Course proto) { return proto.ID == dbo.ID; })[0];
-                            db.Delete(course);
-                            Course c = (Course)dbo; // cast to correct type to avoid slicing
-                            c.ObjectAltered();
-                            db.Store(c);
-                            db.Commit();
-                            db.Close();
-                            CourseLock.ReleaseMutex();
-                        } // end using
-                        break;
-                    default:
-                        throw new ArgumentException("Invalid type received: " + c_type.ToString());
-                } // end switch
-            } // end try
-            catch (Exception e)
-            {
-                throw new ArgumentException("Invalid input received by UpdateRecord. Msg: " + e.Message);
-            } // end catch
-        } // end method UpdateRecord
-
-        /// <summary>Creates a new record for the specified object.</summary>
-        /// <param name="c_type">The type of object being passed.</param>
-        /// <param name="dbo">The object to store.</param>
-        /// <exception cref="ArgumentException">Thrown if an invalid input is passed.</exception>
-        private void CreateRecord(char c_type, Database_Object dbo)
-        {
-            try
-            {
-                switch (c_type)
-                {
-                    case 'S':
-                        using (IObjectContainer db = Db4oFactory.OpenFile(s_STUDENT_DB))
-                        {
-                            StudentLock.WaitOne();
-                            Student s = (Student)dbo;
-                            s.ObjectAltered();
-                            db.Store(s);
-                            db.Commit();
-                            db.Close();
-                            StudentLock.ReleaseMutex();
-                        } // end using
-                        break;
-                    case 'Y':
-                        using (IObjectContainer db = Db4oFactory.OpenFile(s_CATALOG_DB))
-                        {
-                            CatalogLock.WaitOne();
-                            CatalogRequirements c = (CatalogRequirements)dbo;
-                            c.ObjectAltered();
-                            db.Store(c);
-                            db.Commit();
-                            db.Close();
-                            CatalogLock.ReleaseMutex();
-                        } // end using
-                        break;
-                    case 'C':
-                        using (IObjectContainer db = Db4oFactory.OpenFile(s_COURSE_DB))
-                        {
-                            CourseLock.WaitOne();
-                            Course c = (Course)dbo;
-                            c.ObjectAltered();
-                            db.Store(c);
-                            db.Commit();
-                            db.Close();
-                            CourseLock.ReleaseMutex();
-                        } // end using
-                        break;
-                    default:
-                        throw new ArgumentException("Invalid type received: " + c_type.ToString());
-                } // end switch
-            } // end try
-            catch (Exception e)
-            {
-                throw new ArgumentException("Invalid input received by CreateeRecord. Msg: " + e.Message);
-            } // end catch
-        } // end method CreateRecord
-
-
-        
-
-        // DB4O delete:
-        /// <summary>Deletes the object with specified ID from the appropriate DB4O database.</summary>
-        /// <param name="c_type">The type of object to delete.</param>
-        /// <param name="s_ID">The ID of the object to delete.</param>
-        /// <returns>True if deletion was successful, otherwise false.</returns>
-        private int DeleteRecord(char c_type, string s_ID)
-        {
-            try
-            {
-                switch (c_type)
-                {
-                    case 'S':
-                        using (IObjectContainer db = Db4oFactory.OpenFile(s_STUDENT_DB))
-                        {
-                            StudentLock.WaitOne();
-                            Student student = db.Query(delegate (Student proto) { return proto.ID == s_ID; })[0];
-                            db.Delete(student);
-                            db.Commit();
-                            db.Close();
-                            StudentLock.ReleaseMutex();
-                        } // end using
-                        break;
-                    case 'Y':
-                        using (IObjectContainer db = Db4oFactory.OpenFile(s_CATALOG_DB))
-                        {
-                            CatalogLock.WaitOne();
-                            CatalogRequirements catalog = db.Query(delegate (CatalogRequirements proto) { return proto.ID == s_ID; })[0];
-                            db.Delete(catalog);
-                            db.Commit();
-                            db.Close();
-                            CatalogLock.ReleaseMutex();
-                        } // end using
-                        break;
-                    case 'C':
-                        using (IObjectContainer db = Db4oFactory.OpenFile(s_COURSE_DB))
-                        {
-                            CourseLock.WaitOne();
-                            Course course = db.Query(delegate (Course proto) { return proto.ID == s_ID; })[0];
-                            db.Delete(course);
-                            db.Commit();
-                            db.Close();
-                            CourseLock.ReleaseMutex();
-                        } // end using
-                        break;
-                    default:
-                        throw new ArgumentException("Invalid type received.");
-                } // end switch
-            } // end try
-            catch (Exception e)
-            {
-                WriteToLog(" -- DBH delete failed of DB4O object of type " + c_type + ". Msg: " + e.Message);
-                return 1;
-            } // end catch
-
-            return 0;
-        } // end method DeleteRecord
-
-        
-        
-        */
         #endregion
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -1572,6 +1387,10 @@ namespace Database_Handler
                     throw new KeyNotFoundException(s_ID);
                 } // end else
             } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
             catch (KeyNotFoundException e)
             {
                 throw e;
@@ -1635,6 +1454,10 @@ namespace Database_Handler
                     throw new KeyNotFoundException(s_ID);
                 } // end else
             } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
             catch (KeyNotFoundException e)
             {
                 throw e;
@@ -1704,6 +1527,10 @@ namespace Database_Handler
                         {
                             requs.Add(RetrieveDegree(s, b_shallow, 0));
                         } // end try
+                        catch (ThreadAbortException e)
+                        {
+                            throw e;
+                        } // end catch
                         catch (KeyNotFoundException)
                         {
                             WriteToLog(" -- DBH The catalog " + s_ID + " contains a reference to the degree " + s + " but this degree does not exist in the database.");
@@ -1721,6 +1548,10 @@ namespace Database_Handler
                     throw new KeyNotFoundException(s_ID);
                 } // end else
             } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
             catch (KeyNotFoundException e)
             {
                 MySqlLock.ReleaseMutex();
@@ -1801,6 +1632,10 @@ namespace Database_Handler
                             {
                                 requs.Add(RetrieveCourse(s, b_shallow, ui_depth + 1));
                             } // end try
+                            catch (ThreadAbortException e)
+                            {
+                                throw e;
+                            } // end catch
                             catch (KeyNotFoundException)
                             {
                                 WriteToLog(" -- DBH The degree " + s_ID + " contains a reference to the course " + s + " but this course does not exist in the database.");
@@ -1823,6 +1658,10 @@ namespace Database_Handler
                     throw new KeyNotFoundException(s_ID);
                 } // end else
             } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
             catch (KeyNotFoundException e)
             {
                 MySqlLock.ReleaseMutex();
@@ -1907,6 +1746,10 @@ namespace Database_Handler
                     throw new KeyNotFoundException(s_ID);
                 } // end else
             } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
             catch (KeyNotFoundException e)
             {
                 throw e;
@@ -2010,6 +1853,10 @@ namespace Database_Handler
                     throw new KeyNotFoundException(s_ID);
                 } // end else
             } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
             catch (KeyNotFoundException e)
             {
                 MySqlLock.ReleaseMutex();
@@ -2124,6 +1971,10 @@ namespace Database_Handler
                     WriteToLog(" -- DBH successfully created the plan for " + plan.StudentID + ".");
                 } // end else
             } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
             catch (Exception e)
             {
                 WriteToLog(" -- DBH update failed for the student plan with ID: " + plan.StudentID + " Msg: " + e.Message);
@@ -2183,6 +2034,10 @@ namespace Database_Handler
                     output = CreateUser(credentials);
                 } // end else
             } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
             catch (Exception e)
             {
                 WriteToLog(" -- DBH update failed for the user credentials with username: " + credentials.UserName + " Msg: " + e.Message);
@@ -2273,6 +2128,10 @@ namespace Database_Handler
                     WriteToLog(" -- DBH successfully created the course " + course.ID + ".");
                 } // end else
             } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
             catch (Exception e)
             {
                 WriteToLog(" -- DBH update failed for the course " + course.ID + " Msg: " + e.Message);
@@ -2407,6 +2266,10 @@ namespace Database_Handler
                     } // end else b_failure
                 } // end else
             } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
             catch (Exception e)
             {
                 WriteToLog(" -- DBH update failed for the student plan with ID: " + catalog.ID + " Msg: " + e.Message);
@@ -2487,6 +2350,10 @@ namespace Database_Handler
                     WriteToLog(" -- DBH successfully created the plan for " + catalog.ID + ".");
                 } // end else
             } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
             catch (Exception e)
             {
                 WriteToLog(" -- DBH update failed for the student plan with ID: " + catalog.ID + " Msg: " + e.Message);
@@ -2566,6 +2433,10 @@ namespace Database_Handler
                     WriteToLog(" -- DBH successfully created the student " + student.ID + ".");
                 } // end else
             } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
             catch (Exception e)
             {
                 WriteToLog(" -- DBH update failed for the student: " + student.ID + " Msg: " + e.Message);
@@ -2598,21 +2469,31 @@ namespace Database_Handler
 
             for (int i = 0; i < 10; i++) // try 10 times to ensure the salt is not the problem
             {
+
                 credentials.PWSalt = GetPasswordSalt(); // assign new salt
 
                 MySqlCommand cmd = GetCommand(credentials.UserName, 'I', s_CREDENTIALS_TABLE, s_CREDENTIALS_KEY, "", GetInsertValues(credentials));
 
                 try
                 {
+                    MySqlLock.WaitOne();
                     cmd.ExecuteNonQuery(); // create record
                     output = 0;
                     break;
                 } // end try
+                catch (ThreadAbortException e)
+                {
+                    throw e;
+                } // end catch
                 catch (Exception e)
                 {
                     WriteToLog(" -- DBH creation of user \"" + credentials.UserName + "\" failed. Msg: " + e.Message);
                     continue;
                 } // end try
+                finally
+                {
+                    MySqlLock.ReleaseMutex();
+                }
             } // end for
 
             return output;
@@ -2630,14 +2511,17 @@ namespace Database_Handler
 
             MySqlCommand cmd = GetCommand(s_ID, 'U', s_CREDENTIALS_TABLE, s_CREDENTIALS_KEY, "password", "\"" + s_pw + "\"");
 
-            MySqlLock.WaitOne();
-
             try
             {
+                MySqlLock.WaitOne();
                 cmd.ExecuteNonQuery();
                 output = 0;
                 ChangeUserStatus(s_ID, b_activeStatus);
             } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
             catch (Exception e)
             {
                 WriteToLog(" -- DBH password change for user " + s_ID + " failed. Msg: " + e.Message);
@@ -2674,6 +2558,10 @@ namespace Database_Handler
                 MySqlLock.WaitOne();
                 cmd.ExecuteNonQuery();
             } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
             catch (Exception e)
             {
                 WriteToLog(" -- DBH The user " + s_ID + "'s status could not be changed. Msg: " + e.Message);
@@ -2719,6 +2607,10 @@ namespace Database_Handler
                 cmd.ExecuteNonQuery();
                 output = 0;
             } // end try
+            catch(ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
             catch (Exception e)
             {
                 WriteToLog(" -- DBH could not delete the user " + cred.UserName + ". Msg: " + e.Message);
@@ -2747,6 +2639,10 @@ namespace Database_Handler
                 cmd.ExecuteNonQuery();
                 output = 0;
             } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
             catch (Exception e)
             {
                 WriteToLog(" -- DBH could not delete the plan belonging to " + plan.StudentID + ". Msg: " + e.Message);
@@ -2774,6 +2670,10 @@ namespace Database_Handler
                 cmd.ExecuteNonQuery();
                 output = 0;
             } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
             catch (Exception e)
             {
                 WriteToLog(" -- DBH could not delete the student " + student.ID + ". Msg: " + e.Message);
@@ -2801,6 +2701,10 @@ namespace Database_Handler
                 cmd.ExecuteNonQuery();
                 output = 0;
             } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
             catch (Exception e)
             {
                 WriteToLog(" -- DBH could not delete the course " + course.ID + ". Msg: " + e.Message);
@@ -2828,6 +2732,10 @@ namespace Database_Handler
                 cmd.ExecuteNonQuery();
                 output = 0;
             } // end try
+            catch (ThreadAbortException e)
+            {
+                throw e;
+            } // end catch
             catch (Exception e)
             {
                 WriteToLog(" -- DBH could not delete the catalog " + catalog.ID + ". Msg: " + e.Message);
@@ -3182,6 +3090,10 @@ namespace Database_Handler
                 WriteToLog(" -- DBH connection could not be reestablished. Msg: " + e.Message);
                 throw new TimeoutException("2");
             } // end catch
+            catch (Exception e)
+            {
+                WriteToLog(" -- DBH Attempt Reconnect encountered an exception. Msg: " + e.Message);
+            } // end catch
         } // end method AttemptReconnect
 
         /// <summary>Keeps the DB_CONNECTION alive by accessing the DB every 2 minutes</summary>
@@ -3189,14 +3101,34 @@ namespace Database_Handler
         {
             for (; ; )
             {
-                MySqlCommand cmd = GetCommand("-1", 'S', s_PLAN_TABLE, s_PLAN_KEY, "*");
+                try
+                {
+                    MySqlCommand cmd = GetCommand("-1", 'S', s_PLAN_TABLE, s_PLAN_KEY, "*");
 
-                MySqlLock.WaitOne();
+                    try
+                    {
+                        MySqlLock.WaitOne();
+                        MySqlDataReader reader = cmd.ExecuteReader();
+                        reader.Close();
+                    } // end try
+                    catch(ThreadAbortException e)
+                    {
+                        MySqlLock.ReleaseMutex();
+                        throw e;
+                    } // end catch
 
-                MySqlDataReader reader = cmd.ExecuteReader();
-                reader.Close();
-
-                MySqlLock.ReleaseMutex();
+                    MySqlLock.ReleaseMutex();
+                } // end try
+                catch(MySqlException e)
+                {
+                    WriteToLog(" -- DBH Keep alive encountered an exception when trying to test database connection. Msg: " + e.Message);
+                    return;
+                } // end catch
+                catch (ThreadAbortException)
+                {
+                    WriteToLog(" -- DBH Keep alive thread received abort signal.");
+                    return;
+                } // end catch
 
                 Console.WriteLine("Still Alive, sleeping 120000 ms).");
 

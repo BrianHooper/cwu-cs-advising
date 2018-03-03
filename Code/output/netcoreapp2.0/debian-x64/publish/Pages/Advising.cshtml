@@ -11,6 +11,7 @@
     var StudentQuarter = "Not found";
     var StudentYear = "Not found";
     var StudentDegree = "Not found";
+    var StudentCatalogYear = "Not found";
     var DisplayStudent = false;
 
     if(AdvisingModel.CurrentStudent != null)
@@ -20,6 +21,7 @@
         StudentQuarter = AdvisingModel.CurrentStudent.Quarter;
         StudentYear = AdvisingModel.CurrentStudent.Year;
         StudentDegree = AdvisingModel.CurrentStudent.Degree;
+        StudentCatalogYear = AdvisingModel.CurrentStudent.CatalogYear;
         DisplayStudent = true;
 
     }
@@ -62,12 +64,15 @@
         Student: @StudentName<br />
         ID: @StudentID<br />
         Starting Quarter: @StudentQuarter @StudentYear<br />
-        Degree: @StudentDegree<br />
-        <p>
-            Import Transcript:<br />
-            <input name="myFile" type="file">
-            <input type="submit" value="Import" />
-        </p>
+        Degree: <span id="StudentDegree">@StudentDegree</span><br />
+        Catalog Year: <span id="StudentCatalogYear">@StudentCatalogYear</span><br />
+                                                                              <p>
+                                                                                  <!--
+    Import Transcript:<br />
+    <input name="myFile" type="file">
+    <input type="submit" value="Import" />
+                                                                                      -->
+                                                                              </p>
     </div>
 
 

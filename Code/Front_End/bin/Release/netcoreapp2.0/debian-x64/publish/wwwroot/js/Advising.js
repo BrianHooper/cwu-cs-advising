@@ -230,8 +230,11 @@ function StringifySchedule() {
     }
     // Create a list of quarters
     var Schedule = {
-        Quarters: [], UnmetRequirements: [], Constraints: { MinCredits: 0, MaxCredits: 18, TakingSummer: false }
+        Name : "", AcademicYear : "", Quarters: [], UnmetRequirements: [], Constraints: { MinCredits: 0, MaxCredits: 18, TakingSummer: false }
     };
+
+    Schedule.Name = $("#StudentDegree").text();
+    Schedule.AcademicYear = $("#StudentCatalogYear").text();
 
     // For each quarter in the schedule
     $(".Quarter").each(function () {
@@ -258,6 +261,8 @@ function StringifySchedule() {
     Schedule.Constraints.MaxCredits = $("#MaxCredits").val();
     Schedule.Constraints.TakingSummer = $("#TakingSummerCourses").is(":checked");
 
+
+    console.log(Schedule);
     return JSON.stringify(Schedule);
 }
 
@@ -378,7 +383,6 @@ function AddCredits() {
             var CreditsDiv = $("<div></div>");
             CreditsDiv.text(credits);
             CreditsDiv.attr("class", "TotalCredits CenterFlex");
-            console.log(credits + " -- " + parseInt($("#MaxCredits").val()));
             if (credits > parseInt($("#MaxCredits").val())) {
                 CreditsDiv.attr("style", "font-weight: bold; background-color: #ff7070;");
             } 

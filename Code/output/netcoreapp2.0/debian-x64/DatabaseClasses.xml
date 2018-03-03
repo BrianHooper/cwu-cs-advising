@@ -19,6 +19,11 @@
             <summary>Copy Constructor</summary>
             <param name="other">Object to copy</param>
         </member>
+        <member name="M:Database_Object_Classes.CatalogRequirements.#ctor(System.String,System.Collections.Generic.List{System.String})">
+            <summary>Constructor for database use.</summary>
+            <param name="s_ID"></param>
+            <param name="degrees"></param>
+        </member>
         <member name="P:Database_Object_Classes.CatalogRequirements.DegreeRequirements">
             <summary>Getter/Setter for the list of degrees offered, which contain their own requirements.</summary>
         </member>
