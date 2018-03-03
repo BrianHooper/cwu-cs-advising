@@ -129,7 +129,9 @@ namespace CwuAdvising.Pages
 
                     foreach (string prereq in model.PreReqs)
                     {
-                        course.AddPreRequisite(new Course("", "prereq", 0, false));
+                        Course prereqCourse = new Course("", prereq, 0, false);
+                        prereqCourse.Department = "";
+                        course.AddPreRequisite(prereqCourse);
                     }
 
                     CourseList.Add(course);
@@ -168,13 +170,13 @@ namespace CwuAdvising.Pages
                         var ModifiedCourses = JsonConvert.DeserializeObject<List<CourseModel>>(requestBody);
                         
                         List<Course> CoursesToUpdate = GetCoursesToUpdate(ModifiedCourses);
-                        List<Course> CoursesToDelete = GetCoursesToDelete(ModifiedCourses);
-                        
+                        //List<Course> CoursesToDelete = GetCoursesToDelete(ModifiedCourses);
+                        /*
                         if (!DeleteDatabaseCourses(CoursesToDelete))
                         {
                             return new JsonResult("Course update failed.");
                         }
-
+                        */
                         if (!UpdateDatabaseCourses(CoursesToUpdate))
                         {
                             return new JsonResult("Course update failed.");
@@ -196,12 +198,12 @@ namespace CwuAdvising.Pages
 
         private bool UpdateDatabaseCourses(List<Course> CourseList)
         {
-            
+            /*
             if(!Program.Database.connected)
             {
                 return false;
             }
-            
+            */
             foreach(Course c in CourseList)
             {
                 if(!Program.Database.UpdateRecord(c, Database_Handler.OperandType.Course))
