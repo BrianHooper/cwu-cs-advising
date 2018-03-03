@@ -375,7 +375,14 @@ function AddCredits() {
             });
         });
         if (credits > 0) {
-            $(this).append('<div class="TotalCredits CenterFlex">Total Credits: ' + credits + '</div>');
+            var CreditsDiv = $("<div></div>");
+            CreditsDiv.text(credits);
+            CreditsDiv.attr("class", "TotalCredits CenterFlex");
+            console.log(credits + " -- " + parseInt($("#MaxCredits").val()));
+            if (credits > parseInt($("#MaxCredits").val())) {
+                CreditsDiv.attr("style", "font-weight: bold; background-color: #ff7070;");
+            } 
+            $(this).append(CreditsDiv);
         }
     });
 }
@@ -410,7 +417,7 @@ function ModifyRequirements() {
             }
             listElement += "]";
             
-            var ListElement = $("<li></li>")
+            var ListElement = $("<li></li>");
             ListElement.append($("<div class='ReqListElement ReqTitle'>" + unmetRequirements[i].Title + "</div>"));
             ListElement.append($("<div class='ReqListElement ReqCredits'>" + unmetRequirements[i].Credits + " Cr</div>"));
             var QuartersString = "";
@@ -591,8 +598,11 @@ $(document).on("click", "#LoadBaseCaseButton", function () {
 
 // Generate button click
 $(document).on("click", "#SaveButton", function () {
+    SaveSchedule(true);
+});
+
+function SaveSchedule(feedback) {
     var ScheduleJson = StringifySchedule();
-    console.log(ScheduleJson);
     // Pass schedule to the server
     $.ajax({
         type: "POST",
@@ -602,13 +612,19 @@ $(document).on("click", "#SaveButton", function () {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (response) {
-            return false;
+            if (feedback) {
+                if (response) {
+                    alert("Schedule saved!");
+                } else {
+                    alert("Saving schedule failed, check database connection.");
+                }
+            }
         },
         error: function (one, two, three) {
-            console.log(three);
+            return false;
         }
     });
-});
+}
 
 // Generate button click
 $(document).on("click", "#SaveBaseCaseButton", function () {
@@ -650,4 +666,14 @@ $(document).on("click", "#PrintButton", function () {
             console.log(three);
         }
     });
+});
+
+$(document).on("click", "#PrintButton", function () {
+    SaveSchedule(false);
+    window.open("Print");
+});
+
+$(document).on("change", "#MaxCredits", function () {
+    RemoveCredits();
+    AddCredits();
 });

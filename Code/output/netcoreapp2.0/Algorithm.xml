@@ -13,7 +13,6 @@
             <param name="currentSchedule">schedule for this quarter</param>
             <param name="minCredits">minimum possible number of credits</param>
             <param name="maxCredits">maximum possible number of credits</param>
-            <param name="takeSummerCourse">Whether or not the student is taking summer courses</param>
             <returns>best possible schedule</returns>
         </member>
         <member name="M:PlanGenerationAlgorithm.Algorithm.GenerateSchedule(System.Collections.Generic.List{Database_Object_Classes.Course},PlanGenerationAlgorithm.Schedule)">
@@ -96,6 +95,13 @@
             </summary>
             <param name="c"></param>
             <returns>the list of courses after removing course</returns>
+        </member>
+        <member name="M:PlanGenerationAlgorithm.Schedule.Shuffle``1(System.Collections.Generic.List{``0})">
+            <summary>
+            shuffle the list of courses order
+            </summary>
+            <typeparam name="Course">data type course</typeparam>
+            <param name="list">list of courses</param>
         </member>
         <member name="M:PlanGenerationAlgorithm.Schedule.ToString">
             <summary>

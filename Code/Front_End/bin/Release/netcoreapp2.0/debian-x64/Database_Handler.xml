@@ -167,7 +167,7 @@
             <summary>Mutex locks for databases.</summary>
         </member>
         <member name="F:Database_Handler.DatabaseHandler.ui_COL_COUNT">
-            <summary>The length of the longest plan in the s_PLAN_TABLE mysql table, stored in the master record.</summary>
+            <summary>The number of columns in each variable length table { s_PLAN_TABLE, s_COURSES_TABLE, s_CATALOGS_TABLE, s_DEGREES_TABLE}.</summary>
         </member>
         <member name="F:Database_Handler.DatabaseHandler.DB_CONNECTION">
             <summary>The master connection to the MySql database, which should never be closed, except during cleanup.</summary>
@@ -417,6 +417,16 @@
             <param name="course">The course to update.</param>
             <returns>0 or an error code.</returns>
         </member>
+        <member name="M:Database_Handler.DatabaseHandler.Update(Database_Object_Classes.CatalogRequirements,Database_Object_Classes.DegreeRequirements)">
+            <summary>
+            Updates the specified degree requirements asscoiated with the catalog. 
+            Note: The caller of this method MUST own the lock to the database.
+            </summary>
+            <param name="catalog">The catalog associated with the DegreeRequirements object in arg2</param>
+            <param name="degree">The DegreeRequirements to update.</param>
+            <returns>0 or an error code</returns>
+            <remarks>This method should only be called from within <see cref="M:Database_Handler.DatabaseHandler.Update(Database_Object_Classes.CatalogRequirements)"/></remarks>
+        </member>
         <member name="M:Database_Handler.DatabaseHandler.Update(Database_Object_Classes.Student)">
             <summary>Updates a student in the students MySQL database.</summary>
             <param name="student">The student to update or create.</param>
@@ -564,7 +574,7 @@
         <member name="M:Database_Handler.DatabaseHandler.KeepAlive">
             <summary>Keeps the DB_CONNECTION alive by accessing the DB every 2 minutes</summary>
         </member>
-        <member name="M:Database_Handler.DatabaseHandler.AddColumns(System.Int32)">
+        <member name="M:Database_Handler.DatabaseHandler.AddColumns(System.Int32,System.String,System.String)">
             <summary>Adds k columns to the student_plans table and updates the master record accordingly.</summary>
             <param name="k">Number of columns to add.</param>
             <returns>True if successful, otherwise false.</returns>

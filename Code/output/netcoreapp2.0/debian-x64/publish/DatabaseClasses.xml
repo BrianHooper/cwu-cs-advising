@@ -7,38 +7,17 @@
         <member name="T:Database_Object_Classes.CatalogRequirements">
             <summary>This class stores the catalog requirements for a given year.</summary>
         </member>
-        <member name="F:Database_Object_Classes.CatalogRequirements.ui_minQuartersAtCWU">
-            <summary>Number of quarters a student must be enrolled at CWU before graduating.</summary>
-        </member>
-        <member name="F:Database_Object_Classes.CatalogRequirements.d_minCumulativeGPA">
-            <summary>Minimum cumulative GPA a student must have to graduate.</summary>
-        </member>
-        <member name="F:Database_Object_Classes.CatalogRequirements.ccr_creditRequirements">
-            <summary>CatalogCreditRequirements structure with credit requirements for this catalog.</summary>
-        </member>
         <member name="F:Database_Object_Classes.CatalogRequirements.l_degreeRequirements">
             <summary>List containing the individual requirements for all degrees.</summary>
         </member>
-        <member name="M:Database_Object_Classes.CatalogRequirements.#ctor(System.String,System.UInt32,System.Double,Database_Object_Classes.CatalogCreditRequirements,System.Collections.Generic.List{Database_Object_Classes.DegreeRequirements})">
+        <member name="M:Database_Object_Classes.CatalogRequirements.#ctor(System.String,System.Collections.Generic.List{Database_Object_Classes.DegreeRequirements})">
             <summary>Constructor.</summary>
             <param name="s_ID">This Catalog's unique ID.</param>
-            <param name="ui_minQuartersAtCWU">Number of quarters a student must be enrolled at CWU before graduating.</param>
-            <param name="d_minCumulativeGPA">Minimum cumulative GPA a student must have to graduate.</param>
-            <param name="ccr_creditRequirements">CatalogCreditRequirements structure with credit requirements for this catalog.</param>
             <param name="l_degreeRequirements">List of DegreeRequirements structures for this catalog.</param>
         </member>
         <member name="M:Database_Object_Classes.CatalogRequirements.#ctor(Database_Object_Classes.CatalogRequirements)">
             <summary>Copy Constructor</summary>
             <param name="other">Object to copy</param>
-        </member>
-        <member name="P:Database_Object_Classes.CatalogRequirements.MinQuartersAtCWU">
-            <summary>Getter/Setter for the minimum required quarters taken at CWU.</summary>
-        </member>
-        <member name="P:Database_Object_Classes.CatalogRequirements.MinCumulativeGPA">
-            <summary>Getter/Setter for the minimum cumulative GPA a student must have.</summary>
-        </member>
-        <member name="P:Database_Object_Classes.CatalogRequirements.CreditRequirements">
-            <summary>Getter/Setter for the credit requirements for this catalog year.</summary>
         </member>
         <member name="P:Database_Object_Classes.CatalogRequirements.DegreeRequirements">
             <summary>Getter/Setter for the list of degrees offered, which contain their own requirements.</summary>
@@ -56,7 +35,10 @@
             <summary>Name of this course.</summary>
         </member>
         <member name="F:Database_Object_Classes.Course.l_preRequisites">
-            <summary>Prerequisites for this course.</summary>
+            <summary>Prerequisites for this course (complete).</summary>
+        </member>
+        <member name="F:Database_Object_Classes.Course.ls_preRequisistes">
+            <summary>Prerequisites for this course (only ids)</summary>
         </member>
         <member name="F:Database_Object_Classes.Course.ba_quartersOffered">
             <summary>The quarters this course is offered, [0] = Winter, [3] = Fall.</summary>
@@ -101,7 +83,22 @@
             </remarks>
         </member>
         <member name="M:Database_Object_Classes.Course.#ctor(System.String,System.String,System.UInt32,System.Boolean,System.Boolean[],System.Collections.Generic.ICollection{Database_Object_Classes.Course})">
-            <summary>Constructor which creates a Course object with a name, an ID, the given quarters it's offered, and the given prerequisites.</summary>
+            <summary>Constructor which creates a complete Course object with a name, an ID, the given quarters it's offered, and the given prerequisites.</summary>
+            <param name="s_name">The course name.</param>
+            <param name="s_ID">The course identifier.</param>
+            <param name="ui_numberCredits">The number of credits this course is worth.</param>
+            <param name="b_requiresMajor">The status of this course requiring a student to be in the CS major.</param>
+            <param name="ba_quarters">The quarters when the class is offered.</param>
+            <param name="col_courses">A collection of prerequisites for this course to be added to the prerequisites list.</param>
+            <exception cref="T:System.ArgumentException">This exception is thrown if the ba_quarters array is not size 4.</exception>
+            <remarks>The course name is the actual name of the course, e.g. Computer Architecture 1.
+                     The course identifier is the unique identifier for this course, e.g. CS311 which must not contain spaces.
+                     The quarters array considers [0] to be winter, and [3] to be fall.
+                     The course prerequisites can be in any collection that implements the <see cref="T:System.Collections.Generic.ICollection`1"/> interface.
+            </remarks>
+        </member>
+        <member name="M:Database_Object_Classes.Course.#ctor(System.String,System.String,System.UInt32,System.Boolean,System.Boolean[],System.Collections.Generic.ICollection{System.String})">
+            <summary>Constructor which creates a shallow Course object with a name, an ID, the given quarters it's offered, and the given prerequisites.</summary>
             <param name="s_name">The course name.</param>
             <param name="s_ID">The course identifier.</param>
             <param name="ui_numberCredits">The number of credits this course is worth.</param>
@@ -128,6 +125,11 @@
         <member name="P:Database_Object_Classes.Course.PreRequisites">
             <summary>Getter for PreRequisites list of this course.</summary>
             <remarks>The returned collection will be a read-only collection, and may not be modified directly.</remarks>
+            
+        </member>
+        <member name="P:Database_Object_Classes.Course.ShallowPreRequisites">
+            <summary>Getter for shallow PreRequisites list of this course.</summary>
+            <remarks>The returned collection will be a read-only collection, and may not be modified directly.</remarks>
         </member>
         <member name="P:Database_Object_Classes.Course.QuartersOffered">
             <summary>Getter for quarters offered array of this course.</summary>
@@ -136,13 +138,16 @@
             <summary>Getter/Setter for whether this course requires a student to be a CS major.</summary>
         </member>
         <member name="P:Database_Object_Classes.Course.Credits">
-            <summary>Getter for the number of credits of this course.</summary>
+            <summary>Getter/Setter for the number of credits of this course.</summary>
         </member>
         <member name="P:Database_Object_Classes.Course.Weight">
             <summary>Getter for the weight of this course.</summary>
         </member>
         <member name="P:Database_Object_Classes.Course.Value">
             <summary>Getter for the value of this course.</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Course.IsShallow">
+            <summary>Getter for whether this is a shallow course object.</summary>
         </member>
         <member name="M:Database_Object_Classes.Course.System#IComparable#CompareTo(System.Object)">
             <summary>Comparer for Course class. Required for using List class.</summary>
@@ -341,152 +346,61 @@
             <summary>Returns this name as a string.</summary>
             <returns>The name in the format FirstName LastName.</returns>
         </member>
-        <member name="T:Database_Object_Classes.CatalogCreditRequirements">
-            <summary>Structure storing the credit requirements for a catalog.</summary>
-        </member>
-        <member name="F:Database_Object_Classes.CatalogCreditRequirements.ui_minCredits">
-            <summary>Minimum Credits for a Bachelor's Degree.</summary>
-        </member>
-        <member name="F:Database_Object_Classes.CatalogCreditRequirements.ui_maxCreditsTransfer">
-            <summary>Maximum acceptable credits transfered from another institution.</summary>
-        </member>
-        <member name="F:Database_Object_Classes.CatalogCreditRequirements.ui_maxCreditsTransferLower">
-            <summary>Maximum acceptable lower division (100-200 Level) credits transfered from another institution.</summary>
-        </member>
-        <member name="F:Database_Object_Classes.CatalogCreditRequirements.ui_minCreditsUpper">
-            <summary>Minimum Credits from upper division (300+ Level).</summary>
-        </member>
-        <member name="F:Database_Object_Classes.CatalogCreditRequirements.ui_minCreditsResidency">
-            <summary>Minimum credits taken at CWU.</summary>
-        </member>
-        <member name="F:Database_Object_Classes.CatalogCreditRequirements.ui_maxCreditsChallenge">
-            <summary>Maximum credits from course challenges.</summary>
-        </member>
-        <member name="F:Database_Object_Classes.CatalogCreditRequirements.ui_minCreditsEarnedForMajor">
-            <summary>Minimum credits taken in the major/minor field by transfer students.</summary>
-        </member>
-        <member name="F:Database_Object_Classes.CatalogCreditRequirements.ui_maxCreditsCoOp290">
-            <summary>Naximum coop credits allowed at the 290 level.</summary>
-        </member>
-        <member name="F:Database_Object_Classes.CatalogCreditRequirements.ui_maxCreditsCoOp">
-            <summary>Naximum coop credits allowed.</summary>
-        </member>
-        <member name="F:Database_Object_Classes.CatalogCreditRequirements.ui_maxCreditsCoOpTransfer">
-            <summary>Naximum coop credits allowed for transfer students.</summary>
-        </member>
-        <member name="F:Database_Object_Classes.CatalogCreditRequirements.ui_maxCreditsCoOpGrad">
-            <summary>Naximum coop credits allowed for graduate programs.</summary>
-        </member>
-        <member name="M:Database_Object_Classes.CatalogCreditRequirements.#ctor(System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
-            <summary>Constructor for this structure.</summary>
-            <param name="ui_minCredits">Minimum Credits for a Bachelor's Degree.</param>
-            <param name="ui_maxCreditsTransfer">Maximum acceptable credits transfered from another institution.</param>
-            <param name="ui_maxCreditsTransferLower">Maximum acceptable lower division (100-200 Level) credits transfered from another institution.</param>
-            <param name="ui_minCreditsUpper">Minimum Credits from upper division (300+ Level).</param>
-            <param name="ui_minCreditsResidency">Minimum credits taken at CWU.</param>
-            <param name="ui_maxCreditsChallenge">Maximum credits from course challenges.</param>
-            <param name="ui_minCreditsEarnedForMajor">Minimum credits taken in the major/minor field by transfer students.</param>
-            <param name="ui_maxCreditsCoOp290">Naximum coop credits allowed at the 290 level.</param>
-            <param name="ui_maxCreditsCoOp">Naximum coop credits allowed.</param>
-            <param name="ui_maxCreditsCoOpTransfer">Naximum coop credits allowed for transfer students.</param>
-            <param name="ui_maxCreditsCoOpGrad">Naximum coop credits allowed for graduate programs.</param>
-        </member>
-        <member name="M:Database_Object_Classes.CatalogCreditRequirements.#ctor(Database_Object_Classes.CatalogCreditRequirements)">
-            <summary>Copy Constructor.</summary>
-            <param name="other">Object to be copied.</param>
-        </member>
-        <member name="P:Database_Object_Classes.CatalogCreditRequirements.MinimumCredits">
-            <summary>Minimum credits to graduate with Bachelor's degree.</summary>
-        </member>
-        <member name="P:Database_Object_Classes.CatalogCreditRequirements.MaximumTransferCredits">
-            <summary>Maximum transferable credits.</summary>
-        </member>
-        <member name="P:Database_Object_Classes.CatalogCreditRequirements.MaximumTransferCreditsLD">
-            <summary>Maximum transferable LD credits.</summary>
-        </member>
-        <member name="P:Database_Object_Classes.CatalogCreditRequirements.MinimumCreditsUD">
-            <summary>Minimum UD credits to graduate.</summary>
-        </member>
-        <member name="P:Database_Object_Classes.CatalogCreditRequirements.MinimumCreditsForResidency">
-            <summary>Minimum credits taken at CWU.</summary>
-        </member>
-        <member name="P:Database_Object_Classes.CatalogCreditRequirements.MaximumChallengeCredits">
-            <summary>Maximum credits from course challenges.</summary>
-        </member>
-        <member name="P:Database_Object_Classes.CatalogCreditRequirements.MinimumCWUCreditsMajor">
-            <summary>Minimum credits earned in major field by non-transfer students.</summary>
-        </member>
-        <member name="P:Database_Object_Classes.CatalogCreditRequirements.MaximumCoOpCredits290Level">
-            <summary>Naximum coop credits allowed at the 290 level.</summary>
-        </member>
-        <member name="P:Database_Object_Classes.CatalogCreditRequirements.MaximumCoOpCredits">
-            <summary>Naximum coop credits allowed.</summary>
-        </member>
-        <member name="P:Database_Object_Classes.CatalogCreditRequirements.MaximumCoOpCreditsTransfer">
-            <summary>Naximum coop credits allowed for transfer students.</summary>
-        </member>
-        <member name="P:Database_Object_Classes.CatalogCreditRequirements.MaximumCoOpCreditsGraduateProgram">
-            <summary>Naximum coop credits allowed for graduate programs.</summary>
-        </member>
-        <member name="P:Database_Object_Classes.CatalogCreditRequirements.DefaultCatalogCreditRequirements">
-            <summary>Returns a default object of this structure.</summary>
-            <returns>A default object of this structure.</returns>
-        </member>
         <member name="T:Database_Object_Classes.DegreeRequirements">
             <summary>Structure storing degree-specific requirements.</summary>
         </member>
         <member name="F:Database_Object_Classes.DegreeRequirements.l_generalRequirements">
             <summary>General University Requirements for this degree.</summary>
         </member>
-        <member name="F:Database_Object_Classes.DegreeRequirements.l_preAdmissionRequirements">
-            <summary>Pre-admission requirements to enter the major.</summary>
-        </member>
-        <member name="F:Database_Object_Classes.DegreeRequirements.l_coreRequirements">
-            <summary>Core-course requirements to graduate.</summary>
-        </member>
-        <member name="F:Database_Object_Classes.DegreeRequirements.l_acceptableElectives">
-            <summary>List of acceptable electives for the degree.</summary>
-        </member>
         <member name="F:Database_Object_Classes.DegreeRequirements.ui_minElectiveCredits">
             <summary>Minimum number of electives credits for this degree.</summary>
-        </member>
-        <member name="F:Database_Object_Classes.DegreeRequirements.d_minMajorGPA">
-            <summary>Minimum GPA required for this degree as major.</summary>
         </member>
         <member name="F:Database_Object_Classes.DegreeRequirements.s_name">
             <summary>Name of this degree.</summary>
         </member>
-        <member name="M:Database_Object_Classes.DegreeRequirements.#ctor(System.Collections.Generic.List{Database_Object_Classes.Course},System.Collections.Generic.List{Database_Object_Classes.Course},System.Collections.Generic.List{Database_Object_Classes.Course},System.Collections.Generic.List{Database_Object_Classes.Course},System.UInt32,System.Double,System.String)">
+        <member name="M:Database_Object_Classes.DegreeRequirements.#ctor(System.String,System.Collections.Generic.List{Database_Object_Classes.Course},System.Collections.Generic.List{Database_Object_Classes.Course},System.UInt32)">
             <summary>Constructor for this structure.</summary>
+            <param name="s_name">Name of this degree.</param>
             <param name="l_generalRequirements">General University Requirements for this degree.</param>
-            <param name="l_preAdmissionRequirements">Pre-admission requirements to enter the major.</param>
-            <param name="l_coreRequirements">Core-course requirements to graduate.</param>
             <param name="l_acceptableElectives">List of acceptable electives for the degree.</param>
             <param name="ui_minElectiveCredits">Minimum number of electives credits for this degree.</param>
-            <param name="d_minMajorGPA">Minimum GPA required for this degree as major.</param>
-            <param name="s_name">Name of this degree.</param>
         </member>
         <member name="M:Database_Object_Classes.DegreeRequirements.#ctor(Database_Object_Classes.DegreeRequirements)">
             <summary>Copy Constructor.</summary>
             <param name="other">Object being copied.</param>
         </member>
+        <member name="M:Database_Object_Classes.DegreeRequirements.#ctor(System.String,System.String,System.String,System.Collections.Generic.List{System.String})">
+            <summary>Shallow Constructor</summary>
+            <param name="s_ID">Unique identifier of this degree.</param>
+            <param name="s_name">Name of degree.</param>
+            <param name="s_department">Department of this degree.</param>
+            <param name="ls_generalRequirements">Shallow list of requirements.</param>
+        </member>
+        <member name="M:Database_Object_Classes.DegreeRequirements.#ctor(System.String,System.String,System.String,System.Collections.Generic.List{Database_Object_Classes.Course})">
+            <summary>Regular Constructor</summary>
+            <param name="s_ID">Unique identifier of this degree.</param>
+            <param name="s_name">Name of degree.</param>
+            <param name="s_department">Department of this degree.</param>
+            <param name="l_generalRequirements">List of requirements for this degree.</param>
+        </member>
         <member name="P:Database_Object_Classes.DegreeRequirements.Name">
             <summary>Getter/Setter for this Degree's name.</summary>
         </member>
-        <member name="P:Database_Object_Classes.DegreeRequirements.MinimumGPA">
-            <summary>Getter/Setter for this Degree's minimum required GPA.</summary>
+        <member name="P:Database_Object_Classes.DegreeRequirements.Department">
+            <summary>Getter/Setter for this Degree's department. </summary>
+        </member>
+        <member name="P:Database_Object_Classes.DegreeRequirements.ID">
+            <summary>Getter for the ID of this course, which is the name with all spaces replaced with underscores.</summary>
+            <remarks>This should only be used for database operations.</remarks>
         </member>
         <member name="P:Database_Object_Classes.DegreeRequirements.MinimumElectiveCredits">
             <summary>Getter/Setter for this Degree's minimum required elective credits.</summary>
         </member>
-        <member name="P:Database_Object_Classes.DegreeRequirements.GeneralRequirements">
+        <member name="P:Database_Object_Classes.DegreeRequirements.Requirements">
             <summary>Getter/Setter for this Degree's general course requirements.</summary>
         </member>
-        <member name="P:Database_Object_Classes.DegreeRequirements.PreAdmissionRequirements">
-            <summary>Getter/Setter for this Degree's pre-admission course requirements.</summary>
-        </member>
-        <member name="P:Database_Object_Classes.DegreeRequirements.CoreRequirements">
-            <summary>Getter/Setter for this Degree's core course requirements</summary>
+        <member name="P:Database_Object_Classes.DegreeRequirements.ShallowRequirements">
+            <summary>Getter/Setter for this Degree's general course requirements (shallow version).</summary>
         </member>
         <member name="P:Database_Object_Classes.DegreeRequirements.AcceptableElectives">
             <summary>Getter/Setter for this Degree's acceptable elective courses.</summary>
@@ -693,6 +607,9 @@
         </member>
         <member name="P:Database_Object_Classes.Student.ExpectedGraduation">
             <summary>Getter/Setter for Expected Graduation</summary>
+        </member>
+        <member name="P:Database_Object_Classes.Student.HasExpectedGraduation">
+            <summary>Gettter for whether or not this student has an expected graduation set.</summary>
         </member>
         <member name="P:Database_Object_Classes.Student.CreditsCompleted">
             <summary>Getter/Setter for the number of credits this student has completed.</summary>

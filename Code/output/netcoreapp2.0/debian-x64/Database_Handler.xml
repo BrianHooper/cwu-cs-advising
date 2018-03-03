@@ -22,7 +22,10 @@
         <member name="F:Database_Handler.CommandType.Delete">
             <summary>Delete command.</summary>
         </member>
-        <member name="F:Database_Handler.CommandType.DisplayStudents">
+        <member name="F:Database_Handler.CommandType.DisplayUsers">
+            <summary>Display student list command.</summary>
+        </member>
+        <member name="F:Database_Handler.CommandType.DisplayCatalogs">
             <summary>Display student list command.</summary>
         </member>
         <member name="F:Database_Handler.CommandType.DisplayCourses">
@@ -33,6 +36,9 @@
         </member>
         <member name="F:Database_Handler.CommandType.Return">
             <summary>Result from DBH.</summary>
+        </member>
+        <member name="F:Database_Handler.CommandType.Error">
+            <summary>Returned when an error occurred during execution of a command.</summary>
         </member>
         <member name="F:Database_Handler.CommandType.Disconnect">
             <summary>Terminates the connection to DBH, and kills the running DBH thread.</summary>
@@ -64,8 +70,11 @@
         <member name="F:Database_Handler.DatabaseCommand.o_operand">
             <summary>The operand to execute the command on.</summary>
         </member>
-        <member name="F:Database_Handler.DatabaseCommand.l_students">
-            <summary>A list of students for display students command.</summary>
+        <member name="F:Database_Handler.DatabaseCommand.l_catalogs">
+            <summary>A list of catalogs for display catalogs command.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseCommand.l_credentials">
+            <summary>A list of credentials for display users command.</summary>
         </member>
         <member name="F:Database_Handler.DatabaseCommand.l_courses">
             <summary>A list of courses for display courses command.</summary>
@@ -79,11 +88,15 @@
         <member name="F:Database_Handler.DatabaseCommand.s_errorMsg">
             <summary>If i_returnCode is not 0, there will be an error message contained in this variable.</summary>
         </member>
-        <member name="M:Database_Handler.DatabaseCommand.#ctor(Database_Handler.CommandType,Database_Object_Classes.Database_Object,Database_Handler.OperandType)">
+        <member name="F:Database_Handler.DatabaseCommand.b_isShallow">
+            <summary></summary>
+        </member>
+        <member name="M:Database_Handler.DatabaseCommand.#ctor(Database_Handler.CommandType,Database_Object_Classes.Database_Object,Database_Handler.OperandType,System.Boolean)">
             <summary>Constructor for DB4O commands.</summary>
             <param name="ct">Type of command.</param>
             <param name="dbo">The operand for this command.</param>
             <param name="ot">The type of this operand.</param>
+            <param name="b_shallow">Whether or not to retrieve shallow copy of a Course or CatalogRequirements object, ignored for Student objects.</param>
         </member>
         <member name="M:Database_Handler.DatabaseCommand.#ctor(Database_Handler.CommandType,Database_Object_Classes.Credentials)">
             <summary>Constructor for MySQL credentials commands.</summary>
@@ -95,12 +108,16 @@
             <param name="ct">Type of command to execute.</param>
             <param name="plan">The operand plan.</param>
         </member>
-        <member name="M:Database_Handler.DatabaseCommand.#ctor(Database_Handler.CommandType)">
+        <member name="M:Database_Handler.DatabaseCommand.#ctor(Database_Handler.CommandType,System.Boolean)">
             <summary>Constructor for creating a display students command.</summary>
             <param name="ct">Command type for this command.</param>
-            <remarks>The argument must be DisplayStudents/DisplayCourses or Disconnect.</remarks>
+            <param name="b_shallow">Whether or not a display command should retrieve shallow copies of the inner course objects.</param>
+            <remarks>
+            The argument must be DisplayCatalogs/DisplayCourses or Disconnect.
+            True should be passed if the inner course objects are not being used to avoid large amounts of recursion.
+            </remarks>
         </member>
-        <member name="M:Database_Handler.DatabaseCommand.#ctor(System.Int32,System.String,System.Collections.Generic.List{Database_Object_Classes.Student},System.Collections.Generic.List{Database_Object_Classes.Course})">
+        <member name="M:Database_Handler.DatabaseCommand.#ctor(System.Int32,System.String,System.Collections.Generic.List{Database_Object_Classes.CatalogRequirements},System.Collections.Generic.List{Database_Object_Classes.Course},System.Collections.Generic.List{Database_Object_Classes.Credentials})">
             <summary>Constructor for postback from DBH; contains relevant info about execution of the command.</summary>
             <param name="code">The error code, or 0 if execution was successful.</param>
             <param name="msg">A message detailing an error, "No Errors" if no issues occurred.</param>
@@ -121,14 +138,21 @@
         <member name="P:Database_Handler.DatabaseCommand.OperandType">
             <summary>Getter for the type of operand.</summary>
         </member>
-        <member name="P:Database_Handler.DatabaseCommand.StudentList">
-            <summary>Getter for the list of students for a display command.</summary>
+        <member name="P:Database_Handler.DatabaseCommand.CatalogList">
+            <summary>Getter for the list of catalogs for a display command.</summary>
+        </member>
+        <member name="P:Database_Handler.DatabaseCommand.UserList">
+            <summary>Getter for the list of users for a display command</summary>
         </member>
         <member name="P:Database_Handler.DatabaseCommand.CourseList">
             <summary>Getter for the list of courses for a display command.</summary>
         </member>
         <member name="P:Database_Handler.DatabaseCommand.Operand">
             <summary>Getter for the operand.</summary>
+        </member>
+        <member name="P:Database_Handler.DatabaseCommand.IsShallow">
+            <summary>Getter/Setter for whether this command contains shallow or complete objects.</summary>
+            <remarks>This property is used only for retrieve operations, all others ignore it.</remarks>
         </member>
         <member name="T:Database_Handler.DatabaseHandler">
             <summary>Database Handler is the middleman between the website and the databases. It retrieves, updates, creates, and deletes database entries.</summary>
@@ -142,15 +166,8 @@
         <member name="F:Database_Handler.DatabaseHandler.MySqlLock">
             <summary>Mutex locks for databases.</summary>
         </member>
-        <member name="F:Database_Handler.DatabaseHandler.s_MYSQL_DB_NAME">
-            <summary>Names of all database related components.</summary>
-            <remarks>These can be set using the constructor, or the defaults can be used.</remarks>
-        </member>
-        <member name="F:Database_Handler.DatabaseHandler.i_SALT_LENGTH">
-            <summary>The length, in bytes, of the password salt.</summary>
-        </member>
         <member name="F:Database_Handler.DatabaseHandler.ui_COL_COUNT">
-            <summary>The length of the longest plan in the s_PLAN_TABLE mysql table, stored in the master record.</summary>
+            <summary>The number of columns in each variable length table { s_PLAN_TABLE, s_COURSES_TABLE, s_CATALOGS_TABLE, s_DEGREES_TABLE}.</summary>
         </member>
         <member name="F:Database_Handler.DatabaseHandler.DB_CONNECTION">
             <summary>The master connection to the MySql database, which should never be closed, except during cleanup.</summary>
@@ -222,9 +239,13 @@
             <param name="cmd">Command containing credentials of user trying to change password.</param>
             <returns>A return command containing information about execution success.</returns>
         </member>
-        <member name="M:Database_Handler.DatabaseHandler.ExecuteDisplayStudentsCommand">
-            <summary>Executes a display students command.</summary>
-            <returns>A return command containing a list of all students in the database.</returns>
+        <member name="M:Database_Handler.DatabaseHandler.ExecuteDisplayCatalogsCommand">
+            <summary>Executes a display catalogs command.</summary>
+            <returns>A return command containing a list of all catalogs in the database.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.ExecuteDisplayUsersCommand">
+            <summary>Executes a display users command.</summary>
+            <returns>A return command containing a list of all users in the database.</returns>
         </member>
         <member name="M:Database_Handler.DatabaseHandler.ExecuteDisplayCoursesCommand">
             <summary>Executes a display courses command.</summary>
@@ -259,10 +280,6 @@
         <member name="M:Database_Handler.DatabaseHandler.CleanUp">
             <summary>Cleans up after DBH is closed.</summary>
         </member>
-        <member name="M:Database_Handler.DatabaseHandler.GetPasswordSalt">
-            <summary>Creates a random 256 bit salt for login credentials.</summary>
-            <returns>A byte array filled with a random sequence of bytes.</returns>
-        </member>
         <member name="M:Database_Handler.DatabaseHandler.WriteToLog(System.String)">
             <summary>Writes the given message into the DBH log with a current time stamp.</summary>
             <param name="s_msg">The message to log.</param>
@@ -275,7 +292,7 @@
             <returns>True if the password entered matches the database record and out parameter b_isAdmin.</returns>
             <remarks>The parameter ss_pw will be destroyed during method execution, and can not be used afterwards.</remarks>
         </member>
-        <member name="M:Database_Handler.DatabaseHandler.Retrieve(System.String,System.Char)">
+        <member name="M:Database_Handler.DatabaseHandler.Retrieve(System.String,System.Char,System.Boolean)">
             <summary>Retrieves an object from the specified database.</summary>
             <param name="s_ID">The key associated with this object.</param>
             <param name="c_type">The type of object to retrieve.</param>
@@ -343,6 +360,40 @@
             <returns>A Credentials structure containing the requested info.</returns>
             <exception cref="T:System.Collections.Generic.KeyNotFoundException">Thrown if the key passed in arg 1 does not exist in the database.</exception>
         </member>
+        <member name="M:Database_Handler.DatabaseHandler.RetrieveCatalog(System.String,System.Boolean)">
+            <summary>Retrieves the requested catalog from the database.</summary>
+            <param name="s_ID">The ID associated with this catalog.</param>
+            <param name="b_shallow">Whether or not to retrieve shallow copies of courses inside the DegreeRequirements.</param>
+            <returns>A CatalogRequirements object containing the requested info.</returns>
+            <exception cref="T:System.Collections.Generic.KeyNotFoundException">Thrown if the key passed in arg 1 does not exist in the database.</exception>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.RetrieveDegree(System.String,System.Boolean,System.UInt32)">
+            <summary>Retrieves the list of degrees associated with a given catalog.</summary>
+            <param name="s_ID">The ID of the catalog to which the degrees belong.</param>
+            <param name="b_shallow">Whether or not to retrieve a shallow version of the requested DegreeRequirements object.</param>
+            <param name="ui_depth">The current depth of recursion, to prevent excessive/infinite recursion loops.</param>
+            <returns>A list of DegreeRequirement structures associated with the given degree.</returns>
+            <exception cref="T:System.Collections.Generic.KeyNotFoundException">Thrown if the key passed in arg 1 does not exist in the database.</exception>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.RetrieveStudent(System.String)">
+            <summary>Retrieves the requested student from the database.</summary>
+            <param name="s_ID">The SID of the student to retrieve.</param>
+            <returns>A student object containing the requested info.</returns>
+            <exception cref="T:System.Collections.Generic.KeyNotFoundException">Thrown if the key passed in arg 1 does not exist in the database.</exception>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.RetrieveCourse(System.String,System.Boolean,System.UInt32)">
+            <summary>Retrieves the requested course from the database.</summary>
+            <param name="s_ID">The id of the course to retrieve.</param>
+            <param name="b_shallow">Whether or not to create a shallow course object.</param>
+            <param name="ui_depth">The current depth of recursion, to prevent excessive/infinite recursion loops.</param>
+            <returns>A course object containing the requested info.</returns>
+            <exception cref="T:System.Collections.Generic.KeyNotFoundException">Thrown if the key passed in arg 1 does not exist in the database.</exception>
+            <exception cref="T:Database_Handler.RecursionDepthException">Thrown the depth of recursion exceeds the limit as defined in <see cref="F:Database_Handler.DatabaseHandler.ui_MAX_RECURSION_DEPTH"/></exception>
+            <remarks>
+                A shallow course object does not contain a list of course prerequisites, but rather a list of strings
+                with the IDs of all course prerequisites.                     
+            </remarks>
+        </member>
         <member name="M:Database_Handler.DatabaseHandler.Update(Database_Object_Classes.PlanInfo)">
             <summary>Updates a student plan in the MySQL database.</summary>
             <param name="plan">The plan to update.</param>
@@ -360,6 +411,26 @@
                     The new user will have a blank password, and UpdatePassword must be called
                     to activate the user, and assign a password.
             </remarks>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.Update(Database_Object_Classes.Course)">
+            <summary>Updates a course in the MySQL database.</summary>
+            <param name="course">The course to update.</param>
+            <returns>0 or an error code.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.Update(Database_Object_Classes.CatalogRequirements,Database_Object_Classes.DegreeRequirements)">
+            <summary>
+            Updates the specified degree requirements asscoiated with the catalog. 
+            Note: The caller of this method MUST own the lock to the database.
+            </summary>
+            <param name="catalog">The catalog associated with the DegreeRequirements object in arg2</param>
+            <param name="degree">The DegreeRequirements to update.</param>
+            <returns>0 or an error code</returns>
+            <remarks>This method should only be called from within <see cref="M:Database_Handler.DatabaseHandler.Update(Database_Object_Classes.CatalogRequirements)"/></remarks>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.Update(Database_Object_Classes.Student)">
+            <summary>Updates a student in the students MySQL database.</summary>
+            <param name="student">The student to update or create.</param>
+            <returns>0 or error code.</returns>
         </member>
         <member name="M:Database_Handler.DatabaseHandler.CreateUser(Database_Object_Classes.Credentials)">
             <summary>Creates a new user with the specified properties.</summary>
@@ -381,6 +452,10 @@
             <param name="b_newStatus">The new status. True = active, False = inactive.</param>
             <returns>0 or an error code.</returns>
         </member>
+        <member name="M:Database_Handler.DatabaseHandler.GetPasswordSalt">
+            <summary>Creates a random 256 bit salt for login credentials.</summary>
+            <returns>A byte array filled with a random sequence of bytes.</returns>
+        </member>
         <member name="M:Database_Handler.DatabaseHandler.DeleteRecord(Database_Object_Classes.Credentials)">
             <summary>Deletes a record from the credentials database.</summary>
             <param name="cred">The user to delete.</param>
@@ -389,6 +464,21 @@
         <member name="M:Database_Handler.DatabaseHandler.DeleteRecord(Database_Object_Classes.PlanInfo)">
             <summary>Deletes a record from the graduation plan database.</summary>
             <param name="plan">The plan to delete.</param>
+            <returns>0 or error code.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.DeleteRecord(Database_Object_Classes.Student)">
+            <summary>Deletes a record from the student database.</summary>
+            <param name="student">The student to delete.</param>
+            <returns>0 or error code.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.DeleteRecord(Database_Object_Classes.Course)">
+            <summary>Deletes a record from the course database.</summary>
+            <param name="course">The plan to course.</param>
+            <returns>0 or error code.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.DeleteRecord(Database_Object_Classes.CatalogRequirements)">
+            <summary>Deletes a record from the catalog database.</summary>
+            <param name="catalog">The catalog to delete.</param>
             <returns>0 or error code.</returns>
         </member>
         <member name="M:Database_Handler.DatabaseHandler.GetInsertQuery(System.String,System.String)">
@@ -406,6 +496,11 @@
             <summary>Creates the values string for a Credentials object.</summary>
             <param name="credentials">The credentials to insert.</param>
             <returns>A formatted string ready to be used with an insert query.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.GetInsertValues(Database_Object_Classes.Student)">
+            <summary>Creates the values string for a Student object.</summary>
+            <param name="student">The object to extract values from.</param>
+            <returns>A string which can be used for an insert query as VALUES.</returns>
         </member>
         <member name="M:Database_Handler.DatabaseHandler.GetSelectQuery(System.String,System.String,System.String,System.String)">
             <summary>Creates an select query based on the input.</summary>
@@ -479,10 +574,19 @@
         <member name="M:Database_Handler.DatabaseHandler.KeepAlive">
             <summary>Keeps the DB_CONNECTION alive by accessing the DB every 2 minutes</summary>
         </member>
-        <member name="M:Database_Handler.DatabaseHandler.AddColumns(System.Int32)">
+        <member name="M:Database_Handler.DatabaseHandler.AddColumns(System.Int32,System.String,System.String)">
             <summary>Adds k columns to the student_plans table and updates the master record accordingly.</summary>
             <param name="k">Number of columns to add.</param>
             <returns>True if successful, otherwise false.</returns>
+        </member>
+        <member name="T:Database_Handler.RecursionDepthException">
+            <summary>
+            Exception that is thrown when the recursion depth exceeds a specified limit.
+            </summary>
+        </member>
+        <member name="M:Database_Handler.RecursionDepthException.#ctor(System.String)">
+            <summary>Constructs a new exception object.</summary>
+            <param name="msg">The message.</param>
         </member>
         <member name="T:Database_Handler.RetrieveError">
             <summary>Exception class for an error that occurs while retrieving an object from a database.</summary>

@@ -12,6 +12,7 @@
     var StudentYear = "Not found";
     var StudentDegree = "Not found";
     var DisplayStudent = false;
+
     if(AdvisingModel.CurrentStudent != null)
     {
         StudentName = AdvisingModel.CurrentStudent.Name;
@@ -25,7 +26,7 @@
 }
 
 <script>
-    var ExampleSchedule = '@Html.Raw(AdvisingModel.ExampleSchedule)';
+    var ExampleSchedule = '@Html.Raw(AdvisingModel.GetStudentPlan())';
     var BaseCase = '@Html.Raw(AdvisingModel.LoadBaseCase())';
 
     $(document).ready(function () {
@@ -98,7 +99,7 @@
 
             <div class="Flex" style="line-height: 30px;">
                 <div style="width: 250px;">Maximum Credits per quarter:</div>
-                <div><input type="text" id="MaxCredits" style="width: 60px;" value="0" /></div>
+                <div><input type="text" id="MaxCredits" style="width: 60px;" value="18" /></div>
             </div>
 
             <div class="Flex" style="line-height: 30px;">
