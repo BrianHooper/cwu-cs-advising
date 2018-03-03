@@ -19,8 +19,8 @@ namespace CwuAdvising.Pages
         /// <summary>
         /// Master list of courses contained in database
         /// </summary>
-        public static List<Course> MasterCourseList = new List<Course>();
-
+        //public static List<Course> MasterCourseList = new List<Course>();
+        /*
         /// <summary>
         /// Retrieves master list of courses from database
         /// </summary>
@@ -64,7 +64,7 @@ namespace CwuAdvising.Pages
                 MasterCourseList = MasterList;
             }
         }
-
+        */
         /// <summary>
         /// Converts Course list to CourseModel list
         /// </summary>
@@ -105,7 +105,7 @@ namespace CwuAdvising.Pages
 
                     foreach (string prereq in model.PreReqs)
                     {
-                        c.AddPreRequisite(MasterCourseList.Find(delegate (Course masterCourse) { return masterCourse.ID == prereq; }));
+                        c.AddPreRequisite(Program.DbObjects.MasterCourseList.Find(delegate (Course masterCourse) { return masterCourse.ID == prereq; }));
                     }
 
                     CourseList.Add(c);
@@ -132,7 +132,7 @@ namespace CwuAdvising.Pages
 
                     foreach (string prereq in model.PreReqs)
                     {
-                        c.AddPreRequisite(MasterCourseList.Find(delegate (Course masterCourse) { return masterCourse.ID == prereq; }));
+                        c.AddPreRequisite(Program.DbObjects.MasterCourseList.Find(delegate (Course masterCourse) { return masterCourse.ID == prereq; }));
                     }
 
                     CourseList.Add(c);
@@ -149,8 +149,8 @@ namespace CwuAdvising.Pages
         /// <returns>CourseModel list as serialized JSON string</returns>
         public static string CourseListAsJson()
         {
-            GetCoursesFromDatabase();
-            List<CourseModel> ModelList = CourseListToCourseModelList(MasterCourseList);
+            Program.DbObjects.GetCoursesFromDatabase();
+            List<CourseModel> ModelList = CourseListToCourseModelList(Program.DbObjects.MasterCourseList);
             return JsonConvert.SerializeObject(ModelList);
         }
         

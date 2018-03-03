@@ -26,6 +26,28 @@
 <div class="Flex CenterFlex">
     <div style="font-size: 3em;">Computer Science Advising Tool</div>
 </div>
+
+<div class="Title">
+    @{
+        if(Program.Database.connected)
+        {
+            IndexModel.DatabaseConnectionMessage = "Database connection established";
+        }
+        else
+        {
+            IndexModel.DatabaseConnectionMessage = "Error establishing database connection.";
+        }
+    }
+    @IndexModel.DatabaseConnectionMessage <br />
+    @Program.DbError
+</div>
+
+<div class="Flex CenterFlex">
+    <div style="width: 50%">
+        Welcome to the Central Washington University Computer Science Advising tool! For instructions on how to use the advising tool, see the <a href="#">User Manual</a>, otherwise, please log in with your advising account.
+    </div>
+</div>
+
 <div class="Title" style="color: red;">
     @IndexModel.LoginErrorMessage
     @{ IndexModel.LoginErrorMessage = ""; }

@@ -16,6 +16,9 @@ namespace CwuAdvising.Pages
         /// <summary>Error message to display to the user on failed login</summary>
         public static string LoginErrorMessage = "";
 
+        /// <summary>Status of database connection to display to the user</summary>
+        public static string DatabaseConnectionMessage = "";
+
         /// <summary></summary>
         public class LoginModel
         {

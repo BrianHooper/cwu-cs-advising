@@ -8,11 +8,11 @@
 
 <script>
     // Get degrees from the server
-    var Degrees = JSON.parse('@Html.Raw(Model.GetDegrees())');
+    var DegreeList = JSON.parse('@Html.Raw(Model.GetDegrees())');
 
     $(document).ready(function () {
-        for (var i = 0; i < Degrees.length; i++) {
-            $("#CreateStudentDegree").append($("<option value='" + Degrees[i] + "'>" + Degrees[i] + "</option>"));
+        for (var i = 0; i < DegreeList.length; i++) {
+            $("#CreateStudentDegree").append($("<option value='" + DegreeList[i].Name + "'>" + DegreeList[i].Year + " - " + DegreeList[i].Name + "</option>"));
         }
     });
 
@@ -27,19 +27,26 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (response) {
-                var url = '@Url.Action("/Advising")';
-                window.location.href = "Advising";
+                if (response) {
+                    var url = '@Url.Action("/Advising")';
+                    window.location.href = "Advising";
+                } else {
+                    alert("Error, student not found.");
+                }
             }
         });
     });
 
     $(document).on("click", "#CreateStudent", function () {
-        var Student = { Name: "", Id: "", Quarter: "", Year: "", Degree: "" };
+        var Student = { Name: "", Id: "", Quarter: "", Year: "", Degree: "", AcademicYear:"" };
         Student.Name = $("#CreateStudentName").val();
         Student.Id = $("#CreateStudentId").val();
         Student.Quarter = $("#CreateStudentQuarter").val();
         Student.Year = $("#CreateStudentYear").val();
-        Student.Degree = $("#CreateStudentDegree").val();
+
+        var DegreeID = $("#CreateStudentDegree").val();
+        Student.Degree = DegreeList[DegreeID].Name;
+        Student.AcademicYear = DegreeList[DegreeID].Year;
 
         $.ajax({
             type: "POST",

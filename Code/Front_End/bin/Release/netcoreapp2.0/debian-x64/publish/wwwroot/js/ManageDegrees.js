@@ -8,6 +8,7 @@ $(document).ready(function () {
     $("#ResultsContainer").hide();
     CourseList = JSON.parse(CourseListFromServer);
     DegreeList = JSON.parse(DegreeModel);
+    console.log(DegreeList);
     LoadDegreeSelect();
 });
 

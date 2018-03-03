@@ -17,13 +17,41 @@
         <div class="Border ListHeader" style="width: 200px;">Username</div>
         <div class="Border ListHeader" style="width: 60px;">Admin</div>
         <div class="Border ListHeader" style="width: 60px;">Active</div>
-        <div class="Border ListHeader" style="width: 60px;">Reset</div>
     </div>
     <div class="" id="UserContainer">
 
     </div>
     <div style="width: 100%; text-align: center;">
-        <button type="button" class="RegularButton" id="AddNewUserButton">Add New User</button>
         <button type="button" class="RegularButton" id="SaveUsers">Save Changes</button>
     </div>
+
+
+
+</div>
+<div style="display: flex; flex-direction: column; align-items: center;">
+    <div style="color: red;">@UserManagementModel.CreateUserErrorMessage</div>
+    @{
+        UserManagementModel.CreateUserErrorMessage = "";
+    }
+    <form method="post">
+        <div id="LoginBox" class="Border">
+            <div class="Title">Add user: </div>
+            <div class="Flex">
+                <div class="LabelLeft"><label asp-for="CreateUser.Username">Username</label></div>
+                <div class="LabelRight"><input asp-for="CreateUser.Username" /></div>
+            </div>
+            <div><span asp-validation-for="CreateUser.Username" style="color: red;"></span></div>
+            <div class="Flex">
+                <div class="LabelLeft"><label asp-for="CreateUser.PasswordOne">Password</label></div>
+                <div class="LabelRight"><input type="password" asp-for="CreateUser.PasswordOne"></div>
+            </div>
+            <div><span asp-validation-for="CreateUser.PasswordOne" style="color: red;"></span></div>
+            <div class="Flex">
+                <div class="LabelLeft"><label asp-for="CreateUser.PasswordTwo">Re-enter password</label></div>
+                <div class="LabelRight"><input type="password" asp-for="CreateUser.PasswordTwo"></div>
+            </div>
+            <div><span asp-validation-for="CreateUser.PasswordTwo" style="color: red;"></span></div>
+            <button type="submit" class="BigButton">Create</button>
+        </div>
+    </form>
 </div>
