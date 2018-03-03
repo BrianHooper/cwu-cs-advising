@@ -160,10 +160,11 @@ namespace CwuAdvising
         {
             DatabaseCommand databaseCommand = new DatabaseCommand(CommandType.DisplayCourses, shallow);
 
+
             SendCommand(databaseCommand);
             DatabaseCommand dbCommand = ReceiveCommand();
 
-            if (dbCommand.ReturnCode == 0 && dbCommand.CommandType == CommandType.Return)
+            if(dbCommand.ReturnCode == 0 && dbCommand.CommandType == CommandType.Return)
             {
                 return dbCommand.CourseList;
             } // end if
@@ -215,6 +216,7 @@ namespace CwuAdvising
                 return new List<Credentials>();
             } // end else
         } // end method GetAllUsers
+
 
 
         /// <summary>Retrieves a record from the database.</summary>
