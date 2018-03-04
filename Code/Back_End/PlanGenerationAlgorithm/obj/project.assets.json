@@ -1448,33 +1448,28 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\brian\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackagesFallback\\": {},
-    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
+    "/Users/nicola/.nuget/packages/": {},
+    "/usr/local/share/dotnet/sdk/NuGetFallbackFolder": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\brian\\Documents\\cwu-cs-advising\\Code\\Back_End\\PlanGenerationAlgorithm\\PlanGenerationAlgorithm.csproj",
+      "projectUniqueName": "/Users/nicola/Desktop/stuff/projects/visual studio/cwu-cs-advising/Code/Back_End/PlanGenerationAlgorithm/PlanGenerationAlgorithm.csproj",
       "projectName": "PlanGenerationAlgorithm",
-      "projectPath": "C:\\Users\\brian\\Documents\\cwu-cs-advising\\Code\\Back_End\\PlanGenerationAlgorithm\\PlanGenerationAlgorithm.csproj",
-      "packagesPath": "C:\\Users\\brian\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\brian\\Documents\\cwu-cs-advising\\Code\\Back_End\\PlanGenerationAlgorithm\\obj\\",
+      "projectPath": "/Users/nicola/Desktop/stuff/projects/visual studio/cwu-cs-advising/Code/Back_End/PlanGenerationAlgorithm/PlanGenerationAlgorithm.csproj",
+      "packagesPath": "/Users/nicola/.nuget/packages/",
+      "outputPath": "/Users/nicola/Desktop/stuff/projects/visual studio/cwu-cs-advising/Code/Back_End/PlanGenerationAlgorithm/obj/",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackagesFallback\\",
-        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
       ],
       "configFilePaths": [
-        "C:\\Users\\brian\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.Fallback.config"
+        "/Users/nicola/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "netcoreapp2.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {

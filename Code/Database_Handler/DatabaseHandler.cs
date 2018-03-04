@@ -19,26 +19,26 @@ namespace Database_Handler
     {
         #region Static fields
 
-            #region General
+        #region General
 
-            /// <summary>The number of iterations for hashing the password.</summary>
-            public static int i_HASH_ITERATIONS = 10000;
+        /// <summary>The number of iterations for hashing the password.</summary>
+        public static int i_HASH_ITERATIONS = 10000;
 
-            /// <summary>The path to the log file which will contain the log entries created by DBH.</summary>
-            public static string s_logFilePath = "log.txt";
+        /// <summary>The path to the log file which will contain the log entries created by DBH.</summary>
+        public static string s_logFilePath = "log.txt";
 
-            #endregion
+        #endregion
 
-            #region Mutex Locks
+        #region Mutex Locks
 
-            /// <summary>Mutex locks for databases.</summary>
-            private static Mutex MySqlLock = new Mutex();
-            private static Mutex StudentLock = new Mutex();
-            private static Mutex CatalogLock = new Mutex();
-            private static Mutex CourseLock = new Mutex();
-            private static Mutex LogLock = new Mutex();
+        /// <summary>Mutex locks for databases.</summary>
+        private static Mutex MySqlLock = new Mutex();
+        private static Mutex StudentLock = new Mutex();
+        private static Mutex CatalogLock = new Mutex();
+        private static Mutex CourseLock = new Mutex();
+        private static Mutex LogLock = new Mutex();
 
-            #endregion
+        #endregion
 
         #endregion
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -2107,6 +2107,9 @@ namespace Database_Handler
 
                     query += " WHERE " + s_COURSES_KEY + " = " + course.ID;
 
+                    WriteToLog(" -- DBH sending update query: " + query);
+                    WriteToLog(" -- DBH update course contents: " + course.Name + " " + course.Department + " " + course.ID + " ");
+
                     MySqlCommand temp = new MySqlCommand(query, DB_CONNECTION);
 
                     WriteToLog(" -- DBH successfully updated the course " + course.ID + ".");
@@ -2121,6 +2124,9 @@ namespace Database_Handler
                         int k = course.ShallowPreRequisites.Count - (int)ui_COL_COUNT[1]; // number of columns that must be added
                         AddColumns(k, s_COURSES_TABLE, "pre_requ_");
                     } // end if
+
+                    WriteToLog(" -- DBH sending insert query: " + query);
+                    WriteToLog(" -- DBH update course contents: " + course.Name + " " + course.Department + " " + course.ID + " ");
 
                     MySqlCommand command = GetCommand(course.ID, 'I', s_COURSES_TABLE, s_COURSES_KEY, "", GetInsertValues(course));
                     command.ExecuteNonQuery();
