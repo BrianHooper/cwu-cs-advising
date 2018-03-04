@@ -122,28 +122,28 @@ namespace PlanGenerationAlgorithm
                         return;
                 }
             }
-           // if (currentSchedule.quarterName.QuarterSeason == Season.Winter && currentSchedule.quarterName.Year == 2019)
+            //if (currentSchedule.quarterName.QuarterSeason == Season.Winter && currentSchedule.quarterName.Year == 2019)
             //{
-                //ICollection<Course> Need110 = new List<Course>();
-                //bool[] CS111Offered = { true, true, false, false }; //CS111 etc
-                //Course CS111 = new Course("bd", "CS111", 4, true, CS111Offered, Need110);
-                //Course gened1 = new Course("gened1", "Eng101", 5, true, CS111Offered, Need110);
-                //Course gened2 = new Course("gened2", "US Cultures", 5, true, CS111Offered, Need110);
-                //Course gened3 = new Course("gened2", "asd", 4, true, CS111Offered, Need110);
-                //if (j == 0)
-                //{
-                   // currentSchedule.AddCourse(CS111);
-                   // currentSchedule.AddCourse(gened1);
-                    //currentSchedule.AddCourse(gened2);
-                   // currentSchedule.AddCourse(gened3);
-                    //copy.Remove(CS111);
-                    //copy.Remove(gened1);
-                    //copy.Remove(gened2);
-                    //copy.Remove(gened3);
+            //ICollection<Course> Need110 = new List<Course>();
+            //bool[] CS111Offered = { true, true, false, false }; //CS111 etc
+            //Course CS111 = new Course("bd", "CS111", 4, true, CS111Offered, Need110);
+            //Course gened1 = new Course("gened1", "Eng101", 5, true, CS111Offered, Need110);
+            //Course gened2 = new Course("gened2", "US Cultures", 5, true, CS111Offered, Need110);
+            //Course gened3 = new Course("gened2", "asd", 4, true, CS111Offered, Need110);
+            //if (j == 0)
+            //{
+            // currentSchedule.AddCourse(CS111);
+            //currentSchedule.AddCourse(gened1);
+            //currentSchedule.AddCourse(gened2);
+            //currentSchedule.AddCourse(gened3);
+            //copy.Remove(CS111);
+            //copy.Remove(gened1);
+            //copy.Remove(gened2);
+            //copy.Remove(gened3);
 
-                    //j++;
-               // }
-           // }
+            //j++;
+            //}
+            //}
             // Get a list of each course the student can take right now
             List<Course> possibleCourses = ListofCourse(currentSchedule, copy);
             //if possible course for this quarter is more than 0
@@ -176,6 +176,7 @@ namespace PlanGenerationAlgorithm
                 foreach (Course c in currentSchedule.NextSchedule().courses)
                 {
                     copy.Remove(c);
+                    currentSchedule.NextSchedule().ui_numberCredits += c.Credits;
                 }
                 //If it failed, try adding this course next quarter
 
