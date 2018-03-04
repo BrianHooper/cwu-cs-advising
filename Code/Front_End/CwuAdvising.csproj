@@ -17,18 +17,18 @@
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.2" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="wwwroot\fonts\Roboto\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Back_End\PlanGenerationAlgorithm\PlanGenerationAlgorithm.csproj" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="Database_Classes">
       <HintPath>..\output\netcoreapp2.0\Database_Classes.dll</HintPath>
     </Reference>
     <Reference Include="Database_Handler">
       <HintPath>..\output\netcoreapp2.0\Database_Handler.dll</HintPath>
     </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="wwwroot\fonts\Roboto\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Back_End\PlanGenerationAlgorithm\PlanGenerationAlgorithm.csproj" />
   </ItemGroup>
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 </Project>

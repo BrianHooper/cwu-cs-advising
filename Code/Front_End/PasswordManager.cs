@@ -18,9 +18,9 @@ namespace CwuAdvising
 
         /// <summary>Processes a login request.</summary>
         /// <param name="s_username">The username.</param>
-        /// <param name="ss_password">The password of the user.</param>
-        /// <returns>0 on success, 1 on failure, -1 if no database is connected.</returns>
-        public static int LoginAttempt(string s_username, SecureString ss_password)
+        /// <param name="s_insecure_pw">The password of the user.</param>
+        /// <returns>0 on successful advisor login, 1 if the advisor must change their password; 2 on successful admin login, 3 if the admin must change their password; -1 on failure, and -2 if no database is connected.</returns>
+        public static int LoginAttempt(string s_username, string s_insecure_pw)
         {
             if(Program.Database.connected)
             {
@@ -28,10 +28,6 @@ namespace CwuAdvising
 
                 byte[] ba_salt = new byte[ui_SALT_LENGTH];
                 Array.Copy(user_credentials.PWSalt, ba_salt, ui_SALT_LENGTH);
-
-                string s_insecure_pw = Utilities.SecureStringToString(ss_password);                
-                
-                ss_password.Dispose();
 
                 Rfc2898DeriveBytes hasher = new Rfc2898DeriveBytes(s_insecure_pw, ba_salt, DatabaseHandler.i_HASH_ITERATIONS);
 
@@ -57,23 +53,59 @@ namespace CwuAdvising
 
                 if(b_success)
                 {
-                    return 0;
+                    Credentials user = Program.Database.RetrieveRecord(new Credentials(s_username, 0, false, false, new byte[32], ""));
+
+                    if(user.IsAdmin)
+                    {
+                        if(!user.IsActive)
+                        {
+                            return 3;
+                        } // end if
+
+                        return 2;
+                    } // end if
+
+                    if(!user.IsActive)
+                    {
+                        return 1; // The login was successful, but the user must change their password
+                    } // end if
+
+                    return 0; // The login was successful
                 } // end if
 
-                return 1;
+                return -1; // The provided password did not match the record
             } // end if
 
-            return -1;
+            return -2; // The database is not connected
         } // end method LoginAttempt
 
         /// <summary>Changes the given user's password.</summary>
         /// <param name="s_username">The username associated with the new password.</param>
-        /// <param name="ss_password">The new password.</param>
-        /// <returns></returns>
-        public static bool ChangePassword(string s_username, SecureString ss_password)
+        /// <param name="s_insecure_pw">The new password.</param>
+        /// <returns>True if the password was successfully changed, false otherwise</returns>
+        public static bool ChangePassword(string s_username, string s_insecure_pw)
         {
             if(Program.Database.connected)
             {
+                Credentials user_credentials = Program.Database.RetrieveSalt(new Credentials(s_username, 0, false, false, new byte[32], ""));
+
+                byte[] ba_salt = new byte[ui_SALT_LENGTH];
+                Array.Copy(user_credentials.PWSalt, ba_salt, ui_SALT_LENGTH);
+
+                Rfc2898DeriveBytes hasher = new Rfc2898DeriveBytes(s_insecure_pw, ba_salt, DatabaseHandler.i_HASH_ITERATIONS);
+
+                s_insecure_pw = null;
+                GC.Collect();
+
+                byte[] ba_password_hash = hasher.GetBytes(64);
+
+                hasher.Dispose();
+
+                Credentials cred = new Credentials(s_username, 0, false, false, null, "") { Password_Hash = ba_password_hash };
+
+                bool b_success = Program.Database.UpdatePassword(cred);
+
+                return b_success;
 
             } // end if 
 

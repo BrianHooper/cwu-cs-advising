@@ -23,7 +23,8 @@ namespace Database_Handler
 
         /// <summary>The number of iterations for hashing the password.</summary>
         public static int i_HASH_ITERATIONS = 10000;
-
+        /// <summary>The length of the salt being used for hashing user passwords.</summary>
+        public static int i_SALT_LENGTH     = 32;
         /// <summary>The path to the log file which will contain the log entries created by DBH.</summary>
         public static string s_logFilePath = "log.txt";
 
@@ -33,9 +34,6 @@ namespace Database_Handler
 
         /// <summary>Mutex locks for databases.</summary>
         private static Mutex MySqlLock = new Mutex();
-        private static Mutex StudentLock = new Mutex();
-        private static Mutex CatalogLock = new Mutex();
-        private static Mutex CourseLock = new Mutex();
         private static Mutex LogLock = new Mutex();
 
         #endregion
@@ -65,12 +63,6 @@ namespace Database_Handler
         private readonly string s_PLAN_TABLE = "student_plans";
         #endregion
 
-        #region DB4O Database strings
-        private readonly string s_STUDENT_DB = "Students.db4o";
-        private readonly string s_COURSE_DB = "Courses.db4o";
-        private readonly string s_CATALOG_DB = "Catalogs.db4o";
-        #endregion
-
         #region MySQL table keys
         private readonly string s_CREDENTIALS_KEY = "username";
         private readonly string s_STUDENTS_KEY = "SID";
@@ -89,9 +81,10 @@ namespace Database_Handler
         #endregion
 
         #region General
-        private const int  i_SALT_LENGTH          = 32;
+        /// <summary>The buffer size for TCP packages.</summary>
         private const int  BUFFER_SIZE            = 2048;
 
+        /// <summary>The maximum depth a recursive call my reach. At this point an exception is thrown to terminate the call.</summary>
         private const uint ui_MAX_RECURSION_DEPTH = 30;
         #endregion
 
@@ -102,7 +95,6 @@ namespace Database_Handler
         #region MySQL Connection/Info
         /// <summary>The number of columns in each variable length table { s_PLAN_TABLE, s_COURSES_TABLE, s_CATALOGS_TABLE, s_DEGREES_TABLE}.</summary>
         private uint[] ui_COL_COUNT;
-
 
         /// <summary>The master connection to the MySql database, which should never be closed, except during cleanup.</summary>
         private MySqlConnection DB_CONNECTION;
@@ -123,6 +115,7 @@ namespace Database_Handler
         /// <summary>List of all client threads currently running.</summary>
         private List<Thread> clientThreads;
 
+        /// <summary>Variable to alert the main thread that a deadlock occurred.</summary>
         private bool deadlocked = false;
 
         /// <summary>List of all clients currently connected to DBH.</summary>
@@ -144,12 +137,14 @@ namespace Database_Handler
             IniData data = parser.ReadFile(s_fileName);
             WriteToLog(" -- DBH Parser successfully opened and parsed ini file.");
 
+            // Get MySQL database descriptors
             s_MYSQL_DB_NAME = data["MySql Connection"]["DB"];
             s_MYSQL_DB_SERVER = data["MySql Connection"]["host"];
             s_MYSQL_DB_PORT = data["MySql Connection"]["port"];
             s_MYSQL_DB_USER_ID = data["MySql Connection"]["user"];
             string pw = data["MySql Connection"]["password"];
 
+            // Get MySQL table descriptors
             s_PLAN_TABLE = data["MySql Tables"]["grad_plans"];
             s_PLAN_KEY = data["MySql Tables"]["grad_plans_key"];
 
@@ -168,6 +163,7 @@ namespace Database_Handler
             s_COURSES_TABLE = data["MySql Tables"]["courses_table"];
             s_COURSES_KEY = data["MySql Tables"]["courses_table_key"];
 
+            // Get TCP/IP Settings
             s_IP_ADDRESS = data["Misc"]["IP"];
             s_logFilePath = data["Misc"]["logfile_path"];
             string TCPPort = data["Misc"]["TCPIP_port"];
@@ -245,14 +241,11 @@ namespace Database_Handler
                 finally
                 {
                     MySqlLock.Dispose();
-                    StudentLock.Dispose();
-                    CatalogLock.Dispose();
-                    CourseLock.Dispose();
                     LogLock.Dispose();
                 } // end finally
             } // end finally 
 
-            Environment.Exit(0);
+            Environment.Exit(0); // let all other threads know main is exiting, and they should exit too
         } // end Main
 
         #endregion
@@ -321,6 +314,10 @@ namespace Database_Handler
                 WriteToLog(" -- DBH Calling run for new client.");
                 exitCode = Run(clientStream);
             } // end try
+            catch (ThreadAbortException)
+            {
+                WriteToLog(" -- DBH client thread received abort signal. Exiting ...");
+            } // end catch
             catch (Exception e)
             {
                 WriteToLog(" -- DBH run caused an exception: " + e.Message);
@@ -347,9 +344,16 @@ namespace Database_Handler
         {
             var output = 0;
             WriteToLog(" -- DBH Now in RunHost.");
+
             Thread stayAlive = new Thread(KeepAlive);
             stayAlive.Start();
+
             WriteToLog(" -- DBH Started stay alive thread.");
+
+            Thread deadlockThread = new Thread(DeadLockDetector);
+            deadlockThread.Start();
+
+            WriteToLog(" -- DBH Started deadlock detector thread.");
 
             for (; ; )
             {
@@ -359,12 +363,12 @@ namespace Database_Handler
                 {
                     if (deadlocked)
                     {
+                        WriteToLog(" -- DBH Run host was notified of a deadlock, exiting ...");
                         return 74;
                     } // end if
                 } // end while
 
                 TcpClient newClient = tcpListener.AcceptTcpClient();
-
 
                 if (newClient == null)
                 {
@@ -398,7 +402,7 @@ namespace Database_Handler
                         } // end foreach
 
                         stayAlive.Abort();
-
+                        deadlockThread.Abort();
                         break;
                     } // end catch
                 } // end if
@@ -407,7 +411,7 @@ namespace Database_Handler
                 clients.Add(newClient);
                 clientThreads.Add(newClientThread);
                 newClientThread.Start(newClient);
-                WriteToLog(" -- DBH Thread started, doing housekeeping.");
+                WriteToLog(" -- DBH Client thread started.");
             } // end for
 
             return output;
@@ -667,7 +671,8 @@ namespace Database_Handler
 
             try
             {
-                b_success = LoginAttempt(cred.UserName, cred.Password, out bool b_isAdmin);
+                string s_pw = System.Text.Encoding.ASCII.GetString(cred.Password_Hash);
+                b_success = LoginAttempt(cred.UserName, s_pw);
             } // end try
             catch (ThreadAbortException e)
             {
@@ -702,7 +707,8 @@ namespace Database_Handler
 
             try
             {
-                i_errorCode = ChangePassword(cred.UserName, cred.Password, cred.IsActive);
+                string s_pw = System.Text.Encoding.ASCII.GetString(cred.Password_Hash);
+                i_errorCode = ChangePassword(cred.UserName, s_pw, true);
             } // end try
             catch (ThreadAbortException e)
             {
@@ -1231,10 +1237,9 @@ namespace Database_Handler
         /// <summary>Checks the password entered by a user against the database record.</summary>
         /// <param name="s_ID">The username of the person attempting to log in.</param>
         /// <param name="s_pw">A string containing the user's password hash.</param>
-        /// <param name="b_isAdmin">Return parameter, indicates whether the user is an admin or not.</param>
         /// <returns>True if the password entered matches the database record and out parameter b_isAdmin.</returns>
         /// <remarks>The parameter ss_pw will be destroyed during method execution, and can not be used afterwards.</remarks>
-        public bool LoginAttempt(string s_ID, string s_pw, out bool b_isAdmin)
+        public bool LoginAttempt(string s_ID, string s_pw)
         {
             // Variables:
             var output = false;
@@ -1244,9 +1249,6 @@ namespace Database_Handler
             MySqlCommand cmd = GetCommand(s_ID, 'S', s_CREDENTIALS_TABLE, s_CREDENTIALS_KEY, "*");
 
             string s_temp = String.Empty;
-
-
-            b_isAdmin = false; // initialize output parameter
 
             try
             {
@@ -1258,8 +1260,6 @@ namespace Database_Handler
                 {
                     WriteToLog("-- DBH the user " + s_ID + " is attempting to login.");
 
-                    bool b_isActive = reader.GetBoolean(5);
-
                     s_temp = reader.GetString(2);
 
                     // check if passwords match
@@ -1268,7 +1268,6 @@ namespace Database_Handler
                         WriteToLog("-- DBH the user " + s_ID + " sucessfully logged in.");
 
                         output = true; // login sucessful
-                        b_isAdmin = reader.GetBoolean(3); // get the admin value from DB
                     } // end if
                     else
                     {
@@ -1592,6 +1591,7 @@ namespace Database_Handler
         /// <param name="ui_depth">The current depth of recursion, to prevent excessive/infinite recursion loops.</param>
         /// <returns>A list of DegreeRequirement structures associated with the given degree.</returns>
         /// <exception cref="KeyNotFoundException">Thrown if the key passed in arg 1 does not exist in the database.</exception>
+        /// <exception cref="RecursionDepthException">Thrown the depth of recursion exceeds the limit as defined in <see cref="ui_MAX_RECURSION_DEPTH"/></exception>
         private DegreeRequirements RetrieveDegree(string s_ID, bool b_shallow, uint ui_depth)
         {
             if (ui_depth == ui_MAX_RECURSION_DEPTH)
@@ -2848,7 +2848,9 @@ namespace Database_Handler
             return s_values;
         } // end method GetInsertValues
 
-
+        /// <summary>Creates the values string for a Course object.</summary>
+        /// <param name="course">The new course to be added to the database.</param>
+        /// <returns>A string that can be used as the VALUES component of an insert query.</returns>
         private string GetInsertValues(Course course)
         {
             // 'CS110', 1, 'Intro To CS', '1', '1', '0', '1', '4', 'CS', '0');
@@ -2887,7 +2889,9 @@ namespace Database_Handler
             return s_values;
         } // end method GetInsertValues
 
-
+        /// <summary>Creates the values string for a Catalog object.</summary>
+        /// <param name="catalog">The new catalog to be added to the database.</param>
+        /// <returns>A string that can be used as the VALUES component of an insert query.</returns>
         private string GetInsertValues(CatalogRequirements catalog)
         {
             string s_values = "\"" + catalog.ID + "\", 1, " + catalog.DegreeRequirements.Count;
@@ -2900,7 +2904,10 @@ namespace Database_Handler
             return s_values;
         } // end method GetInsertValues
 
-
+        /// <summary>Creates the values string for a Degree object.</summary>
+        /// <param name="catalog">The catalog associated with this degree.</param>
+        /// <param name="degree">The new degree to be added to the database.</param>
+        /// <returns>A string that can be used as the VALUES component of an insert query.</returns>
         private string GetInsertValues(CatalogRequirements catalog, DegreeRequirements degree)
         {
             string s_values = "\"" + catalog.ID + "_" + degree.ID + "\", 1, \"" + degree.Name + "\", \"" + degree.Department + "\", " + degree.ShallowRequirements.Count.ToString();

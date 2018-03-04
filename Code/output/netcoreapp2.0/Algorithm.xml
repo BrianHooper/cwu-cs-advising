@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>PlanGenerationAlgorithm</name>
+    </assembly>
+    <members>
+        <member name="M:PlanGenerationAlgorithm.Algorithm.Generate(System.Collections.Generic.List{Database_Object_Classes.Course},PlanGenerationAlgorithm.Schedule,System.UInt32,System.UInt32,System.Boolean)">
+            <summary>
+            call the generate schedule method
+            and generate the schedules for all graduation requirements
+            </summary>
+            <param name="requirements">graduation requirements</param>
+            <param name="currentSchedule">schedule for this quarter</param>
+            <param name="minCredits">minimum possible number of credits</param>
+            <param name="maxCredits">maximum possible number of credits</param>
+            <param name="takeSummerCourse">check if student take summer courses</param>
+            <returns>best possible schedule</returns>
+        </member>
+        <member name="M:PlanGenerationAlgorithm.Algorithm.GenerateSchedule(System.Collections.Generic.List{Database_Object_Classes.Course},PlanGenerationAlgorithm.Schedule)">
+            <summary>
+            method to generate schedule for each quarter with recursion
+            </summary>
+            <param name="requirements">graduation requirements</param>
+            <param name="currentSchedule">schedule for this quarter</param>
+        </member>
+        <member name="M:PlanGenerationAlgorithm.Algorithm.ListofCourse(PlanGenerationAlgorithm.Schedule,System.Collections.Generic.List{Database_Object_Classes.Course})">
+            <summary>
+            method to list possible courses for current quarter
+            </summary>
+            <param name="currentQuarter">current quarter to check course offered and prereqs met</param>
+            <param name="graduation">graduation requirement courses</param>
+            <returns>all lists of courses that the student can take this quarter</returns>
+        </member>
+        <member name="M:PlanGenerationAlgorithm.Algorithm.prereqsMet(Database_Object_Classes.Course,PlanGenerationAlgorithm.Schedule)">
+            <summary>
+            method to check if prerequisites are met or not
+            </summary>
+            <param name="c">all the courses needed for graduation</param>
+            <param name="currentQuarter">current quarter to check course offered and prereqs met</param>
+            <returns></returns>
+        </member>
+        <member name="M:PlanGenerationAlgorithm.Node.AddArc(PlanGenerationAlgorithm.Node,System.Int32)">
+            <summary>
+            Create a new arc, connecting this Node to the Nod passed in the parameter
+            Also, it creates the inversed node in the passed node
+            </summary>
+        </member>
+        <member name="M:PlanGenerationAlgorithm.Schedule.#ctor(Database_Object_Classes.Quarter)">
+            <summary>
+            constructor
+            </summary>
+            <param name="quarter">current quarter</param>
+        </member>
+        <member name="M:PlanGenerationAlgorithm.Schedule.#ctor(PlanGenerationAlgorithm.Schedule)">
+            <summary>Copy Constructor which creates a copy of the other course.</summary>
+            <param name="allCourses">schedule to be copied.</param>
+        </member>
+        <member name="M:PlanGenerationAlgorithm.Schedule.MeetsConstraints(Database_Object_Classes.Course)">
+            <summary>
+            method to check if course meets constraints or not
+            </summary>
+            <param name="c">the course to be checked</param>
+            <returns>number of credits less than max number of credits and 
+            if list of courses taken does not contain the course to be checked
+            </returns>
+        </member>
+        <member name="M:PlanGenerationAlgorithm.Schedule.lowerBound">
+            <summary>
+            method to get the lower bound to check the best possible solution
+            </summary>
+            <returns>lower bound</returns>
+        </member>
+        <member name="M:PlanGenerationAlgorithm.Schedule.AddCourse(Database_Object_Classes.Course)">
+            <summary>
+            method to add course to the list
+            if the course meets constraints
+            </summary>
+            <param name="c">possible course to be added</param>
+            <returns>true or false depends on whether the course meet all the constraints or not</returns>
+        </member>
+        <member name="M:PlanGenerationAlgorithm.Schedule.NextSchedule">
+            <summary>
+            method to get the schedule for next quarter
+            </summary>
+            <returns>go to the next quarter schedule</returns>
+        </member>
+        <member name="M:PlanGenerationAlgorithm.Schedule.GetNextQuarter">
+            <summary>
+            method to increment the quarter season and/or year
+            </summary>
+            <returns>new quarter with new quarter name and possible new year</returns>
+        </member>
+        <member name="M:PlanGenerationAlgorithm.Schedule.RemoveCourse(Database_Object_Classes.Course)">
+            <summary>
+            method to remove course from list
+            </summary>
+            <param name="c"></param>
+            <returns>the list of courses after removing course</returns>
+        </member>
+        <member name="M:PlanGenerationAlgorithm.Schedule.Shuffle``1(System.Collections.Generic.List{``0})">
+            <summary>
+            shuffle the list of courses order
+            </summary>
+            <typeparam name="Course">data type course</typeparam>
+            <param name="list">list of courses</param>
+        </member>
+        <member name="M:PlanGenerationAlgorithm.Schedule.ToString">
+            <summary>
+            toString method override to print all the schedules
+            </summary>
+            <returns>printed schedule</returns>
+        </member>
+        <member name="M:PlanGenerationAlgorithm.Schedule.GetFirstSchedule">
+            <summary>
+            method to check schedule for previous quarter and if previous quarter exists or not
+            </summary>
+            <returns>previous quarter schedule if it exists</returns>
+        </member>
+    </members>
+</doc>
