@@ -10,26 +10,27 @@ namespace PlanGenerationAlgorithm
         //variables
         public Student student;
         public Quarter quarterName;
-        public bool locked = false;
+        public bool locked = false; //initialize value of quarter lock
         public uint NumberOfQuarters = 0; //total number of quarters
         public List<Course> courses; //list of all courses taken
         public Schedule NextQuarter, previousQuarter;
-        public uint ui_numberCredits = 0;
-        public bool TakeSummerCourses = false;
+        public uint ui_numberCredits = 0; //initialize number of credits to 0
+        public bool TakeSummerCourses = false; //initialize value of student taking summer courses
         /// <summary>
         /// constructor
         /// </summary>
         /// <param name="quarter">current quarter</param>
         public Schedule(Quarter quarter)
         {
-            quarterName = quarter;
-            courses = new List<Course>();
+            quarterName = quarter; //current quarter name
+            courses = new List<Course>(); //initialize course
         } // end Constructor
 
         /// <summary>Copy Constructor which creates a copy of the other course.</summary>
         /// <param name="allCourses">schedule to be copied.</param>
         public Schedule(Schedule allCourses)
         {
+            
             this.NextQuarter = allCourses.NextQuarter;
             this.previousQuarter = allCourses.previousQuarter;
             this.ui_numberCredits = allCourses.ui_numberCredits;
@@ -47,6 +48,8 @@ namespace PlanGenerationAlgorithm
         /// </returns>
         public bool MeetsConstraints(Course c)
         {
+            //meets constraints if course is not on the list of requirements 
+            //and number of credits of current schedule is less than 18
             return (ui_numberCredits < 18 && !courses.Contains(c));
         }
 
@@ -74,7 +77,7 @@ namespace PlanGenerationAlgorithm
         {
             if (MeetsConstraints(c))
             {
-                courses.Add(c);
+                courses.Add(c); //add course into the list if it meets all the constraints
                 ui_numberCredits += c.Credits; //add current number of credits with course c
                 return true;
             }
@@ -95,6 +98,7 @@ namespace PlanGenerationAlgorithm
             if (NextQuarter == null)
             {
                 NextQuarter = new Schedule(GetNextQuarter());
+                //check if next quarter is locked to determine if student take summer courses or not
                 if (NextQuarter.quarterName.QuarterSeason.Equals(Season.Summer) && !NextQuarter.locked)
                 {
                     algorithm.takeSummerCourses = true;
@@ -103,6 +107,7 @@ namespace PlanGenerationAlgorithm
             }
             if (NextQuarter.locked)
             {
+                //if next quarter is locked, jump into next 2 quarters
                 return NextQuarter.NextSchedule();
             }
             return NextQuarter;
@@ -115,6 +120,8 @@ namespace PlanGenerationAlgorithm
         public Quarter GetNextQuarter()
         {
             Algorithm algorithm = new Algorithm();
+            //go to next quarter everytime this method is called
+            //increment a year if current quarter is fall
             switch (quarterName.QuarterSeason)
             {
                 case Season.Fall: NumberOfQuarters++; return new Quarter(quarterName.Year + 1, Season.Winter);
@@ -165,6 +172,7 @@ namespace PlanGenerationAlgorithm
             while (n >= 1)
             {
                 n--;
+                //generate random course
                 int k = rng.Next(n + 1);
                 Course value = list[k];
                 list[k] = list[n];

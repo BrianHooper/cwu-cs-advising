@@ -33,7 +33,7 @@ namespace PlanGenerationAlgorithm
             Student student;
             // Create 3 courses
             List<Course> CS311Prereqs = new List<Course>();
-            Requirements.Add(new Course("Computer Architecture", "CS311", 4, true, new bool[] { true, true, false,true }, CS311Prereqs));
+            Requirements.Add(new Course("Computer Architecture", "CS311", 4, true, new bool[] { true, true, false, true }, CS311Prereqs));
 
             List<Course> CS427Prereqs = new List<Course>();
             CS427Prereqs.Add(Requirements[0]);
@@ -222,10 +222,11 @@ namespace PlanGenerationAlgorithm
 
             // Create an empty Schedule starting Fall 2018
             Schedule StudentSchedule = new Schedule(new Quarter(2018, Season.Fall));
-            StudentSchedule.AddCourse(gened6);
-            StudentSchedule.AddCourse(CS110);
-            StudentSchedule.AddCourse(gened4);
-            StudentSchedule.AddCourse(CS112);
+            //using addCourse and Add are different
+            //addCourse add current schedule number of credits, Add does not
+
+            StudentSchedule.courses.Add(CS110);
+            StudentSchedule.courses.Add(Math172);
             // Run the algorithm
             Schedule GeneratedSchedule = Algorithm.Generate(coursesList, StudentSchedule, 10, 18, true);
 
