@@ -2805,7 +2805,7 @@ namespace Database_Handler
 
         private string GetSpecialInsertQuery(string s_table, string s_insert, s_values)
         {
-            
+            return "";
         }
 
         /// <summary>Creates the values string for a PlanInfo object.</summary>
