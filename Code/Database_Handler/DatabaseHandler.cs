@@ -1186,9 +1186,12 @@ namespace Database_Handler
             // Variables:
             string s_timeStamp = DateTime.Today.ToLongDateString() + "  " + DateTime.Now.ToLongTimeString();
 
+            string logPath = DateTime.Today.ToShortDateString() + "_" + s_logFilePath;
+            logPath.Replace(' ', '_');
+
             LogLock.WaitOne();
 
-            StreamWriter log = new StreamWriter(s_logFilePath, true);
+            StreamWriter log = new StreamWriter(logPath, true);
 
             log.WriteLine(s_timeStamp + s_msg);
 
