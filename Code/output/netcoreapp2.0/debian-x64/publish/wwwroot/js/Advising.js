@@ -10,6 +10,7 @@ var Schedule = JSON.parse(ExampleSchedule);
 
 // Document Load
 $(document).ready(function () {
+    console.log(Schedule)
     LoadSchedule(Schedule);
 });
 

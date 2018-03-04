@@ -141,8 +141,9 @@ namespace Database_Handler
         /// <summary>Constructor for postback from DBH; contains relevant info about execution of the command.</summary>
         /// <param name="code">The error code, or 0 if execution was successful.</param>
         /// <param name="msg">A message detailing an error, "No Errors" if no issues occurred.</param>
-        /// <param name="students">A list of students for the display students command.</param>
+        /// <param name="catalogs">A list of catalogs for the display catalogs command.</param>
         /// <param name="courses">A list of courses for the display courses command.</param>
+        /// <param name="credentials">A list of credentials for the display users command.</param>
         /// <remarks>This command type should not be sent to DBH, it is only intended for DBH to return information to the client.</remarks>
         public DatabaseCommand(int code = 0, string msg = "No Errors", List<CatalogRequirements> catalogs = null, List<Course> courses = null, List<Credentials> credentials = null)
         {

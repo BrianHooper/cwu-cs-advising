@@ -612,17 +612,17 @@
         <member name="T:CwuAdvising.PasswordManager">
             <summary>Manages Password interactions.</summary>
         </member>
-        <member name="M:CwuAdvising.PasswordManager.LoginAttempt(System.String,System.Security.SecureString)">
+        <member name="M:CwuAdvising.PasswordManager.LoginAttempt(System.String,System.String)">
             <summary>Processes a login request.</summary>
             <param name="s_username">The username.</param>
-            <param name="ss_password">The password of the user.</param>
-            <returns>0 on success, 1 on failure, -1 if no database is connected.</returns>
+            <param name="s_insecure_pw">The password of the user.</param>
+            <returns>0 on successful advisor login, 1 if the advisor must change their password; 2 on successful admin login, 3 if the admin must change their password; -1 on failure, and -2 if no database is connected.</returns>
         </member>
-        <member name="M:CwuAdvising.PasswordManager.ChangePassword(System.String,System.Security.SecureString)">
+        <member name="M:CwuAdvising.PasswordManager.ChangePassword(System.String,System.String)">
             <summary>Changes the given user's password.</summary>
             <param name="s_username">The username associated with the new password.</param>
-            <param name="ss_password">The new password.</param>
-            <returns></returns>
+            <param name="s_insecure_pw">The new password.</param>
+            <returns>True if the password was successfully changed, false otherwise</returns>
         </member>
         <member name="T:CwuAdvising.Program">
             <summary>Entry point of the application</summary>

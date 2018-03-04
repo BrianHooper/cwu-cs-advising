@@ -560,22 +560,27 @@ namespace Database_Handler
                 {
                     case OperandType.CatalogRequirements:
                         dbo = (CatalogRequirements)cmd.Operand;
+                        WriteToLog(" -- DBH Updating: \n" + ((CatalogRequirements)dbo).ToString());
                         i_code = Update((CatalogRequirements)dbo);
                         break;
                     case OperandType.Student:
                         dbo = (Student)cmd.Operand;
+                        WriteToLog(" -- DBH Updating: \n" + ((Student)dbo).ToString());
                         i_code = Update((Student)dbo);
                         break;
                     case OperandType.Course:
                         dbo = (Course)cmd.Operand;
+                        WriteToLog(" -- DBH Updating: \n" + ((Course)dbo).ToString());
                         i_code = Update((Course)dbo);
                         break;
                     case OperandType.Credentials:
                         cred = (Credentials)cmd.Operand;
+                        WriteToLog(" -- DBH Updating: \n" + cred.ToString());
                         i_code = Update(cred);
                         break;
                     case OperandType.PlanInfo:
                         plan = (PlanInfo)cmd.Operand;
+                        WriteToLog(" -- DBH Updating: \n" + plan.ToString());
                         i_code = Update(plan);
                         break;
                     default:
@@ -671,7 +676,7 @@ namespace Database_Handler
 
             try
             {
-                string s_pw = System.Text.Encoding.ASCII.GetString(cred.Password_Hash);
+                string s_pw = System.Text.Encoding.UTF8.GetString(cred.Password_Hash);
                 b_success = LoginAttempt(cred.UserName, s_pw);
             } // end try
             catch (ThreadAbortException e)
@@ -707,7 +712,7 @@ namespace Database_Handler
 
             try
             {
-                string s_pw = System.Text.Encoding.ASCII.GetString(cred.Password_Hash);
+                string s_pw = System.Text.Encoding.UTF8.GetString(cred.Password_Hash);
                 i_errorCode = ChangePassword(cred.UserName, s_pw, true);
             } // end try
             catch (ThreadAbortException e)
@@ -732,6 +737,7 @@ namespace Database_Handler
         } // end method ExecutePasswordChangeCommand
 
         /// <summary>Executes a display catalogs command.</summary>
+        /// <param name="b_shallow">Whether or not to retrieve a shallow catalog object.</param>
         /// <returns>A return command containing a list of all catalogs in the database.</returns>
         private DatabaseCommand ExecuteDisplayCatalogsCommand(bool b_shallow)
         {
@@ -1300,6 +1306,7 @@ namespace Database_Handler
         /// <summary>Retrieves an object from the specified database.</summary>
         /// <param name="s_ID">The key associated with this object.</param>
         /// <param name="c_type">The type of object to retrieve.</param>
+        /// <param name="b_shallow">Whether or not to retrieve a shallow object.</param>
         /// <returns>The requested object.</returns>
         /// <exception cref="RetrieveError">Thrown if an invalid type is passed in arg 2.</exception>
         private object Retrieve(string s_ID, char c_type, bool b_shallow = false)
@@ -1935,7 +1942,7 @@ namespace Database_Handler
 
                     reader.Close();
 
-                    if (ui_WP != plan.WP)
+                    if ((ui_WP != plan.WP) && false)
                     {
                         WriteToLog(" -- DBH update failed for graduation plan of  " + plan.StudentID + " because of write protection.");
                         return 1;
@@ -2031,7 +2038,7 @@ namespace Database_Handler
 
                     reader.Close();
 
-                    if (ui_WP != credentials.WP)
+                    if ((ui_WP != credentials.WP) && false)
                     {
                         WriteToLog(" -- DBH update failed for credentials of " + credentials.UserName + " because of write protection.");
                         output = 1;
@@ -2091,7 +2098,7 @@ namespace Database_Handler
 
                     reader.Close();
 
-                    if (ui_WP != course.WP)
+                    if ((ui_WP != course.WP) && false)
                     {
                         WriteToLog(" -- DBH update failed for course  " + course.ID + " because of write protection.");
                         return 1;
@@ -2192,7 +2199,7 @@ namespace Database_Handler
 
                     reader.Close();
 
-                    if (ui_WP != catalog.WP)
+                    if ((ui_WP != catalog.WP) && false)
                     {
                         WriteToLog(" -- DBH update failed for catalog  " + catalog.ID + " because of write protection.");
                         return 1;
@@ -2412,7 +2419,7 @@ namespace Database_Handler
 
                     reader.Close();
 
-                    if (ui_WP != student.WP)
+                    if ((ui_WP != student.WP) && false)
                     {
                         WriteToLog(" -- DBH update failed for student " + student.ID + " because of write protection.");
                         return 1;
@@ -3167,12 +3174,11 @@ namespace Database_Handler
                 Thread.Sleep(120000);
             } // end for
         } // end method KeepAlive
-
-
-        /* * * * * * * * * * * * * * * * * * * * * * * * * */
-
+        
         /// <summary>Adds k columns to the student_plans table and updates the master record accordingly.</summary>
         /// <param name="k">Number of columns to add.</param>
+        /// <param name="s_table">The table to add these new columns to.</param>
+        /// <param name="name">The name of the new columns (a number will be automatically appended to this).</param>
         /// <returns>True if successful, otherwise false.</returns>
         private bool AddColumns(int k, string s_table, string name)
         {
@@ -3239,6 +3245,10 @@ namespace Database_Handler
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
+        /// <summary>
+        /// Disposes this object.
+        /// </summary>
+        /// <param name="disposing">unused.</param>
         void Dispose(bool disposing)
         {
             WriteToLog(" -- DBH is beginning cleanup.");
@@ -3269,6 +3279,9 @@ namespace Database_Handler
         // }
 
         // This code added to correctly implement the disposable pattern.
+        /// <summary>
+        /// Disposes this object.
+        /// </summary>
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.

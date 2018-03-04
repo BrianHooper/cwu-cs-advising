@@ -77,7 +77,11 @@ $(document).on("click", "#SaveDegreeButton", function () {
         dataType: "json",
         success: function (response) {
             Modified = false;
-            alert(response);
+            if (response) {
+                alert("Degree saved.");
+            } else {
+                alert("Error updating database.");
+            }
             $("#ResultsContainer").hide();
         },
         failure: function (response) {
