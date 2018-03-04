@@ -865,8 +865,12 @@ namespace Database_Handler
                             break;
                         } // end else
                     } // end for
-                                        
-                    courses.Add(new Course(s_courseName, s_courseID, ui_credits, false, ba_offered, ls_preRequs));
+
+                    Course temp = new Course(s_courseName, s_courseID, ui_credits, false, ba_offered, ls_preRequs);
+
+                    temp.WP = ui_WP;
+
+                    courses.Add(temp);
                 } // end while
 
                 reader.Close();                
@@ -1542,6 +1546,7 @@ namespace Database_Handler
                     } // end foreach
 
                     catalog = new CatalogRequirements(s_ID, requs);
+                    catalog.WP = ui_WP;
                 } // end if
                 else
                 {
@@ -1735,10 +1740,12 @@ namespace Database_Handler
                         {
                             ExpectedGraduation = q_expected_grad
                         }; // end student Initializer
+                        student.WP = ui_WP;
                     } // end if
                     else
                     {
                         student = new Student(new Name(s_fName, s_lName), s_ID, q_start);
+                        student.WP = ui_WP;
                     } // end else
                 } // end if
                 else
@@ -1842,10 +1849,12 @@ namespace Database_Handler
                         } // end foreach
 
                         course = new Course(s_courseName, s_ID, ui_credits, false, ba_offered, lc_prerequs);
+                        course.WP = ui_WP;
                     } // end if
                     else
                     {
                         course = new Course(s_courseName, s_ID, ui_credits, false, ba_offered, ls_preRequs);
+                        course.WP = ui_WP;
                     } // end else
                 } // end if
                 else

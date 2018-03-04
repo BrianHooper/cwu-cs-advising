@@ -1,9 +1,11 @@
 ﻿<Properties StartupConfiguration="{683998E3-D7CC-4AD8-B8DD-B012248E4B4C}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Database_Handler/DatabaseHandler.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Database_Classes/Database_Object.cs">
     <Files>
       <File FileName="Front_End/Pages/Index.cshtml" Line="47" Column="38" />
       <File FileName="Front_End/Pages/Index.cshtml.cs" Line="1" Column="1" />
-      <File FileName="Database_Handler/DatabaseHandler.cs" Line="41" Column="23" />
+      <File FileName="Database_Handler/DatabaseHandler.cs" Line="869" Column="116" />
+      <File FileName="Database_Classes/Course.cs" Line="195" Column="31" />
+      <File FileName="Database_Classes/Database_Object.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />

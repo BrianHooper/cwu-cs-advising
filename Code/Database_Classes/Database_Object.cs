@@ -37,8 +37,12 @@ namespace Database_Object_Classes
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
         // General Getters/Setters:
-        /// <summary>Getter for the write protect value of this object.</summary>
-        public uint WP => ui_writeProtect;
+        /// <summary>Getter/Setter for the write protect value of this object.</summary>
+        public uint WP
+        {
+            get => ui_writeProtect;
+            set => ui_writeProtect = value;   
+        }
 
         /// <summary>Getter/Setter for the ID of this object. </summary>
         public string ID
