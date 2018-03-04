@@ -25,7 +25,7 @@ namespace Database_Handler
         public static int i_HASH_ITERATIONS = 10000;
 
         /// <summary>The path to the log file which will contain the log entries created by DBH.</summary>
-        public static string s_logFilePath = "log.txt";
+        public static string s_logFilePath = "log";
 
         #endregion
 
@@ -1186,9 +1186,8 @@ namespace Database_Handler
             // Variables:
             string s_timeStamp = DateTime.Today.ToLongDateString() + "  " + DateTime.Now.ToLongTimeString();
 
-            string logPath = DateTime.Today.ToShortDateString() + "_" + s_logFilePath;
+            string logPath = s_logFilePath + "_" + DateTime.Today.ToShortDateString() + ".txt";
             logPath.Replace(' ', '_');
-
             LogLock.WaitOne();
 
             StreamWriter log = new StreamWriter(logPath, true);
