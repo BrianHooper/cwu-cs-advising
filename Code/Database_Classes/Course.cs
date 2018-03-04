@@ -176,6 +176,14 @@ namespace Database_Object_Classes
             set => s_department = string.Copy(value);
         } // end Department
 
+        /// <summary>Gets or sets the wp.</summary>
+        /// <value>The wp.</value>
+        public new uint WP
+        {
+            get => base.WP;
+            set => base.WP = value;
+        }
+
         /// <summary>Getter for PreRequisites list of this course.</summary>
         /// <remarks>The returned collection will be a read-only collection, and may not be modified directly.</remarks>
         /// 

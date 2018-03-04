@@ -33,7 +33,7 @@ namespace PlanGenerationAlgorithm
             Student student;
             // Create 3 courses
             List<Course> CS311Prereqs = new List<Course>();
-            Requirements.Add(new Course("Computer Architecture", "CS311", 4, true, new bool[] { true, true, false, false }, CS311Prereqs));
+            Requirements.Add(new Course("Computer Architecture", "CS311", 4, true, new bool[] { true, true, false,true }, CS311Prereqs));
 
             List<Course> CS427Prereqs = new List<Course>();
             CS427Prereqs.Add(Requirements[0]);
