@@ -2803,7 +2803,7 @@ namespace Database_Handler
             return query;
         } // end method GetInsertQuery
 
-        private string GetSpecialInsertQuery(string s_table, string s_insert, s_values)
+        private string GetSpecialInsertQuery(string s_table, string s_insert, string s_values)
         {
             return "";
         }
