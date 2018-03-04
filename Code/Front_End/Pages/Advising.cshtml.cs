@@ -112,12 +112,25 @@ namespace CwuAdvising.Pages
                 try
                 {
                     Student template = new Student(Name.DefaultName, ID, Quarter.DefaultQuarter);
+
                     DatabaseInterface.WriteToLog("Attempting to retrieve student " + ID);
                     Student dbstudent = (Student)Program.Database.RetrieveRecord(template, Database_Handler.OperandType.Student);
+                    if(dbstudent == null)
+                    {
+                        DatabaseInterface.WriteToLog("RetrieveRecord retrieved a null student in LoadStudent");
+                        return false;
+                    }
                     DatabaseInterface.WriteToLog("Retrieved student " + dbstudent.ID);
+
+
                     DatabaseInterface.WriteToLog("Attempting to retrieve planinfo " + ID);
                     PlanInfo plantemplate = new PlanInfo(ID, 0, Quarter.DefaultQuarter.ToString(), new string[1]);
                     PlanInfo dbschedule = Program.Database.RetrieveRecord(plantemplate);
+                    if(dbschedule.StudentID.Length == 0)
+                    {
+                        DatabaseInterface.WriteToLog("RetrieveRecord retrieved a blank schedule in LoadStudent");
+                        return false;
+                    }
                     DatabaseInterface.WriteToLog("Retrieved planinfo " + dbschedule.StudentID);
                     CurrentSchedule = dbschedule.Classes[0];
 
