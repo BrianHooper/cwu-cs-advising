@@ -870,6 +870,8 @@ namespace Database_Handler
 
                     temp.WP = ui_WP;
 
+                    WriteToLog(" -- DBH the write protect value being sent is: " + temp.WP);
+
                     courses.Add(temp);
                 } // end while
 
@@ -892,6 +894,11 @@ namespace Database_Handler
                 } // end if
 
                 MySqlLock.ReleaseMutex();
+                foreach(Course c in courses)
+                {
+                    WriteToLog(" -- DBH course being returned by display courses:\n" + c.ToString());
+                }
+
             } // end finally 
 
             WriteToLog(" -- DBH Display Courses found " + courses.Count + " courses in the database.");
