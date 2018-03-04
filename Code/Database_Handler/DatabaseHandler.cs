@@ -359,15 +359,6 @@ namespace Database_Handler
             {
                 WriteToLog(" -- DBH Waiting for client to connect ...");
 
-                while(!tcpListener.Pending())
-                {
-                    if (deadlocked)
-                    {
-                        WriteToLog(" -- DBH Run host was notified of a deadlock, exiting ...");
-                        return 74;
-                    } // end if
-                } // end while
-
                 TcpClient newClient = tcpListener.AcceptTcpClient();
 
                 if (newClient == null)
@@ -1224,7 +1215,7 @@ namespace Database_Handler
             {
                 if (!MySqlLock.WaitOne(120000))
                 {
-                    deadlocked = true;
+                    Environment.Exit(0);
                     return;
                 } // end if
                 else
