@@ -18,6 +18,7 @@ namespace Database_Object_Classes
 
         /// <summary>Name of this course.</summary>
         private string s_name;
+        /// <summary>The deparment this course belongs to.</summary>
         private string s_department;
 
         /// <summary>Prerequisites for this course (complete).</summary>
@@ -32,9 +33,6 @@ namespace Database_Object_Classes
         /// <summary>Stores whether or not this quarter requires a student to be in the CS major to take it.</summary>
         private bool b_requiresMajor;
         private bool b_isShallow;
-
-        private int i_weight;
-        private int i_value;
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -182,7 +180,7 @@ namespace Database_Object_Classes
         {
             get => base.WP;
             set => base.WP = value;
-        }
+        } // end WP
 
         /// <summary>Getter for PreRequisites list of this course.</summary>
         /// <remarks>The returned collection will be a read-only collection, and may not be modified directly.</remarks>
@@ -221,19 +219,7 @@ namespace Database_Object_Classes
         {
             get => ui_numberCredits;
             set => ui_numberCredits = value;
-        }
-
-        /// <summary>Getter for the weight of this course.</summary>
-        public int Weight
-        {
-            get => i_weight;
-        }
-
-        /// <summary>Getter for the value of this course.</summary>
-        public int Value
-        {
-            get => i_value;
-        }
+        } // end Credits
 
         /// <summary>Getter for whether this is a shallow course object.</summary>
         public bool IsShallow => b_isShallow;
@@ -354,7 +340,7 @@ namespace Database_Object_Classes
         /// <returns>A string representation of this object.</returns>
         public override string ToString()
         {
-            string str = "Course name: " + s_name + "\nCourse ID: " + ID + "\nCredits: " + ui_numberCredits + "\nQuarters offered: ";
+            string str = "Course name: " + s_name + "\nCourse ID: " + ID + "\nDepartment: " + Department + "\nCredits: " + ui_numberCredits + "\nQuarters offered: ";
 
             if (ba_quartersOffered[0])
             {
