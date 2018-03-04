@@ -76,7 +76,7 @@ namespace Database_Handler
         private const string s_INSERT_PLAN_DEFAULT = "";
         private const string s_INSERT_DEGREE_DEFAULT = "";
         private const string s_INSERT_CATALOG_DEFAULT = "";
-
+#endregion
         #endregion
 
         #region TCP info
