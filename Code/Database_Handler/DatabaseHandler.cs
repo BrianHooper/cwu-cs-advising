@@ -1,6 +1,5 @@
 ﻿using System;
 using MySql.Data.MySqlClient;
-using Db4objects.Db4o;
 using Database_Object_Classes;
 using System.Collections.Generic;
 using System.Security.Cryptography;
@@ -71,6 +70,12 @@ namespace Database_Handler
         private readonly string s_COURSES_KEY = "course_id";
         private readonly string s_PLAN_KEY = "SID";
         #endregion
+
+        #region MySQL Default Insert Queries
+        private const string s_INSERT_COURSE_DEFAULT = "(course_id, course_name, offered_winter, offered_fall, offered_spring, offered_fall, num_credits, deparment)";
+        private const string s_INSERT_PLAN_DEFAULT = "";
+        private const string s_INSERT_DEGREE_DEFAULT = "";
+        private const string s_INSERT_CATALOG_DEFAULT = "";
 
         #endregion
 
@@ -1735,11 +1740,11 @@ namespace Database_Handler
                            s_start_season = reader.GetString(4),
                            s_expected_season = reader.GetString(6);
 
-                    Quarter q_start = new Quarter(ui_start_year, (Season)Enum.Parse(typeof(Season), s_start_season)),
-                            q_expected_grad = new Quarter(ui_expected_year, (Season)Enum.Parse(typeof(Season), s_expected_season));
+                    Quarter q_start = new Quarter(ui_start_year, (Season)Enum.Parse(typeof(Season), s_start_season));
 
                     if (ui_expected_year > 0)
                     {
+                        Quarter q_expected_grad = new Quarter(ui_expected_year, (Season)Enum.Parse(typeof(Season), s_expected_season));
                         student = new Student(new Name(s_fName, s_lName), s_ID, q_start)
                         {
                             ExpectedGraduation = q_expected_grad
@@ -2783,6 +2788,9 @@ namespace Database_Handler
         private string GetInsertQuery(string s_table, string s_values)
         {
             //"INSERT INTO test_db.student_plans\nVALUES(\"22345678\", 1, \"Winter14\", \"CS101,CS110,GE1,UNIV101\")"
+            // INSERT INTO test_db.course (course_id, course_name, offered_winter, offered_fall, offered_spring, offered_fall, num_credits, deparment)
+            // INSERT INTO test_db.course (course_id, course_name, offered_winter, offered_fall, offered_spring, offered_fall, num_credits, deparment, num_pre_requs, ...)
+            // VALUES ("", "", );
 
             string query = "INSERT INTO ";
             query += s_MYSQL_DB_NAME;
@@ -2794,6 +2802,11 @@ namespace Database_Handler
 
             return query;
         } // end method GetInsertQuery
+
+        private string GetSpecialInsertQuery(string s_table, string s_insert, s_values)
+        {
+            
+        }
 
         /// <summary>Creates the values string for a PlanInfo object.</summary>
         /// <param name="plan">The plan to be inserted into the DB.</param>
