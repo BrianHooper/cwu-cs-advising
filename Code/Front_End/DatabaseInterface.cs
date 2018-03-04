@@ -85,6 +85,10 @@ namespace CwuAdvising
             if (cmd.OperandType == OperandType.Course)
             {
                 File.AppendAllText("wwwroot/log.txt", "SendCommand: Course Department: " + ((Course)cmd.Operand).Department + "\n");
+                foreach(Course prereq in ((Course)cmd.Operand).PreRequisites)
+                {
+                    File.AppendAllText("wwwroot/log.txt", "SendCommand: Course Prereq: " + prereq + "\n");
+                }
             }
 
             try
