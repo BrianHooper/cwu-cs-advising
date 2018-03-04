@@ -87,7 +87,8 @@ namespace CwuAdvising.Models
 
             model.Credits = course.Credits.ToString();
 
-            model.Department = course.Department;
+            Pages.ManageCoursesModel.ErrorMessage = course.Department;
+            model.Department = "Computer Science";//course.Department;
 
             string offered = string.Empty;
 
