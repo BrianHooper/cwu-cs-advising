@@ -2124,11 +2124,11 @@ namespace Database_Handler
                         int k = course.ShallowPreRequisites.Count - (int)ui_COL_COUNT[1]; // number of columns that must be added
                         AddColumns(k, s_COURSES_TABLE, "pre_requ_");
                     } // end if
-
+                    string query = GetInsertValues(course);
                     WriteToLog(" -- DBH sending insert query: " + query);
                     WriteToLog(" -- DBH update course contents: " + course.Name + " " + course.Department + " " + course.ID + " ");
-
-                    MySqlCommand command = GetCommand(course.ID, 'I', s_COURSES_TABLE, s_COURSES_KEY, "", GetInsertValues(course));
+                    
+                    MySqlCommand command = GetCommand(course.ID, 'I', s_COURSES_TABLE, s_COURSES_KEY, "", query);
                     command.ExecuteNonQuery();
 
                     WriteToLog(" -- DBH successfully created the course " + course.ID + ".");
