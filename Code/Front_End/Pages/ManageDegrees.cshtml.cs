@@ -27,7 +27,15 @@ namespace CwuAdvising.Pages
         {
             if (Program.Database.connected)
             {
-                CatalogList = Program.Database.GetAllCatalogs(true);
+                try
+                {
+                    CatalogList = Program.Database.GetAllCatalogs(true);
+                }
+                catch(Exception e)
+                {
+                    CatalogList = new List<CatalogRequirements>();
+                    DatabaseInterface.WriteToLog("GetCatalogFromDatabase threw exception: " + e.Message);
+                }
             }
             else
             {
@@ -140,28 +148,38 @@ namespace CwuAdvising.Pages
         /// <summary>Loads the master catalog list into a list of DegreeModels</summary>
         public static void LoadDegreeModelList()
         {
-            GetCatalogFromDatabase();
-            ModelList = new List<DegreeModel>();
-            foreach (CatalogRequirements catalog in CatalogList)
+            try
             {
-                foreach (DegreeRequirements requirement in catalog.DegreeRequirements)
+                GetCatalogFromDatabase();
+                ModelList = new List<DegreeModel>();
+                foreach (CatalogRequirements catalog in CatalogList)
                 {
-                    ModelList.Add(RequirementsToDegreeModel(catalog.ID, requirement));
+                    foreach (DegreeRequirements requirement in catalog.DegreeRequirements)
+                    {
+                        ModelList.Add(RequirementsToDegreeModel(catalog.ID, requirement));
+                    }
                 }
             }
+            catch(Exception e)
+            {
+                DatabaseInterface.WriteToLog("LoadDegreeModelList threw exception: " + e.Message);
+            }
+
         }
 
         /// <summary>Parses the degree list</summary>
         /// <returns>DegreeModel list as a JSON string</returns>
         public static string ReadModel()
         {
-            if(ModelList != null)
+            try
             {
-                return JsonConvert.SerializeObject(ModelList);
+                string Json = JsonConvert.SerializeObject(ModelList);
+                return Json;
             }
-            else
+            catch(Exception e)
             {
-                return "";
+                DatabaseInterface.WriteToLog("ReadModel threw exception: " + e.Message);
+                return JsonConvert.SerializeObject(new List<DegreeModel>());
             }
         }
 
@@ -197,9 +215,9 @@ namespace CwuAdvising.Pages
                     }
                 }
             }
-            catch(ArgumentNullException)
+            catch(Exception e)
             {
-                
+                DatabaseInterface.WriteToLog("WriteDatabaseDegree threw exception: " + e.Message);
             }
 
             // Create a new CatalogRequirement with updated DegreeRequirements
@@ -224,11 +242,7 @@ namespace CwuAdvising.Pages
                     if (requestBody.Length > 0)
                     {
                         var ModifiedDegree = JsonConvert.DeserializeObject<DegreeModel>(requestBody);
-                        
-
                         bool DatabaseUpdated = WriteDatabaseDegree(ModifiedDegree);
-
-                        
                         return new JsonResult(DatabaseUpdated);
                     }
                     else
@@ -239,6 +253,7 @@ namespace CwuAdvising.Pages
             }
             catch(Exception e)
             {
+                DatabaseInterface.WriteToLog("OnPostSendDegree threw exception: " + e.Message);
                 return new JsonResult(e.Message);
             }
         }

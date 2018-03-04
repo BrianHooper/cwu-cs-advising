@@ -38,21 +38,20 @@ namespace CwuAdvising.Pages
         {
 
             List<DegreePair> DegreeList = new List<DegreePair>();
-            ManageDegreesModel.LoadDegreeModelList();
             try
             {
+                ManageDegreesModel.LoadDegreeModelList();
                 foreach (DegreeModel model in ManageDegreesModel.ModelList)
                 {
                     DegreePair Pair = new DegreePair(model.name, model.year);
                     DegreeList.Add(Pair);
                 }
-
-                return JsonConvert.SerializeObject(DegreeList);
             }
-            catch(NullReferenceException e)
+            catch(Exception e)
             {
-                return JsonConvert.SerializeObject(new List<DegreePair>());
+                DatabaseInterface.WriteToLog("GetDegrees exception: " + e.Message);
             }
+            return JsonConvert.SerializeObject(DegreeList);
         }
 
 

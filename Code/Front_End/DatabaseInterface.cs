@@ -46,21 +46,19 @@ namespace CwuAdvising
                 catch (IniParser.Exceptions.ParsingException e)
                 {
                     Program.DbError = "ParsingException";
-                    Console.Write("Error reading configuration file. Msg: {0}", e.Message);
+                    WriteToLog("Error reading configuration file. Msg: {0} " + e.Message);
                 }
                 catch (ArgumentNullException e)
                 {
-                    Program.DbError = "ArgumentNullException";
-                    Console.Write(e);
+                    WriteToLog("DatabaseInterface constructor threw exception: " + e.Message);
                 }
                 catch (ArgumentOutOfRangeException e)
                 {
-                    Program.DbError = "ArgumentOutOfRangeException";
-                    Console.Write(e);
+                    WriteToLog("DatabaseInterface constructor threw exception: " + e.Message);
                 }
                 catch(Exception e)
                 {
-                    Program.DbError = e.Message;
+                    WriteToLog("DatabaseInterface constructor threw exception: " + e.Message);
                 }
             }
             
@@ -84,10 +82,10 @@ namespace CwuAdvising
 
             if (cmd.OperandType == OperandType.Course)
             {
-                File.AppendAllText("wwwroot/log.txt", "SendCommand: Course Department: " + ((Course)cmd.Operand).Department + "\n");
+                WriteToLog("SendCommand: Course Department: " + ((Course)cmd.Operand).Department);
                 foreach(Course prereq in ((Course)cmd.Operand).PreRequisites)
                 {
-                    File.AppendAllText("wwwroot/log.txt", "SendCommand: Course Prereq: " + prereq + "\n");
+                    WriteToLog("SendCommand: Course Prereq: " + prereq);
                 }
             }
 
@@ -102,9 +100,7 @@ namespace CwuAdvising
             } // end try
             catch(Exception e)
             {
-
-                File.AppendAllText("wwwroot/log.txt", "SendCommand error: " + e.Message + "\n");
-                Console.Write("Error sending database command to Database. Msg: {0}", e.Message);
+                WriteToLog("Error sending database command to Database. Msg: {0} " + e.Message);
             } // end catch
 
             memoryStream.Dispose();
@@ -158,7 +154,7 @@ namespace CwuAdvising
             } // end if
             else
             {
-                Console.WriteLine(retCmd.ErrorMessage);
+                WriteToLog("DatabaseInterface.Login returned error code: " + retCmd.ErrorMessage);
                 return false;
             } // end else
         } // end method 
@@ -181,7 +177,7 @@ namespace CwuAdvising
             } // end if
             else
             {
-                Program.DbError = dbCommand.ErrorMessage;
+                WriteToLog("DatabaseInterface.GetAllCourses returned error code: " + dbCommand.ErrorMessage);
                 return new List<Course>();
             } // end else
         } // end method GetAllCourses
@@ -202,7 +198,7 @@ namespace CwuAdvising
             } // end if
             else
             {
-                Program.DbError = dbCommand.ErrorMessage;
+                WriteToLog("GetAllCatalogs returned error code: " + dbCommand.ErrorMessage);
                 return new List<CatalogRequirements>();
             } // end else
         } // end method GetAllCatalogs
@@ -223,7 +219,7 @@ namespace CwuAdvising
             } // end if
             else
             {
-                Program.DbError = dbCommand.ErrorMessage;
+                WriteToLog("DatabaseInterface.GetAllUsers returned error code: " + dbCommand.ErrorMessage);
                 return new List<Credentials>();
             } // end else
         } // end method GetAllUsers
@@ -248,7 +244,7 @@ namespace CwuAdvising
             } // end if
             else
             {
-                Console.WriteLine(retCmd.ErrorMessage);
+                WriteToLog("DatabaseInterface.RetrieveRecord returned error code: " + retCmd.ErrorMessage);
                 return null;
             } // end else
         } // end method RetrieveRecord
@@ -270,7 +266,7 @@ namespace CwuAdvising
             } // end if
             else
             {
-                Console.WriteLine(retCmd.ErrorMessage);
+                WriteToLog("DatabaseInterface.RetrieveRecord returned error code: " + retCmd.ErrorMessage);
                 return new Credentials();
             } // end else
         } // end method RetrieveRecord
@@ -292,7 +288,7 @@ namespace CwuAdvising
             } // end if
             else
             {
-                Console.WriteLine(retCmd.ErrorMessage);
+                WriteToLog("DatabaseInterface.RetrieveRecord returned error code: " + retCmd.ErrorMessage);
                 return new PlanInfo();
             } // end else
         } // end method RetrieveRecord
@@ -314,7 +310,7 @@ namespace CwuAdvising
             } // end if
             else
             {
-                System.IO.File.AppendAllText("wwwroot/log.txt", retCmd.ErrorMessage);
+                WriteToLog("DatabaseInterface.RetrieveSalt returned error code: " + retCmd.ErrorMessage);
                 return new Credentials();
             } // end else
         } // end method RetrieveSalt
@@ -326,10 +322,10 @@ namespace CwuAdvising
         /// <param name="ot_type">Type of object in arg1.</param>
         public bool UpdateRecord(Database_Object dbo, OperandType ot_type)
         {
-            File.AppendAllText("wwwroot/log.txt", "UpdateRecord: \n----\n" + dbo + "\n----\n");
+            WriteToLog("UpdateRecord: \n" + dbo);
             if(ot_type == OperandType.Course)
             {
-                File.AppendAllText("wwwroot/log.txt", "UpdateRecord: Course Department: " + ((Course) dbo).Department + "\n");
+                WriteToLog("UpdateRecord: Course Department: " + ((Course) dbo).Department);
             }
             DatabaseCommand cmd = new DatabaseCommand(CommandType.Update, dbo, ot_type);
 
@@ -343,7 +339,7 @@ namespace CwuAdvising
             } // end if
             else
             {
-                System.IO.File.AppendAllText("wwwroot/log.txt", "UpdateRecord invoked catch:" + retCmd.ErrorMessage + "\n");
+                WriteToLog("UpdateRecord invoked catch:" + retCmd.ErrorMessage);
                 Pages.ManageCoursesModel.ErrorMessage = retCmd.ErrorMessage;
                 return false;
             } // end else
@@ -367,7 +363,7 @@ namespace CwuAdvising
             } // end if
             else
             {
-                Console.WriteLine(retCmd.ErrorMessage);
+                WriteToLog("DatabaseInterface.UpdateRecord returned error code: " + retCmd.ErrorMessage);
                 return false;
             } // end else
         } // end method UpdateRecord
@@ -390,7 +386,7 @@ namespace CwuAdvising
             } // end if
             else
             {
-                Console.WriteLine(retCmd.ErrorMessage);
+                WriteToLog("DatabaseInterface.UpdateRecord returned error code: " + retCmd.ErrorMessage);
                 return false;
             } // end else
         } // end method UpdateRecord
@@ -413,7 +409,7 @@ namespace CwuAdvising
             } // end if
             else
             {
-                Console.WriteLine(retCmd.ErrorMessage);
+                WriteToLog("DatabaseInterface.UpdatePassword returned error code: " + retCmd.ErrorMessage);
                 return false;
             } // end else
         } // end method UpdatePassword
@@ -437,7 +433,7 @@ namespace CwuAdvising
             } // end if
             else
             {
-                Pages.ManageCoursesModel.ErrorMessage = retCmd.ErrorMessage;
+                WriteToLog("DatabaseInterface.DeleteRecord returned error code: " + retCmd.ErrorMessage);
                 return false;
             } // end else
         } // end method DeleteRecord
@@ -460,7 +456,7 @@ namespace CwuAdvising
             } // end if
             else
             {
-                Console.WriteLine(retCmd.ErrorMessage);
+                WriteToLog("DatabaseInterface.DeleteRecord returned error code: " + retCmd.ErrorMessage);
                 return false;
             } // end else
         } // end method DeleteRecord
@@ -483,9 +479,16 @@ namespace CwuAdvising
             } // end if
             else
             {
-                Console.WriteLine(retCmd.ErrorMessage);
+                WriteToLog("DatabaseInterface.DeleteRecord returned error code: " + retCmd.ErrorMessage);
                 return false;
             } // end else
         } // end method DeleteRecord
+
+        /// <summary>Writes to log file</summary>
+        /// <param name="message">The error message to write</param>
+        public static void WriteToLog(string message)
+        {
+            System.IO.File.AppendAllText("wwwroot/log.txt", DateTime.Now.ToLongTimeString() + message + "\n");
+        }
     } // end Class DatabaseInterface
 } // end Namespace CwuAdvising
