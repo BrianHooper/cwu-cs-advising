@@ -2109,7 +2109,7 @@ namespace Database_Handler
                     // UPDATE `test_db`.`courses` SET `course_id`='CS123', `WP`='2', `course_name`='Introas To CS', `offered_winter`='1', 
                     //'offered_spring`='1', `offered_summer`='1', `offered_fall`='1', `num_credits`='2', `department`='as', `num_pre_requs`='4' WHERE `course_id`='CS110';
 
-                    string query = "UPDATE " + s_MYSQL_DB_NAME + "." + s_COURSES_TABLE + " SET WP = " + ui_WP.ToString() + ", course_name = " + course.Name + ", ";
+                    string query = "UPDATE " + s_MYSQL_DB_NAME + "." + s_COURSES_TABLE + " SET WP = " + ui_WP.ToString() + ", course_name = \"" + course.Name + "\", ";
                     query += "offered_winter = " + course.QuartersOffered[0].ToString() + ", offered_spring = " + course.QuartersOffered[1].ToString() + ", offered_summer = ";
                     query += course.QuartersOffered[2].ToString() + ", offered_fall = " + course.QuartersOffered[3].ToString() + ", num_credits = " + course.Credits.ToString();
                     query += ", department = \"" + course.Department + "\", num_pre_requs = " + course.ShallowPreRequisites.Count;
@@ -2119,7 +2119,7 @@ namespace Database_Handler
 
                     foreach (string s in course.ShallowPreRequisites)
                     {
-                        query += ", pre_requ_" + i.ToString() + " = " + s;
+                        query += ", pre_requ_" + i.ToString() + " = \"" + s + "\"";
                         i++;
                     } // end foreach
 
@@ -2216,11 +2216,11 @@ namespace Database_Handler
 
                     foreach (DegreeRequirements d in catalog.DegreeRequirements)
                     {
-                        query += ", degree_" + i.ToString() + " = " + catalog.ID + "_" + d.ID;
+                        query += ", degree_" + i.ToString() + " = \"" + catalog.ID + "_" + d.ID + "\"";
                         i++;
                     } // end foreach
 
-                    query += " WHERE "+ s_CATALOGS_KEY + " = " + catalog.ID + ";";
+                    query += " WHERE "+ s_CATALOGS_KEY + " = \"" + catalog.ID + "\";";
 
                     MySqlCommand temp = new MySqlCommand(query, DB_CONNECTION);
 
@@ -2340,17 +2340,17 @@ namespace Database_Handler
                     // UPDATE `test_db`.`courses` SET `course_id`='CS123', `WP`='2', `course_name`='Introas To CS', `offered_winter`='1', 
                     //'offered_spring`='1', `offered_summer`='1', `offered_fall`='1', `num_credits`='2', `department`='as', `num_pre_requs`='4' WHERE `course_id`='CS110';
 
-                    string query = "UPDATE " + s_MYSQL_DB_NAME + "." + s_DEGREES_TABLE + " SET degree_name = " + degree.Name + ", department = " + degree.Department + ", num_requ = " + degree.ShallowRequirements.Count.ToString();
+                    string query = "UPDATE " + s_MYSQL_DB_NAME + "." + s_DEGREES_TABLE + " SET degree_name = \"" + degree.Name + "\", department = \"" + degree.Department + "\", num_requ = " + degree.ShallowRequirements.Count.ToString();
 
                     int i = 0;
 
                     foreach (string s in degree.ShallowRequirements)
                     {
-                        query += ", course_" + i.ToString() + " = " + s;
+                        query += ", course_" + i.ToString() + " = \"" + s + "\"";
                         i++;
                     } // end foreach
 
-                    query += " WHERE " + s_DEGREES_KEY + " = " + catalog.ID + "_" + degree.ID + ";";
+                    query += " WHERE " + s_DEGREES_KEY + " = \"" + catalog.ID + "_" + degree.ID + "\";";
 
                     MySqlCommand temp = new MySqlCommand(query, DB_CONNECTION);
 
@@ -2894,7 +2894,7 @@ namespace Database_Handler
 
             foreach (DegreeRequirements d in catalog.DegreeRequirements)
             {
-                s_values += ", " + catalog.ID + "_" + d.ID;
+                s_values += ", \"" + catalog.ID + "_" + d.ID + "\"";
             } // end foreach
 
             return s_values;
@@ -2903,11 +2903,11 @@ namespace Database_Handler
 
         private string GetInsertValues(CatalogRequirements catalog, DegreeRequirements degree)
         {
-            string s_values = "\"" + catalog.ID + "_" + degree.ID + "\", 1, " + degree.Name + ", " + degree.Department + ", " + degree.ShallowRequirements.Count.ToString();
+            string s_values = "\"" + catalog.ID + "_" + degree.ID + "\", 1, \"" + degree.Name + "\", \"" + degree.Department + "\", " + degree.ShallowRequirements.Count.ToString();
 
             foreach(string s in degree.ShallowRequirements)
             {
-                s_values += ", " + s;
+                s_values += ", \"" + s + "\"";
             } // emd foreach
 
             return s_values;
@@ -2959,11 +2959,11 @@ namespace Database_Handler
                 query += "\"";
                 query += s_newValue;
                 query += "\"";
-            }
+            } // end if
             else
             {
                 query += s_newValue;
-            }
+            } // end else
             query += " WHERE ";
             query += s_keyType;
             query += "= \"";
