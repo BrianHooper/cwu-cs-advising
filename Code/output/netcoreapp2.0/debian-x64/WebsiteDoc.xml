@@ -103,6 +103,10 @@
             <returns><c>true</c>, if record was deleted, <c>false</c> otherwise.</returns>
             <param name="info">The object to delete.</param>
         </member>
+        <member name="M:CwuAdvising.DatabaseInterface.WriteToLog(System.String)">
+            <summary>Writes to log file</summary>
+            <param name="message">The error message to write</param>
+        </member>
         <member name="T:CwuAdvising.DatabaseObjects">
             <summary>Class for storing frequently accessed database objects in memory</summary>
         </member>

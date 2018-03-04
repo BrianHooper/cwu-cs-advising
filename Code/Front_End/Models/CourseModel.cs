@@ -86,9 +86,7 @@ namespace CwuAdvising.Models
             CourseModel model = new CourseModel();
 
             model.Credits = course.Credits.ToString();
-
-            Pages.ManageCoursesModel.ErrorMessage = course.Department;
-            model.Department = "Computer Science";//course.Department;
+            model.Department = course.Department;
 
             string offered = string.Empty;
 
@@ -113,6 +111,7 @@ namespace CwuAdvising.Models
             model.Name = course.Name;
             model.ID = course.ID;
 
+            DatabaseInterface.WriteToLog("Converting Course to CourseModel: " + course.ID + " " + model.ID + " " + course.Department + " " + model.Department);
             return model;
         }// end explicit cast operator
     }

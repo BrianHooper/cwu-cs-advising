@@ -39,6 +39,9 @@
         <member name="F:Database_Object_Classes.Course.s_name">
             <summary>Name of this course.</summary>
         </member>
+        <member name="F:Database_Object_Classes.Course.s_department">
+            <summary>The deparment this course belongs to.</summary>
+        </member>
         <member name="F:Database_Object_Classes.Course.l_preRequisites">
             <summary>Prerequisites for this course (complete).</summary>
         </member>
@@ -148,12 +151,6 @@
         </member>
         <member name="P:Database_Object_Classes.Course.Credits">
             <summary>Getter/Setter for the number of credits of this course.</summary>
-        </member>
-        <member name="P:Database_Object_Classes.Course.Weight">
-            <summary>Getter for the weight of this course.</summary>
-        </member>
-        <member name="P:Database_Object_Classes.Course.Value">
-            <summary>Getter for the value of this course.</summary>
         </member>
         <member name="P:Database_Object_Classes.Course.IsShallow">
             <summary>Getter for whether this is a shallow course object.</summary>
