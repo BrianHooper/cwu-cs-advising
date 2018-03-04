@@ -544,7 +544,7 @@ namespace Database_Handler
             PlanInfo plan;
             int i_code = -2;
             string s_msg = "Update failed";
-
+            GetColumnCounts();
             try
             {
                 switch (cmd.OperandType)
@@ -870,7 +870,7 @@ namespace Database_Handler
                     } // end for
 
                     Course temp = new Course(s_courseName, s_courseID, ui_credits, false, ba_offered, ls_preRequs);
-
+                    temp.Department = s_department;
                     temp.WP = ui_WP;
 
                     WriteToLog(" -- DBH the write protect value being sent is: " + temp.WP);
@@ -3173,6 +3173,7 @@ namespace Database_Handler
         /// <returns>True if successful, otherwise false.</returns>
         private bool AddColumns(int k, string s_table, string name)
         {
+            
             // Variables:
             MySqlCommand cmd = new MySqlCommand
             {
@@ -3223,6 +3224,8 @@ namespace Database_Handler
                 WriteToLog(" -- DBH add columns failed. " + (i - 1).ToString() + " columns were successfully added before failing.");
                 output = false;
             } // end catch
+
+            
 
             return output;
         } // end method AddColumns

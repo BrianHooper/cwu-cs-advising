@@ -194,6 +194,7 @@ namespace CwuAdvising
 
             if (dbCommand.ReturnCode == 0 && dbCommand.CommandType == CommandType.Return)
             {
+                WriteToLog("GetAllCatalogs success, loaded " + dbCommand.CatalogList.Count + " catalogs");
                 return dbCommand.CatalogList;
             } // end if
             else
@@ -240,6 +241,7 @@ namespace CwuAdvising
 
             if (retCmd.CommandType == CommandType.Return && retCmd.ReturnCode == 0)
             {
+                WriteToLog("DatabaseInterface.RetrieveRecord success, retrieved " + retCmd.Operand);
                 return (Database_Object)retCmd.Operand;
             } // end if
             else

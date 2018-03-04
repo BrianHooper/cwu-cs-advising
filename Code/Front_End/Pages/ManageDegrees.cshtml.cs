@@ -29,6 +29,7 @@ namespace CwuAdvising.Pages
             {
                 try
                 {
+                    CatalogList = new List<CatalogRequirements>();
                     CatalogList = Program.Database.GetAllCatalogs(true);
                     DatabaseInterface.WriteToLog("GetCatalogFromDatabase loaded: " + CatalogList.Count + " Catalogs");
                     foreach(CatalogRequirements catalog in CatalogList)
