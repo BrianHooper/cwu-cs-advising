@@ -23,7 +23,12 @@ namespace CwuAdvising
             List<Course> CourseList = new List<Course>();
             if (Program.Database.connected)
             {
+                DatabaseInterface.WriteToLog("Attempting to load all courses from database.");
                 CourseList = Program.Database.GetAllCourses(shallow);
+                foreach(Course course in CourseList)
+                {
+                    DatabaseInterface.WriteToLog("Loaded: " + course.ID + " in " + course.Department);
+                }
             }
             else
             {

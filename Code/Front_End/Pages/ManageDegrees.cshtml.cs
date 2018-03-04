@@ -30,6 +30,15 @@ namespace CwuAdvising.Pages
                 try
                 {
                     CatalogList = Program.Database.GetAllCatalogs(true);
+                    DatabaseInterface.WriteToLog("GetCatalogFromDatabase loaded: " + CatalogList.Count + " Catalogs");
+                    foreach(CatalogRequirements catalog in CatalogList)
+                    {
+                        DatabaseInterface.WriteToLog("GetCatalogFromDatabase loaded: " + catalog.ID + " with " + catalog.DegreeRequirements.Count + " degrees");
+                        foreach(DegreeRequirements degree in catalog.DegreeRequirements)
+                        {
+                            DatabaseInterface.WriteToLog("GetCatalogFromDatabase loaded: " + degree.ID + " from " + catalog.ID);
+                        }
+                    }
                 }
                 catch(Exception e)
                 {
@@ -159,6 +168,7 @@ namespace CwuAdvising.Pages
                         ModelList.Add(RequirementsToDegreeModel(catalog.ID, requirement));
                     }
                 }
+                DatabaseInterface.WriteToLog("LoadDegreeModelList loaded " + ModelList.Count + " Degree models");
             }
             catch(Exception e)
             {
@@ -174,6 +184,8 @@ namespace CwuAdvising.Pages
             try
             {
                 string Json = JsonConvert.SerializeObject(ModelList);
+                DatabaseInterface.WriteToLog("ReadModel serialized: " + ModelList.Count + " degree models");
+                DatabaseInterface.WriteToLog("Serialization: " + Json);
                 return Json;
             }
             catch(Exception e)
@@ -214,17 +226,21 @@ namespace CwuAdvising.Pages
                         }
                     }
                 }
+                // Create a new CatalogRequirement with updated DegreeRequirements
+                Catalog = new CatalogRequirements(CatalogYear, NewDegreeRequirements);
+
+                // Update the database
+                bool UpdateSuccessful = Program.Database.UpdateRecord(Catalog, Database_Handler.OperandType.CatalogRequirements);
+
+                DatabaseInterface.WriteToLog("WriteDatabaseDegree updated degree: " + Degree.ID);
+                DatabaseInterface.WriteToLog("WriteDatabaseDegree updated catalog year: " + Catalog.ID);
+                return UpdateSuccessful;
             }
             catch(Exception e)
             {
                 DatabaseInterface.WriteToLog("WriteDatabaseDegree threw exception: " + e.Message);
+                return false;
             }
-
-            // Create a new CatalogRequirement with updated DegreeRequirements
-            Catalog = new CatalogRequirements(CatalogYear, NewDegreeRequirements);
-
-            // Update the database
-            return Program.Database.UpdateRecord(Catalog, Database_Handler.OperandType.CatalogRequirements);
         }
 
         /// <summary>Retrieves a modified degree as JSON data from POST</summary>

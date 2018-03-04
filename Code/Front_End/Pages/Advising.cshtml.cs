@@ -112,10 +112,13 @@ namespace CwuAdvising.Pages
                 try
                 {
                     Student template = new Student(Name.DefaultName, ID, Quarter.DefaultQuarter);
+                    DatabaseInterface.WriteToLog("Attempting to retrieve student " + ID);
                     Student dbstudent = (Student)Program.Database.RetrieveRecord(template, Database_Handler.OperandType.Student);
-
+                    DatabaseInterface.WriteToLog("Retrieved student " + dbstudent.ID);
+                    DatabaseInterface.WriteToLog("Attempting to retrieve planinfo " + ID);
                     PlanInfo plantemplate = new PlanInfo(ID, 0, Quarter.DefaultQuarter.ToString(), new string[1]);
                     PlanInfo dbschedule = Program.Database.RetrieveRecord(plantemplate);
+                    DatabaseInterface.WriteToLog("Retrieved planinfo " + dbschedule.StudentID);
                     CurrentSchedule = dbschedule.Classes[0];
 
                     ScheduleModel currentScheduleModel = JsonConvert.DeserializeObject<ScheduleModel>(CurrentSchedule);
@@ -127,8 +130,9 @@ namespace CwuAdvising.Pages
                         dbstudent.StartingQuarter.Year.ToString(),
                         currentScheduleModel.Name,
                         currentScheduleModel.AcademicYear);
-                } catch(Exception)
+                } catch(Exception e)
                 {
+                    DatabaseInterface.WriteToLog("LoadStudent threw exception " + e.Message + " when trying to load student " + ID);
                     return false;
                 }
                 
@@ -136,6 +140,18 @@ namespace CwuAdvising.Pages
 
             // For testing 
             return true;
+        }
+
+        public static void CreateTestStudent()
+        {
+            Name name = new Name("James", "Bond");
+            Quarter quarter = new Quarter(2018, Season.Fall);
+            Student student = new Student(name, "007", quarter);
+            Program.Database.UpdateRecord(student, Database_Handler.OperandType.Student);
+
+            string[] gradplan = { System.IO.File.ReadAllText("wwwroot/EmptyPlan.json") };
+            PlanInfo plan = new PlanInfo("007", 0, quarter.ToString(), gradplan);
+            Program.Database.UpdateRecord(plan);
         }
 
         /// <summary>Create a new student</summary>

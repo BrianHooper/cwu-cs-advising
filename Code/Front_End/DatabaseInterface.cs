@@ -327,6 +327,14 @@ namespace CwuAdvising
             {
                 WriteToLog("UpdateRecord: Course Department: " + ((Course) dbo).Department);
             }
+            else if(ot_type == OperandType.CatalogRequirements)
+            {
+                WriteToLog("UpdateRecord: CatalogRequirements " + ((CatalogRequirements)dbo).ID);
+                foreach(DegreeRequirements degree in ((CatalogRequirements)dbo).DegreeRequirements)
+                {
+                    WriteToLog("UpdateRecord: DegreeRequirements " + degree.ID);
+                }
+            }
             DatabaseCommand cmd = new DatabaseCommand(CommandType.Update, dbo, ot_type);
 
             SendCommand(cmd);
@@ -335,6 +343,7 @@ namespace CwuAdvising
 
             if(retCmd.CommandType == CommandType.Return && retCmd.ReturnCode == 0)
             {
+                WriteToLog("UpdateRecord: return successful ");
                 return true;
             } // end if
             else
@@ -488,7 +497,7 @@ namespace CwuAdvising
         /// <param name="message">The error message to write</param>
         public static void WriteToLog(string message)
         {
-            System.IO.File.AppendAllText("wwwroot/log.txt", DateTime.Now.ToLongTimeString() + message + "\n");
+            System.IO.File.AppendAllText("wwwroot/log.txt", DateTime.Now.ToLongTimeString() + "   --   " + message + "\n");
         }
     } // end Class DatabaseInterface
 } // end Namespace CwuAdvising

@@ -44,6 +44,7 @@ namespace CwuAdvising.Pages
                 foreach (DegreeModel model in ManageDegreesModel.ModelList)
                 {
                     DegreePair Pair = new DegreePair(model.name, model.year);
+                    DatabaseInterface.WriteToLog("GetDegrees loaded: " + model.year + " " + model.name);
                     DegreeList.Add(Pair);
                 }
             }
