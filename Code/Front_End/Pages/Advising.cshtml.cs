@@ -109,22 +109,29 @@ namespace CwuAdvising.Pages
             }
             else
             {
-                Student template = new Student(Name.DefaultName, ID, Quarter.DefaultQuarter);
-                Student dbstudent = (Student)Program.Database.RetrieveRecord(template, Database_Handler.OperandType.Student);
+                try
+                {
+                    Student template = new Student(Name.DefaultName, ID, Quarter.DefaultQuarter);
+                    Student dbstudent = (Student)Program.Database.RetrieveRecord(template, Database_Handler.OperandType.Student);
 
-                PlanInfo plantemplate = new PlanInfo(ID, 0, Quarter.DefaultQuarter.ToString(), new string[1]);
-                PlanInfo dbschedule = Program.Database.RetrieveRecord(plantemplate);
-                CurrentSchedule = dbschedule.Classes[0];
+                    PlanInfo plantemplate = new PlanInfo(ID, 0, Quarter.DefaultQuarter.ToString(), new string[1]);
+                    PlanInfo dbschedule = Program.Database.RetrieveRecord(plantemplate);
+                    CurrentSchedule = dbschedule.Classes[0];
 
-                ScheduleModel currentScheduleModel = JsonConvert.DeserializeObject<ScheduleModel>(CurrentSchedule);
+                    ScheduleModel currentScheduleModel = JsonConvert.DeserializeObject<ScheduleModel>(CurrentSchedule);
 
-                CurrentStudent = new StudentModel(
-                    dbstudent.Name.ToString(), 
-                    dbstudent.ID, 
-                    dbstudent.StartingQuarter.QuarterSeason.ToString(), 
-                    dbstudent.StartingQuarter.Year.ToString(),
-                    currentScheduleModel.Name, 
-                    currentScheduleModel.AcademicYear);
+                    CurrentStudent = new StudentModel(
+                        dbstudent.Name.ToString(),
+                        dbstudent.ID,
+                        dbstudent.StartingQuarter.QuarterSeason.ToString(),
+                        dbstudent.StartingQuarter.Year.ToString(),
+                        currentScheduleModel.Name,
+                        currentScheduleModel.AcademicYear);
+                } catch(Exception)
+                {
+                    return false;
+                }
+                
             }
 
             // For testing 

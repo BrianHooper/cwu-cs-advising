@@ -39,13 +39,20 @@ namespace CwuAdvising.Pages
 
             List<DegreePair> DegreeList = new List<DegreePair>();
             ManageDegreesModel.LoadDegreeModelList();
-            foreach (DegreeModel model in ManageDegreesModel.ModelList)
+            try
             {
-                DegreePair Pair = new DegreePair(model.name, model.year);
-                DegreeList.Add(Pair);
-            }
+                foreach (DegreeModel model in ManageDegreesModel.ModelList)
+                {
+                    DegreePair Pair = new DegreePair(model.name, model.year);
+                    DegreeList.Add(Pair);
+                }
 
-            return JsonConvert.SerializeObject(DegreeList);
+                return JsonConvert.SerializeObject(DegreeList);
+            }
+            catch(NullReferenceException e)
+            {
+                return JsonConvert.SerializeObject(new List<DegreePair>());
+            }
         }
 
 
