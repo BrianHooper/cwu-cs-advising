@@ -199,7 +199,7 @@ namespace CwuAdvising.Pages
                 }
             } catch(Exception e)
             {
-                System.IO.File.AppendAllText("wwwroot/log.txt", e.Message);
+                System.IO.File.AppendAllText("wwwroot/log.txt", DateTime.Now.ToLongTimeString() + " POST SendCourses caught exception: " + e.Message + "\n");
                 return new JsonResult(e.Message);
             }
             

@@ -82,6 +82,11 @@ namespace CwuAdvising
 
             BinaryFormatter binaryFormatter = new BinaryFormatter();
 
+            if (cmd.OperandType == OperandType.Course)
+            {
+                File.AppendAllText("wwwroot/log.txt", "SendCommand: Course Department: " + ((Course)cmd.Operand).Department + "\n");
+            }
+
             try
             {
                 binaryFormatter.Serialize(memoryStream, cmd);
@@ -93,6 +98,8 @@ namespace CwuAdvising
             } // end try
             catch(Exception e)
             {
+
+                File.AppendAllText("wwwroot/log.txt", "SendCommand error: " + e.Message + "\n");
                 Console.Write("Error sending database command to Database. Msg: {0}", e.Message);
             } // end catch
 
@@ -316,6 +323,10 @@ namespace CwuAdvising
         public bool UpdateRecord(Database_Object dbo, OperandType ot_type)
         {
             File.AppendAllText("wwwroot/log.txt", "UpdateRecord: \n----\n" + dbo + "\n----\n");
+            if(ot_type == OperandType.Course)
+            {
+                File.AppendAllText("wwwroot/log.txt", "UpdateRecord: Course Department: " + ((Course) dbo).Department + "\n");
+            }
             DatabaseCommand cmd = new DatabaseCommand(CommandType.Update, dbo, ot_type);
 
             SendCommand(cmd);
