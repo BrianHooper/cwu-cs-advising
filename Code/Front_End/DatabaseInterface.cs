@@ -315,6 +315,7 @@ namespace CwuAdvising
         /// <param name="ot_type">Type of object in arg1.</param>
         public bool UpdateRecord(Database_Object dbo, OperandType ot_type)
         {
+            File.AppendAllText("wwwroot/log.txt", "UpdateRecord: \n----\n" + dbo + "\n----\n");
             DatabaseCommand cmd = new DatabaseCommand(CommandType.Update, dbo, ot_type);
 
             SendCommand(cmd);
@@ -327,7 +328,7 @@ namespace CwuAdvising
             } // end if
             else
             {
-                System.IO.File.AppendAllText("wwwroot/log.txt", retCmd.ErrorMessage);
+                System.IO.File.AppendAllText("wwwroot/log.txt", "UpdateRecord invoked catch:" + retCmd.ErrorMessage + "\n");
                 Pages.ManageCoursesModel.ErrorMessage = retCmd.ErrorMessage;
                 return false;
             } // end else

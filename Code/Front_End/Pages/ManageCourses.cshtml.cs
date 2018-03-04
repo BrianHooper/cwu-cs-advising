@@ -215,7 +215,8 @@ namespace CwuAdvising.Pages
             */
             foreach(Course c in CourseList)
             {
-                if(!Program.Database.UpdateRecord(c, Database_Handler.OperandType.Course))
+                System.IO.File.AppendAllText("wwwroot/log.txt", "UpdateDatabaseCourses ForEach: " + c.ID + "\n");
+                if (!Program.Database.UpdateRecord(c, Database_Handler.OperandType.Course))
                 {
                     return false;
                 }
