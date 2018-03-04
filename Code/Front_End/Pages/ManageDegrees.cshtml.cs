@@ -29,7 +29,10 @@ namespace CwuAdvising.Pages
             {
                 CatalogList = Program.Database.GetAllCatalogs(true);
             }
-            //TESTBuildDegreeList();
+            else
+            {
+                CatalogList = new List<CatalogRequirements>();
+            }
             return true;
         }
 

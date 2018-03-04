@@ -148,9 +148,17 @@ namespace CwuAdvising.Pages
         /// <returns>CourseModel list as serialized JSON string</returns>
         public static string CourseListAsJson()
         {
-            Program.DbObjects.GetCoursesFromDatabase(true);
-            List<CourseModel> ModelList = CourseListToCourseModelList(Program.DbObjects.MasterCourseList);
-            return JsonConvert.SerializeObject(ModelList);
+            try
+            {
+                Program.DbObjects.GetCoursesFromDatabase(true);
+                List<CourseModel> ModelList = CourseListToCourseModelList(Program.DbObjects.MasterCourseList);
+                return JsonConvert.SerializeObject(ModelList);
+            }
+            catch(Exception)
+            {
+                return JsonConvert.SerializeObject(new List<CourseModel>());
+            }
+
         }
         
         /// <summary>Retrieves a list of modified courses as JSON data from POST</summary>
