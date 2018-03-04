@@ -73,10 +73,28 @@
             width: 1in;
         }
 
+        #ErrorBox {
+            font-size: 24px;
+            color: red;
+            text-align: center;
+        }
     </style>
 
-    <script>
-        var Schedule = JSON.parse('@Html.Raw(AdvisingModel.LoadBaseCase())');
+    @{
+        Microsoft.AspNetCore.Html.IHtmlContent scheduleJson = Html.Raw("");
+        try
+        {
+            scheduleJson = Html.Raw(AdvisingModel.CurrentSchedule);
+        }
+        catch (NullReferenceException)
+        {
+
+        }
+    }
+        <script>
+
+
+        var Schedule = JSON.parse('@scheduleJson');
         $(document).ready(function () {
             for (var i = 0; i < Schedule.Quarters.length; i++) {
                 AddQuarter(Schedule.Quarters[i]);
@@ -107,23 +125,46 @@
             QuarterDiv.append(CreditsDiv);
             $("#Schedule").append(QuarterDiv);
         }
-    </script>
-</head>
+        </script>
+    </head>
 <body>
+
+    @{
+
+        var studentName = "";
+        var studentId = "";
+        var studentYear = "";
+        var studentDegree = "";
+        var errorMessage = "";
+        try
+        {
+            var schedule = AdvisingModel.CurrentSchedule;
+            studentName = AdvisingModel.CurrentStudent.Name;
+            studentId = AdvisingModel.CurrentStudent.ID;
+            studentYear = AdvisingModel.CurrentStudent.CatalogYear;
+            studentDegree = AdvisingModel.CurrentStudent.Degree;
+        }
+        catch (NullReferenceException)
+        {
+            errorMessage = "Error, schedule not found";
+        }
+    }
+
     <div id="Container">
         <div id="Title">Student Schedule</div>
+        <div id="ErrorBox">@errorMessage</div>
         <div id="Information">
             <div class="InfoBox">
                 <div class="InfoLabel">Name:</div>
-                <div>@AdvisingModel.CurrentStudent.Name</div>
+                <div>@studentName</div>
             </div>
             <div class="InfoBox">
                 <div class="InfoLabel">ID:</div>
-                <div>@AdvisingModel.CurrentStudent.ID</div>
+                <div>@studentId</div>
             </div>
             <div class="InfoBox">
                 <div class="InfoLabel">Degree:</div>
-                <div>@AdvisingModel.CurrentStudent.Year - @AdvisingModel.CurrentStudent.Degree</div>
+                <div>@studentYear - @studentDegree</div>
             </div>
         </div>
         <div id="Schedule">

@@ -121,8 +121,9 @@
             <summary>Constructor for postback from DBH; contains relevant info about execution of the command.</summary>
             <param name="code">The error code, or 0 if execution was successful.</param>
             <param name="msg">A message detailing an error, "No Errors" if no issues occurred.</param>
-            <param name="students">A list of students for the display students command.</param>
+            <param name="catalogs">A list of catalogs for the display catalogs command.</param>
             <param name="courses">A list of courses for the display courses command.</param>
+            <param name="credentials">A list of credentials for the display users command.</param>
             <remarks>This command type should not be sent to DBH, it is only intended for DBH to return information to the client.</remarks>
         </member>
         <member name="P:Database_Handler.DatabaseCommand.ReturnCode">
@@ -160,11 +161,20 @@
         <member name="F:Database_Handler.DatabaseHandler.i_HASH_ITERATIONS">
             <summary>The number of iterations for hashing the password.</summary>
         </member>
+        <member name="F:Database_Handler.DatabaseHandler.i_SALT_LENGTH">
+            <summary>The length of the salt being used for hashing user passwords.</summary>
+        </member>
         <member name="F:Database_Handler.DatabaseHandler.s_logFilePath">
             <summary>The path to the log file which will contain the log entries created by DBH.</summary>
         </member>
         <member name="F:Database_Handler.DatabaseHandler.MySqlLock">
             <summary>Mutex locks for databases.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseHandler.BUFFER_SIZE">
+            <summary>The buffer size for TCP packages.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseHandler.ui_MAX_RECURSION_DEPTH">
+            <summary>The maximum depth a recursive call my reach. At this point an exception is thrown to terminate the call.</summary>
         </member>
         <member name="F:Database_Handler.DatabaseHandler.ui_COL_COUNT">
             <summary>The number of columns in each variable length table { s_PLAN_TABLE, s_COURSES_TABLE, s_CATALOGS_TABLE, s_DEGREES_TABLE}.</summary>
@@ -183,6 +193,9 @@
         </member>
         <member name="F:Database_Handler.DatabaseHandler.clientThreads">
             <summary>List of all client threads currently running.</summary>
+        </member>
+        <member name="F:Database_Handler.DatabaseHandler.deadlocked">
+            <summary>Variable to alert the main thread that a deadlock occurred.</summary>
         </member>
         <member name="F:Database_Handler.DatabaseHandler.clients">
             <summary>List of all clients currently connected to DBH.</summary>
@@ -241,6 +254,7 @@
         </member>
         <member name="M:Database_Handler.DatabaseHandler.ExecuteDisplayCatalogsCommand(System.Boolean)">
             <summary>Executes a display catalogs command.</summary>
+            <param name="b_shallow">Whether or not to retrieve a shallow catalog object.</param>
             <returns>A return command containing a list of all catalogs in the database.</returns>
         </member>
         <member name="M:Database_Handler.DatabaseHandler.ExecuteDisplayUsersCommand">
@@ -295,11 +309,10 @@
                 at least once per two-minute period, it will kill the application.
             </summary>
         </member>
-        <member name="M:Database_Handler.DatabaseHandler.LoginAttempt(System.String,System.String,System.Boolean@)">
+        <member name="M:Database_Handler.DatabaseHandler.LoginAttempt(System.String,System.String)">
             <summary>Checks the password entered by a user against the database record.</summary>
             <param name="s_ID">The username of the person attempting to log in.</param>
             <param name="s_pw">A string containing the user's password hash.</param>
-            <param name="b_isAdmin">Return parameter, indicates whether the user is an admin or not.</param>
             <returns>True if the password entered matches the database record and out parameter b_isAdmin.</returns>
             <remarks>The parameter ss_pw will be destroyed during method execution, and can not be used afterwards.</remarks>
         </member>
@@ -307,6 +320,7 @@
             <summary>Retrieves an object from the specified database.</summary>
             <param name="s_ID">The key associated with this object.</param>
             <param name="c_type">The type of object to retrieve.</param>
+            <param name="b_shallow">Whether or not to retrieve a shallow object.</param>
             <returns>The requested object.</returns>
             <exception cref="T:Database_Handler.RetrieveError">Thrown if an invalid type is passed in arg 2.</exception>
         </member>
@@ -336,6 +350,7 @@
             <param name="ui_depth">The current depth of recursion, to prevent excessive/infinite recursion loops.</param>
             <returns>A list of DegreeRequirement structures associated with the given degree.</returns>
             <exception cref="T:System.Collections.Generic.KeyNotFoundException">Thrown if the key passed in arg 1 does not exist in the database.</exception>
+            <exception cref="T:Database_Handler.RecursionDepthException">Thrown the depth of recursion exceeds the limit as defined in <see cref="F:Database_Handler.DatabaseHandler.ui_MAX_RECURSION_DEPTH"/></exception>
         </member>
         <member name="M:Database_Handler.DatabaseHandler.RetrieveStudent(System.String)">
             <summary>Retrieves the requested student from the database.</summary>
@@ -469,6 +484,22 @@
             <param name="student">The object to extract values from.</param>
             <returns>A string which can be used for an insert query as VALUES.</returns>
         </member>
+        <member name="M:Database_Handler.DatabaseHandler.GetInsertValues(Database_Object_Classes.Course)">
+            <summary>Creates the values string for a Course object.</summary>
+            <param name="course">The new course to be added to the database.</param>
+            <returns>A string that can be used as the VALUES component of an insert query.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.GetInsertValues(Database_Object_Classes.CatalogRequirements)">
+            <summary>Creates the values string for a Catalog object.</summary>
+            <param name="catalog">The new catalog to be added to the database.</param>
+            <returns>A string that can be used as the VALUES component of an insert query.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.GetInsertValues(Database_Object_Classes.CatalogRequirements,Database_Object_Classes.DegreeRequirements)">
+            <summary>Creates the values string for a Degree object.</summary>
+            <param name="catalog">The catalog associated with this degree.</param>
+            <param name="degree">The new degree to be added to the database.</param>
+            <returns>A string that can be used as the VALUES component of an insert query.</returns>
+        </member>
         <member name="M:Database_Handler.DatabaseHandler.GetSelectQuery(System.String,System.String,System.String,System.String)">
             <summary>Creates an select query based on the input.</summary>
             <param name="s_table">The table to access.</param>
@@ -544,7 +575,20 @@
         <member name="M:Database_Handler.DatabaseHandler.AddColumns(System.Int32,System.String,System.String)">
             <summary>Adds k columns to the student_plans table and updates the master record accordingly.</summary>
             <param name="k">Number of columns to add.</param>
+            <param name="s_table">The table to add these new columns to.</param>
+            <param name="name">The name of the new columns (a number will be automatically appended to this).</param>
             <returns>True if successful, otherwise false.</returns>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.Dispose(System.Boolean)">
+            <summary>
+            Disposes this object.
+            </summary>
+            <param name="disposing">unused.</param>
+        </member>
+        <member name="M:Database_Handler.DatabaseHandler.Dispose">
+            <summary>
+            Disposes this object.
+            </summary>
         </member>
         <member name="T:Database_Handler.RecursionDepthException">
             <summary>

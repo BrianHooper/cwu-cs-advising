@@ -16,6 +16,9 @@ function RemoveStringFromArray(Array, Str) {
 /*  Returns true if the array contains an element
     matching the given string */
 function StringArrayContains(Array, Str) {
+    if (Array === false || Array === undefined) {
+        return false;
+    }
     for (var i = 0; i < Array.length; i++) {
         if (Array[i].indexOf(Str) === 0) {
             return true;
