@@ -191,6 +191,7 @@ namespace CwuAdvising.Pages
                 }
             } catch(Exception e)
             {
+                System.IO.File.AppendAllText("wwwroot/log.txt", e.Message);
                 return new JsonResult(e.Message);
             }
             

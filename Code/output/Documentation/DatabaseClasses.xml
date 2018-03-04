@@ -127,6 +127,10 @@
         <member name="P:Database_Object_Classes.Course.Department">
             <summary>Getter/Setter for the department of this course</summary>
         </member>
+        <member name="P:Database_Object_Classes.Course.WP">
+            <summary>Gets or sets the wp.</summary>
+            <value>The wp.</value>
+        </member>
         <member name="P:Database_Object_Classes.Course.PreRequisites">
             <summary>Getter for PreRequisites list of this course.</summary>
             <remarks>The returned collection will be a read-only collection, and may not be modified directly.</remarks>
@@ -221,7 +225,7 @@
             <param name="other">Object to copy.</param>
         </member>
         <member name="P:Database_Object_Classes.Database_Object.WP">
-            <summary>Getter for the write protect value of this object.</summary>
+            <summary>Getter/Setter for the write protect value of this object.</summary>
         </member>
         <member name="P:Database_Object_Classes.Database_Object.ID">
             <summary>Getter/Setter for the ID of this object. </summary>

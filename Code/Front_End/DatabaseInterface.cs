@@ -303,7 +303,7 @@ namespace CwuAdvising
             } // end if
             else
             {
-                Console.WriteLine(retCmd.ErrorMessage);
+                System.IO.File.AppendAllText("wwwroot/log.txt", retCmd.ErrorMessage);
                 return new Credentials();
             } // end else
         } // end method RetrieveSalt
@@ -327,6 +327,7 @@ namespace CwuAdvising
             } // end if
             else
             {
+                System.IO.File.AppendAllText("wwwroot/log.txt", retCmd.ErrorMessage);
                 Pages.ManageCoursesModel.ErrorMessage = retCmd.ErrorMessage;
                 return false;
             } // end else
