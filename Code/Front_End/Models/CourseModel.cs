@@ -73,7 +73,7 @@ namespace CwuAdvising.Models
             }
             else
             {
-                course.Department = "";
+                course.Department = "no department";
             }
             return course;
         } // end explicit cast operator

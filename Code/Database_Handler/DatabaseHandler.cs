@@ -2071,6 +2071,9 @@ namespace Database_Handler
         /// <returns>0 or an error code.</returns>
         private int Update(Course course)
         {
+            WriteToLog(" -- DBH update failed for course  " + course.Department);
+            WriteToLog(" -- DBH update failed for course  " + course.Department);
+            WriteToLog(" -- DBH update failed for course  " + course.Department);
             try
             {
                 MySqlCommand cmd = GetCommand(course.ID, 'S', s_COURSES_TABLE, s_COURSES_KEY, "*");
@@ -2109,7 +2112,7 @@ namespace Database_Handler
                     string query = "UPDATE " + s_MYSQL_DB_NAME + "." + s_COURSES_TABLE + " SET WP = " + ui_WP.ToString() + ", course_name = " + course.Name + ", ";
                     query += "offered_winter = " + course.QuartersOffered[0].ToString() + ", offered_spring = " + course.QuartersOffered[1].ToString() + ", offered_summer = ";
                     query += course.QuartersOffered[2].ToString() + ", offered_fall = " + course.QuartersOffered[3].ToString() + ", num_credits = " + course.Credits.ToString();
-                    query += ", department = " + course.Department + ", num_pre_requs = " + course.ShallowPreRequisites.Count;
+                    query += ", department = \"" + course.Department + "\", num_pre_requs = " + course.ShallowPreRequisites.Count;
 
 
                     int i = 0;
@@ -2120,7 +2123,7 @@ namespace Database_Handler
                         i++;
                     } // end foreach
 
-                    query += " WHERE " + s_COURSES_KEY + " = " + course.ID + ";";
+                    query += " WHERE " + s_COURSES_KEY + " = \"" + course.ID + "\";";
 
                     WriteToLog(" -- DBH sending update query: " + query);
                     WriteToLog(" -- DBH update course contents: " + course.Name + " " + course.Department + " " + course.ID + " ");

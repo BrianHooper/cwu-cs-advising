@@ -124,7 +124,7 @@ namespace CwuAdvising.Pages
                     }
                     else
                     {
-                        course.Department = "";
+                        course.Department = "no department";
                     }
 
                     foreach (string prereq in model.PreReqs)
