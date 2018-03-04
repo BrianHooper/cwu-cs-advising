@@ -2120,12 +2120,13 @@ namespace Database_Handler
                         i++;
                     } // end foreach
 
-                    query += " WHERE " + s_COURSES_KEY + " = " + course.ID;
+                    query += " WHERE " + s_COURSES_KEY + " = " + course.ID + ";";
 
                     WriteToLog(" -- DBH sending update query: " + query);
                     WriteToLog(" -- DBH update course contents: " + course.Name + " " + course.Department + " " + course.ID + " ");
 
                     MySqlCommand temp = new MySqlCommand(query, DB_CONNECTION);
+                    temp.ExecuteNonQuery();
 
                     WriteToLog(" -- DBH successfully updated the course " + course.ID + ".");
                 } // end if
@@ -2216,7 +2217,7 @@ namespace Database_Handler
                         i++;
                     } // end foreach
 
-                    query += " WHERE "+ s_CATALOGS_KEY + " = " + catalog.ID;
+                    query += " WHERE "+ s_CATALOGS_KEY + " = " + catalog.ID + ";";
 
                     MySqlCommand temp = new MySqlCommand(query, DB_CONNECTION);
 
@@ -2346,7 +2347,7 @@ namespace Database_Handler
                         i++;
                     } // end foreach
 
-                    query += " WHERE " + s_DEGREES_KEY + " = " + catalog.ID + "_" + degree.ID;
+                    query += " WHERE " + s_DEGREES_KEY + " = " + catalog.ID + "_" + degree.ID + ";";
 
                     MySqlCommand temp = new MySqlCommand(query, DB_CONNECTION);
 
