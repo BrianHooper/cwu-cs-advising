@@ -142,6 +142,8 @@ namespace Database_Object_Classes
             s_name = string.Copy(c_other.s_name);
             ui_numberCredits = c_other.ui_numberCredits;
             b_requiresMajor = c_other.b_requiresMajor;
+            Department = string.Copy(c_other.Department);
+            b_isShallow = c_other.b_isShallow;
 
             ba_quartersOffered = new bool[ui_NUMBERQUARTERS];
 
