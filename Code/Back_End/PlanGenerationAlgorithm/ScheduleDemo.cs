@@ -43,7 +43,14 @@ namespace PlanGenerationAlgorithm
             CS470Prereqs.Add(Requirements[0]);
             CS470Prereqs.Add(Requirements[1]);
             Requirements.Add(new Course("Operationg Systems", "CS470", 4, true, new bool[] { true, true, false, true }, CS470Prereqs));
-
+            Course gened5 = new Course("gened1", "111", 5, true, new bool[] { true, true, false, true }, CS311Prereqs);
+            Course gened2 = new Course("gened2", "US Cultures", 5, true, new bool[] { true, true, false, true }, CS311Prereqs);
+            Course gened3 = new Course("gened3", "Philosophies", 4, true, new bool[] { true, true, false, true }, CS311Prereqs);
+            Course gened4 = new Course("gened4", "Aesthetic", 5, true, new bool[] { true, true, false, true }, CS311Prereqs);
+            //Requirements.Add(gened5);
+            //Requirements.Add(gened2);
+            //Requirements.Add(gened3);
+            //Requirements.Add(gened4);
             // Write the requirements list to the console
             Console.WriteLine("Course Requirements:");
             foreach (Course c in Requirements)
@@ -58,7 +65,10 @@ namespace PlanGenerationAlgorithm
 
             // Create an empty Schedule starting Fall 2018
             Schedule StudentSchedule = new Schedule(new Quarter(2018, Season.Fall));
-
+            //StudentSchedule.AddCourse(gened5);
+            //StudentSchedule.AddCourse(gened2);
+            //StudentSchedule.AddCourse(gened4);
+            //StudentSchedule.AddCourse(gened3);
             // Run the algorithm
             Schedule GeneratedSchedule = Algorithm.Generate(Requirements, StudentSchedule, 10, 18, true);
 
@@ -87,7 +97,14 @@ namespace PlanGenerationAlgorithm
             Requirements.Add(new Course("Software Engineering", "CS480", 4, true, new bool[] { true, true, false, true }, PreReqs));
             Requirements.Add(new Course("Introduction to UNIX", "CS370", 4, true, new bool[] { true, true, false, true }, PreReqs));
             Requirements.Add(new Course("Programming Languages", "CS361", 4, true, new bool[] { true, true, false, true }, PreReqs));
-
+            Course gened5 = new Course("gened1", "111", 5, true, new bool[] { true, true, false, true }, PreReqs);
+            Course gened2 = new Course("gened2", "US Cultures", 5, true, new bool[] { true, true, false, true }, PreReqs);
+            Course gened3 = new Course("gened3", "Philosophies", 4, true, new bool[] { true, true, false, true }, PreReqs);
+            Course gened4 = new Course("gened4", "Aesthetic", 5, true, new bool[] { true, true, false, true }, PreReqs);
+            Requirements.Add(gened5);
+            Requirements.Add(gened2);
+            Requirements.Add(gened3);
+            Requirements.Add(gened4);
             // Write the requirements list to the console
             Console.WriteLine("Course Requirements:");
             foreach (Course c in Requirements)
@@ -97,7 +114,10 @@ namespace PlanGenerationAlgorithm
 
             // Create an empty Schedule starting Fall 2018
             Schedule StudentSchedule = new Schedule(new Quarter(2018, Season.Fall));
-
+            StudentSchedule.AddCourse(gened5);
+            StudentSchedule.AddCourse(gened2);
+            StudentSchedule.AddCourse(gened4);
+            StudentSchedule.AddCourse(gened3);
             // Run the algorithm
             Schedule GeneratedSchedule = Algorithm.Generate(Requirements, StudentSchedule, 10, 18, true);
 
