@@ -53,9 +53,9 @@ namespace PlanGenerationAlgorithm
                     bestSchedule.ui_numberCredits = currentSchedule.ui_numberCredits;
                     bestSchedule.quarterName = currentSchedule.quarterName;
                     bestSchedule.courses = currentSchedule.courses;
-                    bestQuarter = currentSchedule.NumberOfQuarters;
+                    //bestQuarter = currentSchedule.NumberOfQuarters;
                     //reset the current schedule
-                    //currentSchedule.NumberOfQuarters = 0;
+                    currentSchedule.NumberOfQuarters = 0;
                 }
             }
             //"\n" + Generated.GetFirstSchedule());
@@ -70,7 +70,7 @@ namespace PlanGenerationAlgorithm
         private void GenerateSchedule(List<Course> requirements, Schedule currentSchedule)
         {
             int k = 0;
-            Schedule asd = new Schedule(currentSchedule);
+            //Schedule asd = new Schedule(currentSchedule);
             //bestSchedule = currentSchedule;
             copy = new List<Course>(requirements);
             // currentSchedule = new Schedule(new Quarter(2018, Season.Fall));
@@ -167,23 +167,7 @@ namespace PlanGenerationAlgorithm
                     }
                 }
             }
-            else
-            {
-                //GenerateSchedule(copy, currentSchedule.NextSchedule());
-                //copy = new List<Course>(requirements);
-                currentSchedule.NumberOfQuarters++;
-                bestSchedule.NumberOfQuarters = currentSchedule.NumberOfQuarters;
-                foreach (Course c in currentSchedule.NextSchedule().courses)
-                {
-                    copy.Remove(c);
-                    currentSchedule.NextSchedule().ui_numberCredits += c.Credits;
-                }
-                //If it failed, try adding this course next quarter
-
-                GenerateSchedule(copy, currentSchedule.NextSchedule());
-
-                //Thread.Sleep(1000);
-            }
+           
             if (copy.Count > 0)
             {
                 currentSchedule.NumberOfQuarters++;
@@ -197,6 +181,7 @@ namespace PlanGenerationAlgorithm
                     currentSchedule.NextSchedule().ui_numberCredits += c.Credits;
                 }
                 GenerateSchedule(copy, currentSchedule.NextSchedule());
+                //return;
             }
 
 
