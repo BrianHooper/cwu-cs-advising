@@ -53,7 +53,7 @@ namespace PlanGenerationAlgorithm
                     bestSchedule.ui_numberCredits = currentSchedule.ui_numberCredits;
                     bestSchedule.quarterName = currentSchedule.quarterName;
                     bestSchedule.courses = currentSchedule.courses;
-                    //bestQuarter = currentSchedule.NumberOfQuarters;
+                    bestQuarter = currentSchedule.NumberOfQuarters;
                     //reset the current schedule
                     currentSchedule.NumberOfQuarters = 0;
                 }
@@ -167,7 +167,23 @@ namespace PlanGenerationAlgorithm
                     }
                 }
             }
-           
+            else
+            {
+                //GenerateSchedule(copy, currentSchedule.NextSchedule());
+                //copy = new List<Course>(requirements);
+                currentSchedule.NumberOfQuarters++;
+                bestSchedule.NumberOfQuarters = currentSchedule.NumberOfQuarters;
+                foreach (Course c in currentSchedule.NextSchedule().courses)
+                {
+                    copy.Remove(c);
+                    currentSchedule.NextSchedule().ui_numberCredits += c.Credits;
+                }
+                //If it failed, try adding this course next quarter
+
+                GenerateSchedule(copy, currentSchedule.NextSchedule());
+                //return;
+                //Thread.Sleep(1000);
+            }
             if (copy.Count > 0)
             {
                 currentSchedule.NumberOfQuarters++;
