@@ -105,12 +105,12 @@ namespace CwuAdvising.Pages
                 if (requestBody.Length > 0)
                 {
                     var Student = JsonConvert.DeserializeObject<AdvisingModel.StudentModel>(requestBody);
-                    AdvisingModel.CreateStudent(Student);
-                    return new JsonResult("Users saved succesfully.");
+                    bool CreateSuccess = AdvisingModel.CreateStudent(Student);
+                    return new JsonResult(CreateSuccess);
                 }
                 else
                 {
-                    return new JsonResult("Error passing data to server.");
+                    return new JsonResult(false);
                 }
             }
         }

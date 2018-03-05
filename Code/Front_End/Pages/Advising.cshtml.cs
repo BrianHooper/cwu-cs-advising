@@ -23,7 +23,7 @@ namespace CwuAdvising.Pages
         public static StudentModel CurrentStudent { get; set; }
 
         /// <summary>Current students schedule as JSON string</summary>
-        public static string CurrentSchedule { get; set; }
+        public static ScheduleModel CurrentSchedule { get; set; }
 
         /// <summary>Model for passing Student information from the view</summary>
         public class StudentModel
@@ -122,19 +122,26 @@ namespace CwuAdvising.Pages
                     }
                     DatabaseInterface.WriteToLog("Retrieved student " + dbstudent.ID);
 
-
+                    /*
                     DatabaseInterface.WriteToLog("Attempting to retrieve planinfo " + ID);
                     PlanInfo plantemplate = new PlanInfo(ID, 0, Quarter.DefaultQuarter.ToString(), new string[1]);
                     PlanInfo dbschedule = Program.Database.RetrieveRecord(plantemplate);
-                    if(dbschedule.StudentID.Length == 0)
+                    if(dbschedule.StudentID == null)
                     {
                         DatabaseInterface.WriteToLog("RetrieveRecord retrieved a blank schedule in LoadStudent");
                         return false;
                     }
                     DatabaseInterface.WriteToLog("Retrieved planinfo " + dbschedule.StudentID);
-                    CurrentSchedule = dbschedule.Classes[0];
-
-                    ScheduleModel currentScheduleModel = JsonConvert.DeserializeObject<ScheduleModel>(CurrentSchedule);
+                    CurrentSchedule = JsonConvert.DeserializeObject<ScheduleModel>(dbschedule.Classes[0]);
+                    */
+                    ScheduleModel currentScheduleModel = new ScheduleModel
+                    {
+                        AcademicYear = "2018",
+                        Name = "BS - Computer Science",
+                        Quarters = new List<ModelQuarter>(),
+                        UnmetRequirements = new List<Requirement>()
+                    };
+                    CurrentSchedule = currentScheduleModel;
 
                     CurrentStudent = new StudentModel(
                         dbstudent.Name.ToString(),
@@ -169,43 +176,89 @@ namespace CwuAdvising.Pages
 
         /// <summary>Create a new student</summary>
         /// <param name="model">StudentModel containing student information</param>
-        public static void CreateStudent(StudentModel model)
+        public static bool CreateStudent(StudentModel model)
         {
-            if(Program.Database.connected)
+            try
             {
-                Student CreatedStudent = new Student(new Name(model.Name, ""), model.ID, StringToQuarter(model.Quarter));
-                Program.Database.UpdateRecord(CreatedStudent, Database_Handler.OperandType.Student);
 
-                ScheduleModel CreatedScheduleModel = new ScheduleModel
+                if (Program.Database.connected)
                 {
-                    Name = model.Degree,
-                    AcademicYear = model.CatalogYear,
-                    Quarters = new List<ModelQuarter>()
-                };
-                ModelQuarter StartingQuarter = new ModelQuarter
-                {
-                    Courses = new List<Requirement>(),
-                    Locked = false,
-                    Title = model.Quarter
-                };
-                CreatedScheduleModel.Quarters.Add(StartingQuarter);
+                    DatabaseInterface.WriteToLog("Attempting to create student: " + model.ID);
+                    Student CreatedStudent = new Student(new Name(model.Name, ""), model.ID, StringToQuarter(model.Quarter));
+                    if (Program.Database.UpdateRecord(CreatedStudent, Database_Handler.OperandType.Student))
+                    {
+                        DatabaseInterface.WriteToLog("Created student: " + CreatedStudent.ID);
+                    }
+                    else
+                    {
+                        DatabaseInterface.WriteToLog("Database command UpdateRecord failed for creating student: " + CreatedStudent.ID);
+                        return false;
+                    }
+                    CurrentStudent = model;
 
-                CatalogRequirements template = new CatalogRequirements(model.CatalogYear, new List<DegreeRequirements>());
-                CatalogRequirements Catalog = (CatalogRequirements) Program.Database.RetrieveRecord(template, Database_Handler.OperandType.CatalogRequirements);
+                    DatabaseInterface.WriteToLog("Attempting to create new student plan: " + CreatedStudent.ID);
+                    ScheduleModel CreatedScheduleModel = new ScheduleModel
+                    {
+                        Name = model.Degree,
+                        AcademicYear = model.CatalogYear,
+                        Quarters = new List<ModelQuarter>()
+                    };
+                    ModelQuarter StartingQuarter = new ModelQuarter
+                    {
+                        Courses = new List<Requirement>(),
+                        Locked = false,
+                        Title = model.Quarter
+                    };
+                    CreatedScheduleModel.Quarters.Add(StartingQuarter);
 
-                DegreeRequirements Degree = Catalog.DegreeRequirements.ToList().Find(delegate(DegreeRequirements degree) { return degree.Name == model.Degree; }) ;
+                    DatabaseInterface.WriteToLog("Attempting to retrieve degree requirements for degree: " + CreatedScheduleModel.Name + ", academic year " + CreatedScheduleModel.AcademicYear);
+                    CatalogRequirements template = new CatalogRequirements(model.CatalogYear, new List<DegreeRequirements>());
+                    CatalogRequirements Catalog = (CatalogRequirements)Program.Database.RetrieveRecord(template, Database_Handler.OperandType.CatalogRequirements);
+                    if (Catalog == null)
+                    {
+                        DatabaseInterface.WriteToLog("Load catalog failed for academic year " + CreatedScheduleModel.AcademicYear);
+                        return false;
+                    }
+                    DatabaseInterface.WriteToLog("Searching catalog " + Catalog.ID + " for degree " + model.Degree);
+                    Object temp = Catalog.DegreeRequirements.ToList().Find(delegate (DegreeRequirements degree) { return degree.Name == model.Degree; });
+                    if (temp == null)
+                    {
+                        DatabaseInterface.WriteToLog("Searching catalog " + Catalog.ID + " for degree " + model.Degree + " returned null");
+                        return false;
+                    }
+                    DegreeRequirements Degree = (DegreeRequirements)temp;
 
-                CreatedScheduleModel.UnmetRequirements = new List<Requirement>();
-                foreach(Course course in Degree.Requirements)
-                {
-                    CreatedScheduleModel.UnmetRequirements.Add(Requirement.CourseToRequirement(course));
+                    DatabaseInterface.WriteToLog("Attempting to load degree requirements from " + Degree.ID + " to " + CreatedScheduleModel.Name);
+                    CreatedScheduleModel.UnmetRequirements = new List<Requirement>();
+                    foreach (Course course in Degree.Requirements)
+                    {
+                        CreatedScheduleModel.UnmetRequirements.Add(Requirement.CourseToRequirement(course));
+                    }
+
+                    PlanInfo CreatedPlanInfo = new PlanInfo(model.ID, 0, model.Quarter, new string[1] { JsonConvert.SerializeObject(CreatedScheduleModel) });
+
+                    DatabaseInterface.WriteToLog("Attempting to update student plan " + CreatedPlanInfo.StudentID);
+                    if (Program.Database.UpdateRecord(CreatedPlanInfo))
+                    {
+                        DatabaseInterface.WriteToLog("Successfully updated student plan " + CreatedPlanInfo.StudentID);
+                        return true;
+                    }
+                    else
+                    {
+                        DatabaseInterface.WriteToLog("Update student plan failed for plan " + CreatedPlanInfo.StudentID);
+                        return false;
+                    }
                 }
-
-                PlanInfo CreatedPlanInfo = new PlanInfo(model.ID, 0, model.Quarter, new string[1] { JsonConvert.SerializeObject(CreatedScheduleModel) });
-
-                Program.Database.UpdateRecord(CreatedPlanInfo);
+                else
+                {
+                    return false;
+                }
             }
-            CurrentStudent = model;
+            catch(Exception e)
+            {
+                DatabaseInterface.WriteToLog("CreateStudent threw exception " + e.Message);
+                return false;
+            }
         }
 
         /// <summary>
@@ -242,25 +295,23 @@ namespace CwuAdvising.Pages
         /// <returns>Student Schedule as a parsed JSON string</returns>
         public static string GetStudentPlan()
         {
-            
-            if(CurrentStudent == null)
+            try
             {
-                return "";
+                if (!Program.Database.connected || CurrentStudent == null || CurrentSchedule == null)
+                {
+                    DatabaseInterface.WriteToLog("GetStudentPlan returned blank schedule because student or schedule is null");
+                    return JsonConvert.SerializeObject(new ScheduleModel());
+                }
+                else
+                {
+                    return JsonConvert.SerializeObject(CurrentSchedule);
+                }
             }
-            /*
-            if(!Program.Database.connected)
+            catch(Exception e)
             {
-                return "";
+                DatabaseInterface.WriteToLog("GetStudentPlan threw exception " + e.Message);
+                return JsonConvert.SerializeObject(new ScheduleModel());
             }
-            */
-
-            // Get PlanInfo from the database
-            string[] PlanInfoCourses = { System.IO.File.ReadAllText("wwwroot/SimplePlan.json") };
-            PlanInfo databaseSchedule = new PlanInfo(CurrentStudent.ID, 0, CurrentStudent.Quarter + " " + CurrentStudent.Year, PlanInfoCourses);
-            
-
-
-            return databaseSchedule.Classes[0];
         }
 
         /// <summary>Saves the student plan to the database</summary>
@@ -268,7 +319,6 @@ namespace CwuAdvising.Pages
         /// <returns>True if the database update was successful</returns>
         public static bool SaveStudentPlan(string JsonPlan)
         {
-            CurrentSchedule = JsonPlan;
             /*
             if(!Program.Database.connected)
             {
