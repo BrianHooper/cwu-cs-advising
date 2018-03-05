@@ -225,8 +225,8 @@ namespace PlanGenerationAlgorithm
             //using addCourse and Add are different
             //addCourse add current schedule number of credits, Add does not
 
-            StudentSchedule.courses.Add(CS110);
-            StudentSchedule.courses.Add(Math172);
+            //StudentSchedule.courses.Add(CS110);
+           
             // Run the algorithm
             Schedule GeneratedSchedule = Algorithm.Generate(coursesList, StudentSchedule, 10, 18, true);
 
