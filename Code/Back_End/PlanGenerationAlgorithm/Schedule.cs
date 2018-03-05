@@ -200,7 +200,7 @@ namespace PlanGenerationAlgorithm
         {
             Random rng = new Random();
             int n = list.Count;
-            while (n >= 1)
+            while (n > 1)
             {
                 n--;
                 //generate random course
