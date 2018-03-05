@@ -668,6 +668,7 @@ namespace Database_Object_Classes
             b_isActive  = other.IsActive;
             s_pw        = String.Empty;
             ba_pw       = new byte[64];
+            Array.Copy(other.ba_pw, ba_pw, 64);
         } // end Copy Constructor              
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -685,7 +686,8 @@ namespace Database_Object_Classes
             }
             set
             {
-                ba_PWSalt = value;                
+                ba_PWSalt = new byte[64];
+                Array.Copy(value, ba_PWSalt, 64);
             }
         }
 
