@@ -61,9 +61,6 @@ function ResetCourseContainer() {
 }
 
 function LoadDepartments(Courses) {
-    console.log(Courses);
-
-
     for (var i = 0; i < Courses.length; i++) {
         if (Courses[i].Department !== null) {
             if (!StringArrayContains(Departments, Courses[i].Department)) {
@@ -71,11 +68,9 @@ function LoadDepartments(Courses) {
             }
         }
     }
-
     for (i = 0; i < Departments.length; i++) {
         $("#DepartmentSearch").append("<option value='" + Departments[i] + "'>" + Departments[i] + "</option>");
     }
-    console.log(Departments);
 }
 
 function AddDepartment(DepartmentName) {
