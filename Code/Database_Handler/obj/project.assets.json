@@ -3857,11 +3857,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\advising_branch\\cwu-cs-advising\\Code\\Database_Handler\\Database_Handler.csproj",
+      "projectUniqueName": "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\cwu-cs-advising\\Code\\Database_Handler\\Database_Handler.csproj",
       "projectName": "Database_Handler",
-      "projectPath": "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\advising_branch\\cwu-cs-advising\\Code\\Database_Handler\\Database_Handler.csproj",
+      "projectPath": "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\cwu-cs-advising\\Code\\Database_Handler\\Database_Handler.csproj",
       "packagesPath": "C:\\Users\\nicol\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\advising_branch\\cwu-cs-advising\\Code\\Database_Handler\\obj\\",
+      "outputPath": "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\cwu-cs-advising\\Code\\Database_Handler\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackagesFallback\\",

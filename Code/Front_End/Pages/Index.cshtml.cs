@@ -67,13 +67,11 @@ namespace CwuAdvising.Pages
                 case 0:
                     return RedirectToPage("StudentAdvising");
                 case 1:
-                    LoginErrorMessage = "Advisor - You must change your password.";
-                    return Page();
+                    return RedirectToPage("UserManagement");
                 case 2:
                     return RedirectToPage("ManageCourses");
                 case 3:
-                    LoginErrorMessage = "Admin - You must change you password.";
-                    return Page();
+                    return RedirectToPage("UserManagement");
                 default:
                     LoginErrorMessage = "Error, invalid username or password.";
                     return Page();
