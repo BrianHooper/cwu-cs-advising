@@ -683,7 +683,8 @@ namespace Database_Handler
             try
             {
                 string s_pw = BitConverter.ToString(cred.Password_Hash);
-                s_pw.Replace("-", "");
+                s_pw = s_pw.Replace("-", string.Empty);
+                WriteToLog(" -- DBH the hash which arrived is " + s_pw);
                 b_success = LoginAttempt(cred.UserName, s_pw);
             } // end try
             catch (ThreadAbortException e)
@@ -867,7 +868,7 @@ namespace Database_Handler
                            s_courseName = reader.GetString(2),
                            s_department = reader.GetString(8);
 
-                    WriteToLog(" -- DBH Retrieve all courses found " + s_courseID + " in the database.");
+                    //WriteToLog(" -- DBH Retrieve all courses found " + s_courseID + " in the database.");
 
                     bool[] ba_offered = new bool[4] { reader.GetBoolean(3), reader.GetBoolean(4), reader.GetBoolean(5), reader.GetBoolean(6) };
 
@@ -890,7 +891,7 @@ namespace Database_Handler
                     temp.Department = s_department;
                     temp.WP = ui_WP;
 
-                    WriteToLog(" -- DBH the write protect value being sent is: " + temp.WP);
+                    //WriteToLog(" -- DBH the write protect value being sent is: " + temp.WP);
 
                     courses.Add(temp);
                 } // end while
@@ -914,14 +915,14 @@ namespace Database_Handler
                 } // end if
 
                 MySqlLock.ReleaseMutex();
-                foreach(Course c in courses)
-                {
-                    WriteToLog(" -- DBH course being returned by display courses:\n" + c.ToString());
-                }
+                //foreach(Course c in courses)
+                //{
+                //    WriteToLog(" -- DBH course being returned by display courses:\n" + c.ToString());
+                ////}
 
             } // end finally 
 
-            WriteToLog(" -- DBH Display Courses found " + courses.Count + " courses in the database.");
+            //WriteToLog(" -- DBH Display Courses found " + courses.Count + " courses in the database.");
 
             return new DatabaseCommand(0, "No Errors", null, courses);
         } // end method ExecuteDisplayCommand
@@ -1278,6 +1279,8 @@ namespace Database_Handler
                     WriteToLog(" -- DBH the user " + s_ID + " is attempting to login.");
 
                     s_temp = reader.GetString(2);
+
+                    WriteToLog(" -- DBH the two passwords being compared are:\n -- DBH " + s_temp + "\n -- DBH " + s_pw);
 
                     // check if passwords match
                     if (s_pw == s_temp)
