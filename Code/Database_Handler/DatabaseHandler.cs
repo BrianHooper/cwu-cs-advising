@@ -549,7 +549,9 @@ namespace Database_Handler
             PlanInfo plan;
             int i_code = -2;
             string s_msg = "Update failed";
+
             GetColumnCounts();
+
             try
             {
                 switch (cmd.OperandType)
@@ -1166,13 +1168,19 @@ namespace Database_Handler
                     string query = "SELECT count(*) FROM information_schema.columns WHERE table_schema = " + s_MYSQL_DB_NAME;
                     query += " AND table_name = " + table_names[i];
 
+                    WriteToLog(" -- DBH executing the query: " + query);
+
                     MySqlCommand cmd = new MySqlCommand(query, DB_CONNECTION);
                     MySqlDataReader reader = cmd.ExecuteReader();
 
                     reader.Read();
 
                     ui_COL_COUNT[i] = reader.GetUInt32(0);
+                    WriteToLog(" -- DBH the query returned " + ui_COL_COUNT[i] + " in table " + table_names[i]);
+
                     ui_COL_COUNT[i] -= offset[i];
+
+                    WriteToLog(" -- DBH the values was adjusted to " + ui_COL_COUNT[i] + " for table " + table_names[i] + " by subtracting " + offset[i].ToString());
 
                     reader.Close();
                 } // end for
