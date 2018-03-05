@@ -3850,25 +3850,25 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\brian\\.nuget\\packages\\": {},
+    "C:\\Users\\nicol\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackagesFallback\\": {},
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\brian\\Documents\\cwu-cs-advising\\Code\\Database_Handler\\Database_Handler.csproj",
+      "projectUniqueName": "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\advising_branch\\cwu-cs-advising\\Code\\Database_Handler\\Database_Handler.csproj",
       "projectName": "Database_Handler",
-      "projectPath": "C:\\Users\\brian\\Documents\\cwu-cs-advising\\Code\\Database_Handler\\Database_Handler.csproj",
-      "packagesPath": "C:\\Users\\brian\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\brian\\Documents\\cwu-cs-advising\\Code\\Database_Handler\\obj\\",
+      "projectPath": "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\advising_branch\\cwu-cs-advising\\Code\\Database_Handler\\Database_Handler.csproj",
+      "packagesPath": "C:\\Users\\nicol\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\nicol\\Desktop\\Stuff\\school\\1_Winter18\\CS481\\advising_branch\\cwu-cs-advising\\Code\\Database_Handler\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackagesFallback\\",
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
       ],
       "configFilePaths": [
-        "C:\\Users\\brian\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\nicol\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.Fallback.config"
       ],

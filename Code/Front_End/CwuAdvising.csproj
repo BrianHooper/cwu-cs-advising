@@ -24,10 +24,10 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Database_Classes">
-      <HintPath>..\output\netcoreapp2.0\Database_Classes.dll</HintPath>
+      <HintPath>..\..\..\..\cwu-cs-advising\Code\output\netcoreapp2.0\Database_Classes.dll</HintPath>
     </Reference>
     <Reference Include="Database_Handler">
-      <HintPath>..\output\netcoreapp2.0\Database_Handler.dll</HintPath>
+      <HintPath>..\..\..\..\cwu-cs-advising\Code\output\netcoreapp2.0\Database_Handler.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
