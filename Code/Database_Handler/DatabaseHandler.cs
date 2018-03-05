@@ -2817,7 +2817,7 @@ namespace Database_Handler
             query += s_values;
             query += ");";
 
-            return "";
+            return query;
         } // end method GetSpecialInsertQuery
 
         private string GetSpecialInsertValues(Course course)
