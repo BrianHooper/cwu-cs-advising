@@ -1171,7 +1171,7 @@ namespace Database_Handler
 
             if (true)
             {
-                for (int i = 0; i < 0; i++)
+                for (int i = 0; i < 4; i++)
                 {
                     string query = "SELECT count(*) FROM information_schema.columns WHERE table_schema = " + s_MYSQL_DB_NAME;
                     query += " AND table_name = " + table_names[i];
