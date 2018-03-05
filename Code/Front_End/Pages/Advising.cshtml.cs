@@ -74,9 +74,12 @@ namespace CwuAdvising.Pages
             }
             else
             {
-                PlanInfo template = new PlanInfo("-1", 0, Quarter.DefaultQuarter.ToString(), new string[1]);
-                PlanInfo dbschedule = Program.Database.RetrieveRecord(template);
-                return JsonConvert.SerializeObject(dbschedule.Classes[0]);
+                DatabaseInterface.WriteToLog("Attempting to retrieve basecase ");
+                PlanInfo plantemplate = new PlanInfo("-2", 0, Quarter.DefaultQuarter.ToString(), new string[1]);
+                PlanInfo dbschedule = Program.Database.RetrieveRecord(plantemplate);
+                DatabaseInterface.WriteToLog("Retrieved planinfo " + dbschedule.StudentID);
+                return dbschedule.Classes[0];
+                
             }
         }
         
