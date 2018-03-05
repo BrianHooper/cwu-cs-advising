@@ -2822,7 +2822,7 @@ namespace Database_Handler
 
         private string GetSpecialInsertValues(Course course)
         {
-            string values = "\"" + course.ID + "\", \"" + course.Name + "\"";
+            string values = "\"" + course.ID + "\", \"" + course.Name + "\",";
 
             for (int i = 0; i < course.QuartersOffered.Length; i++)
             {
