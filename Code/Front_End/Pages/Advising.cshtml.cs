@@ -102,6 +102,8 @@ namespace CwuAdvising.Pages
         /// <returns>true if the student was found in the database</returns>
         public static bool LoadStudent(string ID)
         {
+
+
             CurrentStudent = new StudentModel("Example", ID, "Fall", "2018", "BS - Computer Science", "2018");
             if(!Program.Database.connected)
             {
@@ -121,8 +123,7 @@ namespace CwuAdvising.Pages
                         return false;
                     }
                     DatabaseInterface.WriteToLog("Retrieved student " + dbstudent.ID);
-
-                    /*
+                    
                     DatabaseInterface.WriteToLog("Attempting to retrieve planinfo " + ID);
                     PlanInfo plantemplate = new PlanInfo(ID, 0, Quarter.DefaultQuarter.ToString(), new string[1]);
                     PlanInfo dbschedule = Program.Database.RetrieveRecord(plantemplate);
@@ -133,7 +134,8 @@ namespace CwuAdvising.Pages
                     }
                     DatabaseInterface.WriteToLog("Retrieved planinfo " + dbschedule.StudentID);
                     CurrentSchedule = JsonConvert.DeserializeObject<ScheduleModel>(dbschedule.Classes[0]);
-                    */
+                    
+                    /*
                     ScheduleModel currentScheduleModel = new ScheduleModel
                     {
                         AcademicYear = "2018",
@@ -142,14 +144,14 @@ namespace CwuAdvising.Pages
                         UnmetRequirements = new List<Requirement>()
                     };
                     CurrentSchedule = currentScheduleModel;
-
+                    */
                     CurrentStudent = new StudentModel(
                         dbstudent.Name.ToString(),
                         dbstudent.ID,
                         dbstudent.StartingQuarter.QuarterSeason.ToString(),
                         dbstudent.StartingQuarter.Year.ToString(),
-                        currentScheduleModel.Name,
-                        currentScheduleModel.AcademicYear);
+                        CurrentSchedule.Name,
+                        CurrentSchedule.AcademicYear);
                 } catch(Exception e)
                 {
                     DatabaseInterface.WriteToLog("LoadStudent threw exception " + e.Message + " when trying to load student " + ID);

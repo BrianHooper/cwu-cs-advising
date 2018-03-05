@@ -294,7 +294,7 @@
         <member name="M:Database_Handler.DatabaseHandler.CleanUp">
             <summary>Cleans up after DBH is closed.</summary>
         </member>
-        <member name="M:Database_Handler.DatabaseHandler.GetColumnCounts(System.String,System.Int32)">
+        <member name="M:Database_Handler.DatabaseHandler.GetColumnCounts(System.String,System.Int32,System.Boolean)">
             <summary>Sets the ui_COL_COUNT array to contain the number of columns in all variable length tables.</summary>
             <param name="s_table">Optional. The table to check, leaving this empty will check all tables.</param>
             <param name="i_index">Optional. The index of the table in arg 1. </param>

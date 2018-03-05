@@ -182,13 +182,13 @@ namespace CwuAdvising.Pages
                         var ModifiedCourses = JsonConvert.DeserializeObject<List<CourseModel>>(requestBody);
                         
                         List<Course> CoursesToUpdate = GetCoursesToUpdate(ModifiedCourses);
-                        //List<Course> CoursesToDelete = GetCoursesToDelete(ModifiedCourses);
-                        /*
+                        List<Course> CoursesToDelete = GetCoursesToDelete(ModifiedCourses);
+                        
                         if (!DeleteDatabaseCourses(CoursesToDelete))
                         {
                             return new JsonResult("Course update failed.");
                         }
-                        */
+                        
                         if (!UpdateDatabaseCourses(CoursesToUpdate))
                         {
                             return new JsonResult("Course update failed.");
@@ -237,8 +237,10 @@ namespace CwuAdvising.Pages
 
             foreach (Course c in CourseList)
             {
+                DatabaseInterface.WriteToLog("Attempting to delete " + c.ID);
                 if (!Program.Database.DeleteRecord(c, Database_Handler.OperandType.Course))
                 {
+                    DatabaseInterface.WriteToLog("Delete failed on " + c.ID);
                     return false;
                 }
             }

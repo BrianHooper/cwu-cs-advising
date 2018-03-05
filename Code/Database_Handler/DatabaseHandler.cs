@@ -1173,8 +1173,8 @@ namespace Database_Handler
             {
                 for (int i = 0; i < 4; i++)
                 {
-                    string query = "SELECT count(*) FROM information_schema.columns WHERE table_schema = " + s_MYSQL_DB_NAME;
-                    query += " AND table_name = " + table_names[i];
+                    string query = "SELECT count(*) FROM information_schema.columns WHERE table_schema = \"" + s_MYSQL_DB_NAME + "\"";
+                    query += " AND table_name = \"" + table_names[i] + "\"";
 
                     WriteToLog(" -- DBH executing the query: " + query);
 
@@ -2734,7 +2734,7 @@ namespace Database_Handler
         private int DeleteRecord(Course course)
         {
             MySqlCommand cmd = GetCommand(course.ID, 'D', s_COURSES_TABLE, s_COURSES_KEY);
-
+            WriteToLog(" -- delete command: " + cmd.CommandText);
             var output = 1;
 
             try
@@ -3068,7 +3068,7 @@ namespace Database_Handler
         private string GetDeleteQuery(string s_table, string s_keyType, string s_keyValue)
         {
             string query = "DELETE FROM " + s_MYSQL_DB_NAME + "." + s_table;
-            query += "WHERE " + s_keyType + " = " + s_keyValue;
+            query += " WHERE " + s_keyType + " = \"" + s_keyValue + "\";";
 
             return query;
         } // end method GetDeleteQuery
