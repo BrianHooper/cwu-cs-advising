@@ -550,7 +550,7 @@ namespace Database_Handler
             int i_code = -2;
             string s_msg = "Update failed";
 
-            GetColumnCounts();
+            GetColumnCounts("", 0, true);
 
             try
             {
@@ -1120,7 +1120,7 @@ namespace Database_Handler
 
             ui_COL_COUNT = new uint[4];
 
-            GetColumnCounts();
+            GetColumnCounts("", 0, true);
 
             WriteToLog(" -- DBH Setting up thread and client lists.");
             clientThreads = new List<Thread>();
@@ -1156,12 +1156,12 @@ namespace Database_Handler
         /// <summary>Sets the ui_COL_COUNT array to contain the number of columns in all variable length tables.</summary>
         /// <param name="s_table">Optional. The table to check, leaving this empty will check all tables.</param>
         /// <param name="i_index">Optional. The index of the table in arg 1. </param>
-        private void GetColumnCounts(string s_table = "", int i_index = 0)
+        private void GetColumnCounts(string s_table = "", int i_index = 0, bool all = false)
         {
             string[] table_names = { s_PLAN_TABLE, s_COURSES_TABLE, s_CATALOGS_TABLE, s_DEGREES_TABLE};
             uint[]   offset      = {      3,             10,               3,                5       };
 
-            if (s_table.Equals(""))
+            if (all)
             {
                 for (int i = 0; i < 0; i++)
                 {
