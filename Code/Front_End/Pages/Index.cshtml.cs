@@ -13,6 +13,9 @@ namespace CwuAdvising.Pages
     /// <summary>Model for index page</summary>
     public class IndexModel : PageModel
     {
+        public static bool LoggedIn = false;
+        public static bool Administrator = false;
+
         /// <summary>Error message to display to the user on failed login</summary>
         public static string LoginErrorMessage = "";
 
@@ -39,6 +42,13 @@ namespace CwuAdvising.Pages
         /// <returns>Redirects to StudentAdvising if logging in is successful</returns>
         public IActionResult OnPost()
         {
+            if(LoggedIn)
+            {
+                return RedirectToPage("Advising");
+            }
+
+
+
             string password = Login.Password;
             string username = Login.Username;
 
@@ -56,14 +66,14 @@ namespace CwuAdvising.Pages
             */
 
             // Access database
-
             int error_code = PasswordManager.LoginAttempt(username, password);
+
 
             switch(error_code)
             {
-                case -2:
+                //case -2:
                     //LoginErrorMessage = "Connection to the database could not be established.";
-                    return Page();
+                   // return Page();
                 case 0:
                     return RedirectToPage("StudentAdvising");
                 case 1:
@@ -72,8 +82,10 @@ namespace CwuAdvising.Pages
                     return RedirectToPage("ManageCourses");
                 case 3:
                     return RedirectToPage("UserManagement");
-                default:
+                case -1:
                     LoginErrorMessage = "Error, invalid username or password.";
+                    return Page();
+                default:
                     return Page();
             } // end switch
         }

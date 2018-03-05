@@ -102,9 +102,10 @@ namespace CwuAdvising
                     if (b_success)
                     {
                         Credentials user = Program.Database.RetrieveRecord(new Credentials(s_username, 0, false, false, new byte[32], ""));
-
+                        IndexModel.LoggedIn = true;
                         if (user.IsAdmin)
                         {
+                            IndexModel.Administrator = true;
                             if (!user.IsActive)
                             {
                                 DatabaseInterface.WriteToLog("Administrator " + s_username + " signed in, must change pw.");
@@ -136,7 +137,7 @@ namespace CwuAdvising
 
             DatabaseInterface.WriteToLog("Sign-in failed, no database available.");
 
-            return -2; // The database is not connected
+            return -1; // The database is not connected
         } // end method LoginAttempt
 
         /// <summary>Changes the given user's password.</summary>
