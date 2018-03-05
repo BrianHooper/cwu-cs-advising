@@ -682,7 +682,8 @@ namespace Database_Handler
 
             try
             {
-                string s_pw = System.Text.Encoding.UTF8.GetString(cred.Password_Hash);
+                string s_pw = BitConverter.ToString(cred.Password_Hash);
+                s_pw.Replace("-", "");
                 b_success = LoginAttempt(cred.UserName, s_pw);
             } // end try
             catch (ThreadAbortException e)
@@ -718,7 +719,8 @@ namespace Database_Handler
 
             try
             {
-                string s_pw = System.Text.Encoding.UTF8.GetString(cred.Password_Hash);
+                string s_pw = BitConverter.ToString(cred.Password_Hash);
+                s_pw.Replace("-", "");
                 i_errorCode = ChangePassword(cred.UserName, s_pw, true);
             } // end try
             catch (ThreadAbortException e)
@@ -1273,25 +1275,25 @@ namespace Database_Handler
 
                 if (reader.HasRows) // check if user exists
                 {
-                    WriteToLog("-- DBH the user " + s_ID + " is attempting to login.");
+                    WriteToLog(" -- DBH the user " + s_ID + " is attempting to login.");
 
                     s_temp = reader.GetString(2);
 
                     // check if passwords match
                     if (s_pw == s_temp)
                     {
-                        WriteToLog("-- DBH the user " + s_ID + " sucessfully logged in.");
+                        WriteToLog(" -- DBH the user " + s_ID + " sucessfully logged in.");
 
                         output = true; // login sucessful
                     } // end if
                     else
                     {
-                        WriteToLog("-- DBH the user " + s_ID + " entered an incorrect password, login failed.");
+                        WriteToLog(" -- DBH the user " + s_ID + " entered an incorrect password, login failed.");
                     } // end else                    
                 } // end if
                 else
                 {
-                    WriteToLog("-- DBH the user " + s_ID + " does not exist, login failed.");
+                    WriteToLog(" -- DBH the user " + s_ID + " does not exist, login failed.");
                 } // end else
             } // end try
             catch (ThreadAbortException e)
@@ -2518,7 +2520,6 @@ namespace Database_Handler
 
                 try
                 {
-                    MySqlLock.WaitOne();
                     cmd.ExecuteNonQuery(); // create record
                     output = 0;
                     break;
@@ -2532,10 +2533,6 @@ namespace Database_Handler
                     WriteToLog(" -- DBH creation of user \"" + credentials.UserName + "\" failed. Msg: " + e.Message);
                     continue;
                 } // end try
-                finally
-                {
-                    MySqlLock.ReleaseMutex();
-                }
             } // end for
 
             return output;

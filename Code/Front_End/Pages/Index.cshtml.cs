@@ -46,7 +46,7 @@ namespace CwuAdvising.Pages
             {
                 return Page(); // Form validation failed
             }
-            
+
             /*
             if(!Program.Database.connected)
             {
@@ -57,17 +57,27 @@ namespace CwuAdvising.Pages
 
             // Access database
 
-            bool loggedIn = username.ToLower() == "admin";
+            int error_code = PasswordManager.LoginAttempt(username, password);
 
-            if (loggedIn) // Login successful
+            switch(error_code)
             {
-                return RedirectToPage("StudentAdvising");
-            }
-            else
-            {
-                LoginErrorMessage = "Error, invalid username or password.";
-                return Page();
-            }
+                case -2:
+                    //LoginErrorMessage = "Connection to the database could not be established.";
+                    return Page();
+                case 0:
+                    return RedirectToPage("StudentAdvising");
+                case 1:
+                    LoginErrorMessage = "Advisor - You must change your password.";
+                    return Page();
+                case 2:
+                    return RedirectToPage("ManageCourses");
+                case 3:
+                    LoginErrorMessage = "Admin - You must change you password.";
+                    return Page();
+                default:
+                    LoginErrorMessage = "Error, invalid username or password.";
+                    return Page();
+            } // end switch
         }
 
 
