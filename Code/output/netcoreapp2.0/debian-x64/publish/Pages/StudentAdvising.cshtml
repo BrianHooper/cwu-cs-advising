@@ -57,7 +57,11 @@
             dataType: "json",
             success: function (response) {
                 var url = '@Url.Action("/Advising")';
-                window.location.href = "Advising";
+                if (response) {
+                    window.location.href = "Advising";
+                } else {
+                    alert("Failed to create student");
+                }
             }
         });
     });
