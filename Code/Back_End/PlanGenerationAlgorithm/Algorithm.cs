@@ -20,6 +20,7 @@ namespace PlanGenerationAlgorithm
         //variable for increment
         int i = 0;
         int j = 0;
+        int asd = 0;
         /// <summary>
         /// call the generate schedule method
         /// and generate the schedules for all graduation requirements
@@ -140,39 +141,56 @@ namespace PlanGenerationAlgorithm
 
             //add courses in winter 2019 for testing purposes
             //will be removed when integration is done
-            if (currentSchedule.quarterName.QuarterSeason == Season.Winter && currentSchedule.quarterName.Year == 2019)
-            {
-                ICollection<Course> Need110 = new List<Course>();
-                bool[] CS111Offered = { true, true, false, false }; //CS111 etc
-                Course CS111 = new Course("bd", "CS111", 4, true, CS111Offered, Need110);
+            //if (currentSchedule.quarterName.QuarterSeason == Season.Winter && currentSchedule.quarterName.Year == 2019)
+            //{
+                //ICollection<Course> Need110 = new List<Course>();
+               // bool[] CS111Offered = { true, true, false, false }; //CS111 etc
+                //Course CS111 = new Course("bd", "CS111", 4, true, CS111Offered, Need110);
                 //Course gened1 = new Course("gened1", "Eng101", 5, true, CS111Offered, Need110);
                 //Course gened2 = new Course("gened2", "US Cultures", 5, true, CS111Offered, Need110);
                 //Course gened3 = new Course("gened2", "asd", 4, true, CS111Offered, Need110);
-                if (j == 0)
-                {
+                //if (j == 0)
+                //{
                     // currentSchedule.AddCourse(CS111);
-                    currentSchedule.AddCourse(CS111);
+                   // currentSchedule.AddCourse(CS111);
                     //currentSchedule.AddCourse(gened2);
                     //currentSchedule.AddCourse(gened3);
-                    copy.Remove(CS111);
+                    //copy.Remove(CS111);
                     //copy.Remove(gened3);
                     //copy.Remove(gened2);
                     //copy.Remove(gened3);
 
-                    j++;
-                }
-            }
+                    //j++;
+                //}
+            //}
             // Get a list of each course the student can take right now
             List<Course> possibleCourses = ListofCourse(currentSchedule, copy);
-
+            List<Course> prereq = new List<Course>();
             //if possible course for this quarter is more than 0
+            foreach (Course c in copy)
+            {
+                //add courses to a list to prioritize
+                //courses that will be required in the future
+                foreach (Course hasPrereq in c.PreRequisites)
+                {
+                    // If it succeeded, adding another course this quarter
+                    // requirements.Remove(c);
+                    if (!prereq.Contains(hasPrereq))
+                    {
+                        prereq.Add(hasPrereq);
+                    }
+                    //Thread.Sleep(1000);
+                }
+            }
             if (possibleCourses.Count > 0)
             {
+              
                 //copy = new List<Course>(requirements);
                 foreach (Course c in possibleCourses)
                 {
+                    
                     //if course has prerequisites, prioritize the course first
-                    if (c.PreRequisites.Count > 0)
+                    if (c.PreRequisites.Count > 0||prereq.Contains(c))
                     {
                         // Attempt to add the course to this schedule
                         if (maxCredits >= (currentSchedule.ui_numberCredits + c.Credits))
@@ -183,6 +201,7 @@ namespace PlanGenerationAlgorithm
                                 // If it succeeded, adding another course this quarter
                                 // requirements.Remove(c);
                                 copy.Remove(c);
+                                //prereq.Remove(c);
                                 GenerateSchedule(copy, currentSchedule);
                                 //Thread.Sleep(1000);
                             }
