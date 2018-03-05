@@ -501,8 +501,6 @@ namespace CwuAdvising.Pages
         public static Quarter StringToQuarter(string QuarterName)
         {
             string[] quarterSplit = QuarterName.Split(' ');
-            if (quarterSplit.Length != 0)
-                return new Quarter(2018, Season.Fall);
             string SeasonStr = quarterSplit[0];
             uint Year = UInt32.Parse(quarterSplit[1]);
 
