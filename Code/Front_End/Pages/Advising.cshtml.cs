@@ -417,7 +417,7 @@ namespace CwuAdvising.Pages
                 if (requestBody.Length > 0)
                 {
                     var scheduleModel = JsonConvert.DeserializeObject<ScheduleModel>(requestBody);
-
+                    CurrentSchedule = scheduleModel;
                     return new JsonResult("Model sent succesfully.");
                 }
                 else
