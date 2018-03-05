@@ -34,8 +34,6 @@ namespace PlanGenerationAlgorithm
         public static Schedule Generate(List<Course> requirements, Schedule currentSchedule, uint minCredits, uint maxCredits, bool takeSummerCourse)
         {
             //set minimum and maximum number of credits
-            minCredits = 10;
-            maxCredits = 18;
             Algorithm algorithm = new Algorithm();
             //set the value of take summer course to determine 
             //if student takes summer courses or not
@@ -337,6 +335,13 @@ namespace PlanGenerationAlgorithm
             }
             //return true if prereq is met
             return true;
+        }
+
+        /// <summary>Writes to log file</summary>
+        /// <param name="message">The error message to write</param>
+        public static void WriteToLog(string message)
+        {
+            System.IO.File.AppendAllText("/var/aspnetcore/wwwroot/log.txt", DateTime.Now.ToLongTimeString() + "   --   " + message + "\n");
         }
     }
 }

@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Database_Object_Classes;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using PlanGenerationAlgorithm;
 
 namespace CwuAdvising
 {
@@ -32,7 +34,6 @@ namespace CwuAdvising
         /// <param name="args">Arugments</param>
         public static void Main(string[] args)
         {
-
             BuildWebHost(args).Run();            
         }
 

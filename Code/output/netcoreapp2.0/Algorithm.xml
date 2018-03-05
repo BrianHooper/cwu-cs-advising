@@ -39,6 +39,10 @@
             <param name="currentQuarter">current quarter to check course offered and prereqs met</param>
             <returns></returns>
         </member>
+        <member name="M:PlanGenerationAlgorithm.Algorithm.WriteToLog(System.String)">
+            <summary>Writes to log file</summary>
+            <param name="message">The error message to write</param>
+        </member>
         <member name="M:PlanGenerationAlgorithm.Node.AddArc(PlanGenerationAlgorithm.Node,System.Int32)">
             <summary>
             Create a new arc, connecting this Node to the Nod passed in the parameter
@@ -79,6 +83,12 @@
             <returns>true or false depends on whether the course meet all the constraints or not</returns>
         </member>
         <member name="M:PlanGenerationAlgorithm.Schedule.NextSchedule">
+            <summary>
+            method to get the schedule for next quarter
+            </summary>
+            <returns>go to the next quarter schedule</returns>
+        </member>
+        <member name="M:PlanGenerationAlgorithm.Schedule.NextScheduleSimple">
             <summary>
             method to get the schedule for next quarter
             </summary>

@@ -119,7 +119,27 @@ namespace PlanGenerationAlgorithm
         /// <returns>go to the next quarter schedule</returns>
         public Schedule NextScheduleSimple()
         {
-            NextQuarter = new Schedule(GetNextQuarter());
+            Season curSeason = quarterName.QuarterSeason;
+            uint curYear = quarterName.Year;
+            Quarter next = Quarter.DefaultQuarter;
+            if (curSeason == Season.Fall)
+            {
+                next = new Quarter(curYear + 1, Season.Winter);
+            }
+            else if (curSeason == Season.Winter)
+            {
+                next = new Quarter(curYear, Season.Spring);
+            }
+            else if (curSeason == Season.Spring)
+            {
+                next = new Quarter(curYear, Season.Summer);
+            }
+            else if (curSeason == Season.Summer)
+            {
+                next = new Quarter(curYear, Season.Fall);
+            }
+
+            NextQuarter = new Schedule(next);
             NextQuarter.previousQuarter = this;
             return NextQuarter;
         }

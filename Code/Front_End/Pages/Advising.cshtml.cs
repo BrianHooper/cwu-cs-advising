@@ -534,9 +534,11 @@ namespace CwuAdvising.Pages
                 List<Course> RemainingRequirements = ScheduleModelToRemainingRequirements(model, DatabaseCourses);
                 DatabaseInterface.WriteToLog("Extracted " + RemainingRequirements.Count + " remaining requirements from the model");
 
-                
-                /*Schedule GeneratedSchedule = Algorithm.Generate(RemainingRequirements, ConvertedScheduleModel, 
-                    model.Constraints.MinCredits, model.Constraints.MaxCredits, model.Constraints.TakingSummer);*/
+                Course testcourse = ConvertedScheduleModel.NextSchedule().courses[0];
+                DatabaseInterface.WriteToLog("Shallow: " + testcourse.IsShallow);
+
+                Schedule GeneratedSchedule = Algorithm.Generate(RemainingRequirements, ConvertedScheduleModel, 
+                    model.Constraints.MinCredits, model.Constraints.MaxCredits, model.Constraints.TakingSummer);
 
                 DatabaseInterface.WriteToLog("Finished algorithm");
                 ScheduleModel GeneratedModel = ScheduleToScheduleModel(ConvertedScheduleModel, model);
