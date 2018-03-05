@@ -2,6 +2,7 @@
 var CourseList;
 var Modified = false;
 var CurrentDegree;
+var Departments = [];
 
 // On Document ready
 $(document).ready(function () {
@@ -10,7 +11,20 @@ $(document).ready(function () {
     DegreeList = JSON.parse(DegreeModel);
     console.log(DegreeList);
     LoadDegreeSelect();
+    LoadDegreeDepartments(CourseList);
 });
+
+
+function LoadDegreeDepartments(Courses) {
+    for (var i = 0; i < Courses.length; i++) {
+        if (Courses[i].Department !== null) {
+            if (!StringArrayContains(Departments, Courses[i].Department)) {
+                Departments.push(Courses[i].Department);
+                $("#DepartmentSearch").append("<option value='" + Courses[i].Department + "'>" + Courses[i].Department + "</option>");
+            }
+        }
+    }
+}
 
 // On click create new degree
 $(document).on("click", "#CreateDegreeButton", function () {
