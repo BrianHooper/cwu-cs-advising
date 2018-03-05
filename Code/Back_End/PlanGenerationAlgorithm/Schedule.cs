@@ -10,6 +10,7 @@ namespace PlanGenerationAlgorithm
         //variables
         public Student student;
         public Quarter quarterName;
+        private static Random rng = new Random();
         public bool locked = false; //initialize value of quarter lock
         public uint NumberOfQuarters = 0; //total number of quarters
         public List<Course> courses; //list of all courses taken
@@ -198,7 +199,7 @@ namespace PlanGenerationAlgorithm
         /// <param name="list">list of courses</param>
         public void Shuffle<Course>(List<Course> list)
         {
-            Random rng = new Random();
+
             int n = list.Count;
             while (n > 1)
             {
@@ -209,6 +210,7 @@ namespace PlanGenerationAlgorithm
                 list[k] = list[n];
                 list[n] = value;
             }
+
         }
         /// <summary>
         /// toString method override to print all the schedules

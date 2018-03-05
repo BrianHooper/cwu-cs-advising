@@ -50,7 +50,7 @@ namespace PlanGenerationAlgorithm
             uint bestQuarter = 50;
             for (int i = 0; i < 15; i++)
             {
-
+       
                 //shuffle the order of courses
                 currentSchedule.Shuffle(requirements);
                 //generate the schedule
