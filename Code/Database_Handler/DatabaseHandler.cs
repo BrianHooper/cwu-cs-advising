@@ -101,6 +101,8 @@ namespace Database_Handler
         /// <summary>The number of columns in each variable length table { s_PLAN_TABLE, s_COURSES_TABLE, s_CATALOGS_TABLE, s_DEGREES_TABLE}.</summary>
         private uint[] ui_COL_COUNT;
 
+        private string[] s_TABLES;
+
         /// <summary>The master connection to the MySql database, which should never be closed, except during cleanup.</summary>
         private MySqlConnection DB_CONNECTION;
         #endregion
@@ -168,6 +170,12 @@ namespace Database_Handler
             s_COURSES_TABLE = data["MySql Tables"]["courses_table"];
             s_COURSES_KEY = data["MySql Tables"]["courses_table_key"];
 
+            s_TABLES = new string[4];
+            s_TABLES[0] = data["MySql Tables"]["grad_plans"];
+            s_TABLES[1] = data["MySql Tables"]["courses_table"];
+            s_TABLES[2] = data["MySql Tables"]["s_CATALOGS_TABLE"];
+            s_TABLES[3] = data["MySql Tables"]["degrees_table"];
+            
             // Get TCP/IP Settings
             s_IP_ADDRESS = data["Misc"]["IP"];
             s_logFilePath = data["Misc"]["logfile_path"];
@@ -1161,7 +1169,7 @@ namespace Database_Handler
             string[] table_names = { s_PLAN_TABLE, s_COURSES_TABLE, s_CATALOGS_TABLE, s_DEGREES_TABLE};
             uint[]   offset      = {      3,             10,               3,                5       };
 
-            if (all)
+            if (true)
             {
                 for (int i = 0; i < 0; i++)
                 {
@@ -1171,18 +1179,15 @@ namespace Database_Handler
                     WriteToLog(" -- DBH executing the query: " + query);
 
                     MySqlCommand cmd = new MySqlCommand(query, DB_CONNECTION);
-                    MySqlDataReader reader = cmd.ExecuteReader();
 
-                    reader.Read();
+                    ui_COL_COUNT[i] = Convert.ToUInt32(cmd.ExecuteScalar());
 
-                    ui_COL_COUNT[i] = reader.GetUInt32(0);
                     WriteToLog(" -- DBH the query returned " + ui_COL_COUNT[i] + " in table " + table_names[i]);
 
                     ui_COL_COUNT[i] -= offset[i];
 
                     WriteToLog(" -- DBH the values was adjusted to " + ui_COL_COUNT[i] + " for table " + table_names[i] + " by subtracting " + offset[i].ToString());
 
-                    reader.Close();
                 } // end for
             } // end if
             else
