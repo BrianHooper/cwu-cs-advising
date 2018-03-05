@@ -2822,7 +2822,7 @@ namespace Database_Handler
 
         private string GetSpecialInsertValues(Course course)
         {
-            string values = "\"" + course.ID + "\", ";
+            string values = "\"" + course.ID + "\", \"" + course.Name + "\"";
 
             for (int i = 0; i < course.QuartersOffered.Length; i++)
             {
@@ -2833,7 +2833,7 @@ namespace Database_Handler
                 else
                 {
                     values += "0, ";
-                } // end else
+                } // end elses
             } // end for
 
             values += course.Credits.ToString() + ", ";
