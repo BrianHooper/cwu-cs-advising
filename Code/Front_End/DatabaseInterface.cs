@@ -83,10 +83,6 @@ namespace CwuAdvising
             if (cmd.OperandType == OperandType.Course)
             {
                 WriteToLog("SendCommand: Course Department: " + ((Course)cmd.Operand).Department);
-                foreach(Course prereq in ((Course)cmd.Operand).PreRequisites)
-                {
-                    WriteToLog("SendCommand: Course Prereq: " + prereq);
-                }
             }
 
             try

@@ -25,10 +25,6 @@ namespace CwuAdvising
             {
                 DatabaseInterface.WriteToLog("Attempting to load all courses from database.");
                 CourseList = Program.Database.GetAllCourses(shallow);
-                foreach(Course course in CourseList)
-                {
-                    DatabaseInterface.WriteToLog("Loaded: " + course.ID + " in " + course.Department);
-                }
             }
             else
             {

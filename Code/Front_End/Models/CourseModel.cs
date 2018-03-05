@@ -110,8 +110,7 @@ namespace CwuAdvising.Models
             model.Offered = offered;
             model.Name = course.Name;
             model.ID = course.ID;
-
-            DatabaseInterface.WriteToLog("Converting Course to CourseModel: " + course.ID + " " + model.ID + " " + course.Department + " " + model.Department);
+            
             return model;
         }// end explicit cast operator
     }
