@@ -150,12 +150,15 @@ namespace CwuAdvising.Pages
         {
             try
             {
-                Program.DbObjects.GetCoursesFromDatabase(true);
-                List<CourseModel> ModelList = CourseListToCourseModelList(Program.DbObjects.MasterCourseList);
+                DatabaseInterface.WriteToLog("Calling CourseListAsJson");
+                List<Course> Courses = Program.DbObjects.GetCoursesFromDatabase(true);
+                List<CourseModel> ModelList = CourseListToCourseModelList(Courses);
+                DatabaseInterface.WriteToLog("CourseListAsJson loaded " + ModelList.Count + " courses");
                 return JsonConvert.SerializeObject(ModelList);
             }
-            catch(Exception)
+            catch(Exception e)
             {
+                DatabaseInterface.WriteToLog("CourseListAsJson threw exception " + e.Message);
                 return JsonConvert.SerializeObject(new List<CourseModel>());
             }
 
