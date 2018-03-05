@@ -1,0 +1,1 @@
+ INSERT INTO test_db.courses (course_id, course_name, offered_winter, offered_spring, offered_summer, offered_fall, num_credits, department, num_pre_requs) VALUES("CS481", "Software Engineering Project"1, 0, 0, 0, 4, "Computer Science", 0);
