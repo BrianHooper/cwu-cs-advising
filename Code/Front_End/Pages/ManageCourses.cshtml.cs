@@ -26,7 +26,7 @@ namespace CwuAdvising.Pages
         public static List<CourseModel> CourseListToCourseModelList(List<Course> CourseList)
         {
             List<CourseModel> ModelList = new List<CourseModel>();
-
+            
             foreach(Course course in CourseList)
             {
                 CourseModel model = CourseModel.Convert(course);
@@ -152,7 +152,8 @@ namespace CwuAdvising.Pages
             {
                 DatabaseInterface.WriteToLog("Calling CourseListAsJson");
                 List<Course> Courses = Program.DbObjects.GetCoursesFromDatabase(true);
-                List<CourseModel> ModelList = CourseListToCourseModelList(Courses);
+                DatabaseInterface.WriteToLog("Retrieved " + Courses.Count + " from GetCoursesFromDatabase");
+                List <CourseModel> ModelList = CourseListToCourseModelList(Courses);
                 DatabaseInterface.WriteToLog("CourseListAsJson loaded " + ModelList.Count + " courses");
                 return JsonConvert.SerializeObject(ModelList);
             }
