@@ -52,7 +52,7 @@ namespace PlanGenerationAlgorithm
             {
        
                 //shuffle the order of courses
-                //currentSchedule.Shuffle(requirements);
+                currentSchedule.Shuffle(requirements);
                 //generate the schedule
                 algorithm.GenerateSchedule(requirements, currentSchedule);
                 if (currentSchedule.NumberOfQuarters <= bestQuarter)
