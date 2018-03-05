@@ -138,16 +138,6 @@ namespace CwuAdvising.Pages
                     DatabaseInterface.WriteToLog("Retrieved planinfo " + dbschedule.StudentID);
                     CurrentSchedule = JsonConvert.DeserializeObject<ScheduleModel>(dbschedule.Classes[0]);
                     
-                    /*
-                    ScheduleModel currentScheduleModel = new ScheduleModel
-                    {
-                        AcademicYear = "2018",
-                        Name = "BS - Computer Science",
-                        Quarters = new List<ModelQuarter>(),
-                        UnmetRequirements = new List<Requirement>()
-                    };
-                    CurrentSchedule = currentScheduleModel;
-                    */
                     CurrentStudent = new StudentModel(
                         dbstudent.Name.ToString(),
                         dbstudent.ID,
@@ -162,21 +152,7 @@ namespace CwuAdvising.Pages
                 }
                 
             }
-
-            // For testing 
             return true;
-        }
-
-        public static void CreateTestStudent()
-        {
-            Name name = new Name("James", "Bond");
-            Quarter quarter = new Quarter(2018, Season.Fall);
-            Student student = new Student(name, "007", quarter);
-            Program.Database.UpdateRecord(student, Database_Handler.OperandType.Student);
-
-            string[] gradplan = { System.IO.File.ReadAllText("wwwroot/EmptyPlan.json") };
-            PlanInfo plan = new PlanInfo("007", 0, quarter.ToString(), gradplan);
-            Program.Database.UpdateRecord(plan);
         }
 
         /// <summary>Create a new student</summary>
@@ -356,9 +332,9 @@ namespace CwuAdvising.Pages
                 {
                     var scheduleModel = JsonConvert.DeserializeObject<ScheduleModel>(requestBody);
 
-                    // Pass the schedule to the algorithm
+                    DatabaseInterface.WriteToLog("Deserialized schedule from advising page for degree " + scheduleModel.Name);
                     ScheduleModel GeneratedSchedule = CallSchedulingAlgorithm(scheduleModel);
-                    //string JsonSchedule = JsonConvert.SerializeObject(GeneratedSchedule);
+
                     
                     string JsonSchedule = JsonConvert.SerializeObject(scheduleModel);
                     return new JsonResult(JsonSchedule);
@@ -457,13 +433,15 @@ namespace CwuAdvising.Pages
         /// </summary>
         /// <param name="model">ScheduleModel containing remaining requirements</param>
         /// <returns>List of remaining Course objects</returns>
-        public static List<Course> ScheduleModelToRemainingRequirements(ScheduleModel model)
+        public static List<Course> ScheduleModelToRemainingRequirements(ScheduleModel model, List<Course> CourseList)
         {
             List<Course> RemainingRequirements = new List<Course>();
 
             foreach(Requirement req in model.UnmetRequirements)
             {
-                Course course = Program.DbObjects.MasterCourseList.Find(delegate (Course masterCourse) { return masterCourse.ID == req.Title; });
+                Course course = CourseList.Find(delegate (Course masterCourse) {
+                    return masterCourse.ID == req.Title;
+                });
                 if(course != null)
                 {
                     RemainingRequirements.Add(course);
@@ -479,25 +457,37 @@ namespace CwuAdvising.Pages
         /// </summary>
         /// <param name="model">ScheduleModel containing a schedule</param>
         /// <returns>Schedule object matching the model</returns>
-        public static Schedule ScheduleModelToSchedule(ScheduleModel model)
+        public static Schedule ScheduleModelToSchedule(ScheduleModel model, List<Course> CourseList)
         {
-            Program.DbObjects.GetCoursesFromDatabase(false);
+            DatabaseInterface.WriteToLog("Converting model starting from " + model.Quarters[0].Title);
             Schedule schedule = null;
             foreach(ModelQuarter modelQuarter in model.Quarters)
             {
                 if (schedule == null)
+                {
                     schedule = new Schedule(StringToQuarter(model.Quarters[0].Title));
+                }
                 else
-                    schedule = schedule.NextSchedule();
+                {
+                    schedule = schedule.NextScheduleSimple();
+                }
 
+                DatabaseInterface.WriteToLog("Adding courses to quarter " + schedule.quarterName);
                 foreach (Requirement req in modelQuarter.Courses)
                 {
-                    Course course = Program.DbObjects.MasterCourseList.Find(delegate (Course masterCourse) { return masterCourse.ID == req.Title; });
+                    Course course = CourseList.Find(delegate (Course masterCourse) {
+                        return masterCourse.ID == req.Title;
+                    });
                     if(course != null)
                     {
                         schedule.AddCourse(course);
                     }
+                    else
+                    {
+                        DatabaseInterface.WriteToLog("Could not find course " + req.Title + " in database");
+                    }
                 }
+                DatabaseInterface.WriteToLog("Retrieved " + schedule.courses.Count + " from quarter " + schedule.quarterName);
             }
             return schedule;
         }
@@ -537,17 +527,28 @@ namespace CwuAdvising.Pages
         /// <returns>ScheduleModel from the scheduling algorithm</returns>
         public static ScheduleModel CallSchedulingAlgorithm(ScheduleModel model)
         {
-            Schedule ConvertedScheduleModel = ScheduleModelToSchedule(model);
-            List<Course> RemainingRequirements = ScheduleModelToRemainingRequirements(model);
+            try
+            {
+                List<Course> DatabaseCourses = Program.Database.GetAllCourses(false);
+                DatabaseInterface.WriteToLog("Converting ScheduleModel containing " + model.Quarters.Count + " quarters to Schedule");
+                Schedule ConvertedScheduleModel = ScheduleModelToSchedule(model, DatabaseCourses);
+                DatabaseInterface.WriteToLog("Converted to Schedule containing " + ConvertedScheduleModel.NumberOfQuarters + " quarters");
+                List<Course> RemainingRequirements = ScheduleModelToRemainingRequirements(model, DatabaseCourses);
+                DatabaseInterface.WriteToLog("Extracted " + RemainingRequirements.Count + " remaining requirements from the model");
 
-            /*
-            Schedule GeneratedSchedule = Algorithm.Generate(RemainingRequirements, ConvertedScheduleModel, 
-                model.Constraints.MinCredits, model.Constraints.MaxCredits, model.Constraints.TakingSummer);
-                */
-            
-            ScheduleModel GeneratedModel = ScheduleToScheduleModel(ConvertedScheduleModel, model);
-            
-            return GeneratedModel;
+                
+                /*Schedule GeneratedSchedule = Algorithm.Generate(RemainingRequirements, ConvertedScheduleModel, 
+                    model.Constraints.MinCredits, model.Constraints.MaxCredits, model.Constraints.TakingSummer);*/
+
+                DatabaseInterface.WriteToLog("Finished algorithm");
+                ScheduleModel GeneratedModel = ScheduleToScheduleModel(ConvertedScheduleModel, model);
+                return GeneratedModel;
+            }
+            catch(Exception e)
+            {
+                DatabaseInterface.WriteToLog("CallSchedulingAlgorithm caught exception: " + e.Message);
+                return new ScheduleModel();
+            }
         }
 
 

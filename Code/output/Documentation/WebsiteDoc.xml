@@ -377,7 +377,7 @@
             </summary>
             <returns>JsonResult containing success/error status</returns>
         </member>
-        <member name="M:CwuAdvising.Pages.AdvisingModel.ScheduleModelToRemainingRequirements(CwuAdvising.Models.ScheduleModel)">
+        <member name="M:CwuAdvising.Pages.AdvisingModel.ScheduleModelToRemainingRequirements(CwuAdvising.Models.ScheduleModel,System.Collections.Generic.List{Database_Object_Classes.Course})">
             <summary>
             Extracts the remaining requirements from a ScheduleModel
             and attempts to match them to database Course objects
@@ -385,7 +385,7 @@
             <param name="model">ScheduleModel containing remaining requirements</param>
             <returns>List of remaining Course objects</returns>
         </member>
-        <member name="M:CwuAdvising.Pages.AdvisingModel.ScheduleModelToSchedule(CwuAdvising.Models.ScheduleModel)">
+        <member name="M:CwuAdvising.Pages.AdvisingModel.ScheduleModelToSchedule(CwuAdvising.Models.ScheduleModel,System.Collections.Generic.List{Database_Object_Classes.Course})">
             <summary>
             Extracts a Schedule from a ScheduleModel
             and attempts to match each course to database Coures objects

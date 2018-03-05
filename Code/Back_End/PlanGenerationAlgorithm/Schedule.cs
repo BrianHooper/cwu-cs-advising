@@ -114,6 +114,17 @@ namespace PlanGenerationAlgorithm
         }
 
         /// <summary>
+        /// method to get the schedule for next quarter
+        /// </summary>
+        /// <returns>go to the next quarter schedule</returns>
+        public Schedule NextScheduleSimple()
+        {
+            NextQuarter = new Schedule(GetNextQuarter());
+            NextQuarter.previousQuarter = this;
+            return NextQuarter;
+        }
+
+        /// <summary>
         /// method to increment the quarter season and/or year
         /// </summary>
         /// <returns>new quarter with new quarter name and possible new year</returns>
