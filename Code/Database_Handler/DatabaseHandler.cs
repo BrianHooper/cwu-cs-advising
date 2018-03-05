@@ -2146,11 +2146,12 @@ namespace Database_Handler
                         int k = course.ShallowPreRequisites.Count - (int)ui_COL_COUNT[1]; // number of columns that must be added
                         AddColumns(k, s_COURSES_TABLE, "pre_requ_");
                     } // end if
-                    string query = GetInsertValues(course);
+
+                    string query = GetSpecialInsertQuery(s_COURSES_TABLE, GetSpecialInsertString(course), GetSpecialInsertValues(course)); //GetInsertValues(course);
                     WriteToLog(" -- DBH sending insert query: " + query);
                     WriteToLog(" -- DBH update course contents: " + course.Name + " " + course.Department + " " + course.ID + " ");
-                    
-                    MySqlCommand command = GetCommand(course.ID, 'I', s_COURSES_TABLE, s_COURSES_KEY, "", query);
+
+                    MySqlCommand command = new MySqlCommand(query, DB_CONNECTION); //GetCommand(course.ID, 'I', s_COURSES_TABLE, s_COURSES_KEY, "", query);
                     command.ExecuteNonQuery();
 
                     WriteToLog(" -- DBH successfully created the course " + course.ID + ".");
@@ -2805,8 +2806,64 @@ namespace Database_Handler
 
         private string GetSpecialInsertQuery(string s_table, string s_insert, string s_values)
         {
+            string query = "INSERT INTO ";
+            query += s_MYSQL_DB_NAME;
+            query += ".";
+            query += s_table;
+            query += " (";
+            query += s_insert;
+            query += ") ";
+            query += "VALUES(";
+            query += s_values;
+            query += ");";
+
             return "";
-        }
+        } // end method GetSpecialInsertQuery
+
+        private string GetSpecialInsertValues(Course course)
+        {
+            string values = "\"" + course.ID + "\", ";
+
+            for (int i = 0; i < course.QuartersOffered.Length; i++)
+            {
+                if(course.QuartersOffered[i])
+                {
+                    values += "1, ";
+                } // end if
+                else
+                {
+                    values += "0, ";
+                } // end else
+            } // end for
+
+            values += course.Credits.ToString() + ", ";
+            values += "\"" + course.Department + "\", ";
+            values += course.ShallowPreRequisites.Count;
+
+            for (int i = 0; i < course.ShallowPreRequisites.Count; i++)
+            {
+                values += ",\"" + course.ShallowPreRequisites[i] + "\"";
+            } // end for
+
+            return values;
+        } // end method GetSpecialInsertValues
+
+        private string GetSpecialInsertString(Course course)
+        {
+            string text = s_COURSES_KEY;
+            text += ", course_name, offered_winter, offered_spring, offered_summer, offered_fall, num_credits, department, num_pre_requs";
+
+            if(course.ShallowPreRequisites.Count > 0)
+            {
+                for (int i = 0; i < course.ShallowPreRequisites.Count; i++)
+                {
+                    text += ", pre_requ_" + i;
+                } // end for
+            } // end if
+
+            return text;
+        } // end method GetSpecialInsertString
+
 
         /// <summary>Creates the values string for a PlanInfo object.</summary>
         /// <param name="plan">The plan to be inserted into the DB.</param>
