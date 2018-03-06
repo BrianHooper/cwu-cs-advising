@@ -146,7 +146,9 @@ namespace PlanGenerationAlgorithm
             bool[] CS110Offered = { true, true, false, true }; //cs110 and math172,CS112 and Math 260
             bool[] CS311Offered = { false, true, false, true }; //CS311, CS301
             bool[] CS312Offered = { true, false, false, true }; //CS312 etc
-
+            bool[] CS361Offered = { false, false, false, true };
+            bool[] CS470Offered = { true, false, false, false };
+            bool[] CS380Offered = {false, true, false, false };
             //courses and the prerequisites
             ICollection<Course> NoPrereq = new List<Course>();
             NoPrereq.Clear();
@@ -184,7 +186,43 @@ namespace PlanGenerationAlgorithm
             prereqMath330.Add(Math260);
             Course Math330 = new Course("bcc", "Math 330", 4, true, CS311Offered, prereqMath330);
             List<Course> coursesList = new List<Course>();
-
+            Course gened8 = new Course("vxzbx", "Natural Sciences", 5, true, CS110Offered, NoPrereq);
+            Course gened9 = new Course("vsb", "Reasoning", 5, true, CS110Offered, NoPrereq);
+            Course gened10 = new Course("qwef", "Literature", 5, true, CS110Offered, NoPrereq);
+            Course gened11 = new Course("bac", "UNIV 101", 5, true, CS110Offered, NoPrereq);
+            ICollection<Course> Prereq325 = new List<Course>();
+            Prereq325.Add(CS301);
+            Prereq325.Add(gened5);
+            ICollection<Course> Prereq361 = new List<Course>();
+            Prereq361.Add(CS302);
+            Course CS325 = new Course("bq", "CS325", 4, true, CS110Offered, Prereq325);
+            ICollection<Course> Prereq470 = new List<Course>();
+            Prereq470.Add(CS302);
+            Prereq470.Add(CS312);
+            Prereq470.Add(CS325);
+            ICollection<Course> Prereq427 = new List<Course>();
+            Prereq427.Add(CS302);
+            Prereq427.Add(Math330);
+            Prereq427.Add(CS325);
+            Course CS361 = new Course("bc", "CS361", 4, true, CS361Offered, Prereq361);
+            Course CS380 = new Course("qwrwhrtr", "CS380", 4, true, CS380Offered, Prereq361);
+            Course CS470 = new Course("dsjtju", "CS470", 4, true, CS470Offered, Prereq470);
+            Course CS427 = new Course("byweewh", "CS427", 4, true, CS312Offered, Prereq427);
+            ICollection<Course> Prereq480 = new List<Course>();
+            Prereq480.Add(CS380);
+            Prereq480.Add(CS325);
+            Course CS480 = new Course("bjtyre", "CS480", 4, true, CS361Offered, Prereq480);
+           
+            ICollection<Course> Prereq481 = new List<Course>();
+            Prereq481.Add(CS325);
+            Prereq481.Add(CS480);
+            ICollection<Course> Prereq362 = new List<Course>();
+            Prereq362.Add(CS361);
+            Prereq362.Add(Math260);
+            Prereq362.Add(CS325);
+            Course CS362 = new Course("zxvb", "CS362", 4, true, CS470Offered, Prereq362);
+            Course CS481 = new Course("asdg", "CS481", 4, true, CS470Offered, Prereq481);
+          
             //Add courses to a list of courses
             coursesList.Add(CS110);
             coursesList.Add(gened6);
@@ -203,7 +241,18 @@ namespace PlanGenerationAlgorithm
             coursesList.Add(CS111);
             coursesList.Add(Math260);
             coursesList.Add(Math330);
-
+            coursesList.Add(CS481);
+            coursesList.Add(CS362);
+            coursesList.Add(gened8);
+            coursesList.Add(gened9);
+            coursesList.Add(CS361);
+            coursesList.Add(CS480);
+            coursesList.Add(gened10);
+            coursesList.Add(gened11);
+            coursesList.Add(CS427);
+            coursesList.Add(CS470);
+            coursesList.Add(CS325);
+            coursesList.Add(CS380);
             //create object schedule and call generate schedule for starting quarter
             //Schedule schedule = new Schedule(q_startingQuarter);
             // Schedule completed = Algorithm.Generate(coursesList, schedule);
@@ -226,9 +275,8 @@ namespace PlanGenerationAlgorithm
             //addCourse add current schedule number of credits, Add does not
 
             //StudentSchedule.courses.Add(CS110);
-           
             // Run the algorithm
-            Schedule GeneratedSchedule = Algorithm.Generate(coursesList, StudentSchedule, 10, 18, true);
+            Schedule GeneratedSchedule = Algorithm.Generate(coursesList, StudentSchedule, 0, 18, true);
 
             // Output the results to the console
             Console.WriteLine("\n" + GeneratedSchedule.GetFirstSchedule());
