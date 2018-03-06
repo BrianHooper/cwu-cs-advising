@@ -28,13 +28,8 @@
 }
 
 <script>
-    @{ 
-        string studentplan = Html.Raw(AdvisingModel.GetStudentPlan()).ToString();
-        string basecase = Html.Raw(AdvisingModel.LoadBaseCase()).ToString();
-    }
-    
-    var StudentSchedule = '@studentplan';
-    var BaseCase = '@basecase';
+    var ExampleSchedule = '@Html.Raw(AdvisingModel.GetStudentPlan())';
+    var BaseCase = '@Html.Raw(AdvisingModel.LoadBaseCase())';
 
     $(document).ready(function () {
         $("#Loading").hide();

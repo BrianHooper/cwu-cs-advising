@@ -281,7 +281,7 @@ namespace CwuAdvising.Pages
                 if (!Program.Database.connected || CurrentStudent == null || CurrentSchedule == null)
                 {
                     DatabaseInterface.WriteToLog("GetStudentPlan returned blank schedule because student or schedule is null");
-                    return "";
+                    return JsonConvert.SerializeObject(new ScheduleModel());
                 }
                 else
                 {
@@ -291,7 +291,7 @@ namespace CwuAdvising.Pages
             catch(Exception e)
             {
                 DatabaseInterface.WriteToLog("GetStudentPlan threw exception " + e.Message);
-                return "";
+                return JsonConvert.SerializeObject(new ScheduleModel());
             }
         }
 
