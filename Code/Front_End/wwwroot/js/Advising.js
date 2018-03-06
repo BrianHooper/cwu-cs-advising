@@ -624,9 +624,6 @@ function SaveSchedule(feedback) {
                     alert("Saving schedule failed, check database connection.");
                 }
             }
-        },
-        error: function (one, two, three) {
-            return false;
         }
     });
 }
@@ -644,10 +641,11 @@ $(document).on("click", "#SaveBaseCaseButton", function () {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (response) {
-            return false;
-        },
-        error: function (one, two, three) {
-            console.log(three);
+            if (response) {
+                alert("Base case saved.");
+            } else {
+                alert("Error saving base case.");
+            }
         }
     });
 });
