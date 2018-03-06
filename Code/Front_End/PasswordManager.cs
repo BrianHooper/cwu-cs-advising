@@ -10,7 +10,7 @@ namespace CwuAdvising
     public class PasswordManager
     {
         private static uint ui_SALT_LENGTH = 32;
-        private static uint ui_HASH_LENGTH = 64;
+        private static int i_HASH_LENGTH = 64;
 
         /// <summary>Processes a login request.</summary>
         /// <param name="s_username">The username.</param>
@@ -71,7 +71,7 @@ namespace CwuAdvising
                     Rfc2898DeriveBytes hasher = new Rfc2898DeriveBytes(s_insecure_pw, ba_salt, DatabaseHandler.i_HASH_ITERATIONS);
 
 
-                    byte[] ba_password_hash = hasher.GetBytes(64);
+                    byte[] ba_password_hash = hasher.GetBytes(i_HASH_LENGTH);
 
                     //string hash = BitConverter.ToString(ba_password_hash);
 
