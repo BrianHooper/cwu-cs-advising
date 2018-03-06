@@ -15,6 +15,7 @@ namespace CwuAdvising.Pages
     {
         public static bool LoggedIn = false;
         public static bool Administrator = false;
+        public static string CurrentUser = "";
 
         /// <summary>Error message to display to the user on failed login</summary>
         public static string LoginErrorMessage = "";
@@ -44,7 +45,7 @@ namespace CwuAdvising.Pages
         {
             if(LoggedIn)
             {
-                return RedirectToPage("Advising");
+                return RedirectToPage("StudentAdvising");
             }
 
 

@@ -1031,7 +1031,7 @@ namespace Database_Handler
                 return 1;
             } // end catch
 
-            return cmd.ReturnCode;
+            return 0;
         } // end method SendResult
 
         #endregion

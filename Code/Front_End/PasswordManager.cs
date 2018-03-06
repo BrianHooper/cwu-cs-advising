@@ -102,6 +102,7 @@ namespace CwuAdvising
                     if (b_success)
                     {
                         Credentials user = Program.Database.RetrieveRecord(new Credentials(s_username, 0, false, false, new byte[32], ""));
+                        IndexModel.CurrentUser = s_username;
                         IndexModel.LoggedIn = true;
                         if (user.IsAdmin)
                         {

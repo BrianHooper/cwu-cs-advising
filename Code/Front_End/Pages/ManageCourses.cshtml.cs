@@ -16,6 +16,11 @@ namespace CwuAdvising.Pages
     /// </summary>
     public class ManageCoursesModel : PageModel
     {
+        public IActionResult RedirectToHome()
+        {
+            return RedirectToPage("Index");
+        }
+
         public static string ErrorMessage { get; set; } = "";
 
         /// <summary>
