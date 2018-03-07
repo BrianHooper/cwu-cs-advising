@@ -3,6 +3,8 @@
 @{
     ViewData["Title"] = "Manage Courses";
 }
+@{Model.RedirectToHome();}
+
 
 <script>
     var CourseListFromServer = '@Html.Raw(ManageCoursesModel.CourseListAsJson())';

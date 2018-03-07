@@ -55,6 +55,7 @@ namespace CwuAdvising.Models
                     Offered = ""
                 };
 
+                requirement.Offered = "";
                 if (course.IsOffered(Season.Winter))
                     requirement.Offered += "1";
                 if (course.IsOffered(Season.Spring))

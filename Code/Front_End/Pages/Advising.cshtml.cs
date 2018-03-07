@@ -215,9 +215,11 @@ namespace CwuAdvising.Pages
                     CreatedScheduleModel.UnmetRequirements = new List<Requirement>();
                     foreach (Course course in Degree.Requirements)
                     {
-                        CreatedScheduleModel.UnmetRequirements.Add(Requirement.CourseToRequirement(course));
+                        DatabaseInterface.WriteToLog("Converting course " + course.ID + " to requirement");
+                        Requirement req = Requirement.CourseToRequirement(course);
+                        CreatedScheduleModel.UnmetRequirements.Add(req);
                     }
-
+                    DatabaseInterface.WriteToLog("Create PlanInfo object for student " + model.ID);
                     PlanInfo CreatedPlanInfo = new PlanInfo(model.ID, 0, model.Quarter, new string[1] { JsonConvert.SerializeObject(CreatedScheduleModel) });
 
                     DatabaseInterface.WriteToLog("Attempting to update student plan " + CreatedPlanInfo.StudentID);
