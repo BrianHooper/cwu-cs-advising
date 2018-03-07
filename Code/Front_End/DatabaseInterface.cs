@@ -186,7 +186,9 @@ namespace CwuAdvising
                     {
                         foreach (string courseID in course.ShallowPreRequisites)
                         {
-                            Course PrereqTemplate = new Course("", courseID, 0, false);
+                            Course PrereqTemplate = new Course("", courseID, 0,false,  new bool[] { false, false, false, false }, new List<string>());
+                            PrereqTemplate.Department = "";
+
                             WriteToLog("Attempting to retrieve course " + PrereqTemplate.ID);
                             Course Prereq = (Course)RetrieveRecord(PrereqTemplate, OperandType.Course);
                             if (Prereq.ID != "-1")
@@ -256,7 +258,7 @@ namespace CwuAdvising
                 WriteToLog("RetrieveRecord attempting to retrieve course " + ((Course)template).ID);
             }
             WriteToLog("Creating new DatabaseCommand " + CommandType.Retrieve.ToString());
-            DatabaseCommand cmd = new DatabaseCommand(CommandType.Retrieve, template, ot_type);
+            DatabaseCommand cmd = new DatabaseCommand(CommandType.Retrieve, template, ot_type, false);
 
             WriteToLog("Sending Command " + cmd.CommandType.ToString());
             SendCommand(cmd);

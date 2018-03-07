@@ -555,7 +555,7 @@ namespace CwuAdvising.Pages
                     foreach(Course course in scheduleCopy.courses)
                     {
                         DatabaseInterface.WriteToLog(scheduleCopy.quarterName.ToString() + "\t" + course.ID);
-                        if(course.PreRequisites != null)
+                        if(!course.IsShallow && course.PreRequisites != null)
                         {
                             foreach(Course prereq in course.PreRequisites)
                             {
