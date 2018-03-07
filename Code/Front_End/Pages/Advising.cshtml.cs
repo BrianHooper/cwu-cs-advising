@@ -555,6 +555,13 @@ namespace CwuAdvising.Pages
                     foreach(Course course in scheduleCopy.courses)
                     {
                         DatabaseInterface.WriteToLog(scheduleCopy.quarterName.ToString() + "\t" + course.ID);
+                        if(course.PreRequisites != null)
+                        {
+                            foreach(Course prereq in course.PreRequisites)
+                            {
+                                DatabaseInterface.WriteToLog(scheduleCopy.quarterName.ToString() + "\t" + course.ID + " has prereq " + prereq.ID);
+                            }
+                        }
                     }
                     scheduleCopy = scheduleCopy.NextQuarter;
                 }
