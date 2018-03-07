@@ -11,7 +11,7 @@ namespace PlanGenerationAlgorithm
     {
         //variables
         public static uint minCredits = 10; //set minimum number of credits
-        public static uint maxCredits = 18; //set maximum number of credits
+        public static uint maxCreditss; //set maximum number of credits
         public static Schedule bestSchedule; //variable to save the best possible schedule
         public List<Course> copy;  //a list to copy the requirements in generateSchedule method
         public bool takeSummerCourses = false; //variable to check if student take summer courses
@@ -33,6 +33,11 @@ namespace PlanGenerationAlgorithm
         /// <returns>best possible schedule</returns>
         public static Schedule Generate(List<Course> requirements, Schedule currentSchedule, uint minCredits, uint maxCredits, bool takeSummerCourse)
         {
+            //foreach (Course req in requirements)
+            // {
+            //WriteToLog("Algorithm recieved unmet requirement " + req.ID);
+            // }
+            maxCredits = maxCreditss;
             //set minimum and maximum number of credits
             Algorithm algorithm = new Algorithm();
             //set the value of take summer course to determine 
@@ -191,7 +196,7 @@ namespace PlanGenerationAlgorithm
                     if (c.PreRequisites.Count > 0||prereq.Contains(c))
                     {
                         // Attempt to add the course to this schedule
-                        if (maxCredits >= (currentSchedule.ui_numberCredits + c.Credits))
+                        if (maxCreditss >= (currentSchedule.ui_numberCredits + c.Credits))
                         {
                             //copy = new List<Course>(requirements);
                             if (currentSchedule.AddCourse(c))
@@ -212,7 +217,7 @@ namespace PlanGenerationAlgorithm
                     if (c.PreRequisites.Count == 0)
                     {
                         // Attempt to add the course to this schedule
-                        if (maxCredits >= (currentSchedule.ui_numberCredits + c.Credits))
+                        if (maxCreditss >= (currentSchedule.ui_numberCredits + c.Credits))
                         {
                             //copy = new List<Course>(requirements);
                             if (currentSchedule.AddCourse(c))
