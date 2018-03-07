@@ -164,11 +164,13 @@ namespace CwuAdvising.Pages
 
                 if (Program.Database.connected)
                 {
-                    DatabaseInterface.WriteToLog("Attempting to create student: " + model.ID);
-                    Student CreatedStudent = new Student(new Name(model.Name, ""), model.ID, StringToQuarter(model.Quarter));
+                    DatabaseInterface.WriteToLog("Attempting to create student: " + model.ID + " " + model.Name + " " + model.Quarter + " " + model.Year + " " + model.Degree + " " + model.CatalogYear);
+                    Student CreatedStudent = new Student(new Name(model.Name, ""), model.ID, new Quarter(uint.Parse(model.Year), (Season) Enum.Parse(typeof(Season), model.Quarter)));
+
+                    DatabaseInterface.WriteToLog("Created student object " + CreatedStudent.ToString());
                     if (Program.Database.UpdateRecord(CreatedStudent, Database_Handler.OperandType.Student))
                     {
-                        DatabaseInterface.WriteToLog("Created student: " + CreatedStudent.ID);
+                        DatabaseInterface.WriteToLog("Added student to database: " + CreatedStudent.ID);
                     }
                     else
                     {
@@ -484,6 +486,11 @@ namespace CwuAdvising.Pages
                     schedule = schedule.NextScheduleSimple();
                 }
 
+                if(modelQuarter.Locked)
+                {
+                    schedule.locked = true;
+                }
+
                 DatabaseInterface.WriteToLog("Adding courses to quarter " + schedule.quarterName);
                 foreach (Requirement req in modelQuarter.Courses)
                 {
@@ -512,6 +519,7 @@ namespace CwuAdvising.Pages
         /// <returns>Database quarter object matching the quarter name</returns>
         public static Quarter StringToQuarter(string QuarterName)
         {
+            DatabaseInterface.WriteToLog("Splitting string " + QuarterName);
             string[] quarterSplit = QuarterName.Split(' ');
             string SeasonStr = quarterSplit[0];
             uint Year = UInt32.Parse(quarterSplit[1]);
