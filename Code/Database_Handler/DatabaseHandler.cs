@@ -1548,11 +1548,11 @@ namespace Database_Handler
                 reader = cmd.ExecuteReader();
                 reader.Read();
 
-                WriteToLog(" -- DBH trying to retrieve catalog: " + s_ID);
+                //WriteToLog(" -- DBH trying to retrieve catalog: " + s_ID);
 
                 if (reader.HasRows)
                 {
-                    WriteToLog(" -- DBH found catalog " + s_ID + " in database.");
+                    //WriteToLog(" -- DBH found catalog " + s_ID + " in database.");
                     uint ui_WP = reader.GetUInt32(1),
                          ui_numDegrees = reader.GetUInt32(2);
 
@@ -1565,11 +1565,6 @@ namespace Database_Handler
                             l_degrees.Add(reader.GetString(i + 3));
                         } // end if
                     } // end for
-
-                    foreach(string s in l_degrees)
-                    {
-                        WriteToLog(" -- DBH found the degree " + s + " in catalog " + s_ID);
-                    } // end foreach
 
                     reader.Close();
                     MySqlLock.ReleaseMutex();
@@ -1645,7 +1640,7 @@ namespace Database_Handler
                 throw new RecursionDepthException("Retrieving the degree " + s_ID + " caused a recursion depth of " + ui_depth + " stopping to prevent infinite recursion.");
             } // end if
 
-            WriteToLog(" -- DBH trying to retrieve the degree " + s_ID + " shallow is: " + b_shallow.ToString() + " recursion depth is " + ui_depth.ToString());
+            //WriteToLog(" -- DBH trying to retrieve the degree " + s_ID + " shallow is: " + b_shallow.ToString() + " recursion depth is " + ui_depth.ToString());
 
             DegreeRequirements degree;
 
@@ -1663,7 +1658,7 @@ namespace Database_Handler
 
                 if (reader.HasRows)
                 {
-                    WriteToLog(" -- DBH found the degree " + s_ID + " in the database.");
+                    //WriteToLog(" -- DBH found the degree " + s_ID + " in the database.");
                     uint ui_WP = reader.GetUInt32(1),
                          ui_numCourses = reader.GetUInt32(4);
 
