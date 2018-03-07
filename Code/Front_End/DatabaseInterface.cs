@@ -162,20 +162,36 @@ namespace CwuAdvising
         public List<Course> GetAllCourses(bool shallow)
         {
             DatabaseCommand databaseCommand = new DatabaseCommand(CommandType.DisplayCourses, shallow);
-
-
+            
             SendCommand(databaseCommand);
             DatabaseCommand dbCommand = ReceiveCommand();
 
-            if(dbCommand.ReturnCode == 0 && dbCommand.CommandType == CommandType.Return)
-            {
-                return dbCommand.CourseList;
-            } // end if
-            else
+            if (dbCommand.ReturnCode != 0 || dbCommand.CommandType != CommandType.Return)
             {
                 WriteToLog("DatabaseInterface.GetAllCourses returned error code: " + dbCommand.ErrorMessage);
                 return new List<Course>();
             } // end else
+
+            if (shallow)
+            {
+                return dbCommand.CourseList;
+            }
+            else
+            {
+                foreach(Course course in dbCommand.CourseList)
+                {
+                    foreach(String courseID in course.ShallowPreRequisites)
+                    {
+                        Course PrereqTemplate = new Course("", courseID, 0, false);
+                        Course Prereq = (Course)RetrieveRecord(PrereqTemplate, OperandType.Course);
+                        if(Prereq.ID != "-1")
+                        {
+                            course.AddPreRequisite(Prereq);
+                        }
+                    }
+                }
+                return dbCommand.CourseList;
+            }
         } // end method GetAllCourses
 
         /// <summary>Gets all catalogs stored in the database.</summary>
@@ -243,7 +259,13 @@ namespace CwuAdvising
             else
             {
                 WriteToLog("DatabaseInterface.RetrieveRecord returned error code: " + retCmd.ErrorMessage);
-                return null;
+                switch (ot_type)
+                {
+                    case OperandType.Course: return new Course("-1", "-1", 0, false);
+                    case OperandType.CatalogRequirements: return new CatalogRequirements("", new List<DegreeRequirements>());
+                    case OperandType.Student: return new Student(Name.DefaultName, "", Quarter.DefaultQuarter);
+                    default: return null;
+                }
             } // end else
         } // end method RetrieveRecord
 
