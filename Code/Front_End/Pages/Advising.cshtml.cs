@@ -281,7 +281,7 @@ namespace CwuAdvising.Pages
                 if (!Program.Database.connected || CurrentStudent == null || CurrentSchedule == null)
                 {
                     DatabaseInterface.WriteToLog("GetStudentPlan returned blank schedule because student or schedule is null");
-                    return "";
+                    return JsonConvert.SerializeObject(new ScheduleModel());
                 }
                 else
                 {
@@ -291,7 +291,7 @@ namespace CwuAdvising.Pages
             catch(Exception e)
             {
                 DatabaseInterface.WriteToLog("GetStudentPlan threw exception " + e.Message);
-                return "";
+                return JsonConvert.SerializeObject(new ScheduleModel());
             }
         }
 
@@ -300,19 +300,18 @@ namespace CwuAdvising.Pages
         /// <returns>True if the database update was successful</returns>
         public static bool SaveStudentPlan(string JsonPlan)
         {
-            /*
-            if(!Program.Database.connected)
+            try
             {
+                DatabaseInterface.WriteToLog("Attempting to save plan for student " + CurrentStudent.ID);
+                string[] databasePlanSchedule = { JsonPlan };
+                PlanInfo studentplan = new PlanInfo(CurrentStudent.ID, 0, CurrentStudent.Quarter + " " + CurrentStudent.Year, databasePlanSchedule);
+                Program.Database.UpdateRecord(studentplan);
+                return true;
+            } catch(Exception e)
+            {
+                DatabaseInterface.WriteToLog("SaveStudentPlan threw exception " + e.Message);
                 return false;
             }
-
-            string[] databasePlanSchedule = { JsonPlan };
-            PlanInfo studentplan = new PlanInfo(CurrentStudent.ID, 0, CurrentStudent.Quarter + " " + CurrentStudent.Year, databasePlanSchedule);
-            Program.Database.UpdateRecord(studentplan);
-            */
-
-            System.IO.File.WriteAllText("wwwroot/SimplePlan.json", JsonPlan);
-            return true;
         }
 
         /// <summary>
@@ -375,8 +374,19 @@ namespace CwuAdvising.Pages
         /// <returns>True if the database update was successful</returns>
         public static bool SaveBaseCase(String basecase)
         {
-            System.IO.File.WriteAllText("wwwroot/ExamplePlan.json", basecase);
-            return true;
+            try
+            {
+                DatabaseInterface.WriteToLog("Attempting to save plan for student base case");
+                string[] databasePlanSchedule = { basecase };
+                PlanInfo studentplan = new PlanInfo("-1", 0, "Fall 2018", databasePlanSchedule);
+                Program.Database.UpdateRecord(studentplan);
+                return true;
+            }
+            catch (Exception e)
+            {
+                DatabaseInterface.WriteToLog("SaveBaseCase threw exception " + e.Message);
+                return false;
+            }
         }
 
         /// <summary>
@@ -534,9 +544,18 @@ namespace CwuAdvising.Pages
                 List<Course> RemainingRequirements = ScheduleModelToRemainingRequirements(model, DatabaseCourses);
                 DatabaseInterface.WriteToLog("Extracted " + RemainingRequirements.Count + " remaining requirements from the model");
 
-                Course testcourse = ConvertedScheduleModel.NextSchedule().courses[0];
-                DatabaseInterface.WriteToLog("Shallow: " + testcourse.IsShallow);
+                ConvertedScheduleModel = ConvertedScheduleModel.GetFirstSchedule();
 
+                Schedule scheduleCopy = ConvertedScheduleModel;
+                while(scheduleCopy != null)
+                {
+                    DatabaseInterface.WriteToLog("----" + scheduleCopy.quarterName.ToString() + "----");
+                    foreach(Course course in scheduleCopy.courses)
+                    {
+                        DatabaseInterface.WriteToLog(scheduleCopy.quarterName.ToString() + "\t" + course.ID);
+                    }
+                }
+                
                 Schedule GeneratedSchedule = Algorithm.Generate(RemainingRequirements, ConvertedScheduleModel, 
                     model.Constraints.MinCredits, model.Constraints.MaxCredits, model.Constraints.TakingSummer);
 

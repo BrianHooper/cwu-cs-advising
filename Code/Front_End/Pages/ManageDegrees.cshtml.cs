@@ -232,7 +232,6 @@ namespace CwuAdvising.Pages
 
                 // Update the database
                 bool UpdateSuccessful = Program.Database.UpdateRecord(Catalog, Database_Handler.OperandType.CatalogRequirements);
-
                 DatabaseInterface.WriteToLog("WriteDatabaseDegree updated degree: " + Degree.ID);
                 DatabaseInterface.WriteToLog("WriteDatabaseDegree updated catalog year: " + Catalog.ID);
                 return UpdateSuccessful;
