@@ -40,7 +40,7 @@ namespace Database_Object_Classes
         /// <summary>Default Constructor.</summary>
         public Course() : base("")
         {
-            s_name = "";
+            s_name = "-1";
             ui_numberCredits = 0;
             b_requiresMajor = false;
 
