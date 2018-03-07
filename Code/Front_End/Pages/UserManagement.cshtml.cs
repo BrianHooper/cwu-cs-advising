@@ -153,10 +153,10 @@ namespace CwuAdvising.Pages
                 CreateUserErrorMessage = "Error, password too short.";
                 return Page();
             }
-
+            DatabaseInterface.WriteToLog("Attempting to create user " + username);
             Credentials user = new Credentials(username, 0, false, false, new byte[32], "");
 
-
+            DatabaseInterface.WriteToLog("Attempting to add user " + user.UserName + " to database");
             bool success = Program.Database.UpdateRecord(user);
 
             if(!success)
