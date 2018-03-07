@@ -398,7 +398,20 @@ namespace Database_Object_Classes
             DegreeRequirements d = (DegreeRequirements)obj;
             return string.Compare(s_name, d.s_name);
         } // end method CompareTo
-    } // end structure DegreeRequirements
+
+		public override string ToString()
+		{
+            string str = "Degree: " + ID;
+
+            str += "\nCourse Requirements: ";
+            foreach (string s in ls_generalRequirements)
+            {
+                str += "\n " + s;
+            } // end foreach
+
+			return str;
+		} // end method ToString
+	} // end structure DegreeRequirements
 
     /// <summary>Structure storing academic standing of a student.</summary>
     [Serializable]

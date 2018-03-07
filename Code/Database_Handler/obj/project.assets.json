@@ -2222,33 +2222,28 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Brian\\.nuget\\packages\\": {},
-    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
+    "/Users/nicola/.nuget/packages/": {},
+    "/usr/local/share/dotnet/sdk/NuGetFallbackFolder": {}
   },
   "project": {
     "version": "1.0.0",
-    "restoreSettings": {
-      "hideWarningsAndErrors": true
-    },
     "restore": {
-      "projectUniqueName": "C:\\Users\\Brian\\Documents\\cwu-cs-advising\\Code\\Database_Handler\\Database_Handler.csproj",
+      "projectUniqueName": "/Users/nicola/Desktop/stuff/projects/visual studio/cwu-cs-advising/Code/Database_Handler/Database_Handler.csproj",
       "projectName": "Database_Handler",
-      "projectPath": "C:\\Users\\Brian\\Documents\\cwu-cs-advising\\Code\\Database_Handler\\Database_Handler.csproj",
-      "packagesPath": "C:\\Users\\Brian\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Brian\\Documents\\cwu-cs-advising\\Code\\Database_Handler\\obj\\",
+      "projectPath": "/Users/nicola/Desktop/stuff/projects/visual studio/cwu-cs-advising/Code/Database_Handler/Database_Handler.csproj",
+      "packagesPath": "/Users/nicola/.nuget/packages/",
+      "outputPath": "/Users/nicola/Desktop/stuff/projects/visual studio/cwu-cs-advising/Code/Database_Handler/obj",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
-        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
       ],
       "configFilePaths": [
-        "C:\\Users\\Brian\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "/Users/nicola/.config/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "netcoreapp2.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -2266,17 +2261,18 @@
       "netcoreapp2.0": {
         "dependencies": {
           "Microsoft.NETCore.App": {
+            "suppressParent": "All",
             "target": "Package",
-            "version": "[2.0.0, )",
+            "version": "2.0",
             "autoReferenced": true
-          },
-          "MySql.Data": {
-            "target": "Package",
-            "version": "[6.10.5, )"
           },
           "ini-parser": {
             "target": "Package",
-            "version": "[2.5.2, )"
+            "version": "2.5.2"
+          },
+          "MySql.Data": {
+            "target": "Package",
+            "version": "6.10.5"
           }
         },
         "imports": [

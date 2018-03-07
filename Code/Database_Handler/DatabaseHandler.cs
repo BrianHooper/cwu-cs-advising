@@ -757,6 +757,7 @@ namespace Database_Handler
             {
                 MySqlLock.WaitOne();
                 string query = "SELECT * FROM " + s_MYSQL_DB_NAME + "." + s_CATALOGS_TABLE + ";";
+                WriteToLog(" -- DBH Execute display catalogs query is:" + query);
 
                 MySqlCommand cmd = new MySqlCommand(query, DB_CONNECTION);
                 reader = cmd.ExecuteReader();
@@ -770,6 +771,11 @@ namespace Database_Handler
                     l_IDs.Add(s_catalog);                    
                 } // end while
 
+                foreach(string s in l_IDs)
+                {
+                    WriteToLog(" -- DBH catalogs found: " + s);
+                } // end foreach
+
                 reader.Close();
                 MySqlLock.ReleaseMutex();
 
@@ -777,6 +783,12 @@ namespace Database_Handler
                 {
                     catalogs.Add(RetrieveCatalog(s, b_shallow));
                 } // end foreach
+
+                WriteToLog(" -- DBH finished retrieve catalogs, found: ");
+                foreach(CatalogRequirements c in catalogs)
+                {
+                    WriteToLog(" -- DBH catalog: " + c.ToString());
+                }
             } // end try
             catch (ThreadAbortException e)
             {
@@ -1531,8 +1543,11 @@ namespace Database_Handler
                 reader = cmd.ExecuteReader();
                 reader.Read();
 
+                WriteToLog(" -- DBH trying to retrieve catalog: " + s_ID);
+
                 if (reader.HasRows)
                 {
+                    WriteToLog(" -- DBH found catalog " + s_ID + " in database.");
                     uint ui_WP = reader.GetUInt32(1),
                          ui_numDegrees = reader.GetUInt32(2);
 
@@ -1545,6 +1560,11 @@ namespace Database_Handler
                             l_degrees.Add(reader.GetString(i + 2));
                         } // end if
                     } // end for
+
+                    foreach(string s in l_degrees)
+                    {
+                        WriteToLog(" -- DBH found the degree " + s + " in catalog " + s_ID);
+                    } // end foreach
 
                     reader.Close();
                     MySqlLock.ReleaseMutex();
@@ -1620,6 +1640,8 @@ namespace Database_Handler
                 throw new RecursionDepthException("Retrieving the degree " + s_ID + " caused a recursion depth of " + ui_depth + " stopping to prevent infinite recursion.");
             } // end if
 
+            WriteToLog(" -- DBH trying to retrieve the degree " + s_ID + " shallow is: " + b_shallow.ToString() + " recursion depth is " + ui_depth.ToString());
+
             DegreeRequirements degree;
 
             MySqlDataReader reader = null;
@@ -1633,8 +1655,10 @@ namespace Database_Handler
                 reader = cmd.ExecuteReader();
                 reader.Read();
 
+
                 if (reader.HasRows)
                 {
+                    WriteToLog(" -- DBH found the degree " + s_ID + " in the database.");
                     uint ui_WP = reader.GetUInt32(1),
                          ui_numCourses = reader.GetUInt32(4);
 
@@ -2208,6 +2232,8 @@ namespace Database_Handler
 
                 reader.Read();
 
+                WriteToLog(" -- DBH trying to update catalog " + catalog.ID);
+
                 if (reader.HasRows)
                 {
                     uint ui_WP = reader.GetUInt32(1);
@@ -2243,6 +2269,8 @@ namespace Database_Handler
                     } // end foreach
 
                     query += " WHERE "+ s_CATALOGS_KEY + " = \"" + catalog.ID + "\";";
+
+                    WriteToLog(" -- DBH update query for catalog " + catalog.ID + ":\n" + query);
 
                     MySqlCommand temp = new MySqlCommand(query, DB_CONNECTION);
 
@@ -2348,14 +2376,19 @@ namespace Database_Handler
 
                 reader.Read();
 
+                WriteToLog(" -- DBH trying the update degree " + degree.ID);
+
                 if (reader.HasRows)
                 {
                     reader.Close();
+
+                    WriteToLog(" -- DBH degree " + degree.ID + " was found in database. ");
 
                     // ensure the plan will fit into the table
                     if (ui_COL_COUNT[3] < degree.ShallowRequirements.Count)
                     {
                         int k = degree.ShallowRequirements.Count - (int)ui_COL_COUNT[3]; // number of columns that must be added
+                        WriteToLog(" -- DBH adding " + k.ToString() + " columns to accomdate the degree.");
                         AddColumns(k, s_DEGREES_TABLE, "course_");
                     } // end if
 
@@ -2374,8 +2407,9 @@ namespace Database_Handler
 
                     query += " WHERE " + s_DEGREES_KEY + " = \"" + catalog.ID + "_" + degree.ID + "\";";
 
-                    MySqlCommand temp = new MySqlCommand(query, DB_CONNECTION);
+                    WriteToLog(" -- DBH update query for degree:\n" + query);
 
+                    MySqlCommand temp = new MySqlCommand(query, DB_CONNECTION);
                     temp.ExecuteNonQuery();
 
                     WriteToLog(" -- DBH successfully updated the degree " + catalog.ID + "_" + degree.ID + ".");
@@ -2383,6 +2417,8 @@ namespace Database_Handler
                 else
                 {
                     reader.Close();
+
+                    WriteToLog(" -- DBH the degree " + degree.ID + " was not found in the database.");
 
                     // ensure the plan will fit into the table
                     if (ui_COL_COUNT[3] < degree.Requirements.Count)
@@ -2392,6 +2428,7 @@ namespace Database_Handler
                     } // end if
 
                     MySqlCommand command = GetCommand(catalog.ID + "_" + degree.ID, 'I', s_DEGREES_TABLE, s_DEGREES_KEY, "", GetInsertValues(catalog, degree));
+                    WriteToLog(" -- DBH insert query that was generated is " + command.CommandText);
                     command.ExecuteNonQuery();
 
                     WriteToLog(" -- DBH successfully created the plan for " + catalog.ID + ".");

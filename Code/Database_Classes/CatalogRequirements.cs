@@ -54,5 +54,19 @@ namespace Database_Object_Classes
         {
             get => ls_degrees;
         }
-    } // end Class CatalogRequirements
+
+		public override string ToString()
+		{
+            string str = string.Empty;
+
+            str += "Catalog of the year " + ID;
+
+            foreach (DegreeRequirements d in l_degreeRequirements)
+            {
+                str += "\n   " + d;
+            } // end foreach
+
+            return str;
+		} // end method ToString
+	} // end Class CatalogRequirements
 } // end Namespace Database_Object_Classes
