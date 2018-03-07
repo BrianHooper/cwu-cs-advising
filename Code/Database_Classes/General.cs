@@ -699,8 +699,8 @@ namespace Database_Object_Classes
             }
             set
             {
-                ba_PWSalt = new byte[64];
-                Array.Copy(value, ba_PWSalt, 64);
+                ba_PWSalt = new byte[32];
+                Array.Copy(value, ba_PWSalt, 32);
             }
         }
 
