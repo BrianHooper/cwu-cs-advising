@@ -2383,7 +2383,7 @@ namespace Database_Handler
 
                 reader.Read();
 
-                WriteToLog(" -- DBH trying to the update degree " + degree.ID);
+                WriteToLog(" -- DBH trying to update the degree " + degree.ID);
 
                 if (reader.HasRows)
                 {
@@ -2432,7 +2432,8 @@ namespace Database_Handler
                     // ensure the plan will fit into the table
                     if (ui_COL_COUNT[3] < degree.ShallowRequirements.Count)
                     {
-                        int k = degree.Requirements.Count - (int)ui_COL_COUNT[3]; // number of columns that must be added
+                        int k = degree.ShallowRequirements.Count - (int)ui_COL_COUNT[3]; // number of columns that must be added
+                        WriteToLog(" -- DBH attempting to add " + k + " additional columns to the table")
                         AddColumns(k, s_DEGREES_TABLE, "course_");
                     } // end if
 
