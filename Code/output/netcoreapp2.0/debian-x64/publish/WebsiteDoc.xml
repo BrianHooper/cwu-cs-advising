@@ -274,9 +274,6 @@
         <member name="T:CwuAdvising.Pages.AdvisingModel">
             <summary>Model for student advising</summary>
         </member>
-        <member name="F:CwuAdvising.Pages.AdvisingModel.ExampleSchedule">
-            <summary>Example JSON for testing</summary>
-        </member>
         <member name="P:CwuAdvising.Pages.AdvisingModel.CurrentStudent">
             <summary>Current student loaded to advising page</summary>
         </member>

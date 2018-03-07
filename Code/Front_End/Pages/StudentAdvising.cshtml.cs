@@ -38,6 +38,10 @@ namespace CwuAdvising.Pages
         {
 
             List<DegreePair> DegreeList = new List<DegreePair>();
+            if(!IndexModel.LoggedIn)
+            {
+                return JsonConvert.SerializeObject(DegreeList);
+            }
             try
             {
                 ManageDegreesModel.LoadDegreeModelList();
@@ -63,6 +67,10 @@ namespace CwuAdvising.Pages
         /// <returns>JsonResult containing success/error status</returns>
         public ActionResult OnPostLoadStudent()
         {
+            if(!IndexModel.LoggedIn)
+            {
+                return new JsonResult(false);
+            }
             MemoryStream stream = new MemoryStream();
             Request.Body.CopyTo(stream);
             stream.Position = 0;
@@ -96,6 +104,10 @@ namespace CwuAdvising.Pages
         /// <returns>JsonResult containing success/error status</returns>
         public ActionResult OnPostCreateStudent()
         {
+            if (!IndexModel.LoggedIn)
+            {
+                return new JsonResult(false);
+            }
             MemoryStream stream = new MemoryStream();
             Request.Body.CopyTo(stream);
             stream.Position = 0;

@@ -62,6 +62,10 @@ namespace CwuAdvising.Pages
         /// <returns>CourseModel list as serialized JSON string</returns>
         public string UserListAsJson()
         {
+            if (!IndexModel.LoggedIn || !IndexModel.Administrator)
+            {
+                return JsonConvert.SerializeObject(new List<UserModel>());
+            }
             ReadDatabase();
             List<UserModel> ModelList = CredentialsListToUserModelList(MasterUserList);
             return JsonConvert.SerializeObject(ModelList);
@@ -71,6 +75,10 @@ namespace CwuAdvising.Pages
         /// <returns>JsonResult containing success/error status</returns>
         public ActionResult OnPostSendUsers()
         {
+            if(!IndexModel.LoggedIn)
+            {
+                return new JsonResult("Error saving users.");
+            }
             MemoryStream stream = new MemoryStream();
             Request.Body.CopyTo(stream);
             stream.Position = 0;
@@ -126,7 +134,7 @@ namespace CwuAdvising.Pages
         /// <returns>Redirects to StudentAdvising if logging in is successful</returns>
         public IActionResult OnPost()
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || !IndexModel.LoggedIn || !IndexModel.Administrator)
             {
                 return Page(); // Form validation failed
             }

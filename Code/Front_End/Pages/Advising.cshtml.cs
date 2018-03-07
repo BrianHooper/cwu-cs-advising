@@ -16,9 +16,7 @@ namespace CwuAdvising.Pages
     /// <summary>Model for student advising</summary>
     public class AdvisingModel : PageModel
     {
-        /// <summary>Example JSON for testing</summary>
-        public static string ExampleSchedule = System.IO.File.ReadAllText("wwwroot/SimplePlan.json");
-        
+  
         /// <summary>Current student loaded to advising page</summary>
         public static StudentModel CurrentStudent { get; set; }
 
@@ -68,7 +66,7 @@ namespace CwuAdvising.Pages
         /// <returns>Schedule as a JSON string</returns>
         public static string LoadBaseCase()
         {
-            if(!Program.Database.connected)
+            if(!Program.Database.connected || !IndexModel.LoggedIn)
             {
                 return System.IO.File.ReadAllText("wwwroot/ExamplePlan.json");
             }
@@ -280,9 +278,10 @@ namespace CwuAdvising.Pages
         /// <returns>Student Schedule as a parsed JSON string</returns>
         public static string GetStudentPlan()
         {
+            
             try
             {
-                if (!Program.Database.connected || CurrentStudent == null || CurrentSchedule == null)
+                if (!IndexModel.LoggedIn || !Program.Database.connected || CurrentStudent == null || CurrentSchedule == null)
                 {
                     DatabaseInterface.WriteToLog("GetStudentPlan returned blank schedule because student or schedule is null");
                     return JsonConvert.SerializeObject(new ScheduleModel());

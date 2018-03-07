@@ -184,11 +184,24 @@ namespace CwuAdvising.Pages
                     string requestBody = reader.ReadToEnd();
                     if (requestBody.Length > 0)
                     {
+                        
                         var ModifiedCourses = JsonConvert.DeserializeObject<List<CourseModel>>(requestBody);
                         
                         List<Course> CoursesToUpdate = GetCoursesToUpdate(ModifiedCourses);
                         List<Course> CoursesToDelete = GetCoursesToDelete(ModifiedCourses);
-                        
+
+                        DatabaseInterface.WriteToLog("Recieved courses to save");
+                        foreach(Course update in CoursesToUpdate)
+                        {
+                            DatabaseInterface.WriteToLog("Saving course " + update.ID);
+                        }
+
+                        DatabaseInterface.WriteToLog("Recieved courses to delete");
+                        foreach (Course delete in CoursesToDelete)
+                        {
+                            DatabaseInterface.WriteToLog("Saving course " + delete.ID);
+                        }
+
                         if (!DeleteDatabaseCourses(CoursesToDelete))
                         {
                             return new JsonResult("Course update failed.");
@@ -208,7 +221,7 @@ namespace CwuAdvising.Pages
                 }
             } catch(Exception e)
             {
-                System.IO.File.AppendAllText("wwwroot/log.txt", DateTime.Now.ToLongTimeString() + " POST SendCourses caught exception: " + e.Message + "\n");
+                DatabaseInterface.WriteToLog("POST SendCourses caught exception: " + e.Message);
                 return new JsonResult(e.Message);
             }
             
@@ -224,7 +237,6 @@ namespace CwuAdvising.Pages
             */
             foreach(Course c in CourseList)
             {
-                System.IO.File.AppendAllText("wwwroot/log.txt", "UpdateDatabaseCourses ForEach: " + c.ID + "\n");
                 if (!Program.Database.UpdateRecord(c, Database_Handler.OperandType.Course))
                 {
                     return false;
@@ -242,10 +254,8 @@ namespace CwuAdvising.Pages
 
             foreach (Course c in CourseList)
             {
-                DatabaseInterface.WriteToLog("Attempting to delete " + c.ID);
                 if (!Program.Database.DeleteRecord(c, Database_Handler.OperandType.Course))
                 {
-                    DatabaseInterface.WriteToLog("Delete failed on " + c.ID);
                     return false;
                 }
             }
