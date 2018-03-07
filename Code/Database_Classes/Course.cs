@@ -186,20 +186,9 @@ namespace Database_Object_Classes
 
         /// <summary>Getter for PreRequisites list of this course.</summary>
         /// <remarks>The returned collection will be a read-only collection, and may not be modified directly.</remarks>
-        /// 
         public ReadOnlyCollection<Course> PreRequisites
         {
-            get
-            {
-                if (!b_isShallow)
-                {
-                    return l_preRequisites.AsReadOnly();
-                } // end if
-                else
-                {
-                    throw new InvalidOperationException("The course object is shallow and does not contain a list of courses.");
-                } // end else
-            } // end get
+            get => l_preRequisites.AsReadOnly();
         } // end PreRequisites
 
         /// <summary>Getter for shallow PreRequisites list of this course.</summary>
@@ -224,7 +213,11 @@ namespace Database_Object_Classes
         } // end Credits
 
         /// <summary>Getter for whether this is a shallow course object.</summary>
-        public bool IsShallow => b_isShallow;
+        public bool IsShallow 
+        {
+            get => b_isShallow;
+            set => b_isShallow = value;
+        }
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * */
 
