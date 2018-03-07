@@ -174,19 +174,25 @@ namespace CwuAdvising
 
             if (shallow)
             {
+                WriteToLog("Returning shallow course list");
                 return dbCommand.CourseList;
             }
             else
             {
-                foreach(Course course in dbCommand.CourseList)
+                WriteToLog("Attempting to retrieve prereqs");
+                foreach (Course course in dbCommand.CourseList)
                 {
-                    foreach(String courseID in course.ShallowPreRequisites)
+                    if (course.ShallowPreRequisites != null)
                     {
-                        Course PrereqTemplate = new Course("", courseID, 0, false);
-                        Course Prereq = (Course)RetrieveRecord(PrereqTemplate, OperandType.Course);
-                        if(Prereq.ID != "-1")
+                        foreach (string courseID in course.ShallowPreRequisites)
                         {
-                            course.AddPreRequisite(Prereq);
+                            Course PrereqTemplate = new Course("", courseID, 0, false);
+                            WriteToLog("Attempting to retrieve course " + PrereqTemplate.ID);
+                            Course Prereq = (Course)RetrieveRecord(PrereqTemplate, OperandType.Course);
+                            if (Prereq.ID != "-1")
+                            {
+                                course.AddPreRequisite(Prereq);
+                            }
                         }
                     }
                 }
@@ -245,6 +251,10 @@ namespace CwuAdvising
         /// <param name="ot_type">The type of object passed in arg 1.</param>
         public Database_Object RetrieveRecord(Database_Object template, OperandType ot_type)
         {
+            if(ot_type == OperandType.Course)
+            {
+                WriteToLog("RetrieveRecord attempting to retrieve course " + ((Course)template).ID);
+            }
             DatabaseCommand cmd = new DatabaseCommand(CommandType.Retrieve, template, ot_type);
 
             SendCommand(cmd);

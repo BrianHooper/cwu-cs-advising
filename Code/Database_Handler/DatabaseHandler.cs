@@ -2423,7 +2423,7 @@ namespace Database_Handler
                     WriteToLog(" -- DBH the degree " + degree.ID + " was not found in the database.");
                     WriteToLog(" -- DBH degree contains: " + degree.ToString());
 
-                    WriteToLog(" -- DBH the number of columns in the degree table is: " + ui_COL_COUNT[3].ToString());
+                    WriteToLog(" -- DBH the number of columns in the degree table is: " + ui_COL_COUNT[3].ToString() + " count: "  + degree.ShallowRequirements.Count);
                     // ensure the plan will fit into the table
                     if (ui_COL_COUNT[3] < degree.ShallowRequirements.Count)
                     {
