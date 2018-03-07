@@ -255,11 +255,15 @@ namespace CwuAdvising
             {
                 WriteToLog("RetrieveRecord attempting to retrieve course " + ((Course)template).ID);
             }
+            WriteToLog("Creating new DatabaseCommand " + CommandType.Retrieve.ToString());
             DatabaseCommand cmd = new DatabaseCommand(CommandType.Retrieve, template, ot_type);
 
+            WriteToLog("Sending Command " + cmd.CommandType.ToString());
             SendCommand(cmd);
 
+            
             DatabaseCommand retCmd = ReceiveCommand();
+            WriteToLog("Recieved command " + retCmd.CommandType.ToString());
 
             if (retCmd.CommandType == CommandType.Return && retCmd.ReturnCode == 0)
             {
