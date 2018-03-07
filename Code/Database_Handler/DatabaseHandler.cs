@@ -568,7 +568,7 @@ namespace Database_Handler
                 {
                     case OperandType.CatalogRequirements:
                         dbo = (CatalogRequirements)cmd.Operand;
-                        WriteToLog(" -- DBH Updating: \n" + ((CatalogRequirements)dbo).ToString());
+                        //WriteToLog(" -- DBH Updating: \n" + ((CatalogRequirements)dbo).ToString());
                         i_code = Update((CatalogRequirements)dbo);
                         break;
                     case OperandType.Student:
@@ -578,7 +578,7 @@ namespace Database_Handler
                         break;
                     case OperandType.Course:
                         dbo = (Course)cmd.Operand;
-                        WriteToLog(" -- DBH Updating: \n" + ((Course)dbo).ToString());
+                        //WriteToLog(" -- DBH Updating: \n" + ((Course)dbo).ToString());
                         i_code = Update((Course)dbo);
                         break;
                     case OperandType.Credentials:
@@ -686,7 +686,7 @@ namespace Database_Handler
             {
                 string s_pw = BitConverter.ToString(cred.Password_Hash);
                 s_pw = s_pw.Replace("-", string.Empty);
-                WriteToLog(" -- DBH the hash which arrived is " + s_pw);
+                //WriteToLog(" -- DBH the hash which arrived is " + s_pw);
                 b_success = LoginAttempt(cred.UserName, s_pw);
             } // end try
             catch (ThreadAbortException e)
@@ -759,7 +759,7 @@ namespace Database_Handler
             {
                 MySqlLock.WaitOne();
                 string query = "SELECT * FROM " + s_MYSQL_DB_NAME + "." + s_CATALOGS_TABLE + ";";
-                WriteToLog(" -- DBH Execute display catalogs query is:" + query);
+                //WriteToLog(" -- DBH Execute display catalogs query is:" + query);
 
                 MySqlCommand cmd = new MySqlCommand(query, DB_CONNECTION);
                 reader = cmd.ExecuteReader();
@@ -773,11 +773,6 @@ namespace Database_Handler
                     l_IDs.Add(s_catalog);                    
                 } // end while
 
-                foreach(string s in l_IDs)
-                {
-                    WriteToLog(" -- DBH catalogs found: " + s);
-                } // end foreach
-
                 reader.Close();
                 MySqlLock.ReleaseMutex();
 
@@ -786,7 +781,6 @@ namespace Database_Handler
                     catalogs.Add(RetrieveCatalog(s, b_shallow));
                 } // end foreach
 
-                WriteToLog(" -- DBH finished retrieve catalogs, found: ");
                 foreach(CatalogRequirements c in catalogs)
                 {
                     WriteToLog(" -- DBH catalog: " + c.ToString());
@@ -929,14 +923,8 @@ namespace Database_Handler
                 } // end if
 
                 MySqlLock.ReleaseMutex();
-                //foreach(Course c in courses)
-                //{
-                //    WriteToLog(" -- DBH course being returned by display courses:\n" + c.ToString());
-                ////}
 
             } // end finally 
-
-            //WriteToLog(" -- DBH Display Courses found " + courses.Count + " courses in the database.");
 
             return new DatabaseCommand(0, "No Errors", null, courses);
         } // end method ExecuteDisplayCommand
@@ -971,14 +959,11 @@ namespace Database_Handler
         /// <returns>The command that is to be executed.</returns>
         private DatabaseCommand WaitForCommand(NetworkStream stream)
         {
-            WriteToLog(" -- DBH Now in wait for command.");
             byte[] ba_data = new byte[BUFFER_SIZE];
 
             MemoryStream ms = new MemoryStream();
 
             DateTime arrival = DateTime.Now;
-
-            WriteToLog(" -- DBH Waiting for incoming data ...");
 
             while (!stream.DataAvailable)
             {
@@ -990,33 +975,24 @@ namespace Database_Handler
                 } // end if
             } // end while
 
-            WriteToLog(" -- DBH Data detected in stream.");
-
             // read from stream in chunks of 2048 bytes
             for (int i = 0; stream.DataAvailable; i++)
             {
                 int bytes = 0;
-                WriteToLog(" -- DBH Reading stream contents.");
                 if (stream.CanRead)
                 {
-                    WriteToLog(" -- DBH Stream is in readable state.");
                     bytes = stream.Read(ba_data, 0, BUFFER_SIZE);
                 } // end if
-                WriteToLog(" -- DBH Writing stream contents, received " + bytes + "  bytes.");
                 ms.Write(ba_data, 0, bytes);
             } // end for
-            WriteToLog(" -- DBH Received " + ms.Length.ToString() + " bytes.");
 
 
-            WriteToLog(" -- DBH Deserializing command now.");
             BinaryFormatter formatter = new BinaryFormatter();
 
             ms.Position = 0;
 
             DatabaseCommand cmd = (DatabaseCommand)formatter.Deserialize(ms);
-            WriteToLog(" -- DBH Command was deserialized.");
             WriteToLog(" -- DBH Command is: " + cmd.CommandType.ToString());
-            WriteToLog(" -- DBH Returning command now.");
             return cmd;
         } // end method WaitForCommand
 
@@ -1186,42 +1162,17 @@ namespace Database_Handler
             string[] table_names = { s_PLAN_TABLE, s_COURSES_TABLE, s_CATALOGS_TABLE, s_DEGREES_TABLE};
             uint[]   offset      = {      3,             10,               3,                5       };
 
-            if (true)
+            for (int i = 0; i < 4; i++)
             {
-                for (int i = 0; i < 4; i++)
-                {
-                    string query = "SELECT count(*) FROM information_schema.columns WHERE table_schema = \"" + s_MYSQL_DB_NAME + "\"";
-                    query += " AND table_name = \"" + table_names[i] + "\"";
-
-                    WriteToLog(" -- DBH executing the query: " + query);
-
-                    MySqlCommand cmd = new MySqlCommand(query, DB_CONNECTION);
-
-                    ui_COL_COUNT[i] = Convert.ToUInt32(cmd.ExecuteScalar());
-
-                    WriteToLog(" -- DBH the query returned " + ui_COL_COUNT[i] + " in table " + table_names[i]);
-
-                    ui_COL_COUNT[i] -= offset[i];
-
-                    WriteToLog(" -- DBH the values was adjusted to " + ui_COL_COUNT[i] + " for table " + table_names[i] + " by subtracting " + offset[i].ToString());
-
-                } // end for
-            } // end if
-            else
-            {
-                string query = "SELECT count(*) FROM information_schema.columns WHERE table_schema = " + s_MYSQL_DB_NAME;
-                query += " AND table_name = " + s_table;
+                string query = "SELECT count(*) FROM information_schema.columns WHERE table_schema = \"" + s_MYSQL_DB_NAME + "\"";
+                query += " AND table_name = \"" + table_names[i] + "\"";
 
                 MySqlCommand cmd = new MySqlCommand(query, DB_CONNECTION);
-                MySqlDataReader reader = cmd.ExecuteReader();
 
-                reader.Read();
+                ui_COL_COUNT[i] = Convert.ToUInt32(cmd.ExecuteScalar());
 
-                ui_COL_COUNT[i_index] = reader.GetUInt32(0);
-                ui_COL_COUNT[i_index] -= offset[i_index];
-
-                reader.Close();
-            } // end else
+                ui_COL_COUNT[i] -= offset[i];
+            } // end for
         } // end method GetColumnCounts
 
         /// <summary>Writes the given message into the DBH log with a current time stamp.</summary>
@@ -1290,11 +1241,7 @@ namespace Database_Handler
 
                 if (reader.HasRows) // check if user exists
                 {
-                    WriteToLog(" -- DBH the user " + s_ID + " is attempting to login.");
-
                     s_temp = reader.GetString(2);
-
-                    WriteToLog(" -- DBH the two passwords being compared are:\n -- DBH " + s_temp + "\n -- DBH " + s_pw);
 
                     // check if passwords match
                     if (s_pw == s_temp)
