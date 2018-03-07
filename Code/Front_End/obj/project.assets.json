@@ -5041,6 +5041,9 @@
       "PlanGenerationAlgorithm/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v2.0",
+        "dependencies": {
+          "Microsoft.NETCore.App": "2.0.0"
+        },
         "compile": {
           "bin/placeholder/PlanGenerationAlgorithm.dll": {}
         },
@@ -13161,35 +13164,40 @@
     ]
   },
   "packageFolders": {
-    "/Users/nicola/.nuget/packages/": {},
-    "/usr/local/share/dotnet/sdk/NuGetFallbackFolder": {}
+    "C:\\Users\\Brian\\.nuget\\packages\\": {},
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
     "version": "1.0.0",
+    "restoreSettings": {
+      "hideWarningsAndErrors": true
+    },
     "restore": {
-      "projectUniqueName": "/Users/nicola/Desktop/stuff/projects/visual studio/cwu-cs-advising/Code/Front_End/CwuAdvising.csproj",
+      "projectUniqueName": "C:\\Users\\Brian\\Documents\\cwu-cs-advising\\Code\\Front_End\\CwuAdvising.csproj",
       "projectName": "CwuAdvising",
-      "projectPath": "/Users/nicola/Desktop/stuff/projects/visual studio/cwu-cs-advising/Code/Front_End/CwuAdvising.csproj",
-      "packagesPath": "/Users/nicola/.nuget/packages/",
-      "outputPath": "/Users/nicola/Desktop/stuff/projects/visual studio/cwu-cs-advising/Code/Front_End/obj",
+      "projectPath": "C:\\Users\\Brian\\Documents\\cwu-cs-advising\\Code\\Front_End\\CwuAdvising.csproj",
+      "packagesPath": "C:\\Users\\Brian\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Brian\\Documents\\cwu-cs-advising\\Code\\Front_End\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
-        "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
+        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
       ],
       "configFilePaths": [
-        "/Users/nicola/.config/NuGet/NuGet.Config"
+        "C:\\Users\\Brian\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "netcoreapp2.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "netcoreapp2.0": {
           "projectReferences": {
-            "/Users/nicola/Desktop/stuff/projects/visual studio/cwu-cs-advising/Code/Back_End/PlanGenerationAlgorithm/PlanGenerationAlgorithm.csproj": {
-              "projectPath": "/Users/nicola/Desktop/stuff/projects/visual studio/cwu-cs-advising/Code/Back_End/PlanGenerationAlgorithm/PlanGenerationAlgorithm.csproj"
+            "C:\\Users\\Brian\\Documents\\cwu-cs-advising\\Code\\Back_End\\PlanGenerationAlgorithm\\PlanGenerationAlgorithm.csproj": {
+              "projectPath": "C:\\Users\\Brian\\Documents\\cwu-cs-advising\\Code\\Back_End\\PlanGenerationAlgorithm\\PlanGenerationAlgorithm.csproj"
             }
           }
         }
@@ -13203,23 +13211,22 @@
     "frameworks": {
       "netcoreapp2.0": {
         "dependencies": {
-          "Microsoft.NETCore.App": {
-            "suppressParent": "All",
-            "target": "Package",
-            "version": "2.0",
-            "autoReferenced": true
-          },
-          "ini-parser": {
-            "target": "Package",
-            "version": "2.5.2"
-          },
           "Microsoft.AspNetCore.All": {
             "target": "Package",
-            "version": "2.0.5"
+            "version": "[2.0.5, )"
+          },
+          "Microsoft.NETCore.App": {
+            "target": "Package",
+            "version": "[2.0.0, )",
+            "autoReferenced": true
           },
           "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
             "target": "Package",
-            "version": "2.0.2"
+            "version": "[2.0.2, )"
+          },
+          "ini-parser": {
+            "target": "Package",
+            "version": "[2.5.2, )"
           }
         },
         "imports": [
