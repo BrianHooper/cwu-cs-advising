@@ -1348,9 +1348,9 @@ namespace Database_Handler
                     case 'Y':
                         return RetrieveCatalog(s_ID, b_shallow);
                     case 'C':
-                        WriteToLog(" -- DBH retrieving course " + s_ID);
+                        //WriteToLog(" -- DBH retrieving course " + s_ID);
                         Course temp = RetrieveCourse(s_ID, b_shallow, 0);
-                        WriteToLog(" -- DBH retrieved the course:\n" + temp.ToString());
+                        //WriteToLog(" -- DBH retrieved the course:\n" + temp.ToString());
                         return temp;
                     case 'U':
                         return RetrieveUserCredentials(s_ID);
@@ -1849,7 +1849,7 @@ namespace Database_Handler
         /// </remarks>
         private Course RetrieveCourse(string s_ID, bool b_shallow, uint ui_depth)
         {
-            WriteToLog(" -- RetrieveCourse on " + s_ID);
+            //WriteToLog(" -- RetrieveCourse on " + s_ID);
             if (ui_depth == ui_MAX_RECURSION_DEPTH)
             {
                 throw new RecursionDepthException("Retrieving the course " + s_ID + " caused a recursion depth of " + ui_depth + " stopping to prevent infinite recursion.");
