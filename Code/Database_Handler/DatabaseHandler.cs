@@ -1560,7 +1560,7 @@ namespace Database_Handler
 
                     for(int i = 0; i < ui_numDegrees; i++)
                     {
-                        if(reader.FieldCount > (ui_numDegrees + 3))
+                        if(reader.FieldCount > (i + 3))
                         {
                             l_degrees.Add(reader.GetString(i + 3));
                         } // end if
