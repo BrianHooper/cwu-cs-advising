@@ -218,7 +218,10 @@ namespace CwuAdvising.Pages
                         CreatedScheduleModel.UnmetRequirements.Add(req);
                     }
                     DatabaseInterface.WriteToLog("Create PlanInfo object for student " + model.ID);
-                    PlanInfo CreatedPlanInfo = new PlanInfo(model.ID, 0, model.Quarter, new string[1] { JsonConvert.SerializeObject(CreatedScheduleModel) });
+                    string Plan = JsonConvert.SerializeObject(CreatedScheduleModel);
+                    Plan = Plan.Replace('"', '\"');
+                    string[] StudentsPlan = { Plan };
+                    PlanInfo CreatedPlanInfo = new PlanInfo(model.ID, 0, model.Quarter + " " + model.Year, StudentsPlan);
 
                     DatabaseInterface.WriteToLog("Attempting to update student plan " + CreatedPlanInfo.StudentID);
                     if (Program.Database.UpdateRecord(CreatedPlanInfo))

@@ -419,6 +419,8 @@ namespace CwuAdvising
         /// <param name="info">Object to update.</param>
         public bool UpdateRecord(PlanInfo info)
         {
+            WriteToLog("Sending student plan to database: " + info.StudentID + ", " + info.StartQuarter);
+            WriteToLog("PLAN: " + info.Classes[0]);
             DatabaseCommand cmd = new DatabaseCommand(CommandType.Update, info);
 
             SendCommand(cmd);
