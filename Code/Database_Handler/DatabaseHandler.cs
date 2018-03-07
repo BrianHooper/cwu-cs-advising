@@ -25,7 +25,7 @@ namespace Database_Handler
         /// <summary>The length of the salt being used for hashing user passwords.</summary>
         public static int i_SALT_LENGTH     = 32;
         /// <summary>The path to the log file which will contain the log entries created by DBH.</summary>
-        public static string s_logFilePath = "log.txt";
+        public static string s_logFilePath = "/var/aspnetcore/logs/log.txt";
 
         #endregion
 
