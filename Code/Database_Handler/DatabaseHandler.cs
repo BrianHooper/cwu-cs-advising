@@ -2421,12 +2421,15 @@ namespace Database_Handler
 
                     WriteToLog(" -- DBH the degree " + degree.ID + " was not found in the database.");
 
+                    WriteToLog(" -- DBH the number of columns in the degree table is: " + ui_COL_COUNT[3].ToString());
                     // ensure the plan will fit into the table
-                    if (ui_COL_COUNT[3] < degree.Requirements.Count)
+                    if (ui_COL_COUNT[3] < degree.ShallowRequirements.Count)
                     {
                         int k = degree.Requirements.Count - (int)ui_COL_COUNT[3]; // number of columns that must be added
                         AddColumns(k, s_DEGREES_TABLE, "course_");
                     } // end if
+
+                    WriteToLog(" -- DBH the number of columns in the degree table after update is: " + ui_COL_COUNT[3].ToString());
 
                     MySqlCommand command = GetCommand(catalog.ID + "_" + degree.ID, 'I', s_DEGREES_TABLE, s_DEGREES_KEY, "", GetInsertValues(catalog, degree));
                     WriteToLog(" -- DBH insert query that was generated is " + command.CommandText);
