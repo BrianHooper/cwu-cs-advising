@@ -21,12 +21,8 @@ namespace CwuAdvising.Pages
         /// <summary>Read all credentials from the database to the MasterUserList</summary>
         public void ReadDatabase()
         {
-            List<Credentials> UserList = new List<Credentials>
-            {
-                new Credentials("root", 0, true, true, new byte[] { 0x20, 0x20 }, ""),
-                new Credentials("user1", 0, false, true, new byte[] { 0x20, 0x20 }, ""),
-                new Credentials("user2", 0, true, false, new byte[] { 0x20, 0x20 }, "")
-            };
+            List<Credentials> UserList = Program.Database.GetAllUsers();
+
             MasterUserList = UserList;
         }
 
