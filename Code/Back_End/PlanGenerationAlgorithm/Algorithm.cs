@@ -37,7 +37,7 @@ namespace PlanGenerationAlgorithm
             // {
             //WriteToLog("Algorithm recieved unmet requirement " + req.ID);
             // }
-            maxCredits = maxCreditss;
+            maxCreditss = maxCredits;
             //set minimum and maximum number of credits
             Algorithm algorithm = new Algorithm();
             //set the value of take summer course to determine 

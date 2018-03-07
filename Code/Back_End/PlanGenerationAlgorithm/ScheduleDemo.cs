@@ -287,126 +287,108 @@ namespace PlanGenerationAlgorithm
 
         public void DemoFinishedSchedule()
         {
+            List<Course> UnmetRequirements = new List<Course>();
             List<Course> NoPrereqs = new List<Course>();
 
             // Summer 2018
-            Schedule schedule = new Schedule(new Quarter(2018, Season.Summer));
-            schedule.locked = true;
+            Schedule schedule = new Schedule(new Quarter(2018, Season.Fall));
 
             // Fall 2018
-            schedule = schedule.NextScheduleSimple();
             Course UNIV101 = new Course("UNIV101", "UNIV101", 1, true, new bool[] { true, true, true, true }, NoPrereqs); schedule.courses.Add(UNIV101); schedule.ui_numberCredits += UNIV101.Credits;
-            Course MATH153 = new Course("MATH153", "MATH153", 5, true, new bool[] { true, true, true, true }, NoPrereqs); schedule.courses.Add(MATH153); schedule.ui_numberCredits += MATH153.Credits;
-            Course ENG101 = new Course("ENG101", "ENG101", 5, true, new bool[] { true, true, true, true }, NoPrereqs); schedule.courses.Add(ENG101); schedule.ui_numberCredits += ENG101.Credits;
-            Course CS110 = new Course("CS110", "CS110", 4, true, new bool[] { true, true, false, true }, NoPrereqs); schedule.courses.Add(CS110); schedule.ui_numberCredits += CS110.Credits;
+            Course MATH153 = new Course("MATH153", "MATH153", 5, true, new bool[] { true, true, true, true }, NoPrereqs); UnmetRequirements.Add(MATH153); 
+            Course ENG101 = new Course("ENG101", "ENG101", 5, true, new bool[] { true, true, true, true }, NoPrereqs); UnmetRequirements.Add(ENG101); 
+            Course CS110 = new Course("CS110", "CS110", 4, true, new bool[] { true, true, false, true }, NoPrereqs); UnmetRequirements.Add(CS110); 
 
             // Winter 2019
-            schedule = schedule.NextScheduleSimple();
-            Course MATH154 = new Course("MATH154", "MATH154", 5, true, new bool[] { true, true, true, true }, NoPrereqs); schedule.courses.Add(MATH154); schedule.ui_numberCredits += MATH154.Credits;
+            Course MATH154 = new Course("MATH154", "MATH154", 5, true, new bool[] { true, true, true, true }, NoPrereqs); UnmetRequirements.Add(MATH154); 
             List<Course> CS111Prereqs = new List<Course>(); CS111Prereqs.Add(CS110);
-            Course CS111 = new Course("CS111", "CS111", 4, true, new bool[] { true, true, false, false }, CS111Prereqs); schedule.courses.Add(CS111); schedule.ui_numberCredits += CS111.Credits;
+            Course CS111 = new Course("CS111", "CS111", 4, true, new bool[] { true, true, false, false }, CS111Prereqs); UnmetRequirements.Add(CS111); 
             List<Course> ENG102Prereqs = new List<Course>(); ENG102Prereqs.Add(ENG101);
-            Course ENG102 = new Course("ENG102", "ENG102", 5, true, new bool[] { true, true, true, true }, ENG102Prereqs); schedule.courses.Add(ENG102); schedule.ui_numberCredits += ENG102.Credits;
+            Course ENG102 = new Course("ENG102", "ENG102", 5, true, new bool[] { true, true, true, true }, ENG102Prereqs); UnmetRequirements.Add(ENG102); 
 
             // Spring 2019
-            schedule = schedule.NextScheduleSimple();
             List<Course> MATH172Prereqs = new List<Course>(); MATH172Prereqs.Add(MATH154);
-            Course MATH172 = new Course("MATH172", "MATH172", 5, true, new bool[] { true, true, true, true }, MATH172Prereqs); schedule.courses.Add(MATH172); schedule.ui_numberCredits += MATH172.Credits;
+            Course MATH172 = new Course("MATH172", "MATH172", 5, true, new bool[] { true, true, true, true }, MATH172Prereqs); UnmetRequirements.Add(MATH172); 
             List<Course> CS112Prereqs = new List<Course>(); CS112Prereqs.Add(CS111);
-            Course CS112 = new Course("CS112", "CS112", 4, true, new bool[] { false, false, true, false }, CS112Prereqs); schedule.courses.Add(CS112); schedule.ui_numberCredits += CS112.Credits;
-            Course BREADTH1 = new Course("BREADTH1", "BREADTH1", 5, true, new bool[] { true, true, true, true }, NoPrereqs); schedule.courses.Add(BREADTH1); schedule.ui_numberCredits += BREADTH1.Credits;
+            Course CS112 = new Course("CS112", "CS112", 4, true, new bool[] { false, false, true, false }, CS112Prereqs); UnmetRequirements.Add(CS112); 
+            Course BREADTH1 = new Course("BREADTH1", "BREADTH1", 5, true, new bool[] { true, true, true, true }, NoPrereqs); UnmetRequirements.Add(BREADTH1); 
 
             // Summer 2019
-            schedule = schedule.NextScheduleSimple();
             schedule.locked = true;
 
             // Fall 2019
-            schedule = schedule.NextScheduleSimple();
             List<Course> CS301Prereqs = new List<Course>(); CS301Prereqs.Add(CS111); CS301Prereqs.Add(MATH154);
-            Course CS301 = new Course("CS301", "CS301", 4, true, new bool[] { false, true, false, true }, CS301Prereqs); schedule.courses.Add(CS301); schedule.ui_numberCredits += CS301.Credits;
+            Course CS301 = new Course("CS301", "CS301", 4, true, new bool[] { false, true, false, true }, CS301Prereqs); UnmetRequirements.Add(CS301); 
             List<Course> CS311Prereqs = new List<Course>(); CS311Prereqs.Add(CS110);
-            Course CS311 = new Course("CS311", "CS311", 4, true, new bool[] { false, true, false, true }, NoPrereqs); schedule.courses.Add(CS311); schedule.ui_numberCredits += CS311.Credits;
-            Course BREADTH2 = new Course("BREADTH2", "BREADTH2", 5, true, new bool[] { true, true, true, true }, NoPrereqs); schedule.courses.Add(BREADTH2); schedule.ui_numberCredits += BREADTH2.Credits;
-            Course BREADTH3 = new Course("BREADTH3", "BREADTH3", 5, true, new bool[] { true, true, true, true }, NoPrereqs); schedule.courses.Add(BREADTH3); schedule.ui_numberCredits += BREADTH3.Credits;
+            Course CS311 = new Course("CS311", "CS311", 4, true, new bool[] { false, true, false, true }, NoPrereqs); UnmetRequirements.Add(CS311); 
+            Course BREADTH2 = new Course("BREADTH2", "BREADTH2", 5, true, new bool[] { true, true, true, true }, NoPrereqs); UnmetRequirements.Add(BREADTH2); 
+            Course BREADTH3 = new Course("BREADTH3", "BREADTH3", 5, true, new bool[] { true, true, true, true }, NoPrereqs); UnmetRequirements.Add(BREADTH3); 
 
             // Winter 2020
-            schedule = schedule.NextScheduleSimple();
             List<Course> CS302Prereqs = new List<Course>(); CS302Prereqs.Add(CS301); CS302Prereqs.Add(MATH172);
-            Course CS302 = new Course("CS302", "CS302", 4, true, new bool[] { true, false, false, true }, NoPrereqs); schedule.courses.Add(CS302); schedule.ui_numberCredits += CS302.Credits;
+            Course CS302 = new Course("CS302", "CS302", 4, true, new bool[] { true, false, false, true }, NoPrereqs); UnmetRequirements.Add(CS302); 
             List<Course> CS312Prereqs = new List<Course>(); CS312Prereqs.Add(CS301); CS312Prereqs.Add(CS311);
-            Course CS312 = new Course("CS312", "CS312", 4, true, new bool[] { true, false, false, true }, CS312Prereqs); schedule.courses.Add(CS312); schedule.ui_numberCredits += CS312.Credits;
+            Course CS312 = new Course("CS312", "CS312", 4, true, new bool[] { true, false, false, true }, CS312Prereqs); UnmetRequirements.Add(CS312);
             List<Course> CS325Prereqs = new List<Course>(); CS325Prereqs.Add(CS301); CS325Prereqs.Add(ENG102);
-            Course CS325 = new Course("CS325", "CS325", 3, true, new bool[] { false, false, true, false }, CS325Prereqs); schedule.courses.Add(CS325); schedule.ui_numberCredits += CS325.Credits;
-            Course BREADTH4 = new Course("BREADTH4", "BREADTH4", 5, true, new bool[] { true, true, true, true }, NoPrereqs); schedule.courses.Add(BREADTH4); schedule.ui_numberCredits += BREADTH4.Credits;
+            Course CS325 = new Course("CS325", "CS325", 3, true, new bool[] { false, false, true, false }, CS325Prereqs); UnmetRequirements.Add(CS325); 
+            Course BREADTH4 = new Course("BREADTH4", "BREADTH4", 5, true, new bool[] { true, true, true, true }, NoPrereqs); UnmetRequirements.Add(BREADTH4); 
 
             // Spring 2020
-            schedule = schedule.NextScheduleSimple();
             List<Course> MATH260Prereqs = new List<Course>(); MATH260Prereqs.Add(MATH172); MATH260Prereqs.Add(CS301);
-            Course MATH260 = new Course("MATH260", "MATH260", 5, true, new bool[] { false, false, true, false }, MATH260Prereqs); schedule.courses.Add(MATH260); schedule.ui_numberCredits += MATH260.Credits;
+            Course MATH260 = new Course("MATH260", "MATH260", 5, true, new bool[] { false, false, true, false }, MATH260Prereqs); UnmetRequirements.Add(MATH260); 
             List<Course> CS446Prereqs = new List<Course>(); CS446Prereqs.Add(CS302);
-            Course CS446 = new Course("CS446", "CS446", 4, true, new bool[] { false, true, false, false }, CS446Prereqs); schedule.courses.Add(CS446); schedule.ui_numberCredits += CS446.Credits;
-            Course BREADTH5 = new Course("BREADTH5", "BREADTH5", 5, true, new bool[] { true, true, true, true }, NoPrereqs); schedule.courses.Add(BREADTH5); schedule.ui_numberCredits += BREADTH5.Credits;
-
-            // Summer 2020
-            schedule = schedule.NextScheduleSimple();
-            schedule.locked = true;
+            Course CS446 = new Course("CS446", "CS446", 4, true, new bool[] { false, true, false, false }, CS446Prereqs); UnmetRequirements.Add(CS446); 
+            Course BREADTH5 = new Course("BREADTH5", "BREADTH5", 5, true, new bool[] { true, true, true, true }, NoPrereqs); UnmetRequirements.Add(BREADTH5); 
+            
 
             // Fall 2020
-            schedule = schedule.NextScheduleSimple();
             List<Course> CS361Prereqs = new List<Course>(); CS361Prereqs.Add(CS302);
-            Course CS361 = new Course("CS361", "CS361", 4, true, new bool[] { false, false, false, true }, CS361Prereqs); schedule.courses.Add(CS361); schedule.ui_numberCredits += CS361.Credits;
+            Course CS361 = new Course("CS361", "CS361", 4, true, new bool[] { false, false, false, true }, CS361Prereqs); UnmetRequirements.Add(CS361); 
             List<Course> MATH330Prereqs = new List<Course>(); MATH330Prereqs.Add(MATH260);
-            Course MATH330 = new Course("MATH330", "MATH330", 5, true, new bool[] { false, true, false, true }, MATH330Prereqs); schedule.courses.Add(MATH330); schedule.ui_numberCredits += MATH330.Credits;
-            Course BREADTH6 = new Course("BREADTH6", "BREADTH6", 5, true, new bool[] { true, true, true, true }, NoPrereqs); schedule.courses.Add(BREADTH6); schedule.ui_numberCredits += BREADTH6.Credits;
+            Course MATH330 = new Course("MATH330", "MATH330", 5, true, new bool[] { false, true, false, true }, MATH330Prereqs); UnmetRequirements.Add(MATH330); 
+            Course BREADTH6 = new Course("BREADTH6", "BREADTH6", 5, true, new bool[] { true, true, true, true }, NoPrereqs); UnmetRequirements.Add(BREADTH6); 
 
             // Winter 2021
-            schedule = schedule.NextScheduleSimple();
             List<Course> CS362Prereqs = new List<Course>(); CS362Prereqs.Add(CS361); CS362Prereqs.Add(MATH260);
-            Course CS362 = new Course("CS362", "CS362", 4, true, new bool[] { true, false, false, false }, CS362Prereqs); schedule.courses.Add(CS362); schedule.ui_numberCredits += CS362.Credits;
+            Course CS362 = new Course("CS362", "CS362", 4, true, new bool[] { true, false, false, false }, CS362Prereqs); UnmetRequirements.Add(CS362); 
             List<Course> CS470Prereqs = new List<Course>(); CS470Prereqs.Add(CS302); CS470Prereqs.Add(CS312); CS470Prereqs.Add(CS325);
-            Course CS470 = new Course("CS470", "CS470", 4, true, new bool[] { true, false, false, false }, CS470Prereqs); schedule.courses.Add(CS470); schedule.ui_numberCredits += CS470.Credits;
+            Course CS470 = new Course("CS470", "CS470", 4, true, new bool[] { true, false, false, false }, CS470Prereqs); UnmetRequirements.Add(CS470); 
             List<Course> CSElectivePrereqs = new List<Course>(); CSElectivePrereqs.Add(CS302); CSElectivePrereqs.Add(CS311); CSElectivePrereqs.Add(CS325);
-            Course CSElective1 = new Course("CSElective1", "CSElective1", 4, true, new bool[] { true, true, false, true }, CSElectivePrereqs); schedule.courses.Add(CSElective1); schedule.ui_numberCredits += CSElective1.Credits;
-            Course COMPUTING = new Course("COMPUTING", "COMPUTING", 5, true, new bool[] { true, true, true, true }, NoPrereqs); schedule.courses.Add(COMPUTING); schedule.ui_numberCredits += COMPUTING.Credits;
+            Course CSElective1 = new Course("CSElective1", "CSElective1", 4, true, new bool[] { true, true, false, true }, CSElectivePrereqs); UnmetRequirements.Add(CSElective1); 
+            Course COMPUTING = new Course("COMPUTING", "COMPUTING", 5, true, new bool[] { true, true, true, true }, NoPrereqs); UnmetRequirements.Add(COMPUTING);
 
             // Spring 2021
-            schedule = schedule.NextScheduleSimple();
             List<Course> CS380Prereqs = new List<Course>(); CS380Prereqs.Add(CS302);
-            Course CS380 = new Course("CS380", "CS380", 4, true, new bool[] { false, true, false, false }, CS380Prereqs); schedule.courses.Add(CS380); schedule.ui_numberCredits += CS380.Credits;
+            Course CS380 = new Course("CS380", "CS380", 4, true, new bool[] { false, true, false, false }, CS380Prereqs); UnmetRequirements.Add(CS380); 
             List<Course> CS420Prereqs = new List<Course>(); CS420Prereqs.Add(CS302); CS420Prereqs.Add(CS325); CS420Prereqs.Add(MATH330);
-            Course CS420 = new Course("CS420", "CS420", 4, true, new bool[] { true, true, false, false }, CS420Prereqs); schedule.courses.Add(CS420); schedule.ui_numberCredits += CS420.Credits;
-            Course CSElective2 = new Course("CSElective2", "CSElective2", 4, true, new bool[] { false, false, false, false }, CSElectivePrereqs); schedule.courses.Add(CSElective2); schedule.ui_numberCredits += CSElective2.Credits;
-            Course BREADTH7 = new Course("BREADTH7", "BREADTH7", 5, true, new bool[] { true, true, true, true }, NoPrereqs); schedule.courses.Add(BREADTH7); schedule.ui_numberCredits += BREADTH7.Credits;
+            Course CS420 = new Course("CS420", "CS420", 4, true, new bool[] { true, true, false, false }, CS420Prereqs); UnmetRequirements.Add(CS420); 
+            Course CSElective2 = new Course("CSElective2", "CSElective2", 4, true, new bool[] { false, false, false, false }, CSElectivePrereqs); UnmetRequirements.Add(CSElective2); 
+            Course BREADTH7 = new Course("BREADTH7", "BREADTH7", 5, true, new bool[] { true, true, true, true }, NoPrereqs); UnmetRequirements.Add(BREADTH7); 
 
-            // Summer 2021
-            schedule = schedule.NextScheduleSimple();
-            schedule.locked = true;
+
 
             // Fall 2021
-            schedule = schedule.NextScheduleSimple();
             List<Course> CS480Prereqs = new List<Course>(); CS480Prereqs.Add(CS325); CS480Prereqs.Add(CS380);
-            Course CS480 = new Course("CS480", "CS480", 4, true, new bool[] { false, false, false, true }, CS480Prereqs); schedule.courses.Add(CS480); schedule.ui_numberCredits += CS480.Credits;
+            Course CS480 = new Course("CS480", "CS480", 4, true, new bool[] { false, false, false, true }, CS480Prereqs); UnmetRequirements.Add(CS480); 
             List<Course> CS427Prereqs = new List<Course>(); CS427Prereqs.Add(CS302); CS427Prereqs.Add(CS325); CS427Prereqs.Add(MATH330);
-            Course CS427 = new Course("CS427", "CS427", 4, true, new bool[] { true, false, false, true }, NoPrereqs); schedule.courses.Add(CS427); schedule.ui_numberCredits += CS427.Credits;
-            Course UnivElective1 = new Course("UnivElective1", "UnivElective1", 5, true, new bool[] { true, true, true, true }, NoPrereqs); schedule.courses.Add(UnivElective1); schedule.ui_numberCredits += UnivElective1.Credits;
+            Course CS427 = new Course("CS427", "CS427", 4, true, new bool[] { true, false, false, true }, NoPrereqs); UnmetRequirements.Add(CS427); 
+            Course UnivElective1 = new Course("UnivElective1", "UnivElective1", 5, true, new bool[] { true, true, true, true }, NoPrereqs); UnmetRequirements.Add(UnivElective1); 
             List<Course> CS392Prereqs = new List<Course>(); CS392Prereqs.Add(CS302); CS392Prereqs.Add(CS325); CS392Prereqs.Add(CS312);
-            Course CS392 = new Course("CS392", "CS392", 1, true, new bool[] { true, true, false, true }, CS392Prereqs); schedule.courses.Add(CS392); schedule.ui_numberCredits += CS392.Credits;
+            Course CS392 = new Course("CS392", "CS392", 1, true, new bool[] { true, true, false, true }, CS392Prereqs); UnmetRequirements.Add(CS392);
 
             // Winter 2022
-            schedule = schedule.NextScheduleSimple();
             List<Course> CS481Prereqs = new List<Course>(); CS481Prereqs.Add(CS480);
-            Course CS481 = new Course("CS481", "CS481", 4, true, new bool[] { true, false, false, false }, CS481Prereqs); schedule.courses.Add(CS481); schedule.ui_numberCredits += CS481.Credits;
-            Course BREADTH8 = new Course("BREADTH8", "BREADTH8", 5, true, new bool[] { true, true, true, true }, NoPrereqs); schedule.courses.Add(BREADTH8); schedule.ui_numberCredits += BREADTH8.Credits;
-            Course CSElective3 = new Course("CSElective3", "CSElective3", 4, true, new bool[] { true, true, false, true }, CSElectivePrereqs); schedule.courses.Add(CSElective3); schedule.ui_numberCredits += CSElective3.Credits;
-            Course UnivElective2 = new Course("UnivElective2", "UnivElective2", 5, true, new bool[] { true, true, true, true }, NoPrereqs); schedule.courses.Add(UnivElective2); schedule.ui_numberCredits += UnivElective2.Credits;
+            Course CS481 = new Course("CS481", "CS481", 4, true, new bool[] { true, false, false, false }, CS481Prereqs); UnmetRequirements.Add(CS481); 
+            Course BREADTH8 = new Course("BREADTH8", "BREADTH8", 5, true, new bool[] { true, true, true, true }, NoPrereqs); UnmetRequirements.Add(BREADTH8); 
+            Course CSElective3 = new Course("CSElective3", "CSElective3", 4, true, new bool[] { true, true, false, true }, CSElectivePrereqs); UnmetRequirements.Add(CSElective3);
+            Course UnivElective2 = new Course("UnivElective2", "UnivElective2", 5, true, new bool[] { true, true, true, true }, NoPrereqs); UnmetRequirements.Add(UnivElective2); 
 
             // Spring 2022
-            schedule = schedule.NextScheduleSimple();
             List<Course> CS489Prereqs = new List<Course>(); CS489Prereqs.Add(CS392);
-            Course CS489 = new Course("CS489", "CS489", 1, true, new bool[] { true, true, false, true }, CS489Prereqs); schedule.courses.Add(CS489); schedule.ui_numberCredits += CS489.Credits;
+            Course CS489 = new Course("CS489", "CS489", 1, true, new bool[] { true, true, false, true }, CS489Prereqs); UnmetRequirements.Add(CS489); 
             List<Course> CS492Prereqs = new List<Course>(); CS492Prereqs.Add(CS392);
-            Course CS492 = new Course("CS492", "CS492", 2, true, new bool[] { true, true, false, true }, CS492Prereqs); schedule.courses.Add(CS492); schedule.ui_numberCredits += CS492.Credits;
-            Course BREADTH9 = new Course("BREADTH9", "BREADTH9", 5, true, new bool[] { true, true, true, true }, NoPrereqs); schedule.courses.Add(BREADTH9); schedule.ui_numberCredits += BREADTH9.Credits;
+            Course CS492 = new Course("CS492", "CS492", 2, true, new bool[] { true, true, false, true }, CS492Prereqs); UnmetRequirements.Add(CS492); 
+            Course BREADTH9 = new Course("BREADTH9", "BREADTH9", 5, true, new bool[] { true, true, true, true }, NoPrereqs); UnmetRequirements.Add(BREADTH9); 
 
             // Iterate back to the first quarter in the schedule
             while (schedule.previousQuarter != null)
@@ -414,7 +396,7 @@ namespace PlanGenerationAlgorithm
                 schedule = schedule.previousQuarter;
             }
 
-            List<Course> UnmetRequirements = new List<Course>();
+            
             Course CSElective4 = new Course("CSElective4", "CSElective4", 4, true, new bool[] { true, true, false, true }, CSElectivePrereqs); UnmetRequirements.Add(CSElective4);
             Course CSElective5 = new Course("CSElective5", "CSElective5", 4, true, new bool[] { true, true, false, true }, CSElectivePrereqs); UnmetRequirements.Add(CSElective5);
 
