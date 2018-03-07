@@ -1,5 +1,5 @@
 ﻿<Properties StartupConfiguration="{683998E3-D7CC-4AD8-B8DD-B012248E4B4C}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Database_Classes/Course.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Database_Handler/DatabaseHandler.cs">
     <Files>
       <File FileName="Database_Handler/DatabaseHandler.cs" Line="1" Column="1" />
       <File FileName="Database_Handler/DatabaseCommands.cs" Line="186" Column="52" />

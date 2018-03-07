@@ -520,7 +520,9 @@ namespace Database_Handler
                         break;
                     case OperandType.Course:
                         dbo = (Course)cmd.Operand;
-                        result = new DatabaseCommand(CommandType.Return, (Course)Retrieve(dbo.ID, 'C', cmd.IsShallow), OperandType.Course);
+                        Course temp = (Course)Retrieve(dbo.ID, 'C', cmd.IsShallow);
+                        result = new DatabaseCommand(CommandType.Return, temp, OperandType.Course);
+                        WriteToLog(" -- DBH retrieve returning the course: \n" + temp);
                         break;
                     case OperandType.Credentials:
                         cred = (Credentials)cmd.Operand;
@@ -1346,7 +1348,10 @@ namespace Database_Handler
                     case 'Y':
                         return RetrieveCatalog(s_ID, b_shallow);
                     case 'C':
-                        return RetrieveCourse(s_ID, b_shallow, 0);
+                        WriteToLog(" -- DBH retrieving course " + s_ID);
+                        Course temp = RetrieveCourse(s_ID, b_shallow, 0);
+                        WriteToLog(" -- DBH retrieved the course:\n" + temp.ToString());
+                        return temp;
                     case 'U':
                         return RetrieveUserCredentials(s_ID);
                     case 'P':
@@ -1844,7 +1849,7 @@ namespace Database_Handler
         /// </remarks>
         private Course RetrieveCourse(string s_ID, bool b_shallow, uint ui_depth)
         {
-            WriteToLog(" -- RetrieveCourse is shallow: " + b_shallow);
+            WriteToLog(" -- RetrieveCourse on " + s_ID);
             if (ui_depth == ui_MAX_RECURSION_DEPTH)
             {
                 throw new RecursionDepthException("Retrieving the course " + s_ID + " caused a recursion depth of " + ui_depth + " stopping to prevent infinite recursion.");
