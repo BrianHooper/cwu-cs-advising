@@ -1844,6 +1844,7 @@ namespace Database_Handler
         /// </remarks>
         private Course RetrieveCourse(string s_ID, bool b_shallow, uint ui_depth)
         {
+            WriteToLog(" -- RetrieveCourse is shallow: " + b_shallow);
             if (ui_depth == ui_MAX_RECURSION_DEPTH)
             {
                 throw new RecursionDepthException("Retrieving the course " + s_ID + " caused a recursion depth of " + ui_depth + " stopping to prevent infinite recursion.");
