@@ -1894,7 +1894,7 @@ namespace Database_Handler
                     } // end for
 
                     reader.Close();
-                    MySqlLock.ReleaseMutex();                    
+                    MySqlLock.ReleaseMutex();
 
                     if (!b_shallow)
                     {
@@ -1906,11 +1906,13 @@ namespace Database_Handler
                         } // end foreach
 
                         course = new Course(s_courseName, s_ID, ui_credits, false, ba_offered, lc_prerequs);
+                        course.Department = s_department;
                         course.WP = ui_WP;
                     } // end if
                     else
                     {
                         course = new Course(s_courseName, s_ID, ui_credits, false, ba_offered, ls_preRequs);
+                        course.Department = s_department;
                         course.WP = ui_WP;
                     } // end else
                 } // end if
