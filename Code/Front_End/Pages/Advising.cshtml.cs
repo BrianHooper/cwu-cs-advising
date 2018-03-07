@@ -556,6 +556,7 @@ namespace CwuAdvising.Pages
                     {
                         DatabaseInterface.WriteToLog(scheduleCopy.quarterName.ToString() + "\t" + course.ID);
                     }
+                    scheduleCopy = scheduleCopy.NextQuarter;
                 }
                 
                 Schedule GeneratedSchedule = Algorithm.Generate(RemainingRequirements, ConvertedScheduleModel, 
