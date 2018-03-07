@@ -88,22 +88,30 @@ namespace Database_Handler
         /// <param name="b_shallow">Whether or not to retrieve shallow copy of a Course or CatalogRequirements object, ignored for Student objects.</param>
         public DatabaseCommand(CommandType ct, Database_Object dbo, OperandType ot, bool b_shallow = false)
         {
+            DatabaseHandler.WriteToLog("Command Constructor - start");
             ct_commandType = ct;
+            DatabaseHandler.WriteToLog("Command Constructor - command type success");
             ot_type = ot;
+            DatabaseHandler.WriteToLog("Command Constructor - operand type success");
             b_isShallow = b_shallow;
+            DatabaseHandler.WriteToLog("Command Constructor - shallow success");
 
+            DatabaseHandler.WriteToLog("Command Constructor - at switch");
             switch (ot)
             {
                 case OperandType.Student:
                     o_operand = new Student((Student)dbo);
                     break;
                 case OperandType.Course:
+                    DatabaseHandler.WriteToLog("Command Constructor - copying course");
                     o_operand = new Course((Course)dbo);
+                    DatabaseHandler.WriteToLog("Command Constructor - copying course success");
                     break;
                 case OperandType.CatalogRequirements:
                     o_operand = new CatalogRequirements((CatalogRequirements)dbo);
                     break;
-            }
+            } // end switch
+            DatabaseHandler.WriteToLog("Command Constructor - exit");
         } // end Constructor
 
         /// <summary>Constructor for MySQL credentials commands.</summary>
