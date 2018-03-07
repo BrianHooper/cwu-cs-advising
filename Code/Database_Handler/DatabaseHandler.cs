@@ -2433,7 +2433,7 @@ namespace Database_Handler
                     if (ui_COL_COUNT[3] < degree.ShallowRequirements.Count)
                     {
                         int k = degree.ShallowRequirements.Count - (int)ui_COL_COUNT[3]; // number of columns that must be added
-                        WriteToLog(" -- DBH attempting to add " + k + " additional columns to the table")
+                        WriteToLog(" -- DBH attempting to add " + k + " additional columns to the table");
                         AddColumns(k, s_DEGREES_TABLE, "course_");
                     } // end if
 
