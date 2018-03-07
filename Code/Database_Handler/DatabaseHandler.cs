@@ -2008,6 +2008,7 @@ namespace Database_Handler
                     foreach (string s in plan.Classes)
                     {
                         temp = GetCommand(plan.StudentID, 'U', s_PLAN_TABLE, s_PLAN_KEY, "qtr_" + i.ToString(), s);
+                        WriteToLog(" -- Update PlanInfo " + temp.CommandText);
                         temp.ExecuteNonQuery();
                         i++;
                     } // end foreach

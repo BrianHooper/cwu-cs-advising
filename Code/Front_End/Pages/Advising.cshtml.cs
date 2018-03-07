@@ -303,6 +303,7 @@ namespace CwuAdvising.Pages
             try
             {
                 DatabaseInterface.WriteToLog("Attempting to save plan for student " + CurrentStudent.ID);
+                JsonPlan = JsonPlan.Replace('"', '\"');
                 string[] databasePlanSchedule = { JsonPlan };
                 PlanInfo studentplan = new PlanInfo(CurrentStudent.ID, 0, CurrentStudent.Quarter + " " + CurrentStudent.Year, databasePlanSchedule);
                 Program.Database.UpdateRecord(studentplan);
@@ -377,6 +378,7 @@ namespace CwuAdvising.Pages
             try
             {
                 DatabaseInterface.WriteToLog("Attempting to save plan for student base case");
+                basecase = basecase.Replace('"', '\"');
                 string[] databasePlanSchedule = { basecase };
                 PlanInfo studentplan = new PlanInfo("-1", 0, "Fall 2018", databasePlanSchedule);
                 Program.Database.UpdateRecord(studentplan);
