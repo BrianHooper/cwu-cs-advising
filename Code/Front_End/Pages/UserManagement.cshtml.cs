@@ -131,29 +131,46 @@ namespace CwuAdvising.Pages
                 return Page(); // Form validation failed
             }
 
-            /*
-            if (!Program.Database.connected)
-            {
-                CreateUserErrorMessage = "Error, database connection failed.";
-                return Page();
-            }
-            */
             string username = CreateUser.Username;
-
             string password1 = CreateUser.PasswordOne;
             string password2 = CreateUser.PasswordTwo;
 
-            if(password1 != password2)
+            if (password1 != password2)
             {
                 CreateUserErrorMessage = "Error, passwords do not match.";
                 return Page();
             }
-            else
+            else if (password1.Length < 10)
+            {
+                CreateUserErrorMessage = "Error, password too short.";
+                return Page();
+            }
+
+            Credentials user = new Credentials(username, 0, false, false, new byte[32], "");
+
+
+            bool success = Program.Database.UpdateRecord(user);
+
+            if(!success)
             {
                 // If username is already taken
                 CreateUserErrorMessage = "Error, invalid username or password.";
                 return Page();
             }
+
+            success = PasswordManager.ChangePassword(username, password1);
+
+            if (!success)
+            {
+                // If username is already taken
+                CreateUserErrorMessage = "Error, invalid username or password.";
+            }
+            else
+            {
+                CreateUserErrorMessage = "Success!";
+            }
+
+            return Page();
         }
     }
 }
