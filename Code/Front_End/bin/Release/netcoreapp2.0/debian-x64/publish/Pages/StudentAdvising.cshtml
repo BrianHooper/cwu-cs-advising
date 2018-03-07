@@ -12,7 +12,7 @@
 
     $(document).ready(function () {
         for (var i = 0; i < DegreeList.length; i++) {
-            $("#CreateStudentDegree").append($("<option value='" + DegreeList[i].Name + "'>" + DegreeList[i].Year + " - " + DegreeList[i].Name + "</option>"));
+            $("#CreateStudentDegree").append($("<option value='" + i + "'>" + DegreeList[i].Year + " - " + DegreeList[i].Name + "</option>"));
         }
     });
 
