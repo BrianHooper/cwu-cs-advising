@@ -2509,8 +2509,8 @@ namespace Database_Handler
 
             for (int i = 0; i < 10; i++) // try 10 times to ensure the salt is not the problem
             {
-
-                credentials.PWSalt = GetPasswordSalt(); // assign new salt
+                byte[] temp = GetPasswordSalt();
+                Array.Copy(temp, credentials.PWSalt, i_SALT_LENGTH);
 
                 MySqlCommand cmd = GetCommand(credentials.UserName, 'I', s_CREDENTIALS_TABLE, s_CREDENTIALS_KEY, "", GetInsertValues(credentials));
 
