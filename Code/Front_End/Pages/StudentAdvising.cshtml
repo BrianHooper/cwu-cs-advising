@@ -46,7 +46,7 @@
 
         var DegreeID = $("#CreateStudentDegree").val();
         Student.Degree = DegreeList[DegreeID].Name;
-        Student.AcademicYear = DegreeList[DegreeID].Year;
+        Student.AcademicYear = DegreeList[DegreeID].Year.toString();
 
         $.ajax({
             type: "POST",

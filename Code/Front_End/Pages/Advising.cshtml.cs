@@ -42,7 +42,7 @@ namespace CwuAdvising.Pages
                 this.Quarter = quarter;
                 this.Year = year;
                 this.Degree = degree;
-                this.CatalogYear = catalogyear;
+                this.AcademicYear = catalogyear;
             }
 
             /// <summary>Name of current student loaded in advising page</summary>
@@ -61,7 +61,7 @@ namespace CwuAdvising.Pages
             public string Degree { get; set; } = "NoDegree";
 
             /// <summary>Catalog year for the students degree</summary>
-            public string CatalogYear { get; set; } = "NoCatalogYear";
+            public string AcademicYear { get; set; } = "NoCatalogYear";
         }
 
         /// <summary>Gets the base case for the student's degree</summary>
@@ -164,7 +164,7 @@ namespace CwuAdvising.Pages
 
                 if (Program.Database.connected)
                 {
-                    DatabaseInterface.WriteToLog("Attempting to create student: " + model.ID + " " + model.Name + " " + model.Quarter + " " + model.Year + " " + model.Degree + " " + model.CatalogYear);
+                    DatabaseInterface.WriteToLog("Attempting to create student: " + model.ID + " " + model.Name + " " + model.Quarter + " " + model.Year + " " + model.Degree + " " + model.AcademicYear);
                     Student CreatedStudent = new Student(new Name(model.Name, ""), model.ID, new Quarter(uint.Parse(model.Year), (Season) Enum.Parse(typeof(Season), model.Quarter)));
 
                     DatabaseInterface.WriteToLog("Created student object " + CreatedStudent.ToString());
@@ -183,7 +183,7 @@ namespace CwuAdvising.Pages
                     ScheduleModel CreatedScheduleModel = new ScheduleModel
                     {
                         Name = model.Degree,
-                        AcademicYear = model.CatalogYear,
+                        AcademicYear = model.AcademicYear,
                         Quarters = new List<ModelQuarter>()
                     };
                     ModelQuarter StartingQuarter = new ModelQuarter
@@ -195,7 +195,7 @@ namespace CwuAdvising.Pages
                     CreatedScheduleModel.Quarters.Add(StartingQuarter);
 
                     DatabaseInterface.WriteToLog("Attempting to retrieve degree requirements for degree: " + CreatedScheduleModel.Name + ", academic year " + CreatedScheduleModel.AcademicYear);
-                    CatalogRequirements template = new CatalogRequirements(model.CatalogYear, new List<DegreeRequirements>());
+                    CatalogRequirements template = new CatalogRequirements(model.AcademicYear, new List<DegreeRequirements>());
                     CatalogRequirements Catalog = (CatalogRequirements)Program.Database.RetrieveRecord(template, Database_Handler.OperandType.CatalogRequirements);
                     if (Catalog == null)
                     {
@@ -499,7 +499,8 @@ namespace CwuAdvising.Pages
                     });
                     if(course != null)
                     {
-                        schedule.AddCourse(course);
+                        schedule.courses.Add(course);
+                        schedule.ui_numberCredits += course.Credits;
                     }
                     else
                     {
