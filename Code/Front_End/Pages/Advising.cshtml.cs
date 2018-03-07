@@ -570,7 +570,29 @@ namespace CwuAdvising.Pages
                     model.Constraints.MinCredits, model.Constraints.MaxCredits, model.Constraints.TakingSummer);
 
                 DatabaseInterface.WriteToLog("Finished algorithm");
-                ScheduleModel GeneratedModel = ScheduleToScheduleModel(ConvertedScheduleModel, model);
+
+                GeneratedSchedule = GeneratedSchedule.GetFirstSchedule();
+                scheduleCopy = GeneratedSchedule;
+                while (scheduleCopy != null)
+                {
+                    DatabaseInterface.WriteToLog("----" + scheduleCopy.quarterName.ToString() + "----");
+                    foreach (Course course in scheduleCopy.courses)
+                    {
+                        DatabaseInterface.WriteToLog(scheduleCopy.quarterName.ToString() + "\t" + course.ID);
+                        if (!course.IsShallow && course.PreRequisites != null)
+                        {
+                            foreach (Course prereq in course.PreRequisites)
+                            {
+                                DatabaseInterface.WriteToLog(scheduleCopy.quarterName.ToString() + "\t" + course.ID + " has prereq " + prereq.ID);
+                            }
+                        }
+                    }
+                    scheduleCopy = scheduleCopy.NextQuarter;
+                }
+
+
+
+                ScheduleModel GeneratedModel = ScheduleToScheduleModel(GeneratedSchedule, model);
                 return GeneratedModel;
             }
             catch(Exception e)
