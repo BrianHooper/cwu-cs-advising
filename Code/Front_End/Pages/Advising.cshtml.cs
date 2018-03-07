@@ -336,7 +336,7 @@ namespace CwuAdvising.Pages
                     ScheduleModel GeneratedSchedule = CallSchedulingAlgorithm(scheduleModel);
 
                     
-                    string JsonSchedule = JsonConvert.SerializeObject(scheduleModel);
+                    string JsonSchedule = JsonConvert.SerializeObject(GeneratedSchedule);
                     return new JsonResult(JsonSchedule);
                 }
                 else
@@ -589,9 +589,7 @@ namespace CwuAdvising.Pages
                     }
                     scheduleCopy = scheduleCopy.NextQuarter;
                 }
-
-
-
+                
                 ScheduleModel GeneratedModel = ScheduleToScheduleModel(GeneratedSchedule, model);
                 return GeneratedModel;
             }
