@@ -51,7 +51,7 @@ namespace PlanGenerationAlgorithm
         {
             //meets constraints if course is not on the list of requirements 
             //and number of credits of current schedule is less than 18
-            return (ui_numberCredits <= 18 && !courses.Contains(c));
+            return (ui_numberCredits <= Algorithm.maxCreditss && !courses.Contains(c));
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace PlanGenerationAlgorithm
             {
                 totalRemainingCredits += c.Credits;
             }
-            return NumberOfQuarters + (totalRemainingCredits / Algorithm.maxCredits);
+            return NumberOfQuarters + (totalRemainingCredits / Algorithm.maxCreditss);
         }
 
         /// <summary>
