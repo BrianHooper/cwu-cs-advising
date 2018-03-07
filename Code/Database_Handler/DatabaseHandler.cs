@@ -522,7 +522,7 @@ namespace Database_Handler
                         dbo = (Course)cmd.Operand;
                         Course temp = (Course)Retrieve(dbo.ID, 'C', cmd.IsShallow);
                         result = new DatabaseCommand(CommandType.Return, temp, OperandType.Course);
-                        WriteToLog(" -- DBH retrieve returning the course: \n" + temp);
+                        //WriteToLog(" -- DBH retrieve returning the course: \n" + temp);
                         break;
                     case OperandType.Credentials:
                         cred = (Credentials)cmd.Operand;
