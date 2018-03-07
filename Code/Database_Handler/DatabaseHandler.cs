@@ -2377,7 +2377,7 @@ namespace Database_Handler
 
                 reader.Read();
 
-                WriteToLog(" -- DBH trying the update degree " + degree.ID);
+                WriteToLog(" -- DBH trying to the update degree " + degree.ID);
 
                 if (reader.HasRows)
                 {
@@ -2420,6 +2420,7 @@ namespace Database_Handler
                     reader.Close();
 
                     WriteToLog(" -- DBH the degree " + degree.ID + " was not found in the database.");
+                    WriteToLog(" -- DBH degree contains: " + degree.ToString());
 
                     WriteToLog(" -- DBH the number of columns in the degree table is: " + ui_COL_COUNT[3].ToString());
                     // ensure the plan will fit into the table
