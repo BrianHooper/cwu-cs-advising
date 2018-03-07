@@ -310,7 +310,7 @@
         <member name="P:CwuAdvising.Pages.AdvisingModel.StudentModel.Degree">
             <summary>Degree of current student loaded in advising page</summary>
         </member>
-        <member name="P:CwuAdvising.Pages.AdvisingModel.StudentModel.CatalogYear">
+        <member name="P:CwuAdvising.Pages.AdvisingModel.StudentModel.AcademicYear">
             <summary>Catalog year for the students degree</summary>
         </member>
         <member name="M:CwuAdvising.Pages.AdvisingModel.LoadBaseCase">

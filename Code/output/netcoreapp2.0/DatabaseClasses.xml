@@ -137,7 +137,6 @@
         <member name="P:Database_Object_Classes.Course.PreRequisites">
             <summary>Getter for PreRequisites list of this course.</summary>
             <remarks>The returned collection will be a read-only collection, and may not be modified directly.</remarks>
-            
         </member>
         <member name="P:Database_Object_Classes.Course.ShallowPreRequisites">
             <summary>Getter for shallow PreRequisites list of this course.</summary>

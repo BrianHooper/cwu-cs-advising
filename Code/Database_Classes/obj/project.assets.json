@@ -1540,28 +1540,33 @@
     ]
   },
   "packageFolders": {
-    "/Users/nicola/.nuget/packages/": {},
-    "/usr/local/share/dotnet/sdk/NuGetFallbackFolder": {}
+    "C:\\Users\\Brian\\.nuget\\packages\\": {},
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
     "version": "1.0.0",
+    "restoreSettings": {
+      "hideWarningsAndErrors": true
+    },
     "restore": {
-      "projectUniqueName": "/Users/nicola/Desktop/stuff/projects/visual studio/cwu-cs-advising/Code/Database_Classes/Database_Classes.csproj",
+      "projectUniqueName": "C:\\Users\\Brian\\Documents\\cwu-cs-advising\\Code\\Database_Classes\\Database_Classes.csproj",
       "projectName": "Database_Classes",
-      "projectPath": "/Users/nicola/Desktop/stuff/projects/visual studio/cwu-cs-advising/Code/Database_Classes/Database_Classes.csproj",
-      "packagesPath": "/Users/nicola/.nuget/packages/",
-      "outputPath": "/Users/nicola/Desktop/stuff/projects/visual studio/cwu-cs-advising/Code/Database_Classes/obj",
+      "projectPath": "C:\\Users\\Brian\\Documents\\cwu-cs-advising\\Code\\Database_Classes\\Database_Classes.csproj",
+      "packagesPath": "C:\\Users\\Brian\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Brian\\Documents\\cwu-cs-advising\\Code\\Database_Classes\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
-        "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
+        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
       ],
       "configFilePaths": [
-        "/Users/nicola/.config/NuGet/NuGet.Config"
+        "C:\\Users\\Brian\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "netcoreapp2.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -1581,12 +1586,12 @@
           "Microsoft.NETCore.App": {
             "suppressParent": "All",
             "target": "Package",
-            "version": "2.0",
+            "version": "[2.0.0, )",
             "autoReferenced": true
           },
           "System.Runtime.Serialization.Formatters": {
             "target": "Package",
-            "version": "4.3.0"
+            "version": "[4.3.0, )"
           }
         },
         "imports": [
