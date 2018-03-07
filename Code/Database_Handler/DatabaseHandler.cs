@@ -1226,7 +1226,7 @@ namespace Database_Handler
 
         /// <summary>Writes the given message into the DBH log with a current time stamp.</summary>
         /// <param name="s_msg">The message to log.</param>
-        private static void WriteToLog(string s_msg)
+        public static void WriteToLog(string s_msg)
         {
             // Variables:
             string s_timeStamp = DateTime.Today.ToLongDateString() + "  " + DateTime.Now.ToLongTimeString();
