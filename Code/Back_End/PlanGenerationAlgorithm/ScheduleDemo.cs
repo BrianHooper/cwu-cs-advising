@@ -18,9 +18,7 @@ namespace PlanGenerationAlgorithm
             /*
             Console.WriteLine("6 Courses, Max 3 per quarter, no prereqs, each course offered every quarter:");
             DemoWithNoConstraints();
-
             Console.WriteLine("\n------------------\n");
-
             Console.WriteLine("3 Courses, Max 3 per quarter, all prereqs, first course not offered in fall:");
             DemoWithAllPrereqs();
             DemoFullSchedule();
@@ -151,7 +149,7 @@ namespace PlanGenerationAlgorithm
             bool[] CS312Offered = { true, false, false, true }; //CS312 etc
             bool[] CS361Offered = { false, false, false, true };
             bool[] CS470Offered = { true, false, false, false };
-            bool[] CS380Offered = {false, true, false, false };
+            bool[] CS380Offered = { false, true, false, false };
             //courses and the prerequisites
             ICollection<Course> NoPrereq = new List<Course>();
             NoPrereq.Clear();
@@ -215,7 +213,7 @@ namespace PlanGenerationAlgorithm
             Prereq480.Add(CS380);
             Prereq480.Add(CS325);
             Course CS480 = new Course("bjtyre", "CS480", 4, true, CS361Offered, Prereq480);
-           
+
             ICollection<Course> Prereq481 = new List<Course>();
             Prereq481.Add(CS325);
             Prereq481.Add(CS480);
@@ -225,7 +223,7 @@ namespace PlanGenerationAlgorithm
             Prereq362.Add(CS325);
             Course CS362 = new Course("zxvb", "CS362", 4, true, CS470Offered, Prereq362);
             Course CS481 = new Course("asdg", "CS481", 4, true, CS470Offered, Prereq481);
-          
+
             //Add courses to a list of courses
             coursesList.Add(CS110);
             coursesList.Add(gened6);
@@ -411,7 +409,7 @@ namespace PlanGenerationAlgorithm
             Course BREADTH9 = new Course("BREADTH9", "BREADTH9", 5, true, new bool[] { true, true, true, true }, NoPrereqs); schedule.courses.Add(BREADTH9); schedule.ui_numberCredits += BREADTH9.Credits;
 
             // Iterate back to the first quarter in the schedule
-            while(schedule.previousQuarter != null)
+            while (schedule.previousQuarter != null)
             {
                 schedule = schedule.previousQuarter;
             }
@@ -429,16 +427,16 @@ namespace PlanGenerationAlgorithm
             }
 
             Schedule CurrentSchedule = CompletedSchedule;
-            while(CompletedSchedule != null)
+            while (CompletedSchedule != null)
             {
                 CurrentSchedule = CompletedSchedule;
                 Console.WriteLine(CompletedSchedule.quarterName);
-                foreach(Course course in CompletedSchedule.courses)
+                foreach (Course course in CompletedSchedule.courses)
                 {
                     Console.WriteLine("\t" + course.ID);
                 }
                 CompletedSchedule = CompletedSchedule.NextQuarter;
-            } 
+            }
             Console.Read();
         }
     }

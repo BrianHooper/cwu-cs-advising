@@ -33,10 +33,6 @@ namespace PlanGenerationAlgorithm
         /// <returns>best possible schedule</returns>
         public static Schedule Generate(List<Course> requirements, Schedule currentSchedule, uint minCredits, uint maxCredits, bool takeSummerCourse)
         {
-            foreach(Course req in requirements)
-            {
-                WriteToLog("Algorithm recieved unmet requirement " + req.ID);
-            }
             //set minimum and maximum number of credits
             Algorithm algorithm = new Algorithm();
             //set the value of take summer course to determine 
@@ -243,7 +239,7 @@ namespace PlanGenerationAlgorithm
                 foreach (Course c in currentSchedule.NextSchedule().courses)
                 {
                     copy.Remove(c);
-                    currentSchedule.NextSchedule().ui_numberCredits += c.Credits;
+                    //currentSchedule.NextSchedule().ui_numberCredits += c.Credits;
                 }
              
                 //if there is no possible course, go to next quarter
@@ -261,7 +257,7 @@ namespace PlanGenerationAlgorithm
                 foreach (Course c in currentSchedule.NextSchedule().courses)
                 {
                     copy.Remove(c);
-                    currentSchedule.NextSchedule().ui_numberCredits += c.Credits;
+                    //currentSchedule.NextSchedule().ui_numberCredits += c.Credits;
                 }
 
                 //If it failed, try adding this course next quarter
@@ -345,7 +341,7 @@ namespace PlanGenerationAlgorithm
         /// <param name="message">The error message to write</param>
         public static void WriteToLog(string message)
         {
-            System.IO.File.AppendAllText("/var/aspnetcore/logs/weblog.txt", DateTime.Now.ToLongTimeString() + "   - ALGORITHM -   " + message + "\n");
+            System.IO.File.AppendAllText("/var/aspnetcore/wwwroot/log.txt", DateTime.Now.ToLongTimeString() + "   --   " + message + "\n");
         }
     }
 }
