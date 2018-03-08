@@ -723,7 +723,7 @@ namespace Database_Handler
             try
             {
                 string s_pw = BitConverter.ToString(cred.Password_Hash);
-                s_pw.Replace("-", "");
+                s_pw = s_pw.Replace("-", "");
                 i_errorCode = ChangePassword(cred.UserName, s_pw, true);
             } // end try
             catch (ThreadAbortException e)
