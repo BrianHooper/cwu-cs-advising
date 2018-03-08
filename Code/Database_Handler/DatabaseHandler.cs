@@ -2303,6 +2303,8 @@ namespace Database_Handler
 
                     query += " WHERE " + s_DEGREES_KEY + " = \"" + catalog.ID + "_" + degree.ID + "\";";
 
+                    WriteToLog(" -- DBH Update query for degree " + catalog.ID + "_" + degree.ID + " is:\n" + query);
+
                     MySqlCommand temp = new MySqlCommand(query, DB_CONNECTION);
                     temp.ExecuteNonQuery();
                 } // end if
@@ -2317,7 +2319,7 @@ namespace Database_Handler
                         AddColumns(k, s_DEGREES_TABLE, "course_");
                     } // end if
 
-                    MySqlCommand command = GetCommand(catalog.ID + "_" + degree.ID, 'I', s_DEGREES_TABLE, s_DEGREES_KEY, "", GetInsertValues(catalog, degree));
+                    MySqlCommand command = GetCommand(catalog.ID + "_" + degree.ID, 'I', s_DEGREES_TABLE, s_DEGREES_KEY, "", GetSpecialInsertQuery(s_DEGREES_TABLE,GetSpecialInsertString(degree),GetSpecialInsertValues(degree, catalog.ID + "_" + degree.ID)));
                     command.ExecuteNonQuery();
                 } // end else
             } // end try
@@ -2736,6 +2738,7 @@ namespace Database_Handler
             return query;
         } // end method GetInsertQuery
 
+
         private string GetSpecialInsertQuery(string s_table, string s_insert, string s_values)
         {
             string query = "INSERT INTO ";
@@ -2749,8 +2752,11 @@ namespace Database_Handler
             query += s_values;
             query += ");";
 
+            WriteToLog(" -- DBH the query that was generated is: \n" + query);
+
             return query;
         } // end method GetSpecialInsertQuery
+
 
         private string GetSpecialInsertValues(Course course)
         {
@@ -2793,6 +2799,36 @@ namespace Database_Handler
                 for (int i = 0; i < course.ShallowPreRequisites.Count; i++)
                 {
                     text += ", pre_requ_" + i;
+                } // end for
+            } // end if
+
+            return text;
+        } // end method GetSpecialInsertString
+
+
+        private string GetSpecialInsertValues(DegreeRequirements degree, string s_ID)
+        {
+            string values = "\"" + s_ID + "\", \"" + degree.Name + "\", \"" + degree.Department + "\", " + degree.ShallowRequirements.Count.ToString();
+            
+            for (int i = 0; i < degree.ShallowRequirements.Count; i++)
+            {
+                values += ", \"" + degree.ShallowRequirements[i] + "\" ";
+            } // end for
+            
+            return values;
+        }
+
+
+        private string GetSpecialInsertString(DegreeRequirements degree)
+        {
+            string text = s_DEGREES_KEY;
+            text += ", degree_name, department, num_requs";
+
+            if (degree.ShallowRequirements.Count > 0)
+            {
+                for (int i = 0; i < degree.ShallowRequirements.Count; i++)
+                {
+                    text += ", course_" + i;
                 } // end for
             } // end if
 
