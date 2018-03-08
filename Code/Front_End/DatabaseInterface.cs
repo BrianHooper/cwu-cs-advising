@@ -535,7 +535,14 @@ namespace CwuAdvising
         /// <param name="message">The error message to write</param>
         public static void WriteToLog(string message)
         {
-            System.IO.File.AppendAllText("/var/aspnetcore/logs/weblog.txt", DateTime.Now.ToLongTimeString() + "   --   " + message + "\n");
+            try
+            {
+                System.IO.File.AppendAllText("/var/aspnetcore/logs/weblog.txt", DateTime.Now.ToLongTimeString() + "   --   " + message + "\n");
+            }
+            catch(Exception)
+            {
+
+            }
         }
     } // end Class DatabaseInterface
 } // end Namespace CwuAdvising
