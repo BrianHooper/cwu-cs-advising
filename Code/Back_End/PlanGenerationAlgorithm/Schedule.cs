@@ -51,7 +51,7 @@ namespace PlanGenerationAlgorithm
         {
             //meets constraints if course is not on the list of requirements 
             //and number of credits of current schedule is less than 18
-            return (ui_numberCredits <= Algorithm.maxCreditss && !courses.Contains(c));
+            return (ui_numberCredits <= Algorithm.maxCreditss && !courses.Contains(c)&& quarterName.QuarterSeason != Season.Summer);
         }
 
         /// <summary>
@@ -76,8 +76,8 @@ namespace PlanGenerationAlgorithm
         /// <returns>true or false depends on whether the course meet all the constraints or not</returns>
         public bool AddCourse(Course c)
         {
-            if (MeetsConstraints(c) && locked == false &&
-                (quarterName.QuarterSeason!=Season.Summer||Algorithm.takeSummerCourses==true))
+            if ((MeetsConstraints(c) && locked == false) ||
+                ((quarterName.QuarterSeason==Season.Summer&&Algorithm.takeSummerCourses==true&&locked==false)))
             {
                 courses.Add(c); //add course into the list if it meets all the constraints
                 ui_numberCredits += c.Credits; //add current number of credits with course c
