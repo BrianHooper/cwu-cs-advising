@@ -201,10 +201,18 @@ namespace CwuAdvising.Pages
         /// <returns>true if the update was successful</returns>
         public static bool WriteDatabaseDegree(DegreeModel model)
         {
+            DatabaseInterface.WriteToLog("Writing degree " + model.name + "to database with " + model.requirements.Count + " requirements.");
+            foreach(string reqName in model.requirements)
+            {
+                DatabaseInterface.WriteToLog("\t" + reqName);
+            }
+
             // Convert the DegreeModel to DegreeRequirements
             string CatalogYear = model.year.ToString();
             DegreeRequirements Degree = new DegreeRequirements(CatalogYear + model.name, model.name, model.name, model.requirements);
             CatalogRequirements Catalog;
+
+            DatabaseInterface.WriteToLog("Converted degree to DegreeRequirements with " + Degree.ShallowRequirements.Count + " shallow requirements.");
 
             // Create a new list of DegreeRequirements and add the modified degree
             List<DegreeRequirements> NewDegreeRequirements = new List<DegreeRequirements>
@@ -212,27 +220,39 @@ namespace CwuAdvising.Pages
                 Degree
             };
             
+
             try
             {
+                DatabaseInterface.WriteToLog("Searching for catalog matching year " + CatalogYear);
                 // Find a catalog matching the catalog year of the modified degree
                 Catalog = CatalogList.Find(delegate (CatalogRequirements CR) { return CR.ID == CatalogYear; });
                 if(Catalog != null)
                 {
+                    DatabaseInterface.WriteToLog("Found catalog " + Catalog.ID);
                     // Add any degrees in the catalog other than the modifed degree
                     foreach (DegreeRequirements OldDegree in Catalog.DegreeRequirements)
                     {
                         if (OldDegree.Name != Degree.Name)
                         {
+                            DatabaseInterface.WriteToLog("Copying old degree " + OldDegree.Name + " to new catalog");
                             NewDegreeRequirements.Add(OldDegree);
                         }
                     }
                 }
+                else
+                {
+                    DatabaseInterface.WriteToLog("Could not find matching catalog, creating a new one.");
+                }
                 // Create a new CatalogRequirement with updated DegreeRequirements
                 Catalog = new CatalogRequirements(CatalogYear, NewDegreeRequirements);
 
+                foreach(DegreeRequirements DegreeReq in Catalog.DegreeRequirements)
+                {
+                    DatabaseInterface.WriteToLog("Writing catalog " + Catalog.ID + " with degree " + Degree.ID);
+                }
+
                 // Update the database
                 bool UpdateSuccessful = Program.Database.UpdateRecord(Catalog, Database_Handler.OperandType.CatalogRequirements);
-                DatabaseInterface.WriteToLog("WriteDatabaseDegree updated degree: " + Degree.ID);
                 DatabaseInterface.WriteToLog("WriteDatabaseDegree updated catalog year: " + Catalog.ID);
                 return UpdateSuccessful;
             }
