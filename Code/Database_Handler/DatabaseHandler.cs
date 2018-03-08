@@ -1172,7 +1172,7 @@ namespace Database_Handler
                 else
                 {
                     MySqlLock.ReleaseMutex();
-                    Thread.Sleep(5000);
+                    Thread.Sleep(120000);
                 } // end else
             } // end forever loop
         } // end method DeadLockDetector
@@ -1472,10 +1472,7 @@ namespace Database_Handler
 
                     for(int i = 0; i < ui_numDegrees; i++)
                     {
-                        if(reader.FieldCount > (i + 3))
-                        {
-                            l_degrees.Add(reader.GetString(i + 3));
-                        } // end if
+                         l_degrees.Add(reader.GetString(i + 3));
                     } // end for
 
                     reader.Close();
@@ -1560,6 +1557,8 @@ namespace Database_Handler
 
             MySqlCommand cmd = GetCommand(s_ID, 'S', s_DEGREES_TABLE, s_DEGREES_KEY, "*");
 
+            WriteToLog(" -- DBH retrieving the degree: " + s_ID);
+
             try
             {
                 MySqlLock.WaitOne();
@@ -1570,8 +1569,11 @@ namespace Database_Handler
 
                 if (reader.HasRows)
                 {
+                    WriteToLog(" -- DBH degree was found.");
                     uint ui_WP = reader.GetUInt32(1),
                          ui_numCourses = reader.GetUInt32(4);
+
+                    WriteToLog(" -- DBH the degree " + s_ID + " contains " + ui_numCourses + " courses.");
 
                     string s_name = reader.GetString(2),
                            s_deparment = reader.GetString(3);
@@ -1580,10 +1582,12 @@ namespace Database_Handler
 
                     for(int i = 0; i < ui_numCourses; i++)
                     {
-                        if(reader.FieldCount > (ui_numCourses + 5))
-                        {
-                            l_courses.Add(reader.GetString(i + 5));
-                        } // end if
+                        WriteToLog(" -- DBH entering for loop for degree " + s_ID);
+                        WriteToLog(" -- DBH the number of available fields is: " + reader.FieldCount + "; Expected: " + (ui_numCourses + 5).ToString());
+
+                        string crs = reader.GetString(i + 5);
+                        WriteToLog(" -- DBH the degree " + s_ID + " contains the course: " + crs);
+                        l_courses.Add(crs);
                     } // end for
 
                     reader.Close();
@@ -1591,12 +1595,14 @@ namespace Database_Handler
 
                     if (!b_shallow)
                     {
+                        WriteToLog(" -- DBH retrieving complete object for degree " + s_ID);
                         List<Course> requs = new List<Course>();
 
                         foreach (string s in l_courses)
                         {
                             try
                             {
+                                WriteToLog(" -- DBH retrieving course requirement " + s + " of degree " + s_ID);
                                 requs.Add(RetrieveCourse(s, b_shallow, ui_depth + 1));
                             } // end try
                             catch (ThreadAbortException e)
@@ -1615,10 +1621,12 @@ namespace Database_Handler
                         } // end foreach
 
                         degree = new DegreeRequirements(s_ID, s_name, s_deparment, requs);
+                        WriteToLog(" -- DBH completed retrieving the degree (complete) " + s_ID + " and found:\n" + degree.ToString());
                     } // end if
                     else
                     {
                         degree = new DegreeRequirements(s_ID, s_name, s_deparment, l_courses);
+                        WriteToLog(" -- DBH completed retrieving the degree (shallow) " + s_ID + " and found:\n" + degree.ToString());
                     } // end else
                 } // end if
                 else
@@ -1789,15 +1797,7 @@ namespace Database_Handler
 
                     for(int i = 0; i < ui_preRequsCount; i++)
                     {
-                        if (reader.FieldCount > (i + 10))
-                        {
-                            ls_preRequs.Add(reader.GetString(i + 10));
-                        } // end if
-                        else
-                        {
-                            WriteToLog(" -- DBH the record for course " + s_ID + " is corrupted! Prerequ counter does not match the number of prerequs in database.");
-                            break;
-                        } // end else
+                        ls_preRequs.Add(reader.GetString(i + 10));
                     } // end for
 
                     reader.Close();
@@ -2321,8 +2321,27 @@ namespace Database_Handler
                         AddColumns(k, s_DEGREES_TABLE, "course_");
                     } // end if
 
-                    MySqlCommand command = GetCommand(catalog.ID + "_" + degree.ID, 'I', s_DEGREES_TABLE, s_DEGREES_KEY, "", GetSpecialInsertQuery(s_DEGREES_TABLE,GetSpecialInsertString(degree),GetSpecialInsertValues(degree, catalog.ID + "_" + degree.ID)));
-                    command.ExecuteNonQuery();
+                    string insert = GetSpecialInsertString(degree);
+                    string vals = GetSpecialInsertValues(degree, catalog.ID + "_" + degree.ID);
+
+                    MySqlCommand command = new MySqlCommand(GetSpecialInsertQuery(s_DEGREES_TABLE,insert,vals), DB_CONNECTION);
+
+                    WriteToLog(command.CommandText);
+
+                    StreamWriter writer = new StreamWriter("/var/aspnetcore/logs/insert.txt");
+                    writer.Write(command.CommandText);
+                    writer.Flush();
+
+                    writer.Close();
+
+                    StreamReader read = new StreamReader("/var/aspnetcore/logs/insert.txt");
+                    string shit = read.ReadLine();
+                    read.Close();
+
+                    MySqlCommand ifThisFuckingWorks = new MySqlCommand(shit, DB_CONNECTION);
+
+
+                    ifThisFuckingWorks.ExecuteNonQuery();
                 } // end else
             } // end try
             catch (ThreadAbortException e)
@@ -2750,7 +2769,7 @@ namespace Database_Handler
             query += " (";
             query += s_insert;
             query += ") ";
-            query += "VALUES(";
+            query += "VALUES (";
             query += s_values;
             query += ");";
 
@@ -2810,7 +2829,7 @@ namespace Database_Handler
 
         private string GetSpecialInsertValues(DegreeRequirements degree, string s_ID)
         {
-            string values = "\"" + s_ID + "\", \"" + degree.Name + "\", \"" + degree.Department + "\", " + degree.ShallowRequirements.Count.ToString();
+            string values = "\"" + s_ID + "\", 1, \"" + degree.Name + "\", \"" + degree.Department + "\", " + degree.ShallowRequirements.Count.ToString();
             
             for (int i = 0; i < degree.ShallowRequirements.Count; i++)
             {
@@ -2824,7 +2843,7 @@ namespace Database_Handler
         private string GetSpecialInsertString(DegreeRequirements degree)
         {
             string text = s_DEGREES_KEY;
-            text += ", degree_name, department, num_requs";
+            text += ", WP, degree_name, department, num_requs";
 
             if (degree.ShallowRequirements.Count > 0)
             {
