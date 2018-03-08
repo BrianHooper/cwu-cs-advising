@@ -51,7 +51,7 @@ namespace PlanGenerationAlgorithm
         {
             //meets constraints if course is not on the list of requirements 
             //and number of credits of current schedule is less than 18
-            return (ui_numberCredits <= Algorithm.maxCreditss && !courses.Contains(c));
+            return (ui_numberCredits <= Algorithm.maxCreditss && !courses.Contains(c)&& quarterName.QuarterSeason != Season.Summer);
         }
 
         /// <summary>
@@ -76,7 +76,8 @@ namespace PlanGenerationAlgorithm
         /// <returns>true or false depends on whether the course meet all the constraints or not</returns>
         public bool AddCourse(Course c)
         {
-            if (MeetsConstraints(c))
+            if ((MeetsConstraints(c) && locked == false) ||
+                ((quarterName.QuarterSeason==Season.Summer&&Algorithm.takeSummerCourses==true)))
             {
                 courses.Add(c); //add course into the list if it meets all the constraints
                 ui_numberCredits += c.Credits; //add current number of credits with course c
@@ -102,7 +103,7 @@ namespace PlanGenerationAlgorithm
                 //check if next quarter is locked to determine if student take summer courses or not
                 if (NextQuarter.quarterName.QuarterSeason.Equals(Season.Summer) && !NextQuarter.locked)
                 {
-                    algorithm.takeSummerCourses = true;
+                    Algorithm.takeSummerCourses = true;
                 }
                 NextQuarter.previousQuarter = this;
             }
@@ -161,7 +162,7 @@ namespace PlanGenerationAlgorithm
                 case Season.Spring:
                     {
                         //algorithm.takeSummerCourses = true;
-                        if (algorithm.takeSummerCourses == true)
+                        if (Algorithm.takeSummerCourses == true)
                         {
                             NumberOfQuarters++;
                             return new Quarter(quarterName.Year, Season.Summer);

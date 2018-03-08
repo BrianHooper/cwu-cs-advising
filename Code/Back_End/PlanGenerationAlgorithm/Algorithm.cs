@@ -14,13 +14,15 @@ namespace PlanGenerationAlgorithm
         public static uint maxCreditss; //set maximum number of credits
         public static Schedule bestSchedule; //variable to save the best possible schedule
         public List<Course> copy;  //a list to copy the requirements in generateSchedule method
-        public bool takeSummerCourses = false; //variable to check if student take summer courses
+        public static bool takeSummerCourses; //variable to check if student take summer courses
         Schedule schedule = new Schedule(new Quarter(2018, Season.Fall));
-
+         public static uint bestQuarter = 50;
+        public uint currentQuarter = 0;
         //variable for increment
         int i = 0;
         int j = 0;
         int asd = 0;
+        int k = 0;
         /// <summary>
         /// call the generate schedule method
         /// and generate the schedules for all graduation requirements
@@ -42,7 +44,7 @@ namespace PlanGenerationAlgorithm
             //set the value of take summer course to determine 
             //if student takes summer courses or not
             Algorithm algorithm = new Algorithm();
-            algorithm.takeSummerCourses = takeSummerCourse;
+            takeSummerCourses = takeSummerCourse;
             //initialize the values of best schedule
             bestSchedule = currentSchedule;
             bestSchedule.NextQuarter = currentSchedule.NextQuarter;
@@ -52,7 +54,7 @@ namespace PlanGenerationAlgorithm
             bestSchedule.courses = currentSchedule.courses;
             //set best schedule number of quarters to 50 for first iteration
             bestSchedule.NumberOfQuarters = 50;
-            uint bestQuarter = 50;
+            
             for (int i = 0; i < 15; i++)
             {
        
@@ -60,7 +62,7 @@ namespace PlanGenerationAlgorithm
                 currentSchedule.Shuffle(requirements);
                 //generate the schedule
                 algorithm.GenerateSchedule(requirements, currentSchedule);
-                if (currentSchedule.NumberOfQuarters <= bestQuarter)
+                if (algorithm.currentQuarter <= bestQuarter)
                 {
                     bestSchedule = currentSchedule;
                     bestSchedule.NextQuarter = currentSchedule.NextQuarter;
@@ -68,10 +70,11 @@ namespace PlanGenerationAlgorithm
                     bestSchedule.ui_numberCredits = currentSchedule.ui_numberCredits;
                     bestSchedule.quarterName = currentSchedule.quarterName;
                     bestSchedule.courses = currentSchedule.courses;
-                    bestQuarter = currentSchedule.NumberOfQuarters;
+                    bestQuarter = algorithm.currentQuarter;
                     //reset the current schedule
-                    currentSchedule.NumberOfQuarters = 0;
+                    
                 }
+                
             }
             //"\n" + Generated.GetFirstSchedule());
             return bestSchedule;
@@ -84,7 +87,8 @@ namespace PlanGenerationAlgorithm
         /// <param name="currentSchedule">schedule for this quarter</param>
         private void GenerateSchedule(List<Course> requirements, Schedule currentSchedule)
         {
-            int k = 0;
+           
+            Algorithm algorithm=new Algorithm();
             //Schedule asd = new Schedule(currentSchedule);
             //bestSchedule = currentSchedule;
             copy = new List<Course>(requirements);
@@ -98,7 +102,7 @@ namespace PlanGenerationAlgorithm
                 bestSchedule.ui_numberCredits = currentSchedule.ui_numberCredits;
                 bestSchedule.quarterName = currentSchedule.quarterName;
                 bestSchedule.courses = currentSchedule.courses;
-                bestSchedule.NumberOfQuarters = 50;
+                bestQuarter = 50;
                 foreach (Course c in currentSchedule.courses)
                 {
                     copy.Remove(c);
@@ -106,7 +110,7 @@ namespace PlanGenerationAlgorithm
                     //addCourse add current schedule number of credits, Add does not
                     //adding number of credits if Add is used and 
                     //do not add number of credits if AddCourse is used
-                    currentSchedule.ui_numberCredits += c.Credits;
+                    //currentSchedule.ui_numberCredits += c.Credits;
                 }
                 i++;
             }
@@ -115,7 +119,7 @@ namespace PlanGenerationAlgorithm
             {
 
                 //check if current schedule is better than current best schedule
-                if (currentSchedule.NumberOfQuarters <= bestSchedule.NumberOfQuarters)
+                if (algorithm.currentQuarter <= bestQuarter)
                 {
                     bestSchedule = currentSchedule;
                     bestSchedule.NextQuarter = currentSchedule.NextQuarter;
@@ -123,7 +127,7 @@ namespace PlanGenerationAlgorithm
                     bestSchedule.ui_numberCredits = currentSchedule.ui_numberCredits;
                     bestSchedule.quarterName = currentSchedule.quarterName;
                     bestSchedule.courses = currentSchedule.courses;
-                    bestSchedule.NumberOfQuarters = currentSchedule.NumberOfQuarters;
+                    //bestQuarter = currentQuarter;
                     //reset the current schedule
                     // currentSchedule.NumberOfQuarters = 0;
                     return;
@@ -134,10 +138,10 @@ namespace PlanGenerationAlgorithm
             {
                 //if algorithm is still running, check if lower bound for current schedule is
                 //worst than best schedule so it does not check the whole tree
-                if (bestSchedule.NumberOfQuarters != 50)
+                if (bestQuarter != 50)
                 {
                     uint lowerBound = currentSchedule.lowerBound();
-                    if (lowerBound > bestSchedule.NumberOfQuarters)
+                    if (lowerBound > bestQuarter)
                         return;
                 }
             }
@@ -187,16 +191,16 @@ namespace PlanGenerationAlgorithm
             }
             if (possibleCourses.Count > 0)
             {
-              
+               
                 //copy = new List<Course>(requirements);
                 foreach (Course c in possibleCourses)
                 {
-                    
                     //if course has prerequisites, prioritize the course first
-                    if (c.PreRequisites.Count > 0||prereq.Contains(c))
+                    if (prereq.Contains(c) || c.PreRequisites.Count > 0)
                     {
                         // Attempt to add the course to this schedule
-                        if (maxCreditss >= (currentSchedule.ui_numberCredits + c.Credits))
+                        if (maxCreditss >= (currentSchedule.ui_numberCredits + c.Credits)&&
+                            currentSchedule.courses.Count<3)
                         {
                             //copy = new List<Course>(requirements);
                             if (currentSchedule.AddCourse(c))
@@ -214,7 +218,7 @@ namespace PlanGenerationAlgorithm
                 foreach (Course c in possibleCourses)
                 {
                     //if course does not have prerequisites
-                    if (c.PreRequisites.Count == 0)
+                    if (c.PreRequisites.Count==0 || c.PreRequisites.Count > 0)
                     {
                         // Attempt to add the course to this schedule
                         if (maxCreditss >= (currentSchedule.ui_numberCredits + c.Credits))
@@ -236,8 +240,8 @@ namespace PlanGenerationAlgorithm
             {
                 //GenerateSchedule(copy, currentSchedule.NextSchedule());
                 //copy = new List<Course>(requirements);
-                currentSchedule.NumberOfQuarters++;
-                bestSchedule.NumberOfQuarters = currentSchedule.NumberOfQuarters;
+                currentQuarter++;
+                //bestQuarter = currentQuarter;
                 //check if next quarter schedule already have some courses
                 //if yes, remove it from requirements and 
                 //add the number of credits for next schedule
@@ -254,8 +258,8 @@ namespace PlanGenerationAlgorithm
             }
             if (copy.Count > 0)
             {
-                currentSchedule.NumberOfQuarters++;
-                bestSchedule.NumberOfQuarters = currentSchedule.NumberOfQuarters;
+                currentQuarter++;
+                //bestQuarter = currentQuarter;
                 // If there are still requirements left, try again next quarter
                 // Danger, could result in infinite recursion until
                 // checking for schedule length is implemented
