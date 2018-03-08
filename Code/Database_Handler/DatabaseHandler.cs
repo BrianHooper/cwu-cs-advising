@@ -1915,6 +1915,8 @@ namespace Database_Handler
         {
             try
             {
+                plan.Classes[0] = plan.Classes[0].Replace("\"", "\\\"");
+
                 MySqlCommand cmd = GetCommand(plan.StudentID, 'S', s_PLAN_TABLE, s_PLAN_KEY, "*");
 
                 MySqlLock.WaitOne();
