@@ -26,11 +26,27 @@ namespace CwuAdvising.Pages
 
             if (UpdatedUser.NewPasswordOne != UpdatedUser.NewPasswordTwo)
             {
-                ChangePasswordErrorMessage = "Your new passwords do not match!";
+                ChangePasswordErrorMessage = "The new passwords you entered do not match!";
                 return Page();
             } // end if
 
-            int temp = PasswordManager.LoginAttempt(Username, UpdatedUser.OldPassword);
+            if(UpdatedUser.NewPasswordOne.Length < 10)
+            {
+                ChangePasswordErrorMessage = "Your new password is too short!";
+                return Page();
+            } // end if
+
+
+            int temp = -1;
+
+            if(IndexModel.Administrator)
+            {
+                temp = 0;  
+            } // end if
+            else
+            {
+                temp = PasswordManager.LoginAttempt(Username, UpdatedUser.OldPassword);
+            } // end if
 
             if (temp >= 0)
             {

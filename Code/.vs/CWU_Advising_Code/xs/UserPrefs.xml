@@ -1,10 +1,10 @@
 ﻿<Properties StartupConfiguration="{683998E3-D7CC-4AD8-B8DD-B012248E4B4C}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Front_End/Pages/ChangePassword.cshtml">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Database_Handler/DatabaseCommands.cs">
     <Files>
       <File FileName="Database_Handler/DatabaseHandler.cs" Line="1793" Column="10" />
       <File FileName="Database_Handler/DatabaseCommands.cs" Line="106" Column="1" />
-      <File FileName="Front_End/Pages/ChangePassword.cshtml" Line="32" Column="53" />
-      <File FileName="Front_End/Pages/ChangePassword.cshtml.cs" Line="17" Column="46" />
+      <File FileName="Front_End/Pages/ChangePassword.cshtml" Line="11" Column="30" />
+      <File FileName="Front_End/Pages/ChangePassword.cshtml.cs" Line="88" Column="2" />
       <File FileName="Front_End/Pages/Index.cshtml.cs" Line="65" Column="31" />
       <File FileName="Front_End/PasswordManager.cs" Line="108" Column="1" />
       <File FileName="Front_End/Pages/Index.cshtml" Line="30" Column="11" />
@@ -12,8 +12,8 @@
       <File FileName="Database_Classes/General.cs" Line="703" Column="50" />
       <File FileName="Database_Classes/Course.cs" Line="188" Column="121" />
       <File FileName="Front_End/Pages/UserManagement.cshtml.cs" Line="1" Column="1" />
-      <File FileName="Front_End/Pages/UserManagement.cshtml" Line="2" Column="8" />
-      <File FileName="Front_End/Pages/Advising.cshtml.cs" Line="229" Column="22" />
+      <File FileName="Front_End/Pages/UserManagement.cshtml" Line="1" Column="1" />
+      <File FileName="Front_End/Pages/Advising.cshtml.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />

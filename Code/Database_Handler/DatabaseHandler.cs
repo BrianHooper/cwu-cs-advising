@@ -356,22 +356,15 @@ namespace Database_Handler
         private int RunHost()
         {
             var output = 0;
-            WriteToLog(" -- DBH Now in RunHost.");
 
             Thread stayAlive = new Thread(KeepAlive);
             stayAlive.Start();
 
-            WriteToLog(" -- DBH Started stay alive thread.");
-
             Thread deadlockThread = new Thread(DeadLockDetector);
             deadlockThread.Start();
 
-            WriteToLog(" -- DBH Started deadlock detector thread.");
-
             for (; ; )
             {
-                WriteToLog(" -- DBH Waiting for client to connect ...");
-
                 TcpClient newClient = tcpListener.AcceptTcpClient();
 
                 if (newClient == null)
@@ -380,13 +373,11 @@ namespace Database_Handler
                     continue;
                 } // end if
 
-                WriteToLog(" -- DBH Client was accepted, preparing to start up thread.");
                 Thread newClientThread = new Thread(RunClient);
 
                 // if the session expires, attempt to reopen it
                 if (DB_CONNECTION.State != System.Data.ConnectionState.Open)
                 {
-                    WriteToLog(" -- DBH is attempting to reconnect after losing DB connection.");
                     try
                     {
                         AttemptReconnect();
@@ -411,11 +402,9 @@ namespace Database_Handler
                     } // end catch
                 } // end if
 
-                WriteToLog(" -- DBH Database connection still good, starting thread now.");
                 clients.Add(newClient);
                 clientThreads.Add(newClientThread);
                 newClientThread.Start(newClient);
-                WriteToLog(" -- DBH Client thread started.");
             } // end for
 
             return output;
@@ -432,7 +421,6 @@ namespace Database_Handler
         private int ExecuteCommand(DatabaseCommand cmd, NetworkStream stream)
         {
             DatabaseCommand output = null;
-            WriteToLog(" -- DBH Now in execute command.");
 
             try
             {
@@ -568,27 +556,22 @@ namespace Database_Handler
                 {
                     case OperandType.CatalogRequirements:
                         dbo = (CatalogRequirements)cmd.Operand;
-                        //WriteToLog(" -- DBH Updating: \n" + ((CatalogRequirements)dbo).ToString());
                         i_code = Update((CatalogRequirements)dbo);
                         break;
                     case OperandType.Student:
                         dbo = (Student)cmd.Operand;
-                        WriteToLog(" -- DBH Updating: \n" + ((Student)dbo).ToString());
                         i_code = Update((Student)dbo);
                         break;
                     case OperandType.Course:
                         dbo = (Course)cmd.Operand;
-                        //WriteToLog(" -- DBH Updating: \n" + ((Course)dbo).ToString());
                         i_code = Update((Course)dbo);
                         break;
                     case OperandType.Credentials:
                         cred = (Credentials)cmd.Operand;
-                        WriteToLog(" -- DBH Updating: \n" + cred.ToString());
                         i_code = Update(cred);
                         break;
                     case OperandType.PlanInfo:
                         plan = (PlanInfo)cmd.Operand;
-                        WriteToLog(" -- DBH Updating: \n" + plan.ToString());
                         i_code = Update(plan);
                         break;
                     default:
@@ -780,11 +763,6 @@ namespace Database_Handler
                 {
                     catalogs.Add(RetrieveCatalog(s, b_shallow));
                 } // end foreach
-
-                foreach(CatalogRequirements c in catalogs)
-                {
-                    WriteToLog(" -- DBH catalog: " + c.ToString());
-                }
             } // end try
             catch (ThreadAbortException e)
             {
@@ -899,8 +877,6 @@ namespace Database_Handler
                     temp.Department = s_department;
                     temp.WP = ui_WP;
 
-                    //WriteToLog(" -- DBH the write protect value being sent is: " + temp.WP);
-
                     courses.Add(temp);
                 } // end while
 
@@ -992,7 +968,6 @@ namespace Database_Handler
             ms.Position = 0;
 
             DatabaseCommand cmd = (DatabaseCommand)formatter.Deserialize(ms);
-            WriteToLog(" -- DBH Command is: " + cmd.CommandType.ToString());
             return cmd;
         } // end method WaitForCommand
 
@@ -1098,8 +1073,6 @@ namespace Database_Handler
                 } // end if
             } // end if
 
-            WriteToLog(" -- DBH Setup started.");
-
             // RNG for salt creation
             RNG = new RNGCryptoServiceProvider();
 
@@ -1115,21 +1088,17 @@ namespace Database_Handler
                 WriteToLog(" -- DBH Is only acception connections from IP " + s_IP_ADDRESS);
             } // end else
 
-            WriteToLog(" -- DBH Creating a tcp listener on: " + address.ToString() + ":" + i_TCP_PORT.ToString());
             tcpListener = new TcpListener(address, i_TCP_PORT);
-            WriteToLog(" -- DBH Created a tcp listener on: " + address.ToString() + ":" + i_TCP_PORT.ToString());
 
             ui_COL_COUNT = new uint[4];
 
             GetColumnCounts("", 0, true);
 
-            WriteToLog(" -- DBH Setting up thread and client lists.");
             clientThreads = new List<Thread>();
             clients = new List<TcpClient>();
-            WriteToLog(" -- DBH Preparing tcp listener.");
-            // start listening for connection attempts
+
             tcpListener.Start();
-            WriteToLog(" -- DBH Tcp listener is now running.");
+
             return 0;
         } // end method SetUp
 
@@ -1960,12 +1929,10 @@ namespace Database_Handler
                     foreach (string s in plan.Classes)
                     {
                         temp = GetCommand(plan.StudentID, 'U', s_PLAN_TABLE, s_PLAN_KEY, "qtr_" + i.ToString(), s);
-                        WriteToLog(" -- Update PlanInfo " + temp.CommandText);
                         temp.ExecuteNonQuery();
                         i++;
                     } // end foreach
 
-                    WriteToLog(" -- DBH successfully updated the plan of " + plan.StudentID + ".");
                 } // end if
                 else
                 {
@@ -1980,8 +1947,6 @@ namespace Database_Handler
 
                     MySqlCommand command = GetCommand(plan.StudentID, 'I', s_PLAN_TABLE, s_PLAN_KEY, "", GetInsertValues(plan));
                     command.ExecuteNonQuery();
-
-                    WriteToLog(" -- DBH successfully created the plan for " + plan.StudentID + ".");
                 } // end else
             } // end try
             catch (ThreadAbortException e)
@@ -2069,9 +2034,6 @@ namespace Database_Handler
         /// <returns>0 or an error code.</returns>
         private int Update(Course course)
         {
-            WriteToLog(" -- DBH update failed for course  " + course.Department);
-            WriteToLog(" -- DBH update failed for course  " + course.Department);
-            WriteToLog(" -- DBH update failed for course  " + course.Department);
             try
             {
                 MySqlCommand cmd = GetCommand(course.ID, 'S', s_COURSES_TABLE, s_COURSES_KEY, "*");
@@ -2123,13 +2085,8 @@ namespace Database_Handler
 
                     query += " WHERE " + s_COURSES_KEY + " = \"" + course.ID + "\";";
 
-                    WriteToLog(" -- DBH sending update query: " + query);
-                    WriteToLog(" -- DBH update course contents: " + course.Name + " " + course.Department + " " + course.ID + " ");
-
                     MySqlCommand temp = new MySqlCommand(query, DB_CONNECTION);
                     temp.ExecuteNonQuery();
-
-                    WriteToLog(" -- DBH successfully updated the course " + course.ID + ".");
                 } // end if
                 else
                 {
@@ -2143,13 +2100,9 @@ namespace Database_Handler
                     } // end if
 
                     string query = GetSpecialInsertQuery(s_COURSES_TABLE, GetSpecialInsertString(course), GetSpecialInsertValues(course)); //GetInsertValues(course);
-                    WriteToLog(" -- DBH sending insert query: " + query);
-                    WriteToLog(" -- DBH update course contents: " + course.Name + " " + course.Department + " " + course.ID + " ");
 
                     MySqlCommand command = new MySqlCommand(query, DB_CONNECTION); //GetCommand(course.ID, 'I', s_COURSES_TABLE, s_COURSES_KEY, "", query);
                     command.ExecuteNonQuery();
-
-                    WriteToLog(" -- DBH successfully created the course " + course.ID + ".");
                 } // end else
             } // end try
             catch (ThreadAbortException e)
@@ -2184,8 +2137,6 @@ namespace Database_Handler
 
 
                 reader.Read();
-
-                WriteToLog(" -- DBH trying to update catalog " + catalog.ID);
 
                 if (reader.HasRows)
                 {
@@ -2222,8 +2173,6 @@ namespace Database_Handler
                     } // end foreach
 
                     query += " WHERE "+ s_CATALOGS_KEY + " = \"" + catalog.ID + "\";";
-
-                    WriteToLog(" -- DBH update query for catalog " + catalog.ID + ":\n" + query);
 
                     MySqlCommand temp = new MySqlCommand(query, DB_CONNECTION);
 
@@ -2329,13 +2278,9 @@ namespace Database_Handler
 
                 reader.Read();
 
-                WriteToLog(" -- DBH trying to update the degree " + degree.ID);
-
                 if (reader.HasRows)
                 {
                     reader.Close();
-
-                    WriteToLog(" -- DBH degree " + degree.ID + " was found in database. ");
 
                     // ensure the plan will fit into the table
                     if (ui_COL_COUNT[3] < degree.ShallowRequirements.Count)
@@ -2360,36 +2305,22 @@ namespace Database_Handler
 
                     query += " WHERE " + s_DEGREES_KEY + " = \"" + catalog.ID + "_" + degree.ID + "\";";
 
-                    WriteToLog(" -- DBH update query for degree:\n" + query);
-
                     MySqlCommand temp = new MySqlCommand(query, DB_CONNECTION);
                     temp.ExecuteNonQuery();
-
-                    WriteToLog(" -- DBH successfully updated the degree " + catalog.ID + "_" + degree.ID + ".");
                 } // end if
                 else
                 {
                     reader.Close();
 
-                    WriteToLog(" -- DBH the degree " + degree.ID + " was not found in the database.");
-                    WriteToLog(" -- DBH degree contains: " + degree.ToString());
-
-                    WriteToLog(" -- DBH the number of columns in the degree table is: " + ui_COL_COUNT[3].ToString() + " count: "  + degree.ShallowRequirements.Count);
                     // ensure the plan will fit into the table
                     if (ui_COL_COUNT[3] < degree.ShallowRequirements.Count)
                     {
                         int k = degree.ShallowRequirements.Count - (int)ui_COL_COUNT[3]; // number of columns that must be added
-                        WriteToLog(" -- DBH attempting to add " + k + " additional columns to the table");
                         AddColumns(k, s_DEGREES_TABLE, "course_");
                     } // end if
 
-                    WriteToLog(" -- DBH the number of columns in the degree table after update is: " + ui_COL_COUNT[3].ToString());
-
                     MySqlCommand command = GetCommand(catalog.ID + "_" + degree.ID, 'I', s_DEGREES_TABLE, s_DEGREES_KEY, "", GetInsertValues(catalog, degree));
-                    WriteToLog(" -- DBH insert query that was generated is " + command.CommandText);
                     command.ExecuteNonQuery();
-
-                    WriteToLog(" -- DBH successfully created the plan for " + catalog.ID + ".");
                 } // end else
             } // end try
             catch (ThreadAbortException e)
@@ -2462,8 +2393,6 @@ namespace Database_Handler
                         temp = GetCommand(student.ID, 'U', s_STUDENTS_TABLE, s_STUDENTS_KEY, "expected_grad_year", student.ExpectedGraduation.Year.ToString());
                         temp.ExecuteNonQuery();
                     } // end if
-
-                    WriteToLog(" -- DBH successfully updated the student " + student.ID + ".");
                 } // end if
                 else
                 {
@@ -2471,8 +2400,6 @@ namespace Database_Handler
 
                     MySqlCommand command = GetCommand(student.ID, 'I', s_STUDENTS_TABLE, s_STUDENTS_KEY, "", GetInsertValues(student));
                     command.ExecuteNonQuery();
-
-                    WriteToLog(" -- DBH successfully created the student " + student.ID + ".");
                 } // end else
             } // end try
             catch (ThreadAbortException e)
@@ -2729,7 +2656,6 @@ namespace Database_Handler
         private int DeleteRecord(Course course)
         {
             MySqlCommand cmd = GetCommand(course.ID, 'D', s_COURSES_TABLE, s_COURSES_KEY);
-            WriteToLog(" -- delete command: " + cmd.CommandText);
             var output = 1;
 
             try
@@ -3155,15 +3081,12 @@ namespace Database_Handler
             string s_connStr = "server=" + s_MYSQL_DB_SERVER + ";port=" + s_MYSQL_DB_PORT + ";database=" +
                                s_MYSQL_DB_NAME + ";user id=" + s_MYSQL_DB_USER_ID + ";password=" + s_pw +
                                ";persistsecurityinfo=True;";
-            WriteToLog(" -- DBH Connecting to MySQL now.");
-            //"server=<TBD>;port=<TBD>;database=<DB>;user id=<TBD>;password=<TBD>;persistsecurityinfo=True;"
             MySqlConnection connection = new MySqlConnection(s_connStr);
 
 
             try
             {
                 connection.Open();
-                WriteToLog(" -- DBH Successfully opened connection with MySQL.");
             } // end try
             catch (Exception e)
             {
