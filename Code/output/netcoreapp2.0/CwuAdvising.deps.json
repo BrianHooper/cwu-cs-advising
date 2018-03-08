@@ -4066,6 +4066,9 @@
         }
       },
       "PlanGenerationAlgorithm/1.0.0": {
+        "dependencies": {
+          "Microsoft.NETCore.App": "2.0.0"
+        },
         "runtime": {
           "PlanGenerationAlgorithm.dll": {}
         },

@@ -82,6 +82,11 @@ function CreateUserRow(User) {
     }
     Row.append(ActiveColumn);
 
+    var PasswordColumn = $("<div></div>");
+    PasswordColumn.attr("class", "Element ChangePassword");
+    PasswordColumn.text("Change PW");
+    Row.append(PasswordColumn);
+
     return Row;
 }
 
@@ -131,3 +136,25 @@ function ResetModifiers() {
         $(this).attr("modified", "false");
     });
 }
+
+$(document).on("click", ".ChangePassword", function () {
+    var ChangePwUser = $(this).parent().children().eq(1).html();
+    // Pass ajax to server
+    $.ajax({
+        type: "POST",
+        url: "/UserManagement?handler=ChangePassword",
+        data: ChangePwUser,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (response) {
+            if (response) {
+                window.location.href = "ChangePassword";
+            } else {
+                alert("Failed to retrieve user");
+            }
+        },
+        failure: function (response) {
+            alert("Failed to retrieve user");
+        }
+    });
+});

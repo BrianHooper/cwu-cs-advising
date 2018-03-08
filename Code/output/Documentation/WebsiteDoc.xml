@@ -412,6 +412,24 @@
             <param name="oldModel"></param>
             <returns></returns>
         </member>
+        <member name="T:CwuAdvising.Pages.ChangePasswordModel.ChangPasswordModel">
+            <summary></summary>
+        </member>
+        <member name="P:CwuAdvising.Pages.ChangePasswordModel.ChangPasswordModel.OldPassword">
+            <summary>Username</summary>
+        </member>
+        <member name="P:CwuAdvising.Pages.ChangePasswordModel.ChangPasswordModel.NewPasswordOne">
+            <summary>Password 1</summary>
+        </member>
+        <member name="P:CwuAdvising.Pages.ChangePasswordModel.ChangPasswordModel.NewPasswordTwo">
+            <summary>Password 2</summary>
+        </member>
+        <member name="P:CwuAdvising.Pages.ChangePasswordModel.ChangePasswordErrorMessage">
+            <summary>Error message for Create User form</summary>
+        </member>
+        <member name="P:CwuAdvising.Pages.ChangePasswordModel.UpdatedUser">
+            <summary>Binds the LoginModel to a Login object for POST</summary>
+        </member>
         <member name="T:CwuAdvising.Pages.ErrorModel">
             <summary>Model for index page</summary>
         </member>
@@ -583,6 +601,10 @@
             Serializes CourseModel list to a JSON string.
             </summary>
             <returns>CourseModel list as serialized JSON string</returns>
+        </member>
+        <member name="M:CwuAdvising.Pages.UserManagementModel.OnPostChangePassword">
+            <summary>Retrieves a list of modified courses as JSON data from POST</summary>
+            <returns>JsonResult containing success/error status</returns>
         </member>
         <member name="M:CwuAdvising.Pages.UserManagementModel.OnPostSendUsers">
             <summary>Retrieves a list of modified courses as JSON data from POST</summary>
