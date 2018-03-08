@@ -78,12 +78,12 @@ namespace CwuAdvising.Pages
         /// <returns>JsonResult containing success/error status</returns>
         public ActionResult OnPostChangePassword()
         {
-            /*
+            
             if (!IndexModel.LoggedIn)
             {
                 return new JsonResult("Error saving users.");
             }
-            */
+            
 
             MemoryStream stream = new MemoryStream();
             Request.Body.CopyTo(stream);
@@ -93,7 +93,7 @@ namespace CwuAdvising.Pages
                 string requestBody = reader.ReadToEnd();
                 if (requestBody.Length > 0)
                 {
-                    //ChangePasswordModel.Username = requestBody;
+                    ChangePasswordModel.Username = requestBody;
                     return new JsonResult(true);
                 }
                 else
