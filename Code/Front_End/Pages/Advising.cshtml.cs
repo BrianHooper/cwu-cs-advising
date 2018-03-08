@@ -219,7 +219,8 @@ namespace CwuAdvising.Pages
                     }
                     DatabaseInterface.WriteToLog("Create PlanInfo object for student " + model.ID);
                     string Plan = JsonConvert.SerializeObject(CreatedScheduleModel);
-                    Plan = Plan.Replace('"', '\"');
+                    //Plan = Plan.Replace('"', '\"');
+                    Plan = Plan.Replace("\"", "\\\"");
                     string[] StudentsPlan = { Plan };
                     PlanInfo CreatedPlanInfo = new PlanInfo(model.ID, 0, model.Quarter + " " + model.Year, StudentsPlan);
 
