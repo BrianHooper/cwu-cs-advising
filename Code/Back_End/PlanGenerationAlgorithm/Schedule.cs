@@ -77,7 +77,7 @@ namespace PlanGenerationAlgorithm
         public bool AddCourse(Course c)
         {
             if ((MeetsConstraints(c) && locked == false) ||
-                ((quarterName.QuarterSeason==Season.Summer&&Algorithm.takeSummerCourses==true)))
+                ((quarterName.QuarterSeason==Season.Summer&&Algorithm.takeSummerCourses==true&&locked==false)))
             {
                 courses.Add(c); //add course into the list if it meets all the constraints
                 ui_numberCredits += c.Credits; //add current number of credits with course c
