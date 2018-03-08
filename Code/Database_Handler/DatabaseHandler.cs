@@ -1556,8 +1556,6 @@ namespace Database_Handler
                 throw new RecursionDepthException("Retrieving the degree " + s_ID + " caused a recursion depth of " + ui_depth + " stopping to prevent infinite recursion.");
             } // end if
 
-            //WriteToLog(" -- DBH trying to retrieve the degree " + s_ID + " shallow is: " + b_shallow.ToString() + " recursion depth is " + ui_depth.ToString());
-
             DegreeRequirements degree;
 
             MySqlDataReader reader = null;
@@ -1574,7 +1572,6 @@ namespace Database_Handler
 
                 if (reader.HasRows)
                 {
-                    //WriteToLog(" -- DBH found the degree " + s_ID + " in the database.");
                     uint ui_WP = reader.GetUInt32(1),
                          ui_numCourses = reader.GetUInt32(4);
 
@@ -1592,7 +1589,7 @@ namespace Database_Handler
                     } // end for
 
                     reader.Close();
-                    MySqlLock.ReleaseMutex();
+                    MySqlLock.ReleaseMutex();                    
 
                     if (!b_shallow)
                     {
@@ -1611,6 +1608,7 @@ namespace Database_Handler
                             catch (KeyNotFoundException)
                             {
                                 WriteToLog(" -- DBH The degree " + s_ID + " contains a reference to the course " + s + " but this course does not exist in the database.");
+                                WriteToLog(" -- DBH The degree " + s_ID + " will be automatically updated to remove this.");
                             } // end catch
                             catch (Exception e)
                             {
@@ -2293,7 +2291,7 @@ namespace Database_Handler
                     // UPDATE `test_db`.`courses` SET `course_id`='CS123', `WP`='2', `course_name`='Introas To CS', `offered_winter`='1', 
                     //'offered_spring`='1', `offered_summer`='1', `offered_fall`='1', `num_credits`='2', `department`='as', `num_pre_requs`='4' WHERE `course_id`='CS110';
 
-                    string query = "UPDATE " + s_MYSQL_DB_NAME + "." + s_DEGREES_TABLE + " SET degree_name = \"" + degree.Name + "\", department = \"" + degree.Department + "\", num_requ = " + degree.ShallowRequirements.Count.ToString();
+                    string query = "UPDATE " + s_MYSQL_DB_NAME + "." + s_DEGREES_TABLE + " SET degree_name = \"" + degree.Name + "\", department = \"" + degree.Department + "\", num_requs = " + degree.ShallowRequirements.Count.ToString();
 
                     int i = 0;
 
@@ -2782,6 +2780,9 @@ namespace Database_Handler
             return values;
         } // end method GetSpecialInsertValues
 
+        /// <summary>Gets a special insert string for a course object.</summary>
+        /// <param name="course">The course to be added to the db.</param>
+        /// <returns>The insert query.</returns>
         private string GetSpecialInsertString(Course course)
         {
             string text = s_COURSES_KEY;
@@ -2797,7 +2798,6 @@ namespace Database_Handler
 
             return text;
         } // end method GetSpecialInsertString
-
 
         /// <summary>Creates the values string for a PlanInfo object.</summary>
         /// <param name="plan">The plan to be inserted into the DB.</param>
@@ -3185,6 +3185,7 @@ namespace Database_Handler
 
             int i = 0; // for error output in catch
             int index = 0;
+
             // { s_PLAN_TABLE, s_COURSES_TABLE, s_CATALOGS_TABLE, s_DEGREES_TABLE}
             if (s_table.Equals(s_PLAN_TABLE))
             {
@@ -3206,7 +3207,6 @@ namespace Database_Handler
             {
                 throw new ArgumentException("Invalid table name received: " + s_table + "");
             } // end else
-
 
             try
             {
