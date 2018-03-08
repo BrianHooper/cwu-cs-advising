@@ -270,14 +270,11 @@ namespace Database_Handler
         /// <returns>Error code or 0 if application exited as expected.</returns>
         private int Run(NetworkStream stream)
         {
-            WriteToLog(" -- DBH Now in run.");
             try
             {
                 for (; ; )
                 {
-                    WriteToLog(" -- DBH Ready to execute commands, calling waitforcommand.");
                     DatabaseCommand command = WaitForCommand(stream);
-                    WriteToLog(" -- DBH Command received, executing it now.");
                     int i = ExecuteCommand(command, stream);
 
                     switch (i)
@@ -314,17 +311,13 @@ namespace Database_Handler
         /// <param name="client">The client this thread is responsible for.</param>
         private void RunClient(Object client)
         {
-            WriteToLog(" -- DBH New client thread started.");
             TcpClient tcpClient = (TcpClient)client;
-            WriteToLog(" -- DBH Setting up a network stream for new client.");
             NetworkStream clientStream = tcpClient.GetStream();
-            WriteToLog(" -- DBH Network stream setup.");
 
             int exitCode = 1;
 
             try
             {
-                WriteToLog(" -- DBH Calling run for new client.");
                 exitCode = Run(clientStream);
             } // end try
             catch (ThreadAbortException)
@@ -753,7 +746,9 @@ namespace Database_Handler
                 {
                     string s_catalog = reader.GetString(0);
 
-                    l_IDs.Add(s_catalog);                    
+                    WriteToLog(" -- DBH found the catalog " + s_catalog + " in the catalog table.");
+
+                    l_IDs.Add(s_catalog);
                 } // end while
 
                 reader.Close();
@@ -761,6 +756,7 @@ namespace Database_Handler
 
                 foreach(string s in l_IDs)
                 {
+                    WriteToLog(" -- DBH Attempting to retrieve the catalog " + s);
                     catalogs.Add(RetrieveCatalog(s, b_shallow));
                 } // end foreach
             } // end try
@@ -1464,11 +1460,11 @@ namespace Database_Handler
                 reader = cmd.ExecuteReader();
                 reader.Read();
 
-                //WriteToLog(" -- DBH trying to retrieve catalog: " + s_ID);
+                WriteToLog(" -- DBH trying to retrieve catalog: " + s_ID);
 
                 if (reader.HasRows)
                 {
-                    //WriteToLog(" -- DBH found catalog " + s_ID + " in database.");
+                    WriteToLog(" -- DBH found catalog " + s_ID + " in database.");
                     uint ui_WP = reader.GetUInt32(1),
                          ui_numDegrees = reader.GetUInt32(2);
 
@@ -1509,6 +1505,8 @@ namespace Database_Handler
 
                     catalog = new CatalogRequirements(s_ID, requs);
                     catalog.WP = ui_WP;
+
+                    WriteToLog(" -- DBH the retrieved catalog is: " + catalog);
                 } // end if
                 else
                 {
@@ -2129,6 +2127,8 @@ namespace Database_Handler
             {
                 MySqlCommand cmd = GetCommand(catalog.ID, 'S', s_CATALOGS_TABLE, s_CATALOGS_KEY, "*");
 
+                WriteToLog(" -- DBH received command to update the catalog " + catalog.ID);
+
                 MySqlLock.WaitOne();
 
                 MySqlDataReader reader = cmd.ExecuteReader();
@@ -2138,6 +2138,8 @@ namespace Database_Handler
 
                 if (reader.HasRows)
                 {
+                    WriteToLog(" -- DBH catalog " + catalog.ID + " was found. New contents: " + catalog.ToString());
+
                     uint ui_WP = reader.GetUInt32(1);
 
                     reader.Close();
@@ -2247,7 +2249,7 @@ namespace Database_Handler
             } // end catch
             catch (Exception e)
             {
-                WriteToLog(" -- DBH update failed for the student plan with ID: " + catalog.ID + " Msg: " + e.Message);
+                WriteToLog(" -- DBH update failed for the catalog with ID: " + catalog.ID + " Msg: " + e.Message);
                 return 2;
             } // end catch
             finally
