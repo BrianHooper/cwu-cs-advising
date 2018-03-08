@@ -39,10 +39,10 @@ namespace PlanGenerationAlgorithm
             // }
             maxCreditss = maxCredits;
             //set minimum and maximum number of credits
-            Algorithm algorithm = new Algorithm();
             //set the value of take summer course to determine 
             //if student takes summer courses or not
-            takeSummerCourse = algorithm.takeSummerCourses;
+            Algorithm algorithm = new Algorithm();
+            algorithm.takeSummerCourses = takeSummerCourse;
             //initialize the values of best schedule
             bestSchedule = currentSchedule;
             bestSchedule.NextQuarter = currentSchedule.NextQuarter;
