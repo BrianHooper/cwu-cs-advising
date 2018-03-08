@@ -17,6 +17,7 @@ $(document).ready(function () {
 /*  Given a parsed JSON objects, loads the schedule onto the QuarterContainer   */
 function LoadSchedule(Schedule) {
     $("#QuarterContainer").html("");
+    unmetRequirements = [];
     unmetRequirements = Schedule.UnmetRequirements;
     for (var i = 0; i < Schedule.Quarters.length; i++) {
         var Quarter = CreateQuarter(Schedule.Quarters[i].Title, QuarterNameToIndex(Schedule.Quarters[i].Title), Schedule.Quarters[i].Locked);
@@ -25,7 +26,8 @@ function LoadSchedule(Schedule) {
         }
         $("#QuarterContainer").append(Quarter);
     }
-
+    $("#RemainingRequirements").empty();
+    $("#RemainingRequirementsList").empty();
     // Update remaining requirements list
     ModifyRequirements();
 

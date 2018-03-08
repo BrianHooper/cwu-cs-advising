@@ -47,27 +47,3 @@ function HasAttrValue(Object, Attribute, Value) {
         return StringMatch(Object.attr(Attribute), Value);
     }
 }
-
-$(document).on("click", "#ChangePasswordLink", function () {
-    var ChangePwUser = $("#CurrentUser").text();
-    // Pass ajax to server
-    $.ajax({
-        type: "POST",
-        url: "/UserManagement?handler=ChangePassword",
-        data: ChangePwUser,
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (response) {
-            if (response) {
-                window.location.href = "ChangePassword";
-            } else {
-                alert("Failed to retrieve user");
-                return false;
-            }
-        },
-        failure: function (response) {
-            alert("Failed to retrieve user");
-            return false;
-        }
-    });
-});
