@@ -1616,9 +1616,9 @@ namespace Database_Handler
 
                     for(int i = 0; i < ui_numCourses; i++)
                     {
-                        if(reader.FieldCount > (ui_numCourses + 2))
+                        if(reader.FieldCount > (ui_numCourses + 5))
                         {
-                            l_courses.Add(reader.GetString(i + 2));
+                            l_courses.Add(reader.GetString(i + 5));
                         } // end if
                     } // end for
 
