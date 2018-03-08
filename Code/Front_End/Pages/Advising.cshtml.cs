@@ -386,7 +386,7 @@ namespace CwuAdvising.Pages
                 DatabaseInterface.WriteToLog("Attempting to save plan for student base case");
                 basecase = basecase.Replace('"', '\"');
                 string[] databasePlanSchedule = { basecase };
-                PlanInfo studentplan = new PlanInfo("-1", 0, "Fall 2018", databasePlanSchedule);
+                PlanInfo studentplan = new PlanInfo("-2", 0, "Fall 2018", databasePlanSchedule);
                 Program.Database.UpdateRecord(studentplan);
                 return true;
             }

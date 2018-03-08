@@ -64,11 +64,44 @@ namespace CwuAdvising.Pages
         {
             if (!IndexModel.LoggedIn || !IndexModel.Administrator)
             {
-                return JsonConvert.SerializeObject(new List<UserModel>());
+                UserModel testModel = new UserModel("brian", true, false, true);
+                List<UserModel> userList = new List<UserModel>();
+                userList.Add(testModel);
+                return JsonConvert.SerializeObject(userList);
             }
             ReadDatabase();
             List<UserModel> ModelList = CredentialsListToUserModelList(MasterUserList);
             return JsonConvert.SerializeObject(ModelList);
+        }
+
+        /// <summary>Retrieves a list of modified courses as JSON data from POST</summary>
+        /// <returns>JsonResult containing success/error status</returns>
+        public ActionResult OnPostChangePassword()
+        {
+            /*
+            if (!IndexModel.LoggedIn)
+            {
+                return new JsonResult("Error saving users.");
+            }
+            */
+
+            MemoryStream stream = new MemoryStream();
+            Request.Body.CopyTo(stream);
+            stream.Position = 0;
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                string requestBody = reader.ReadToEnd();
+                if (requestBody.Length > 0)
+                {
+                    //ChangePasswordModel.Username = requestBody;
+                    return new JsonResult(true);
+                }
+                else
+                {
+                    return new JsonResult(false);
+                }
+            }
+
         }
 
         /// <summary>Retrieves a list of modified courses as JSON data from POST</summary>
@@ -106,7 +139,6 @@ namespace CwuAdvising.Pages
                 }
             }
         }
-
         /// <summary></summary>
         public class CreateUserModel
         {
@@ -180,5 +212,7 @@ namespace CwuAdvising.Pages
 
             return Page();
         }
+
+
     }
 }
