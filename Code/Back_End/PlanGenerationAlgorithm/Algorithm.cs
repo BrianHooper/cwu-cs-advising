@@ -200,7 +200,7 @@ namespace PlanGenerationAlgorithm
                     {
                         // Attempt to add the course to this schedule
                         if (maxCreditss >= (currentSchedule.ui_numberCredits + c.Credits)&&
-                            currentSchedule.courses.Count<3)
+                            currentSchedule.courses.Count<4)
                         {
                             //copy = new List<Course>(requirements);
                             if (currentSchedule.AddCourse(c))
