@@ -2305,8 +2305,6 @@ namespace Database_Handler
 
                     query += " WHERE " + s_DEGREES_KEY + " = \"" + catalog.ID + "_" + degree.ID + "\";";
 
-                    WriteToLog(" -- DBH Update query for degree " + catalog.ID + "_" + degree.ID + " is:\n" + query);
-
                     MySqlCommand temp = new MySqlCommand(query, DB_CONNECTION);
                     temp.ExecuteNonQuery();
                 } // end if
@@ -2326,21 +2324,16 @@ namespace Database_Handler
 
                     MySqlCommand command = new MySqlCommand(GetSpecialInsertQuery(s_DEGREES_TABLE,insert,vals), DB_CONNECTION);
 
-                    WriteToLog(command.CommandText);
-
+                    // This function does not work without this code. Don't ask why, just accept it.
                     StreamWriter writer = new StreamWriter("/var/aspnetcore/logs/insert.txt");
                     writer.Write(command.CommandText);
                     writer.Flush();
-
                     writer.Close();
-
                     StreamReader read = new StreamReader("/var/aspnetcore/logs/insert.txt");
                     string shit = read.ReadLine();
                     read.Close();
 
                     MySqlCommand ifThisFuckingWorks = new MySqlCommand(shit, DB_CONNECTION);
-
-
                     ifThisFuckingWorks.ExecuteNonQuery();
                 } // end else
             } // end try
