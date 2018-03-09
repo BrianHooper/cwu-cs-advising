@@ -1,0 +1,22 @@
+\contentsline {section}{\numberline {1}Overview}{2}
+\contentsline {subsection}{\numberline {1.1}Requirements}{2}
+\contentsline {section}{\numberline {2}Compiling}{2}
+\contentsline {subsection}{\numberline {2.1}Compiling on Windows}{2}
+\contentsline {subsection}{\numberline {2.2}Compiling on Linux}{3}
+\contentsline {subsection}{\numberline {2.3}Next Steps}{3}
+\contentsline {section}{\numberline {3}Creating the Service}{3}
+\contentsline {subsection}{\numberline {3.1}Preparation}{3}
+\contentsline {subsection}{\numberline {3.2}Putting Everything into Place}{4}
+\contentsline {subsection}{\numberline {3.3}Starting DBH}{4}
+\contentsline {section}{\numberline {4}The dbh.service File}{5}
+\contentsline {subsection}{\numberline {4.1}Unit}{5}
+\contentsline {subsection}{\numberline {4.2}Service}{5}
+\contentsline {subsection}{\numberline {4.3}Install}{5}
+\contentsline {section}{\numberline {5}The Configuration.ini File}{5}
+\contentsline {subsection}{\numberline {5.1}MySql Connection}{6}
+\contentsline {subsection}{\numberline {5.2}MySql Tables}{6}
+\contentsline {subsection}{\numberline {5.3}Misc}{7}
+\contentsline {section}{\numberline {6}MySql Setup}{7}
+\contentsline {subsection}{\numberline {6.1}Requirements}{8}
+\contentsline {subsection}{\numberline {6.2}Setting up the Database Schema}{8}
+\contentsline {section}{\numberline {7}Troubleshooting}{8}

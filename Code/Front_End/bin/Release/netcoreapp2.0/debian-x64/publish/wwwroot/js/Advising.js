@@ -17,6 +17,7 @@ $(document).ready(function () {
 /*  Given a parsed JSON objects, loads the schedule onto the QuarterContainer   */
 function LoadSchedule(Schedule) {
     $("#QuarterContainer").html("");
+    unmetRequirements = [];
     unmetRequirements = Schedule.UnmetRequirements;
     for (var i = 0; i < Schedule.Quarters.length; i++) {
         var Quarter = CreateQuarter(Schedule.Quarters[i].Title, QuarterNameToIndex(Schedule.Quarters[i].Title), Schedule.Quarters[i].Locked);
@@ -25,7 +26,8 @@ function LoadSchedule(Schedule) {
         }
         $("#QuarterContainer").append(Quarter);
     }
-
+    $("#RemainingRequirements").empty();
+    $("#RemainingRequirementsList").empty();
     // Update remaining requirements list
     ModifyRequirements();
 
@@ -624,9 +626,6 @@ function SaveSchedule(feedback) {
                     alert("Saving schedule failed, check database connection.");
                 }
             }
-        },
-        error: function (one, two, three) {
-            return false;
         }
     });
 }
@@ -644,10 +643,11 @@ $(document).on("click", "#SaveBaseCaseButton", function () {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (response) {
-            return false;
-        },
-        error: function (one, two, three) {
-            console.log(three);
+            if (response) {
+                alert("Base case saved.");
+            } else {
+                alert("Error saving base case.");
+            }
         }
     });
 });

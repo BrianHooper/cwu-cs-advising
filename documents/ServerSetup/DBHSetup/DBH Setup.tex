@@ -1,0 +1,198 @@
+\documentclass[letterpaper]{article}
+\title{Computer Science Advising Tool \\ Database Handler Setup}
+\author{Last Place Champions \\ Rico Adrian, Brian Hooper, Nick Rohde}
+\date{Last Updated: 8th of March 2018}
+
+\usepackage{url}
+
+\begin{document}
+	\maketitle
+	\tableofcontents
+	\pagebreak
+	
+	\section{Overview}
+	This document explains how to compile, daemonize, and use the Database Handler service. \\ Chapter 2 explains the process of taking the source files provided by the Developers and compiling them into a runnable application. \\ Chapter 3 explains the process of creating the service, including the process of creating the dbh.service file, as well as where to place the service file, and other accompanying files in the system.\\ Chapter 4 explains the structure the dbh.ini file must follow in order to function properly, and what changes can be made by the administrator. \\ Chapter 5 explains the process of setting up the tables in the MySql database, and details important structural requirements. \\ Chapter 6 explains some troubleshooting techniques that will help you solve issues that may occur during the setup process.
+	
+	\subsection{Requirements}
+	In order to run the Database Handler, the server must be running on the Debian 9 Server operating system, and the dotnet core SDK version 2.0.x installed. Information on installing the dotnet core SDK on Debian can be found here: \url{https://docs.microsoft.com/en-us/dotnet/core/linux-prerequisites?tabs=netcore2x}
+	 
+	\section{Compiling}
+	This chapter goes over the process of compiling the provided source files into the assemblies which can be run by the dotnet runtime. It is assumed that the source files are in the same folder structure as they were supplied by the Developers, and all files are present.
+	\subsection{Compiling on Windows}
+	Compiling the Database Handler (DBH) on Windows is the simplest way to create the assemblies, and it is the reccommended way of compiling. 
+	\begin{enumerate}
+		\item Open a command prompt, and navigate to the directory containing the file CWU\_Advising\_Code.sln
+		\item Execute the command: \textbf{dotnet publish -c Release -r debian-x64 }
+	\end{enumerate}
+	Now, the output directory should contain the directory "/netcoreapp2.0/publish". This publish directory contains all required files to run the DBH, and it should not be altered.
+	\subsection{Compiling on Linux}
+	Compiling the Database Handler (DBH) on linux must be done by manually compiling the Database\_Object\_Classes.csproj first, and after that the Database\_Handler.csproj. 
+	\begin{enumerate}
+		\item Open a terminal, and navigate to the directory containing the file Database\_Object\_Classes.csproj
+		\item Execute the command: \textbf{dotnet build -c Release}
+		\item Navigate to the directory containing the file Database\_Handler.csproj
+		\item Execute the command: \textbf{dotnet publish -c Release}
+	\end{enumerate}
+	Now, the output directory should contain a directory "/output/netcoreapp2.0/debian-x64/publish". This publish directory contains all required files to run the DBH, and it should not be altered.
+	
+	\subsection{Next Steps}
+	In the next steps, we will refer to the directory "/output/netcoreapp2.0/debian-x64/publish" as the publish directory. This directory will be used in Section 3.2 "Putting Everything into Place" to create the daemon that will run the DBH.
+	
+	\section{Creating the Service}
+	
+	\subsection{Preparation}
+	Now we will create the service to host the databases. First, we need to create the service file, and store it in the appropriate directory for the operating system to find it.
+	
+	\begin{enumerate}
+		\item Find the file titled "dbh.service" which is in the same directory as this document, as well as the file "Configuration.ini".
+		\item Place these two files in your home directory on the server using your method of choice.
+		\item Execute the command: \textbf{sudo mv dbh.service /etc/systemd/system/}
+		\item Execute the command: \textbf{sudo nano /etc/systemd/system/}
+		\item Ensure the following settings are in the file, and update them as necessary:
+		\begin{enumerate}
+			\item WorkingDirectory=/var/aspnetcore/publish
+			\item ExecStart=/usr/bin/dotnet /var/aspnetcore/publish/DatabaseHandler.dll
+			\item Restart=always
+			\item RestartSec=10
+			\item Environment=ASPNETCORE\_ENVIRONMENT=Development
+			\item Environment=DOTNET\_PRINT\_TELEMETRY\_MESSAGE=false
+			\item WantedBy=multi-user.target
+			\item \textbf{Ensure that "User=" does not appear in the file, if it does remove it.}
+		\end{enumerate}
+	\item Once you have verified the contents of the file, save the file by pressing CTRL+O, then press Enter, and finally exit the file by pressing CTRL+X
+	\end{enumerate}
+
+	\subsection{Putting Everything into Place}
+	Next we need to place the publish directory (see 2.3 "Next Steps") in the correct place.
+	\begin{enumerate}
+		\item Go to your home directory (Execute the command: "cd \path{~}")
+		\item Execute the command: \textbf{sudo mkdir /var/aspnetcore/}
+		\item Execute the command: \textbf{sudo mv publish /var/aspnetcore/}
+		\item Execute the command: \textbf{sudo mv Configuration.ini /var/aspnetcore/publish/}
+	\end{enumerate}
+
+	Now we have successfully created the service, and put all files into the necessary locations to start the database handler. Before we can start the service, we must first update an entry in the "Configuration.ini" file. To do this, see Section 5.1 "MySqlConnection" before going to section 3.3.
+	
+	\subsection{Starting DBH}
+	Before starting this section, the MySql database must be setup for DBH to use, see Section 6 for detailed instructions on how to do this.
+	
+	\begin{enumerate}
+		\item Execute the command: \textbf{sudo systemctl daemon-reload}
+		\item Execute the command: \textbf{sudo systemctl enable dbh.service}
+		\item Execute the command: \textbf{sudo systemctl start dbh.service}
+		\item Execute the command: \textbf{sudo systemctl status dbh.service}
+		\item If the ouput reads "Active: active(running)" (usually in green colour), you're done. Otherwise, go to Section 5.1 for troubleshooting.
+	\end{enumerate}
+	
+	\section{The dbh.service File}
+	This file contains the definition of the Database Handler service, it must be present in the correct location (see 3.1 "Preparation" for more info) in order for the Database Handler to function properly. This section will explain the structure of this file, and how it can be changed, though we advise against changing the contents of this file.
+	
+	\subsection{Unit}
+	The Unit section contains the general information about the service, by default, it should contain a short description. Feel free to modify this to a more fitting description for you. \textbf{Note: Only change the description value to the right of the equals sign, do not change the left side.}
+	
+	\subsection{Service}
+	The Service section contains the actual definition of the service.
+	\begin{enumerate}
+		\item WorkingDirectory: This setting tells the service where to find all necessary files, if this setting is changed, all files from Section 3 must be moved to this location.
+		\item ExecStart: This setting tells the service how to run, and what file to run. The first setting, "/usr/bin/dotnet", \textbf{must not be altered}, the second setting must be altered if the WorkingDirectory is changed to account for the new location of the file DatabaseHandler.dll
+		\item Restart and RestartSec: These two settings determine if, and at what interval the service should restart if it stop for whatever reason. 
+		\item SyslogIdentifier: This is what the system log will use to identify the Database Handler, you may change this to whatever you'd like.
+		\item Environment: These settings must not be changed, the service will not function if these settings are not present, or altered.
+	\end{enumerate}
+	
+	\subsection{Install}
+	This tells the service who uses this service, this setting should not be changed, otherwise there could be issues with accessing the service.
+	
+	\section{The Configuration.ini File}
+	This file contains the Configurations for the Database Handler, we advise against changing the contents of this file, however, this section gives an explanation of what is in the file, and how changes should be made. \textbf{Important: Changing the section names within this file will result in the Database Handler not being ablee to find the settings it needs!}
+	\\To update any any setting in this file, find the correct "setting" (located on the left hand side of the equals sign) and change the key (located on the right hand side of the equals sign) to the new value. The individual settings are located in "groups", which are in brackets, e.g. "[MySql Connection]". Below is a discussion of all groups, and the settings contained in each group.
+	
+	\subsection{MySql Connection}
+	This group tells the Database Handler where the Database is located, how to connect to it, and what username and password to use to connect. This may need to be changed if the username and/or password change. \\To update the username and password:
+	\begin{enumerate}
+		\item Find the setting "user" and change the right hand side of the equals sign to the new username. \textbf{Important: As the Database Handler will alter tables; create, update, and delete table entries; and make other modifications to the Database, the user entered here must have root privilidges. See Section 6.1 "Setting up a User for DBH" for more info.}
+		\item Find the setting "password" and change the right hand side of the equals sign to the password assigned to the user in the "user" setting.
+	\end{enumerate}
+	Another setting in this group that may need to be changed is the "DB" setting. This must be the name of the Database schema used by the Database Handler (See Section 6.2 "Setting up the Database" for more info).
+	Lastly, we also have the setting "host" this is the IP address of the server hosting the Database. If the Database is on the same server as the Database Handler, this setting should be \textit{localhost}, otherwise it must be the IPv4 address of the server where it is located.
+	
+	\subsection{MySql Tables}
+	This group contains basic information about the tables the Database Handler is managing. This information should not be changed unless the MySql Database table names and/or keys were changed. If any of these were changed:
+	\begin{enumerate}
+		\item Update grad\_plans with the name of the tablke containing the graduation plans
+		\item Update credentials with the name of the table containing the user credentials of website users
+		\item Update students\_table with the name of the table containing the graduation plans
+		\item Update degrees\_table with the name of the table containing the degrees
+		\item Update courses\_table with the name of the table containing the courses
+		\item Update catalogs\_table with the name of the table containing the catalogs
+		\item Update grad\_plans\_key with the name of the column containing the student ID of the student whose graduation plan it is
+		\item Update credentials\_key with the name of the column containing the username of website users
+		\item Update students\_table\_key with the name of the column containing the student ID of a student
+		\item Update degrees\_table\_key with the name of the column containing the degree ID
+		\item Update courses\_table\_key with the name of the column containing the course ID
+		\item Update catalogs\_table\_key with the name of the column containing the catalog ID
+	\end{enumerate}
+
+	\subsection{Misc}
+	This section contains the TCP/IP setting used by the website and the Database Handler to communicate, as well as the path to a log file, which the Database Handler will use to log error messages, and other important events. \\If it is necessary to update the TCP settings:
+	\begin{enumerate}
+		\item Update the IP setting with the IP address of where the \textbf{webserver} is located. Alternatively, you can update this setting to \textit{Any} which will cause the Database Handler to accept client requests from any IP address, \textbf{this is not reccomended.}
+		\item Update the Port setting to the TCP port to accept client requests on. If a new port is chosen, we reccommend a port above 10000, ports below this are not guaranteed to be open.
+	\end{enumerate}
+	Changing the log path is not reccommended, the Database Handler may not have access privilidges to the new file, which will cause the Database Handler to shutdown.
+	
+	 
+	\section{MySql Setup}
+	This section will explain how to setup, and alter the MySql Databse. Throughout this section, we will instruct you to use certain names for the Database Schema, Tables, and Columns, you may replace these with names of your choice; however, it is not reccommended to use settings other than the defaults, as any changes made in the Database must also be applied to the Configuration.ini file, which can cause issues if done incorrectly.
+	
+	\subsection{Requirements}
+	This guide assumes that you have already installed MySql, we reccommmend you use MariaDB to avoid any issues, but you can use a version of your choice. \textbf{Note: The syntax in the scripts, and the instructions herein follow the MariaDB syntax, other MySql versions may use a slightly different syntax.}\\In the section 6.2 "Setting up the Database Schema" we will use several queries which are located in the folder Queries, located in the same folder as this guide. Copy these files into your home directoy on the server.
+	
+	\subsection{Setting up the Database Schema}
+	\begin{enumerate}
+		\item Open a shell, navigate to your home folder, and execute the command: \textbf{sudo mysql} \\You may be required to enter the root password. After this, you should now be in the mysql shell, it should display"mysql >" in your shell.
+		\item Execute the query: \textbf{CREATE SCHEMA IF NOT EXISTS advising\_db;}
+		\item Execute the query: \textbf{exit;} \\You should now be back in the regular shell, if you did not return to your home directory, navigate to your home directoy.
+		\item Execute the command: \textbf{sudo mysql CatalogsTable.sql}
+		\item Execute the command: \textbf{sudo mysql CoursesTable.sql}
+		\item Execute the command: \textbf{sudo mysql CredentialsTable.sql}
+		\item Execute the command: \textbf{sudo mysql DegreesTable.sql}
+		\item Execute the command: \textbf{sudo mysql StudentPlanTable.sql}
+		\item Execute the command: \textbf{sudo mysql StudentssTable.sql}
+		\item Now, the database has been setup, and you can move on to Section 6.3.
+	\end{enumerate}
+
+	\subsection{Setup the DBH user}
+	DBH requires a user account in order to be able to do its job. To create this user:
+	\begin{enumerate}
+		\item Open a shell, navigate to your home folder, and execute the command: \textbf{sudo mysql} \\You may be required to enter the root password. After this, you should now be in the mysql shell, it should display"mysql >" in your shell.
+		\item Execute the query: CREATE USER IF NOT EXISTS 'dbh\_user'@'localhost' IDENTIFIED BY '<insert a strong password here>';
+		\item Execute the query: GRANT ALL PRIVILEGES ON  'advising\_db'.* to 'dbh\_user'@'localhost';
+		\item Update the user information in the Configuration.ini file. See section 5.1 for more info.
+	\end{enumerate}
+
+	Now, the Database is setup, and the Database Handler can being doing it's job.
+	
+	\section{Troubleshooting}
+	This section discusses some common issues that can occur when using the Database Handler application.
+	
+	\subsection{It Won't Start or Keep Restarting}
+	This is most likely caused by one of three possible issues:
+	
+	\subsubsection{Configuration File Missing or Incorrect Settings}
+	The Configuration.ini file must be in the same directory as the DatabaseHandler.dll file specified in the dbh.service file (see Section 4.2). This file \textbf{must have the name Configuration.ini}, it will not work with any other file. Ensure that the file name is correct, and that it is located in the correct folder, if you used default settings it should be located at /var/aspnetcore/publish/Configuration.ini. Once you've verified it is in the correct place, ensure the settings are correct, see Section 5 for more info.
+	
+	\subsubsection{Permissions}
+	The Database Handler requires permissions to read the "Configuration.ini" file, as well as write priviledges on the file "log.txt" (default location /var/aspnetcore/logs/log.txt), and the file "insert.txt" (default location /var/aspnetcore/logs/insert.txt). Ensure that these three files exist, and are in the correct locations. To set the proper permissions on these files:
+	\begin{enumerate}
+		\item Execute the command: \textbf{sudo su}
+		\item Execute the command: \textbf{chmod a+rw /var/aspnetcore/publish/Configuration.ini}
+		\item Execute the command: \textbf{chmod a+rw /var/aspnetcore/logs/log.txt}
+		\item Execute the command: \textbf{chmod a+rw /var/aspnetcore/logs/insert.txt}
+		\item Execute the command: \textbf{exit}
+	\end{enumerate}
+	
+	\subsubsection{Incorrect Service File}
+	This could also be caused by the settings in the dbh.service file not being correct, see Sections 3 and 4 for more info on how to create this file.
+	
+\end{document}

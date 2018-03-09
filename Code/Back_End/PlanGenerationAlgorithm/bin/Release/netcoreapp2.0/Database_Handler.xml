@@ -469,6 +469,11 @@
             <param name="s_values">Values for the new row.</param>
             <returns>A ready to go insert sql query.</returns>
         </member>
+        <member name="M:Database_Handler.DatabaseHandler.GetSpecialInsertString(Database_Object_Classes.Course)">
+            <summary>Gets a special insert string for a course object.</summary>
+            <param name="course">The course to be added to the db.</param>
+            <returns>The insert query.</returns>
+        </member>
         <member name="M:Database_Handler.DatabaseHandler.GetInsertValues(Database_Object_Classes.PlanInfo)">
             <summary>Creates the values string for a PlanInfo object.</summary>
             <param name="plan">The plan to be inserted into the DB.</param>

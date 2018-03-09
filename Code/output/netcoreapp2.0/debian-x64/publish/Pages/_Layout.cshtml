@@ -23,22 +23,58 @@
 
     </div>
     <div id="TopLogo">&nbsp;</div>
-
+    <script>
+        $(document).on("click", "#ChangePasswordLink", function () {
+            var ChangePwUser = $("#CurrentUser").text();
+            // Pass ajax to server
+            $.ajax({
+                type: "POST",
+                url: "/UserManagement?handler=ChangePassword",
+                data: ChangePwUser,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    if (response) {
+                        window.location.href = "ChangePassword";
+                    } else {
+                        alert("Failed to retrieve user");
+                        return false;
+                    }
+                },
+                failure: function (response) {
+                    alert("Failed to retrieve user");
+                    return false;
+                }
+            });
+        });
+    </script>
 
 
     <div class="HorizontalBar">&nbsp;</div>
     <div id="PageContainer">
-
-
+        @{
+            string LoginMessage = "";
+            string UserName = "";
+            string LogoutButton = "";
+            string PasswordButton = "";
+            bool ShowLogin = IndexModel.LoggedIn;
+            if(ShowLogin)
+            {
+                LoginMessage = "Logged in as: ";
+                UserName = IndexModel.CurrentUser;
+                LogoutButton = "[ Logout ]";
+                PasswordButton = "[ Change Password ]";
+            }
+        }
         <div class="PageRow Flex">
-            <div class="WideFlex" id="Logout">Logged in as: <span id="CurrentUser">@IndexModel.CurrentUser</span> <a href="Index"> [ Logout ]</a> <a href="#" id="ChangePasswordLink">[ Change Password ]</a></div>
+            <div class="WideFlex" id="Logout">@LoginMessage<span id="CurrentUser">@UserName</span> <a href="Index">@LogoutButton</a> <a href="#" id="ChangePasswordLink">@PasswordButton</a></div>
             <div class="WideFlex" id="Navigation">
                 <span id="NavLinks">
                     @{ 
                         string AdminLinks = "";
                         if (IndexModel.LoggedIn)
                         {
-                            AdminLinks += " | <a href=\"StudentAdvising\">Advising</a>";
+                            AdminLinks += "<a href=\"StudentAdvising\">Advising</a>";
 
                             if (IndexModel.Administrator)
                             {
@@ -46,7 +82,7 @@
                             }
                         }
                     }
-                    <a href="Index">Home</a>@Html.Raw(AdminLinks)
+                    @Html.Raw(AdminLinks)
                     
                 </span>
             </div>
