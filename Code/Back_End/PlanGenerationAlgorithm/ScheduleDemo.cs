@@ -4,7 +4,8 @@ using Database_Object_Classes;
 
 namespace PlanGenerationAlgorithm
 {
-    //Class for testing purposes
+    //This Class is used only for testing purposes
+    //so it can be modified anytime
     class ScheduleDemo
     {
         public static void Main(string[] args)
@@ -32,7 +33,6 @@ namespace PlanGenerationAlgorithm
         {
             // List of course requirements
             List<Course> Requirements = new List<Course>();
-            Student student;
             // Create 3 courses
             List<Course> CS311Prereqs = new List<Course>();
             Requirements.Add(new Course("Computer Architecture", "CS311", 4, true, new bool[] { true, true, false, true }, CS311Prereqs));
@@ -292,7 +292,7 @@ namespace PlanGenerationAlgorithm
             List<Course> NoPrereqs = new List<Course>();
             NoPrereqs.Clear();
             // Summer 2018
-            
+
 
             // Fall 2018
             Course UNIV101 = new Course("UNIV101", "UNIV101", 1, true, new bool[] { true, true, false, true }, NoPrereqs); UnmetRequirements.Add(UNIV101);
@@ -312,8 +312,8 @@ namespace PlanGenerationAlgorithm
             // Spring 2019
             List<Course> MATH172Prereqs = new List<Course>(); MATH172Prereqs.Add(MATH154);
             Course MATH172 = new Course("MATH172", "MATH172", 5, true, new bool[] { true, true, false, true }, MATH172Prereqs); UnmetRequirements.Add(MATH172);
-            List<Course> CS112Prereqs = new List<Course>(); 
-            Course CS112 = new Course("CS112", "CS112", 4, true, new bool[] { true, true,false,true }, NoPrereqs); UnmetRequirements.Add(CS112);
+            List<Course> CS112Prereqs = new List<Course>();
+            Course CS112 = new Course("CS112", "CS112", 4, true, new bool[] { true, true, false, true }, NoPrereqs); UnmetRequirements.Add(CS112);
             Course BREADTH1 = new Course("BREADTH1", "BREADTH1", 5, true, new bool[] { true, true, true, true }, NoPrereqs); UnmetRequirements.Add(BREADTH1);
 
             // Summer 2019
@@ -333,12 +333,12 @@ namespace PlanGenerationAlgorithm
             List<Course> CS312Prereqs = new List<Course>(); CS312Prereqs.Add(CS301); CS312Prereqs.Add(CS311);
             Course CS312 = new Course("CS312", "CS312", 4, true, new bool[] { true, false, false, true }, CS312Prereqs); UnmetRequirements.Add(CS312);
             List<Course> CS325Prereqs = new List<Course>(); CS325Prereqs.Add(CS301); CS325Prereqs.Add(ENG102);
-            Course CS325 = new Course("CS325", "CS325", 3, true, new bool[] { true, false, false, true}, CS325Prereqs); UnmetRequirements.Add(CS325);
+            Course CS325 = new Course("CS325", "CS325", 3, true, new bool[] { true, false, false, true }, CS325Prereqs); UnmetRequirements.Add(CS325);
             Course BREADTH4 = new Course("BREADTH4", "BREADTH4", 5, true, new bool[] { true, true, true, true }, NoPrereqs); UnmetRequirements.Add(BREADTH4);
 
             // Spring 2020
             List<Course> MATH260Prereqs = new List<Course>(); MATH260Prereqs.Add(MATH172); MATH260Prereqs.Add(CS301);
-            Course MATH260 = new Course("MATH260", "MATH260", 5, true, new bool[] { true, true,false,true }, MATH260Prereqs); UnmetRequirements.Add(MATH260);
+            Course MATH260 = new Course("MATH260", "MATH260", 5, true, new bool[] { true, true, false, true }, MATH260Prereqs); UnmetRequirements.Add(MATH260);
             List<Course> CS446Prereqs = new List<Course>(); CS446Prereqs.Add(CS302);
             Course CS446 = new Course("CS446", "CS446", 4, true, new bool[] { false, true, false, false }, CS446Prereqs); UnmetRequirements.Add(CS446);
             Course BREADTH5 = new Course("BREADTH5", "BREADTH5", 5, true, new bool[] { true, true, true, true }, NoPrereqs); UnmetRequirements.Add(BREADTH5);
@@ -348,7 +348,7 @@ namespace PlanGenerationAlgorithm
             List<Course> CS361Prereqs = new List<Course>(); CS361Prereqs.Add(CS302);
             Course CS361 = new Course("CS361", "CS361", 4, true, new bool[] { false, false, false, true }, CS361Prereqs); UnmetRequirements.Add(CS361);
             List<Course> MATH330Prereqs = new List<Course>(); MATH330Prereqs.Add(MATH260);
-            Course MATH330 = new Course("MATH330", "MATH330", 5, true, new bool[] { false, true, false,true }, MATH330Prereqs); UnmetRequirements.Add(MATH330);
+            Course MATH330 = new Course("MATH330", "MATH330", 5, true, new bool[] { false, true, false, true }, MATH330Prereqs); UnmetRequirements.Add(MATH330);
             Course BREADTH6 = new Course("BREADTH6", "BREADTH6", 5, true, new bool[] { true, true, true, true }, NoPrereqs); UnmetRequirements.Add(BREADTH6);
 
             // Winter 2021
@@ -365,7 +365,7 @@ namespace PlanGenerationAlgorithm
             Course CS380 = new Course("CS380", "CS380", 4, true, new bool[] { false, true, false, false }, CS380Prereqs); UnmetRequirements.Add(CS380);
             List<Course> CS420Prereqs = new List<Course>(); CS420Prereqs.Add(CS302); CS420Prereqs.Add(CS325); CS420Prereqs.Add(MATH330);
             Course CS420 = new Course("CS420", "CS420", 4, true, new bool[] { true, true, false, false }, CS420Prereqs); UnmetRequirements.Add(CS420);
-            Course CSElective2 = new Course("CSElective2", "CSElective2", 4, true, new bool[] { true,true, false, true }, CSElectivePrereqs); UnmetRequirements.Add(CSElective2);
+            Course CSElective2 = new Course("CSElective2", "CSElective2", 4, true, new bool[] { true, true, false, true }, CSElectivePrereqs); UnmetRequirements.Add(CSElective2);
             Course BREADTH7 = new Course("BREADTH7", "BREADTH7", 5, true, new bool[] { true, true, true, true }, NoPrereqs); UnmetRequirements.Add(BREADTH7);
 
 
@@ -393,7 +393,7 @@ namespace PlanGenerationAlgorithm
             Course CS492 = new Course("CS492", "CS492", 2, true, new bool[] { true, true, false, true }, CS492Prereqs); UnmetRequirements.Add(CS492);
             Course BREADTH9 = new Course("BREADTH9", "BREADTH9", 5, true, new bool[] { true, true, true, true }, NoPrereqs); UnmetRequirements.Add(BREADTH9);
 
-          
+
 
 
             Course CSElective4 = new Course("CSElective4", "CSElective4", 4, true, new bool[] { true, true, false, true }, CSElectivePrereqs); UnmetRequirements.Add(CSElective4);
@@ -412,7 +412,7 @@ namespace PlanGenerationAlgorithm
                 Console.Write("\n");
             }
 
-            
+
 
             // Output the results to the console
             Console.WriteLine("\n" + CompletedSchedule.GetFirstSchedule());
