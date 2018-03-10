@@ -1,12 +1,25 @@
 \documentclass[letterpaper]{article}
-\title{Computer Science Advising Tool \\ Database Handler Setup}
+\title{Department Of Computer Science Advising Tool \\ Database Handler Setup}
 \author{Last Place Champions \\ Rico Adrian, Brian Hooper, Nick Rohde}
 \date{Last Updated: 8th of March 2018}
 
 \usepackage{url}
+\usepackage{hyperref}
+\hypersetup
+{
+	colorlinks=true,
+	citecolor=black,
+	filecolor=black,
+	linkcolor=black,
+	urlcolor=blue,
+	linktoc=all,
+	linkcolor=black,
+}
+
 
 \begin{document}
 	\maketitle
+	\pagebreak
 	\tableofcontents
 	\pagebreak
 	
@@ -24,7 +37,7 @@
 		\item Open a command prompt, and navigate to the directory containing the file CWU\_Advising\_Code.sln
 		\item Execute the command: \textbf{dotnet publish -c Release -r debian-x64 }
 	\end{enumerate}
-	Now, the output directory should contain the directory "/netcoreapp2.0/publish". This publish directory contains all required files to run the DBH, and it should not be altered.
+	Now, the output directory should contain the directory "/netcoreapp2.0/debian-x64/publish". This publish directory contains all required files to run the DBH, and it should not be altered.
 	\subsection{Compiling on Linux}
 	Compiling the Database Handler (DBH) on linux must be done by manually compiling the Database\_Object\_Classes.csproj first, and after that the Database\_Handler.csproj. 
 	\begin{enumerate}
@@ -47,7 +60,7 @@
 		\item Find the file titled "dbh.service" which is in the same directory as this document, as well as the file "Configuration.ini".
 		\item Place these two files in your home directory on the server using your method of choice.
 		\item Execute the command: \textbf{sudo mv dbh.service /etc/systemd/system/}
-		\item Execute the command: \textbf{sudo nano /etc/systemd/system/}
+		\item Execute the command: \textbf{sudo nano /etc/systemd/system/dbh.service}
 		\item Ensure the following settings are in the file, and update them as necessary:
 		\begin{enumerate}
 			\item WorkingDirectory=/var/aspnetcore/publish
@@ -81,7 +94,7 @@
 		\item Execute the command: \textbf{sudo systemctl enable dbh.service}
 		\item Execute the command: \textbf{sudo systemctl start dbh.service}
 		\item Execute the command: \textbf{sudo systemctl status dbh.service}
-		\item If the ouput reads "Active: active(running)" (usually in green colour), you're done. Otherwise, go to Section 5.1 for troubleshooting.
+		\item If the ouput reads "Active: active(running)" (usually in green colour), you're done. Otherwise, go to Section 5.1 for troubleshooting help.
 	\end{enumerate}
 	
 	\section{The dbh.service File}
@@ -176,7 +189,7 @@
 	\section{Troubleshooting}
 	This section discusses some common issues that can occur when using the Database Handler application.
 	
-	\subsection{It Won't Start or Keep Restarting}
+	\subsection{It Won't Start or Keeps Restarting}
 	This is most likely caused by one of three possible issues:
 	
 	\subsubsection{Configuration File Missing or Incorrect Settings}

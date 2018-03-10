@@ -1,0 +1,106 @@
+\documentclass[letterpaper]{article}
+\title{Department Of Computer Science Advising Tool \\ Server Setup}
+\author{Last Place Champions \\ Rico Adrian, Brian Hooper, Nick Rohde}
+\date{Last Updated: 8th of March 2018}
+
+\usepackage{url}
+\usepackage{hyperref}
+\hypersetup
+{
+	colorlinks=true,
+	citecolor=black,
+	filecolor=black,
+	linkcolor=black,
+	urlcolor=blue,
+	linktoc=all,
+	linkcolor=black,
+}
+
+
+\begin{document}
+	\maketitle
+	\pagebreak
+	\tableofcontents
+	\pagebreak
+	
+	\section{Overview}
+	This document discusses how to setup the server for the website. This server could be the same as the server housing the Databases, but this is not required for everything to function. First, we will discuss how the server must be configured, and then we will setup the website, and ensure everything is working properly.
+	
+	\section{Requirements}
+	In order for the website to function, the .NET Core 2.0.x tools must be installed. For more information regarding this, see \url{https://docs.microsoft.com/en-us/dotnet/core/linux-prerequisites?tabs=netcore2x}.\\ Furhtermore, this website was designed for operation in a Linux environment, specifically Debian 9 Server, and the developers cannot guarantee it will work on any other operating system. \\ Lastly, the user making these changes must either be root, or a user with permissions to use the \textit{sudo} command.
+	
+	\subsection{Compiling}
+	The website is part of the same compilation unit as the Database Handler, see Section 2 in the "DBH Setup.pdf" document for more information on how to compile the website. Throughout this document, we will refer to the "publish directory" as the directory that was created in Section 2 of the "DBH Setup.pdf" document, \textbf{the same publish directory is used for both the Database Handler, and the Website.}
+	
+	\section{Installation}
+	In order to host the website on the server, we must first download, and setup the nginx service, this will be used as a reverse proxy to forward requests from port 80 to port 5000 which is used by all .NET Core MVC websites. After that, we will setup the hosting for the website.
+	
+	\subsection{Nginx}
+	To install nginx on your system, follow these steps:
+	\begin{enumerate}
+		\item Execute the command: \textbf{sudo apt-get install nginx}
+		\item Execute the command: \textbf{sudo service nginx start}
+	\end{enumerate}
+	Now nginx is installed, and it should be running. You can verify it is running by executing this command: \textbf{systemctl status nginx}. If it is running, you should see output that states: Active: active (running), in green colour, alongside some other information.
+	
+	\subsubsection{Nginx Settings}
+	Included with this document is a file named "default", this is the settings file we will use with nginx. During the installation, nginx created the \path{/etc/nginx/sites-available/default}, we will now update this file, and then ensure all settings are correct.
+	\begin{enumerate}
+		\item Place the file "default" (included with this document) in your home directory
+		\item Open a command shell and execute the command: \textbf{\path{cd ~}}
+		\item Execute the command: \textbf{sudo mv default /etc/nginx/sites-available/default}
+		\item Execute the command: \textbf{sudo nano /etc/nginx/sites-available/default}
+		You should now see the contents of the default file in a text editor. Verify the following settings are in the file:
+		\begin{verbatim}
+		server {
+		    listen 80; 
+		        location / {
+		            proxy_pass http://localhost:5000; 
+		            proxy_http_version 1.1; 
+		            proxy_set_header Upgrade $http_upgrade; 
+		            proxy_set_header Connection keep-alive; 
+		            proxy_set_header Host $http_host; 
+		            proxy_cache_bypass $http_upgrade; 
+		        }
+		    }
+		\end{verbatim}
+		\item If the file contains other contents, remove them and replace them with the above text.
+		\item Once the file contains these contents, press CTRL+O, then Enter, and finally CTRL+X to save and exit the editor. You should now be back in the command shell.
+		\item Execute the command: \textbf{sudo systemctl daemon-reload}
+	\end{enumerate}
+
+	\subsection{Website}
+	\subsubsection{Creating the Service}
+	We will now create the service that will host the website. To do this, follow these steps:
+	\begin{enumerate}
+		\item Find the file titled "kestrel-advising.service" which is in the same directory as this document, place this file into your home directory.
+		\item Find the publish repository (Created in Section 2 of "DBH Setup.pdf") and place it into your home directory.
+		\item Execute the command: \textbf{\path{cd ~}}
+		\item Execute the command: \textbf{sudo mv -r publish /var/aspnetcore/}
+		\item Execute the command: \textbf{sudo mv kestrel-advising.service /etc/systemd/system/}
+		\item Execute the command: \textbf{sudo nano /etc/systemd/system/kestrel-advising.service} You should now see the contents of the serivce file in a text editor. Verify the following settings are in the file:
+		\begin{verbatim}
+		[Unit]
+		Description=CS department advising website
+		
+		[Service]
+		WorkingDirectory=/var/aspnetcore/publish
+		ExecStart=/usr/bin/dotnet /var/aspnetcore/publish/CwuAdvising.dll
+		Restart=always
+		RestartSec=10
+		SyslogIdentifier=cs-advising-website
+		User=www-data
+		Environment=ASPNETCORE_ENVIRONMENT=Development
+		Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
+		
+		[Install]
+		WantedBy=multi-user.target
+		\end{verbatim}
+		\item If the file contains other contents, remove them and replace them with the above text. Feel free to alter the Description, or SyslogIdentifier to something more appropriate for you, these have no effect on the service.
+		\item Once the file contains these contents, press CTRL+O, then Enter, and finally CTRL+X to save and exit the editor. You should now be back in the command shell.
+		\item Execute the command: \textbf{sudo systemctl daemon-reload}
+		\item To verify the service is running, execute the command: \textbf{sudo systemctl status kestrel-advising.service}
+	\end{enumerate}
+	
+	
+\end{document}

@@ -43,12 +43,6 @@
             <summary>Writes to log file</summary>
             <param name="message">The error message to write</param>
         </member>
-        <member name="M:PlanGenerationAlgorithm.Node.AddArc(PlanGenerationAlgorithm.Node,System.Int32)">
-            <summary>
-            Create a new arc, connecting this Node to the Nod passed in the parameter
-            Also, it creates the inversed node in the passed node
-            </summary>
-        </member>
         <member name="M:PlanGenerationAlgorithm.Schedule.#ctor(Database_Object_Classes.Quarter)">
             <summary>
             constructor
@@ -109,7 +103,7 @@
         </member>
         <member name="M:PlanGenerationAlgorithm.Schedule.Shuffle``1(System.Collections.Generic.List{``0})">
             <summary>
-            shuffle the list of courses order
+            shuffle the list of courses order to increase efficiency
             </summary>
             <typeparam name="Course">data type course</typeparam>
             <param name="list">list of courses</param>

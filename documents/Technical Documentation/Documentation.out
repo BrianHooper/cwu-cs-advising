@@ -1,0 +1,25 @@
+\BOOKMARK [0][-]{chapter.1}{Overview}{}% 1
+\BOOKMARK [1][-]{section.1.1}{Problem}{chapter.1}% 2
+\BOOKMARK [1][-]{section.1.2}{Requirements}{chapter.1}% 3
+\BOOKMARK [0][-]{chapter.2}{Website}{}% 4
+\BOOKMARK [1][-]{section.2.1}{Overview}{chapter.2}% 5
+\BOOKMARK [0][-]{chapter.3}{Algorithm}{}% 6
+\BOOKMARK [1][-]{section.3.1}{Overview}{chapter.3}% 7
+\BOOKMARK [1][-]{section.3.2}{Functional Description}{chapter.3}% 8
+\BOOKMARK [0][-]{chapter.4}{Databases}{}% 9
+\BOOKMARK [1][-]{section.4.1}{MySql Database}{chapter.4}% 10
+\BOOKMARK [2][-]{subsection.4.1.1}{PlanInfo Type}{section.4.1}% 11
+\BOOKMARK [2][-]{subsection.4.1.2}{Credentials Type}{section.4.1}% 12
+\BOOKMARK [2][-]{subsection.4.1.3}{DatabaseObject Type}{section.4.1}% 13
+\BOOKMARK [2][-]{subsection.4.1.4}{CatalogRequirements Type}{section.4.1}% 14
+\BOOKMARK [2][-]{subsection.4.1.5}{DegreeRequirements Type}{section.4.1}% 15
+\BOOKMARK [2][-]{subsection.4.1.6}{Course Type}{section.4.1}% 16
+\BOOKMARK [2][-]{subsection.4.1.7}{Student Type}{section.4.1}% 17
+\BOOKMARK [1][-]{section.4.2}{Database Handler}{chapter.4}% 18
+\BOOKMARK [2][-]{subsection.4.2.1}{Database Command}{section.4.2}% 19
+\BOOKMARK [0][-]{chapter.5}{Testing}{}% 20
+\BOOKMARK [1][-]{section.5.1}{Algorithm}{chapter.5}% 21
+\BOOKMARK [2][-]{subsection.5.1.1}{StackOverflow Issues}{section.5.1}% 22
+\BOOKMARK [1][-]{section.5.2}{Database Handler}{chapter.5}% 23
+\BOOKMARK [2][-]{subsection.5.2.1}{Faulty Queries}{section.5.2}% 24
+\BOOKMARK [2][-]{subsection.5.2.2}{Storage of Data}{section.5.2}% 25

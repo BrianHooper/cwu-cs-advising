@@ -1,0 +1,15 @@
+[Unit]
+Description=CS advising website
+
+[Service]
+WorkingDirectory=/var/aspnetcore/publish
+ExecStart=/usr/bin/dotnet /var/aspnetcore/publish/CwuAdvising.dll
+Restart=always
+RestartSec=10
+SyslogIdentifier=cwu-advising
+User=www-data
+Environment=ASPNETCORE_ENVIRONMENT=Development
+Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
+
+[Install]
+WantedBy=multi-user.target

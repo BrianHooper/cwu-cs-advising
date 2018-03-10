@@ -1,0 +1,14 @@
+[Unit]
+Description=CS Advising Database Handler
+
+[Service]
+WorkingDirectory=/var/aspnetcore/publish
+ExecStart=/usr/bin/dotnet /var/aspnetcore/publish/Database_Handler.dll
+Restart=always
+RestartSec=10
+SyslogIdentifier=cwu-advising-dbh
+Environment=ASPNETCORE_ENVIRONMENT=Development
+Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
+
+[Install]
+WantedBy=multi-user.target

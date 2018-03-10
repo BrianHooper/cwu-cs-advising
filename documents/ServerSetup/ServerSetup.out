@@ -1,0 +1,8 @@
+\BOOKMARK [1][-]{section.1}{Overview}{}% 1
+\BOOKMARK [1][-]{section.2}{Requirements}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{Compiling}{section.2}% 3
+\BOOKMARK [1][-]{section.3}{Installation}{}% 4
+\BOOKMARK [2][-]{subsection.3.1}{Nginx}{section.3}% 5
+\BOOKMARK [3][-]{subsubsection.3.1.1}{Nginx Settings}{subsection.3.1}% 6
+\BOOKMARK [2][-]{subsection.3.2}{Website}{section.3}% 7
+\BOOKMARK [3][-]{subsubsection.3.2.1}{Creating the Service}{subsection.3.2}% 8
