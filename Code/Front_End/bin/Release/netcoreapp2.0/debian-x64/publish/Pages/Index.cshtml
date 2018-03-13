@@ -1,0 +1,92 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Advising";
+}
+
+@{ 
+    IndexModel.LoggedIn = false;
+    IndexModel.Administrator = false;
+    IndexModel.CurrentUser = "";
+}
+
+
+        <script>
+            var ShowLoginBox = true;
+
+            $(document).ready(function () {
+                $("#Userbox").hide();
+                $("#LoginBox").hide();
+
+
+                if (ShowLoginBox) {
+                    $("#LoginBox").show();
+                } else {
+                    $("#Userbox").show();
+                }
+            });
+
+        </script>
+
+        <div class="Flex CenterFlex">
+            <div style="font-size: 3em;">Computer Science Advising Tool</div>
+        </div>
+
+        <div class="Title">
+            @{
+            if (Program.Database.connected)
+            {
+                IndexModel.DatabaseConnectionMessage = "Database connection established";
+            }
+            else
+            {
+                IndexModel.DatabaseConnectionMessage = "Error establishing database connection.";
+            }
+            }
+            @IndexModel.DatabaseConnectionMessage <br />
+            @Program.DbError
+        </div>
+
+        <div class="Flex CenterFlex">
+            <div style="width: 50%">
+                Welcome to the Central Washington University Computer Science Advising tool! For instructions on how to use the advising tool, see the <a href="#">User Manual</a>, otherwise, please log in with your advising account.
+            </div>
+        </div>
+
+        <div class="Title" style="color: red;">
+            @IndexModel.LoginErrorMessage
+            @{ IndexModel.LoginErrorMessage = ""; }
+        </div>
+        <div id="CredentialsContainer" class="Flex CenterFlex">
+
+
+            <div id="Userbox" class="Border" style="padding: 20px;">
+                You are currently logged in as:<br />
+                Admin<br />
+                <a href="#">[ Logout ]</a>
+            </div>
+
+            <form method="post">
+                <div id="LoginBox" class="Border">
+                    <div class="Title">User Login: </div>
+                    <div class="Flex">
+                        <div class="LabelLeft"><label asp-for="Login.Username">Username</label></div>
+                        <div class="LabelRight"><input asp-for="Login.Username" /></div>
+                    </div>
+                    <div><span asp-validation-for="Login.Username" style="color: red;"></span></div>
+                    <div class="Flex">
+                        <div class="LabelLeft"><label asp-for="Login.Password">Password</label></div>
+                        <div class="LabelRight"><input type="password" asp-for="Login.Password"></div>
+                    </div>
+                    <div><span asp-validation-for="Login.Password" style="color: red;"></span></div>
+                    <button type="submit" class="BigButton">Login</button>
+                </div>
+            </form>
+        </div>
+
+
+
+
+
+
+

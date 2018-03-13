@@ -17,9 +17,11 @@ namespace CwuAdvising
         /// <summary>Set to true if the client connected to the database sucessfully</summary>
         public bool connected = false;
 
-        private readonly TcpClient tcpClient;
+        private TcpClient tcpClient;
 
         private readonly int tcpPort;
+
+        private readonly string ip;
 
         private readonly NetworkStream networkStream;
 
@@ -33,7 +35,7 @@ namespace CwuAdvising
             {
                 try
                 {
-                    string ip = "127.0.0.1";
+                    ip = "127.0.0.1";
                     tcpPort = 44765;
 
 
@@ -80,6 +82,26 @@ namespace CwuAdvising
 
             BinaryFormatter binaryFormatter = new BinaryFormatter();
 
+            if(!tcpClient.Connected)
+            {
+                try
+                {
+                    tcpClient.Close();
+
+                    tcpClient = new TcpClient();
+
+                    tcpClient.Connect(IPAddress.Parse(ip), tcpPort);
+                }
+                catch (SocketException e)
+                {
+                    WriteToLog("SendCommand: Database connection was lost and could not be reconnected. Msg: " + e.Message);
+                }
+                catch (Exception e)
+                {
+                    WriteToLog("SendCommand: Database connection was lost and could not be reconnected. Msg: " + e.Message);
+                }
+            }
+
             if (cmd.OperandType == OperandType.Course)
             {
                 WriteToLog("SendCommand: Course Department: " + ((Course)cmd.Operand).Department);
@@ -96,7 +118,7 @@ namespace CwuAdvising
             } // end try
             catch(Exception e)
             {
-                WriteToLog("Error sending database command to Database. Msg: {0} " + e.Message);
+                WriteToLog("Error sending database command to Database. Msg: " + e.Message);
             } // end catch
 
             memoryStream.Dispose();

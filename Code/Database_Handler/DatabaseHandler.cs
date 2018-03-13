@@ -139,10 +139,8 @@ namespace Database_Handler
         /// <param name="s_fileName">Path of the .ini file containing the configurations DBH should use.</param>
         public DatabaseHandler(string s_fileName)
         {
-            WriteToLog(" -- DBH Starting Constructor");
             var parser = new FileIniDataParser();
             IniData data = parser.ReadFile(s_fileName);
-            WriteToLog(" -- DBH Parser successfully opened and parsed ini file.");
 
             // Get MySQL database descriptors
             s_MYSQL_DB_NAME = data["MySql Connection"]["DB"];
@@ -183,8 +181,6 @@ namespace Database_Handler
             i_TCP_PORT = int.Parse(TCPPort);
 
             deadlocked = false;
-
-            WriteToLog(" -- DBH Imported settings.");
 
             ConnectToDB(ref pw);
             SetUp(false);
@@ -358,6 +354,29 @@ namespace Database_Handler
 
             for (; ; )
             {
+                // close old connections while waiting for new ones to arrive
+                while(!tcpListener.Pending())
+                {
+                    try
+                    {
+                        for(int i = 0; i < clients.Count; i++)
+                        {
+                            if (!clients[i].Connected)
+                            {
+                                clients[i].Close();
+                            } // end if
+                            if(tcpListener.Pending())
+                            {
+                                break;
+                            } // end if
+                        } // end for
+                    } // end try
+                    catch(Exception e)
+                    {
+                        WriteToLog(" -- DBH an exception occurred while checking old connections. Msg: " + e.Message);
+                    } // end catch
+                } // end while
+
                 TcpClient newClient = tcpListener.AcceptTcpClient();
 
                 if (newClient == null)
@@ -503,7 +522,6 @@ namespace Database_Handler
                         dbo = (Course)cmd.Operand;
                         Course temp = (Course)Retrieve(dbo.ID, 'C', cmd.IsShallow);
                         result = new DatabaseCommand(CommandType.Return, temp, OperandType.Course);
-                        //WriteToLog(" -- DBH retrieve returning the course: \n" + temp);
                         break;
                     case OperandType.Credentials:
                         cred = (Credentials)cmd.Operand;
@@ -662,7 +680,7 @@ namespace Database_Handler
             {
                 string s_pw = BitConverter.ToString(cred.Password_Hash);
                 s_pw = s_pw.Replace("-", string.Empty);
-                //WriteToLog(" -- DBH the hash which arrived is " + s_pw);
+
                 b_success = LoginAttempt(cred.UserName, s_pw);
             } // end try
             catch (ThreadAbortException e)
@@ -735,7 +753,6 @@ namespace Database_Handler
             {
                 MySqlLock.WaitOne();
                 string query = "SELECT * FROM " + s_MYSQL_DB_NAME + "." + s_CATALOGS_TABLE + ";";
-                //WriteToLog(" -- DBH Execute display catalogs query is:" + query);
 
                 MySqlCommand cmd = new MySqlCommand(query, DB_CONNECTION);
                 reader = cmd.ExecuteReader();
@@ -746,8 +763,6 @@ namespace Database_Handler
                 {
                     string s_catalog = reader.GetString(0);
 
-                    WriteToLog(" -- DBH found the catalog " + s_catalog + " in the catalog table.");
-
                     l_IDs.Add(s_catalog);
                 } // end while
 
@@ -756,7 +771,6 @@ namespace Database_Handler
 
                 foreach(string s in l_IDs)
                 {
-                    WriteToLog(" -- DBH Attempting to retrieve the catalog " + s);
                     catalogs.Add(RetrieveCatalog(s, b_shallow));
                 } // end foreach
             } // end try
@@ -849,8 +863,6 @@ namespace Database_Handler
                     string s_courseID   = reader.GetString(0),
                            s_courseName = reader.GetString(2),
                            s_department = reader.GetString(8);
-
-                    //WriteToLog(" -- DBH Retrieve all courses found " + s_courseID + " in the database.");
 
                     bool[] ba_offered = new bool[4] { reader.GetBoolean(3), reader.GetBoolean(4), reader.GetBoolean(5), reader.GetBoolean(6) };
 
@@ -988,7 +1000,7 @@ namespace Database_Handler
             } // end catch
             catch (Exception e)
             {
-                WriteToLog(" -- Serialisation of return command failed. Msg: " + e.Message);
+                WriteToLog(" -- DBH Serialisation of return command failed. Msg: " + e.Message);
                 return 1;
             } // end catch
 
@@ -1260,9 +1272,7 @@ namespace Database_Handler
                     case 'Y':
                         return RetrieveCatalog(s_ID, b_shallow);
                     case 'C':
-                        //WriteToLog(" -- DBH retrieving course " + s_ID);
                         Course temp = RetrieveCourse(s_ID, b_shallow, 0);
-                        //WriteToLog(" -- DBH retrieved the course:\n" + temp.ToString());
                         return temp;
                     case 'U':
                         return RetrieveUserCredentials(s_ID);
@@ -1460,11 +1470,8 @@ namespace Database_Handler
                 reader = cmd.ExecuteReader();
                 reader.Read();
 
-                WriteToLog(" -- DBH trying to retrieve catalog: " + s_ID);
-
                 if (reader.HasRows)
                 {
-                    WriteToLog(" -- DBH found catalog " + s_ID + " in database.");
                     uint ui_WP = reader.GetUInt32(1),
                          ui_numDegrees = reader.GetUInt32(2);
 
@@ -1502,8 +1509,6 @@ namespace Database_Handler
 
                     catalog = new CatalogRequirements(s_ID, requs);
                     catalog.WP = ui_WP;
-
-                    WriteToLog(" -- DBH the retrieved catalog is: " + catalog);
                 } // end if
                 else
                 {
@@ -1557,8 +1562,6 @@ namespace Database_Handler
 
             MySqlCommand cmd = GetCommand(s_ID, 'S', s_DEGREES_TABLE, s_DEGREES_KEY, "*");
 
-            WriteToLog(" -- DBH retrieving the degree: " + s_ID);
-
             try
             {
                 MySqlLock.WaitOne();
@@ -1569,11 +1572,8 @@ namespace Database_Handler
 
                 if (reader.HasRows)
                 {
-                    WriteToLog(" -- DBH degree was found.");
                     uint ui_WP = reader.GetUInt32(1),
                          ui_numCourses = reader.GetUInt32(4);
-
-                    WriteToLog(" -- DBH the degree " + s_ID + " contains " + ui_numCourses + " courses.");
 
                     string s_name = reader.GetString(2),
                            s_deparment = reader.GetString(3);
@@ -1582,11 +1582,7 @@ namespace Database_Handler
 
                     for(int i = 0; i < ui_numCourses; i++)
                     {
-                        WriteToLog(" -- DBH entering for loop for degree " + s_ID);
-                        WriteToLog(" -- DBH the number of available fields is: " + reader.FieldCount + "; Expected: " + (ui_numCourses + 5).ToString());
-
                         string crs = reader.GetString(i + 5);
-                        WriteToLog(" -- DBH the degree " + s_ID + " contains the course: " + crs);
                         l_courses.Add(crs);
                     } // end for
 
@@ -1595,14 +1591,12 @@ namespace Database_Handler
 
                     if (!b_shallow)
                     {
-                        WriteToLog(" -- DBH retrieving complete object for degree " + s_ID);
                         List<Course> requs = new List<Course>();
 
                         foreach (string s in l_courses)
                         {
                             try
                             {
-                                WriteToLog(" -- DBH retrieving course requirement " + s + " of degree " + s_ID);
                                 requs.Add(RetrieveCourse(s, b_shallow, ui_depth + 1));
                             } // end try
                             catch (ThreadAbortException e)
@@ -1621,12 +1615,10 @@ namespace Database_Handler
                         } // end foreach
 
                         degree = new DegreeRequirements(s_ID, s_name, s_deparment, requs);
-                        WriteToLog(" -- DBH completed retrieving the degree (complete) " + s_ID + " and found:\n" + degree.ToString());
                     } // end if
                     else
                     {
                         degree = new DegreeRequirements(s_ID, s_name, s_deparment, l_courses);
-                        WriteToLog(" -- DBH completed retrieving the degree (shallow) " + s_ID + " and found:\n" + degree.ToString());
                     } // end else
                 } // end if
                 else
@@ -1764,7 +1756,6 @@ namespace Database_Handler
         /// </remarks>
         private Course RetrieveCourse(string s_ID, bool b_shallow, uint ui_depth)
         {
-            //WriteToLog(" -- RetrieveCourse on " + s_ID);
             if (ui_depth == ui_MAX_RECURSION_DEPTH)
             {
                 throw new RecursionDepthException("Retrieving the course " + s_ID + " caused a recursion depth of " + ui_depth + " stopping to prevent infinite recursion.");
@@ -2127,8 +2118,6 @@ namespace Database_Handler
             {
                 MySqlCommand cmd = GetCommand(catalog.ID, 'S', s_CATALOGS_TABLE, s_CATALOGS_KEY, "*");
 
-                WriteToLog(" -- DBH received command to update the catalog " + catalog.ID);
-
                 MySqlLock.WaitOne();
 
                 MySqlDataReader reader = cmd.ExecuteReader();
@@ -2138,8 +2127,6 @@ namespace Database_Handler
 
                 if (reader.HasRows)
                 {
-                    WriteToLog(" -- DBH catalog " + catalog.ID + " was found. New contents: " + catalog.ToString());
-
                     uint ui_WP = reader.GetUInt32(1);
 
                     reader.Close();
@@ -2194,11 +2181,7 @@ namespace Database_Handler
                         } // end switch
                     } // end foreach
 
-                    if (!b_failure)
-                    {
-                        WriteToLog(" -- DBH successfully updated the catalog " + catalog.ID + ".");
-                    } // end if
-                    else
+                    if (b_failure)
                     {
                         WriteToLog(" -- DBH successfully updated the catalog " + catalog.ID + ", but there was an issue updating the degrees.");
                     } // end else b_failure
@@ -2233,14 +2216,10 @@ namespace Database_Handler
                         } // end switch
                     } // end foreach
 
-                    if (!b_failure)
+                    if (b_failure)
                     {
-                        WriteToLog(" -- DBH successfully created the catalog " + catalog.ID + ".");
+                        WriteToLog(" -- DBH successfully created the catalog " + catalog.ID + " but there was an issue creating a degree.");
                     } // end if
-                    else
-                    {
-                        WriteToLog(" -- DBH successfully created the catalog " + catalog.ID + ", but there was an issue creating the degrees.");
-                    } // end else b_failure
                 } // end else
             } // end try
             catch (ThreadAbortException e)
@@ -2286,7 +2265,6 @@ namespace Database_Handler
                     if (ui_COL_COUNT[3] < degree.ShallowRequirements.Count)
                     {
                         int k = degree.ShallowRequirements.Count - (int)ui_COL_COUNT[3]; // number of columns that must be added
-                        WriteToLog(" -- DBH adding " + k.ToString() + " columns to accomdate the degree.");
                         AddColumns(k, s_DEGREES_TABLE, "course_");
                     } // end if
 
@@ -2765,8 +2743,6 @@ namespace Database_Handler
             query += "VALUES (";
             query += s_values;
             query += ");";
-
-            WriteToLog(" -- DBH the query that was generated is: \n" + query);
 
             return query;
         } // end method GetSpecialInsertQuery
@@ -3266,12 +3242,10 @@ namespace Database_Handler
                     cmd.ExecuteNonQuery();
                     ui_COL_COUNT[index]++;
                 } // end for
-                WriteToLog(" -- DBH add columns successfully added " + k.ToString() + " columns to the " + s_table + " table. The table now has "
-                            + ui_COL_COUNT[index].ToString() + " columns.");
             } // end try
             catch (Exception e)
             {
-                WriteToLog(" -- DBH add columns failed. The attempt to add " + k.ToString() + " columns to the plan table failed. Msg: " + e.Message);
+                WriteToLog(" -- DBH add columns failed. The attempt to add " + k.ToString() + " columns to the " + s_table + " table failed. Msg: " + e.Message);
                 WriteToLog(" -- DBH add columns failed. " + (i - 1).ToString() + " columns were successfully added before failing.");
                 output = false;
             } // end catch
@@ -3304,10 +3278,6 @@ namespace Database_Handler
                     CleanUp();
                 } // end if
 
-                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // TODO: set large fields to null.
-
-
                 tcpListener = null;
                 DB_CONNECTION = null;
 
@@ -3317,22 +3287,12 @@ namespace Database_Handler
             } // end if
         } // end Dispose
 
-        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-        // ~DatabaseHandler() {
-        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-        //   Dispose(false);
-        // }
-
-        // This code added to correctly implement the disposable pattern.
         /// <summary>
         /// Disposes this object.
         /// </summary>
         public void Dispose()
         {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             Dispose(true);
-            // TODO: uncomment the following line if the finalizer is overridden above.
-            // GC.SuppressFinalize(this);
         } // end Dispose
         #endregion
 

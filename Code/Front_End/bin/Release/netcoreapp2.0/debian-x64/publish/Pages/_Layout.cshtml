@@ -1,0 +1,100 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Advising</title>
+
+    <link rel="stylesheet" href="~/css/Layout.css" />
+    <link rel="stylesheet" href="~/css/Generics.css" />
+    <script src="~/js/site.js"></script>
+    <script src="~/js/jquery.js"></script>
+	
+	<script src="~/lib/jquery/dist/jquery.js"></script>
+	<script src="~/js/site.js"></script>
+</head>
+<body>
+    <div id="InnerTopLogo"><img src="~/images/computer_science_logo.png" /></div>
+
+    <div id="TopSpacer">
+
+            <a href="http://www.cwu.edu" style="color: #000000;">CENTRAL WASHINGTON UNIVERSITY</a>
+
+    </div>
+    <div id="TopLogo">&nbsp;</div>
+    <script>
+        $(document).on("click", "#ChangePasswordLink", function () {
+            var ChangePwUser = $("#CurrentUser").text();
+            // Pass ajax to server
+            $.ajax({
+                type: "POST",
+                url: "/UserManagement?handler=ChangePassword",
+                data: ChangePwUser,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    if (response) {
+                        window.location.href = "ChangePassword";
+                    } else {
+                        alert("Failed to retrieve user");
+                        return false;
+                    }
+                },
+                failure: function (response) {
+                    alert("Failed to retrieve user");
+                    return false;
+                }
+            });
+        });
+    </script>
+
+
+    <div class="HorizontalBar">&nbsp;</div>
+    <div id="PageContainer">
+        @{
+            string LoginMessage = "";
+            string UserName = "";
+            string LogoutButton = "";
+            string PasswordButton = "";
+            bool ShowLogin = IndexModel.LoggedIn;
+            if(ShowLogin)
+            {
+                LoginMessage = "Logged in as: ";
+                UserName = IndexModel.CurrentUser;
+                LogoutButton = "[ Logout ]";
+                PasswordButton = "[ Change Password ]";
+            }
+        }
+        <div class="PageRow Flex">
+            <div class="WideFlex" id="Logout">@LoginMessage<span id="CurrentUser">@UserName</span> <a href="Index">@LogoutButton</a> <a href="#" id="ChangePasswordLink">@PasswordButton</a></div>
+            <div class="WideFlex" id="Navigation">
+                <span id="NavLinks">
+                    @{ 
+                        string AdminLinks = "";
+                        if (IndexModel.LoggedIn)
+                        {
+                            AdminLinks += "<a href=\"StudentAdvising\">Advising</a>";
+
+                            if (IndexModel.Administrator)
+                            {
+                                AdminLinks += " | <a href=\"ManageCourses\">Course Management</a> | <a href=\"ManageDegrees\">Degree Management</a> | <a href=\"UserManagement\">User Management</a>";
+                            }
+                        }
+                    }
+                    @Html.Raw(AdminLinks)
+                    
+                </span>
+            </div>
+        </div>
+        @RenderBody()
+    </div>
+    <div class="Flex CenterFlex">
+        <div style="width: 80%; text-align: right; color: #ffffff;">
+            Central Washington University | Department of Computer Science<br />
+            2017 - 2018 | Brian Hooper, Nick Rohde, Rico Adrian
+        </div>
+    </div>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

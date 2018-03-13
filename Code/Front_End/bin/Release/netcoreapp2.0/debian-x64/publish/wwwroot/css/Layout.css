@@ -1,0 +1,366 @@
+﻿@font-face {
+    font-family: 'Roboto';
+    src: url('Roboto-Light.eot');
+    src: url('Roboto-Light.eot?#iefix') format('embedded-opentype'), url('Roboto-Light.woff2') format('woff2'), url('Roboto-Light.woff') format('woff'), url('Roboto-Light.ttf') format('truetype'), url('Roboto-Light.svg#Roboto-Light') format('svg');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Roboto';
+    src: url('Roboto-Regular.eot');
+    src: url('Roboto-Regular.eot?#iefix') format('embedded-opentype'), url('Roboto-Regular.svg#Roboto-Regular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+#PageContainer {
+    margin: auto;
+    width: 85%;
+    min-width: 850px;
+    padding: 10px;
+    background-color: white;
+}
+
+
+#TopLogo {
+    height: 100px;
+    background: repeating-linear-gradient(135deg,#ffffff,#ffffff 1px,#DCDCE0 1px,#DCDCE0 6px);
+}
+
+#TopSpacer {
+    padding-left: 15px;
+    height: 30px;
+    line-height: 30px;
+    background-color: #ffffff;
+    color: #000000;
+    font-size: .75em;
+    font-family: Roboto;
+    vertical-align: middle;
+}
+
+#InnerTopLogo {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%);
+    background-color: white;
+    -webkit-box-shadow: 0 0 10px 30px rgba(255,255,255,1);
+    -moz-box-shadow: 0 0 10px 30px rgba(255,255,255,1);
+    box-shadow: 0 0 10px 30px rgba(255,255,255,1);
+}
+
+.HorizontalBar {
+    text-align: center;
+    border: 1px solid black;
+    background-color: #A70632;
+    height: 3px;
+    
+}
+
+#Navigation {
+    text-align: right;
+}
+
+.Border {
+    border: 1px solid black;
+}
+
+.PageRow {
+    padding: 10px;
+    margin: 10px;
+    /*max-width: 80%;*/
+    flex-wrap: wrap;
+}
+
+.Flex {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.MiddleFlex {
+    align-items: center;
+}
+
+.LabelLeft {
+    line-height: 30px;
+    vertical-align: middle;
+    width: 150px;
+    border: 1px solid black;
+    border-right: none;
+}
+
+.LabelRight {
+    line-height: 30px;
+    vertical-align: middle;
+    width: 250px;
+    border: 1px solid black;
+}
+
+.CenterFlex {
+    display: flex;
+    justify-content: center;
+}
+
+.WideFlex {
+    flex-grow: 1;
+}
+
+.Block {
+    display: inline-block;
+}
+
+.BigButton {
+    line-height: 30px;
+    width: 100%;
+    text-align: center;
+    vertical-align: middle;
+}
+
+#QuarterContainer {
+    max-width: 1000px;
+    flex-wrap: wrap;
+}
+
+.Quarter {
+    min-width: 200px;
+    max-width: 200px;
+    margin-bottom: 20px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.CourseSelection {
+    width: 80%;
+    height: 30px;
+}
+
+.DeleteCourse {
+    color: #000000;
+    margin-left: 5px;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid black;
+    background-color: #c8c8c8;
+    border-radius: 2px;
+    padding: 2px;
+    cursor: pointer;
+}
+
+.AddCourse {
+    color: #000000;
+    margin-left: 5px;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid black;
+    background-color: #c8c8c8;
+    border-radius: 2px;
+    padding: 2px;
+    cursor: pointer;
+}
+
+.Title {
+    text-align: center;
+    font-weight: bold;
+    font-size: large;
+}
+
+.DivButton {
+    text-align: center;
+    vertical-align: middle;
+    min-width: 175px;
+    padding: 10px;
+    margin: 5px;
+    border: 1px solid black;
+
+}
+
+.Element {
+    margin: 0;
+    border: 1px solid black;
+    line-height: 30px;
+    vertical-align: middle;
+}
+
+.ButtonElement {
+    text-align: center;
+    width: 30px;
+}
+
+.CourseNumberElement {
+    width: 80px;
+}
+
+.Row {
+    flex-wrap: nowrap;
+    margin-bottom: 0;
+    padding:0;
+    background-color: #ffffff;
+}
+
+.CourseElement {
+    width: 200px;
+}
+
+.ToggleElement {
+    text-align: center;
+    width: 30px;
+    cursor: pointer;
+}
+
+.WideToggleElement {
+    text-align: center;
+    width: 60px;
+    cursor: pointer;
+}
+
+.DeleteRow {
+    text-align: center;
+    width: 30px;
+    cursor: pointer;
+}
+
+.CourseNumberInput {
+    width: 50px;
+}
+
+.DeleteQuarter {
+    cursor: pointer;
+}
+
+.LockQuarter {
+    cursor: pointer;
+    opacity: 1.0;
+}
+
+.PrereqPopup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.5);
+    -webkit-filter: blur(5px);
+    -moz-filter: blur(5px);
+    -ms-filter: blur(5px);
+    filter: blur(5px);
+    overflow-y: scroll;
+}
+
+.PrereqPopubBox {
+    position: fixed;
+    width: 40%;
+    left: 30%;
+    top: 20%;
+    background-color: #ffffff;
+    
+}
+
+.PrereqBox {
+    display: flex;
+    max-width: 300px;
+    cursor: pointer;
+    flex-wrap: wrap;
+}
+
+.Prereq {
+    border: thin solid black;
+    padding: 2px;
+    margin-left: 2px;
+}
+
+#SearchBox {
+    width: 500px;
+}
+
+.RegularButton {
+    line-height: 30px;
+    text-align: center;
+    vertical-align: middle;
+    width: 150px; 
+    margin-top: 5px;
+}
+
+.DeletePrereq {
+    cursor: pointer;
+    padding: 2px;
+    border: thin solid black;
+    margin: 5px;
+    float: left;
+}
+
+.AddPrereq {
+    cursor: pointer;
+    padding: 2px;
+    border: thin solid black;
+    margin: 5px;
+    float: left;
+}
+
+.ClosePrereqs {
+    cursor: pointer;
+}
+
+.ListHeader {
+    text-align: center;
+    line-height: 30px;
+    font-weight: bold;
+}
+
+.AddCourseRequirement {
+    border: thin solid black;
+    padding: 5px;
+    margin: 5px;
+    cursor: pointer;
+}
+
+.DeleteCourseRequirement {
+    border: thin solid black;
+    padding: 5px;
+    margin: 5px;
+    cursor: pointer;
+}
+
+#RemainingRequirementsList {
+    list-style-type: none;
+}
+
+.ReqListElement {
+    padding: 4px;
+    margin-top: -1px;
+    margin-right: -1px;
+    float: left;
+    border: thin solid black;
+}
+
+.ReqTitle {
+    width: 130px;
+}
+
+.ReqCredits {
+    width: 50px;
+}
+
+.ReqQuarters {
+    width: 200px;
+}
+
+#LoadingBox {
+    position: fixed;
+    width: 40%;
+    height: 40%;
+    left: 30%;
+    top: 20%;
+    background-color: white;
+    border: 2px solid black;
+}
+
+.ChangePassword {
+    width: 100px;
+    cursor: pointer;
+    border: thin solid black;
+    text-align: center;
+    color: #0055bb;
+}
